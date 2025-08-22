@@ -1,0 +1,115 @@
+/* src/App.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: #3e8e41;
+}
+
+.btn-donate {
+  background-color: #ff6b6b;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-donate:hover {
+  background-color: #ff5252;
+}
+/* Additional dropdown styles for App.css */
+.dropdown > button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.dropdown.has-active > button {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+/* Page container for consistent padding */
+.page-container {
+  padding-top: 100px;
+}
+
+/* Mobile dropdown indicator */
+@media (max-width: 768px) {
+  .dropdown > button .fa-chevron-down,
+  .dropdown > button .fa-chevron-up {
+    display: none;
+  }
+  
+  .dropdown > button::after {
+    content: '+';
+    margin-left: auto;
+  }
+  
+  .dropdown.active > button::after {
+    content: '-';
+  }
+}
+.section {
+  padding: 60px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
