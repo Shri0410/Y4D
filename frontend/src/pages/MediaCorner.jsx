@@ -1,119 +1,69 @@
 // src/pages/MediaCorner.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const MediaCorner = () => {
   const [activeTab, setActiveTab] = useState('newsletters');
 
   const tabs = [
-    { id: 'newsletters', label: 'Newsletters' },
-    { id: 'stories', label: 'Stories of Empowerment' },
-    { id: 'events', label: 'Events' },
-    { id: 'blogs', label: 'Blogs' },
-    { id: 'documentaries', label: 'Documentaries' }
+    { id: 'newsletters', label: 'Newsletters', path: '/newsletters' },
+    { id: 'stories', label: 'Stories of Empowerment', path: '/stories' },
+    { id: 'events', label: 'Events', path: '/events' },
+    { id: 'blogs', label: 'Blogs', path: '/blogs' },
+    { id: 'documentaries', label: 'Documentaries', path: '/documentaries' }
   ];
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'newsletters':
-        return (
-          <div>
-            <h3>Newsletters</h3>
-            <div className="newsletter-grid">
-              {[1, 2, 3, 4].map(item => (
-                <div key={item} className="newsletter-card">
-                  <h4>Newsletter {item}</h4>
-                  <p>Quarterly updates and impact stories</p>
-                  <button className="btn">Download</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'stories':
-        return (
-          <div>
-            <h3>Stories of Empowerment</h3>
-            <div className="stories-grid">
-              {[1, 2, 3].map(item => (
-                <div key={item} className="story-card">
-                  <h4>Success Story {item}</h4>
-                  <p>Inspiring stories of change</p>
-                  <button className="btn">Read More</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'events':
-        return (
-          <div>
-            <h3>Events</h3>
-            <div className="events-grid">
-              {[1, 2, 3].map(item => (
-                <div key={item} className="event-card">
-                  <h4>Event {item}</h4>
-                  <p>Date: DD/MM/YYYY</p>
-                  <button className="btn">Learn More</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'blogs':
-        return (
-          <div>
-            <h3>Blogs</h3>
-            <div className="blogs-grid">
-              {[1, 2, 3, 4].map(item => (
-                <div key={item} className="blog-card">
-                  <h4>Blog Post {item}</h4>
-                  <p>Insights and updates from our work</p>
-                  <button className="btn">Read More</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'documentaries':
-        return (
-          <div>
-            <h3>Documentaries</h3>
-            <div className="documentaries-grid">
-              {[1, 2, 3].map(item => (
-                <div key={item} className="documentary-card">
-                  <img src={`/assets/doc-${item}.jpg`} alt={`Documentary ${item}`} />
-                  <h4>Documentary {item}</h4>
-                  <button className="btn">Watch Now</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="media-corner-page">
       <section className="section">
         <div className="container">
           <h2 className="section-title">Media Corner</h2>
+          <p className="section-description">
+            Explore our latest publications, stories, events, and media content.
+          </p>
           
           <div className="tabs">
             <div className="tab-headers">
               {tabs.map(tab => (
-                <button
+                <Link
                   key={tab.id}
-                  className={activeTab === tab.id ? 'active' : ''}
+                  to={tab.path}
+                  className={activeTab === tab.id ? 'tab-button active' : 'tab-button'}
                   onClick={() => setActiveTab(tab.id)}
                 >
                   {tab.label}
-                </button>
+                </Link>
               ))}
             </div>
+            
             <div className="tab-content">
-              {renderTabContent()}
+              <div className="media-overview">
+                <h3>Welcome to our Media Center</h3>
+                <p>
+                  Discover the latest updates, success stories, and insights from our work 
+                  across various communities. Click on any tab above to explore specific media types.
+                </p>
+                
+                <div className="media-highlights">
+                  <div className="highlight-card">
+                    <h4>Latest Newsletters</h4>
+                    <p>Stay updated with our quarterly reports and impact stories</p>
+                    <Link to="/newsletters" className="btn">View All</Link>
+                  </div>
+                  
+                  <div className="highlight-card">
+                    <h4>Inspiring Stories</h4>
+                    <p>Read about the lives we've transformed through our programs</p>
+                    <Link to="/stories" className="btn">Read Stories</Link>
+                  </div>
+                  
+                  <div className="highlight-card">
+                    <h4>Upcoming Events</h4>
+                    <p>Join us in our mission and participate in our events</p>
+                    <Link to="/events" className="btn">View Events</Link>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,9 +1,35 @@
 // src/pages/Home.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Counter from '../component/Counter';
+import { getMentors, getManagement, getReports } from '../services/api';
 
 const Home = () => {
+  const [teamCount, setTeamCount] = useState(0);
+  const [reportsCount, setReportsCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [mentorsData, managementData, reportsData] = await Promise.all([
+          getMentors(),
+          getManagement(),
+          getReports()
+        ]);
+        
+        setTeamCount(mentorsData.length + managementData.length);
+        setReportsCount(reportsData.length);
+      } catch (err) {
+        console.error('Error fetching home data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
+
   return (
     <div className="home">
       {/* About Y4D Section */}
@@ -44,6 +70,33 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Team and Reports Count Section */}
+      <section className="section">
+        <div className="container">
+          <h2 className="section-title">Our Impact</h2>
+          <div className="grid grid-2">
+            <div className="card text-center">
+              {!loading ? (
+                <Counter end={teamCount} suffix="+" duration={2} />
+              ) : (
+                <div className="loading-counter">...</div>
+              )}
+              <h3>Dedicated Team Members</h3>
+              <Link to="/our-team" className="btn">Meet Our Team</Link>
+            </div>
+            <div className="card text-center">
+              {!loading ? (
+                <Counter end={reportsCount} suffix="+" duration={2} />
+              ) : (
+                <div className="loading-counter">...</div>
+              )}
+              <h3>Completed Projects</h3>
+              <Link to="/our-work" className="btn">View Our Work</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Our Interventions Section */}
       <section className="section">
         <div className="container">
@@ -67,8 +120,32 @@ const Home = () => {
         </div>
       </section>
 
-      {/* SDGs Section */}
+      {/* Media Highlights Section */}
       <section className="section bg-light">
+        <div className="container">
+          <h2 className="section-title">Latest from Our Media Corner</h2>
+          <div className="grid grid-3">
+            <div className="card text-center">
+              <h3>Newsletters</h3>
+              <p>Stay updated with our latest activities and impact stories</p>
+              <Link to="/newsletters" className="btn">Read Now</Link>
+            </div>
+            <div className="card text-center">
+              <h3>Success Stories</h3>
+              <p>Inspiring stories of transformation from our communities</p>
+              <Link to="/stories" className="btn">Read Stories</Link>
+            </div>
+            <div className="card text-center">
+              <h3>Events</h3>
+              <p>Join us in our mission through various events and programs</p>
+              <Link to="/events" className="btn">View Events</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SDGs Section */}
+      <section className="section">
         <div className="container">
           <h2 className="section-title">Towards Achieving SDG's</h2>
           <div className="sdg-grid">
