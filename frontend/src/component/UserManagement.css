@@ -1,0 +1,101 @@
+.user-management {
+  padding: 1rem;
+}
+
+.user-management-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.create-user-form {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 5px;
+  margin-bottom: 2rem;
+}
+
+.create-user-form h3 {
+  margin-top: 0;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.users-table th,
+.users-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.users-table th {
+  background-color: #343a40;
+  color: white;
+  font-weight: 600;
+}
+
+.users-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.users-table select {
+  padding: 0.25rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn-logout {
+  padding: 0.5rem 1rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: #c82333;
+}
+
+/* Role-based styling */
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.role-super_admin { background: #dc3545; color: white; }
+.role-admin { background: #fd7e14; color: white; }
+.role-editor { background: #17a2b8; color: white; }
+.role-viewer { background: #6c757d; color: white; }
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.status-approved { background: #28a745; color: white; }
+.status-pending { background: #ffc107; color: black; }
+.status-rejected { background: #dc3545; color: white; }
+.status-suspended { background: #6c757d; color: white; }

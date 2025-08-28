@@ -2,26 +2,37 @@ import React, { useState } from 'react';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLogin }) => {
-  const [credentials, setCredentials] = useState({ 
-    username: '', 
-    password: '' 
-  });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
     
     try {
-      // In a real application, you would make an API call to authenticate
-      // For now, using simple client-side authentication
-      if (credentials.username === 'admin' && credentials.password === 'admin123') {
-        onLogin();
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        onLogin(data.user);
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError(data.error || 'Login failed');
       }
     } catch (err) {
-      setError('Login failed. Please try again.');
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +49,7 @@ const AdminLogin = ({ onLogin }) => {
               value={credentials.username}
               onChange={(e) => setCredentials({...credentials, username: e.target.value})}
               required
+              disabled={loading}
             />
           </div>
           <div className="form-group">
@@ -48,13 +60,18 @@ const AdminLogin = ({ onLogin }) => {
               value={credentials.password}
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
               required
+              disabled={loading}
             />
           </div>
           {error && <div className="error-message">{error}</div>}
-          <button type="submit" className="login-button">Login</button>
+          <button type="submit" disabled={loading} className="login-button">
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
         </form>
+        
         <div className="login-note">
-          <p>Default credentials: admin / admin123</p>
+          <p>Default super admin: admin / admin123</p>
+          <p>Contact administrator for account approval</p>
         </div>
       </div>
     </div>

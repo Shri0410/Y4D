@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import UserManagement from './UserManagement';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -10,6 +11,7 @@ const Dashboard = () => {
   const [careers, setCareers] = useState([]);
   const [media, setMedia] = useState({});
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Form states
   const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
@@ -23,6 +25,11 @@ const Dashboard = () => {
   const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
+    // Load user from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setCurrentUser(JSON.parse(userData));
+    }
     fetchData(activeTab);
   }, [activeTab]);
 
@@ -48,7 +55,7 @@ const Dashboard = () => {
           setCareers(response.data);
           break;
         case 'media':
-          // You might want to handle media types separately
+          // handle media types separately
           break;
         default:
           break;
@@ -60,11 +67,12 @@ const Dashboard = () => {
     setLoading(false);
   };
 
+  const canManageUsers = currentUser && ['super_admin', 'admin'].includes(currentUser.role);
+
   const handleImageChange = (e, setFormFunction) => {
     const file = e.target.files[0];
     setFormFunction(prev => ({ ...prev, image: file }));
     
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
@@ -79,7 +87,6 @@ const Dashboard = () => {
     try {
       let formData = new FormData();
       let endpoint = '';
-      let data = {};
 
       switch (type) {
         case 'reports':
@@ -210,6 +217,12 @@ const Dashboard = () => {
     setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
     setImagePreview(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/admin';
   };
 
   const renderForm = () => {
@@ -618,6 +631,12 @@ const Dashboard = () => {
     <div className="dashboard">
       <header className="dashboard-header">
         <h2>Admin Dashboard</h2>
+        {currentUser && (
+          <div className="user-info">
+            <span>Welcome, {currentUser.username} ({currentUser.role})</span>
+            <button onClick={handleLogout} className="btn-logout">Logout</button>
+          </div>
+        )}
       </header>
       
       <div className="dashboard-container">
@@ -638,12 +657,23 @@ const Dashboard = () => {
             <li className={activeTab === 'media' ? 'active' : ''}>
               <button onClick={() => setActiveTab('media')}>Media</button>
             </li>
+            {canManageUsers && (
+              <li className={activeTab === 'users' ? 'active' : ''}>
+                <button onClick={() => setActiveTab('users')}>User Management</button>
+              </li>
+            )}
           </ul>
         </nav>
         
         <main className="dashboard-content">
-          {renderForm()}
-          {renderContent()}
+          {activeTab === 'users' && canManageUsers ? (
+            <UserManagement />
+          ) : (
+            <>
+              {renderForm()}
+              {renderContent()}
+            </>
+          )}
         </main>
       </div>
     </div>
