@@ -106,7 +106,53 @@ CREATE TABLE IF NOT EXISTS documentaries (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role ENUM('super_admin', 'admin', 'editor', 'viewer') DEFAULT 'viewer',
+  status ENUM('pending', 'approved', 'rejected', 'suspended') DEFAULT 'pending',
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id)
+);
 
+CREATE TABLE IF NOT login_attempts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  success BOOLEAN DEFAULT FALSE,
+  attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  action VARCHAR(255) NOT NULL,
+  resource_type VARCHAR(100) NOT NULL,
+  resource_id INT,
+  details TEXT,
+  ip_address VARCHAR(45),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  username_attempted VARCHAR(255) NULL,
+  ip_address VARCHAR(100),
+  user_agent TEXT,
+  success BOOLEAN NOT NULL,
+  attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+-- Insert default super admin user (password: admin123)
+INSERT INTO users (username, email, password, role, status) VALUES 
+('superadmin', 'admin@y4d.org', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'super_admin', 'approved');
 -- Insert sample data
 INSERT INTO mentors (name, position, bio, image) VALUES
 ('John Doe', 'Senior Mentor', 'Experienced professional with 10+ years in the industry.', 'mentor1.jpg'),

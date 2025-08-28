@@ -39,21 +39,12 @@ router.use((error, req, res, next) => {
   res.status(500).json({ error: error.message });
 });
 
-// Get all mentors
-router.get('/', (req, res) => {
+// Get all mentors - Updated with promise syntax
+router.get('/', async (req, res) => {
   console.log('📖 Fetching all mentors from database');
   
-  const query = 'SELECT * FROM mentors ORDER BY name';
-  
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('❌ Database error fetching mentors:', err);
-      return res.status(500).json({ 
-        error: 'Failed to fetch mentors',
-        details: err.message,
-        sqlMessage: err.sqlMessage 
-      });
-    }
+  try {
+    const [results] = await db.query('SELECT * FROM mentors ORDER BY name');
     
     console.log(`✅ Found ${results.length} mentors`);
     
@@ -73,7 +64,14 @@ router.get('/', (req, res) => {
     });
     
     res.json(mentorsWithParsedSocialLinks);
-  });
+  } catch (err) {
+    console.error('❌ Database error fetching mentors:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch mentors',
+      details: err.message,
+      sqlMessage: err.sqlMessage 
+    });
+  }
 });
 
 // Get single mentor

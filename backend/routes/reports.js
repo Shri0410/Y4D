@@ -15,103 +15,82 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 });
 
 // Get all reports
-router.get('/', (req, res) => {
-  const query = 'SELECT * FROM reports ORDER BY created_at DESC';
-  
-  db.query(query, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(results);
-  });
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM reports ORDER BY created_at DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Get single report
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const query = 'SELECT * FROM reports WHERE id = ?';
-  
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Report not found' });
-    }
-    res.json(results[0]);
-  });
+router.get('/:id', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM reports WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Create report
-router.post('/', upload.single('image'), (req, res) => {
-  const { title, description, content } = req.body;
-  const image = req.file ? req.file.filename : null;
-  
-  const query = 'INSERT INTO reports (title, description, content, image) VALUES (?, ?, ?, ?)';
-  
-  db.query(query, [title, description, content, image], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ 
-      id: results.insertId, 
+router.post('/', upload.single('image'), async (req, res) => {
+  try {
+    const { title, description, content } = req.body;
+    const image = req.file ? req.file.filename : null;
+    const [result] = await db.query(
+      'INSERT INTO reports (title, description, content, image) VALUES (?, ?, ?, ?)',
+      [title, description, content, image]
+    );
+    res.json({
+      id: result.insertId,
       message: 'Report created successfully',
-      report: { id: results.insertId, title, description, content, image }
+      report: { id: result.insertId, title, description, content, image }
     });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Update report
-router.put('/:id', upload.single('image'), (req, res) => {
-  const { id } = req.params;
-  const { title, description, content } = req.body;
-  
-  // Check if report exists
-  db.query('SELECT * FROM reports WHERE id = ?', [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Report not found' });
-    }
-    
-    let image = results[0].image; // Keep existing image if not updated
-    if (req.file) {
-      image = req.file.filename;
-    }
-    
-    const query = 'UPDATE reports SET title = ?, description = ?, content = ?, image = ? WHERE id = ?';
-    
-    db.query(query, [title, description, content, image, id], (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ message: 'Report updated successfully' });
-    });
-  });
+router.put('/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, content } = req.body;
+
+    const [rows] = await db.query('SELECT * FROM reports WHERE id = ?', [id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Report not found' });
+
+    let image = rows[0].image;
+    if (req.file) image = req.file.filename;
+
+    await db.query(
+      'UPDATE reports SET title = ?, description = ?, content = ?, image = ? WHERE id = ?',
+      [title, description, content, image, id]
+    );
+    res.json({ message: 'Report updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Delete report
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  
-  const query = 'DELETE FROM reports WHERE id = ?';
-  
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: 'Report not found' });
-    }
+router.delete('/:id', async (req, res) => {
+  try {
+    const [result] = await db.query('DELETE FROM reports WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Report not found' });
     res.json({ message: 'Report deleted successfully' });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
