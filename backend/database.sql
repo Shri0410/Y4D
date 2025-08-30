@@ -150,6 +150,273 @@ CREATE TABLE IF NOT EXISTS login_attempts (
   attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- New registration requests table
+CREATE TABLE registration_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  mobile_number VARCHAR(20) NOT NULL,
+  address TEXT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Add mobile_number and address to users table
+ALTER TABLE users 
+ADD COLUMN mobile_number VARCHAR(20) AFTER email,
+ADD COLUMN address TEXT AFTER mobile_number;
+
+-- Add notification system table
+CREATE TABLE notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(50) DEFAULT 'info',
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+DROP TABLE IF EXISTS newsletters, stories, blogs, events, documentaries;
+
+CREATE TABLE newsletters (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  file_path VARCHAR(500),
+  published_date DATE NOT NULL,
+  is_published BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE stories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content LONGTEXT NOT NULL,
+  image VARCHAR(500),
+  author VARCHAR(255),
+  published_date DATE NOT NULL,
+  is_published BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE events (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  date DATE NOT NULL,
+  time TIME,
+  location VARCHAR(500),
+  image VARCHAR(500),
+  published_date DATE NOT NULL,
+  is_published BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE blogs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  content LONGTEXT NOT NULL,
+  image VARCHAR(500),
+  author VARCHAR(255),
+  tags JSON,
+  published_date DATE NOT NULL,
+  is_published BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE TABLE documentaries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  video_url VARCHAR(500) NOT NULL,
+  thumbnail VARCHAR(500),
+  duration VARCHAR(50),
+  published_date DATE NOT NULL,
+  is_published BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+DROP TABLE IF EXISTS registration_requests, notifications;
+CREATE TABLE IF NOT EXISTS registration_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  mobile_number VARCHAR(20) NOT NULL,
+  address TEXT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Create notifications table if it doesn't exist
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  title VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  type VARCHAR(50) DEFAULT 'info',
+  is_read BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE our_work_sections (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  category ENUM('quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development') NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  created_by INT,
+  updated_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id),
+  FOREIGN KEY (updated_by) REFERENCES users(id)
+);
+-- Update the our_work_sections table to store multiple items
+CREATE TABLE our_work_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  section_category ENUM('quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development') NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_by INT,
+  updated_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id),
+  FOREIGN KEY (updated_by) REFERENCES users(id),
+  INDEX (section_category, is_active, display_order)
+);
+-- Quality Education Table
+CREATE TABLE quality_education (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Livelihood Table
+CREATE TABLE livelihood (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Healthcare Table
+CREATE TABLE healthcare (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Environment Sustainability Table
+CREATE TABLE environment_sustainability (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Integrated Development Program Table
+CREATE TABLE integrated_development (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content LONGTEXT,
+  image_url VARCHAR(500),
+  video_url VARCHAR(500),
+  additional_images JSON,
+  meta_title VARCHAR(255),
+  meta_description TEXT,
+  meta_keywords VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+-- Insert sample data for each section
+INSERT INTO our_work_items (section_category, title, description, content, is_active, display_order) VALUES
+('quality_education', 'School Development Program', 'Building and renovating schools in rural areas', 'Detailed content about school development...', true, 1),
+('quality_education', 'Digital Literacy Initiative', 'Teaching digital skills to underprivileged children', 'Content about digital literacy program...', true, 2),
+('livelihood', 'Vocational Training Center', 'Skill development for unemployed youth', 'Content about vocational training...', true, 1),
+('livelihood', 'Micro-Enterprise Support', 'Funding and mentoring for small businesses', 'Content about micro-enterprise support...', true, 2),
+('healthcare', 'Mobile Health Clinic', 'Healthcare services in remote villages', 'Content about mobile health clinics...', true, 1),
+('healthcare', 'Maternal Health Program', 'Support for pregnant women and new mothers', 'Content about maternal health...', true, 2),
+('environment_sustainability', 'Tree Plantation Drive', 'Afforestation and environmental conservation', 'Content about tree plantation...', true, 1),
+('environment_sustainability', 'Waste Management Initiative', 'Recycling and waste reduction programs', 'Content about waste management...', true, 2),
+('integrated_development', 'Community Development Program', 'Holistic development of rural communities', 'Content about community development...', true, 1),
+('integrated_development', 'Disaster Relief Operations', 'Emergency response and rehabilitation', 'Content about disaster relief...', true, 2);
+
+-- Insert initial data for the 5 categories
+INSERT INTO our_work_sections (category, title, description, is_active) VALUES
+('quality_education', 'Quality Education', 'Providing quality education for all', true),
+('livelihood', 'Livelihood', 'Creating sustainable livelihood opportunities', true),
+('healthcare', 'Healthcare', 'Improving healthcare access and quality', true),
+('environment_sustainability', 'Environment Sustainability', 'Promoting environmental conservation', true),
+('integrated_development', 'Integrated Development Program (IDP)', 'Comprehensive development programs', true);
+
+
 -- Insert default super admin user (password: admin123)
 INSERT INTO users (username, email, password, role, status) VALUES 
 ('superadmin', 'admin@y4d.org', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'super_admin', 'approved');

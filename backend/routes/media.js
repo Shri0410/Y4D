@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const db = require('../config/database');
+const fs = require('fs').promises;
 
 const router = express.Router();
 
@@ -9,223 +10,571 @@ const router = express.Router();
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const type = req.params.type;
-    cb(null, `uploads/media/${type}/`);
+    const uploadPath = `uploads/media/${type}/`;
+    
+    // Create directory if it doesn't exist
+    fs.mkdir(uploadPath, { recursive: true })
+      .then(() => cb(null, uploadPath))
+      .catch(err => cb(err));
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
 
+// Use .any() to accept any field name
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
-});
+  limits: { fileSize: 50 * 1024 * 1024 }
+}).any();
 
-// Get all items for a specific media type
-router.get('/:type', (req, res) => {
+// Media type configuration
+const mediaTables = {
+  newsletters: {
+    fields: ['title', 'description', 'file_path', 'published_date', 'is_published']
+  },
+  stories: {
+    fields: ['title', 'content', 'image', 'author', 'published_date', 'is_published']
+  },
+  events: {
+    fields: ['title', 'description', 'date', 'time', 'location', 'image', 'published_date', 'is_published']
+  },
+  blogs: {
+    fields: ['title', 'content', 'image', 'author', 'tags', 'published_date', 'is_published']
+  },
+  documentaries: {
+    fields: ['title', 'description', 'video_url', 'thumbnail', 'duration', 'published_date', 'is_published']
+  }
+};
+
+// Helper function to validate media type
+const isValidMediaType = (type) => {
+  return mediaTables.hasOwnProperty(type);
+};
+
+// Get all published items for a specific media type (for frontend)
+router.get('/published/:type', async (req, res) => {
   const { type } = req.params;
-  const validTypes = ['newsletters', 'stories', 'events', 'blogs', 'documentaries'];
   
-  if (!validTypes.includes(type)) {
+  if (!isValidMediaType(type)) {
     return res.status(400).json({ error: 'Invalid media type' });
   }
-  
-  const query = `SELECT * FROM ${type} ORDER BY created_at DESC`;
-  
-  db.query(query, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+
+  try {
+    const query = `SELECT * FROM ${type} WHERE is_published = TRUE ORDER BY created_at DESC`;
+    const [results] = await db.query(query);
     res.json(results);
-  });
-});
-
-// Get single item for a specific media type
-router.get('/:type/:id', (req, res) => {
-  const { type, id } = req.params;
-  const validTypes = ['newsletters', 'stories', 'events', 'blogs', 'documentaries'];
-  
-  if (!validTypes.includes(type)) {
-    return res.status(400).json({ error: 'Invalid media type' });
-  }
-  
-  const query = `SELECT * FROM ${type} WHERE id = ?`;
-  
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.length === 0) {
-      return res.status(404).json({ error: 'Item not found' });
-    }
-    res.json(results[0]);
-  });
-});
-
-// Create item for a specific media type
-router.post('/:type', upload.single('file'), (req, res) => {
-  const { type } = req.params;
-  const validTypes = ['newsletters', 'stories', 'events', 'blogs', 'documentaries'];
-  
-  if (!validTypes.includes(type)) {
-    return res.status(400).json({ error: 'Invalid media type' });
-  }
-  
-  let query, values;
-  
-  switch (type) {
-    case 'newsletters':
-      const { title, content, published_date } = req.body;
-      const file_path = req.file ? req.file.filename : null;
-      query = 'INSERT INTO newsletters (title, content, file_path, published_date) VALUES (?, ?, ?, ?)';
-      values = [title, content, file_path, published_date];
-      break;
-      
-    case 'stories':
-      const { title: storyTitle, content: storyContent, author, published_date: storyDate } = req.body;
-      const image = req.file ? req.file.filename : null;
-      query = 'INSERT INTO stories (title, content, image, author, published_date) VALUES (?, ?, ?, ?, ?)';
-      values = [storyTitle, storyContent, image, author, storyDate];
-      break;
-      
-    case 'events':
-      const { title: eventTitle, description, date, time, location } = req.body;
-      const eventImage = req.file ? req.file.filename : null;
-      query = 'INSERT INTO events (title, description, date, time, location, image) VALUES (?, ?, ?, ?, ?, ?)';
-      values = [eventTitle, description, date, time, location, eventImage];
-      break;
-      
-    case 'blogs':
-      const { title: blogTitle, content: blogContent, author: blogAuthor, tags, published_date: blogDate } = req.body;
-      const blogImage = req.file ? req.file.filename : null;
-      const tagsJson = tags ? JSON.parse(tags) : null;
-      query = 'INSERT INTO blogs (title, content, author, image, tags, published_date) VALUES (?, ?, ?, ?, ?, ?)';
-      values = [blogTitle, blogContent, blogAuthor, blogImage, JSON.stringify(tagsJson), blogDate];
-      break;
-      
-    case 'documentaries':
-      const { title: docTitle, description: docDescription, video_url, duration, published_date: docDate } = req.body;
-      const thumbnail = req.file ? req.file.filename : null;
-      query = 'INSERT INTO documentaries (title, description, video_url, thumbnail, duration, published_date) VALUES (?, ?, ?, ?, ?, ?)';
-      values = [docTitle, docDescription, video_url, thumbnail, duration, docDate];
-      break;
-  }
-  
-  db.query(query, values, (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ 
-      id: results.insertId, 
-      message: `${type.slice(0, -1)} created successfully`
+  } catch (error) {
+    console.error(`Error fetching published ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch ${type}`,
+      details: error.message 
     });
-  });
+  }
 });
 
-// Update item for a specific media type
-router.put('/:type/:id', upload.single('file'), (req, res) => {
-  const { type, id } = req.params;
-  const validTypes = ['newsletters', 'stories', 'events', 'blogs', 'documentaries'];
+// Get all items for a specific media type (for admin)
+router.get('/:type', async (req, res) => {
+  const { type } = req.params;
   
-  if (!validTypes.includes(type)) {
+  if (!isValidMediaType(type)) {
     return res.status(400).json({ error: 'Invalid media type' });
   }
+
+  try {
+    const query = `SELECT * FROM ${type} ORDER BY created_at DESC`;
+    const [results] = await db.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(`Error fetching ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch ${type}`,
+      details: error.message 
+    });
+  }
+});
+
+// Get single item
+router.get('/:type/:id', async (req, res) => {
+  const { type, id } = req.params;
   
-  // Check if item exists
-  const checkQuery = `SELECT * FROM ${type} WHERE id = ?`;
-  db.query(checkQuery, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    const query = `SELECT * FROM ${type} WHERE id = ?`;
+    const [results] = await db.query(query, [id]);
+    
     if (results.length === 0) {
       return res.status(404).json({ error: 'Item not found' });
     }
     
-    let query, values;
-    const existingItem = results[0];
-    
+    res.json(results[0]);
+  } catch (error) {
+    console.error(`Error fetching ${type} item:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch ${type} item`,
+      details: error.message 
+    });
+  }
+});
+
+// Create item
+router.post('/:type', upload, async (req, res) => {
+  const { type } = req.params;
+  
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    console.log('Uploaded files:', req.files);
+    console.log('Request body:', req.body);
+
+    let fields = [];
+    let values = [];
+    let placeholders = [];
+
+    // Get files from request
+    const files = req.files || [];
+    const imageFile = files.find(file => file.fieldname === 'image');
+    const fileFile = files.find(file => file.fieldname === 'file');
+
     switch (type) {
       case 'newsletters':
-        const { title, content, published_date } = req.body;
-        let file_path = existingItem.file_path;
-        if (req.file) {
-          file_path = req.file.filename;
-        }
-        query = 'UPDATE newsletters SET title = ?, content = ?, file_path = ?, published_date = ? WHERE id = ?';
-        values = [title, content, file_path, published_date, id];
-        break;
+        const { title, description, published_date, publish_type = 'immediate', scheduled_date } = req.body;
+        const file_path = fileFile ? fileFile.filename : null;
         
+        let newsletterPublishedDate = published_date;
+        let newsletterIsPublished = publish_type === 'immediate';
+        
+        if (publish_type === 'schedule' && scheduled_date) {
+          newsletterPublishedDate = scheduled_date;
+          newsletterIsPublished = false;
+        }
+        
+        fields = ['title', 'description', 'file_path', 'published_date', 'is_published'];
+        values = [title, description, file_path, newsletterPublishedDate, newsletterIsPublished];
+        break;
+
       case 'stories':
-        const { title: storyTitle, content: storyContent, author, published_date: storyDate } = req.body;
-        let image = existingItem.image;
-        if (req.file) {
-          image = req.file.filename;
-        }
-        query = 'UPDATE stories SET title = ?, content = ?, image = ?, author = ?, published_date = ? WHERE id = ?';
-        values = [storyTitle, storyContent, image, author, storyDate, id];
-        break;
+        const { title: storyTitle, content, author, published_date: storyDate, publish_type: storyPublishType = 'immediate', scheduled_date: storyScheduledDate } = req.body;
+        const image = imageFile ? imageFile.filename : null;
         
+        let storyPublishedDate = storyDate;
+        let storyIsPublished = storyPublishType === 'immediate';
+        
+        if (storyPublishType === 'schedule' && storyScheduledDate) {
+          storyPublishedDate = storyScheduledDate;
+          storyIsPublished = false;
+        }
+        
+        fields = ['title', 'content', 'image', 'author', 'published_date', 'is_published'];
+        values = [storyTitle, content, image, author, storyPublishedDate, storyIsPublished];
+        break;
+
       case 'events':
-        const { title: eventTitle, description, date, time, location } = req.body;
-        let eventImage = existingItem.image;
-        if (req.file) {
-          eventImage = req.file.filename;
-        }
-        query = 'UPDATE events SET title = ?, description = ?, date = ?, time = ?, location = ?, image = ? WHERE id = ?';
-        values = [eventTitle, description, date, time, location, eventImage, id];
-        break;
+        const { title: eventTitle, description: eventDesc, date, time, location, publish_type: eventPublishType = 'immediate', scheduled_date: eventScheduledDate } = req.body;
+        const eventImage = imageFile ? imageFile.filename : null;
         
+        let eventIsPublished = eventPublishType === 'immediate';
+        let eventPublishedDate = new Date().toISOString().split('T')[0];
+        
+        if (eventPublishType === 'schedule' && eventScheduledDate) {
+          eventPublishedDate = eventScheduledDate;
+          eventIsPublished = false;
+        }
+        
+        fields = ['title', 'description', 'date', 'time', 'location', 'image', 'published_date', 'is_published'];
+        values = [eventTitle, eventDesc, date, time, location, eventImage, eventPublishedDate, eventIsPublished];
+        break;
+
       case 'blogs':
-        const { title: blogTitle, content: blogContent, author: blogAuthor, tags, published_date: blogDate } = req.body;
-        let blogImage = existingItem.image;
-        if (req.file) {
-          blogImage = req.file.filename;
-        }
-        const tagsJson = tags ? JSON.parse(tags) : existingItem.tags;
-        query = 'UPDATE blogs SET title = ?, content = ?, author = ?, image = ?, tags = ?, published_date = ? WHERE id = ?';
-        values = [blogTitle, blogContent, blogAuthor, blogImage, JSON.stringify(tagsJson), blogDate, id];
-        break;
+        const { title: blogTitle, content: blogContent, author: blogAuthor, tags, published_date: blogDate, publish_type: blogPublishType = 'immediate', scheduled_date: blogScheduledDate } = req.body;
+        const blogImage = imageFile ? imageFile.filename : null;
         
-      case 'documentaries':
-        const { title: docTitle, description: docDescription, video_url, duration, published_date: docDate } = req.body;
-        let thumbnail = existingItem.thumbnail;
-        if (req.file) {
-          thumbnail = req.file.filename;
+        // Handle tags parsing safely
+        let tagsJson = [];
+        if (tags) {
+          try {
+            tagsJson = typeof tags === 'string' ? JSON.parse(tags) : tags;
+            if (!Array.isArray(tagsJson)) {
+              tagsJson = [tagsJson];
+            }
+          } catch (error) {
+            console.warn('Error parsing tags, using empty array:', error);
+            tagsJson = [];
+          }
         }
-        query = 'UPDATE documentaries SET title = ?, description = ?, video_url = ?, thumbnail = ?, duration = ?, published_date = ? WHERE id = ?';
-        values = [docTitle, docDescription, video_url, thumbnail, duration, docDate, id];
+        
+        let blogPublishedDate = blogDate;
+        let blogIsPublished = blogPublishType === 'immediate';
+        
+        if (blogPublishType === 'schedule' && blogScheduledDate) {
+          blogPublishedDate = blogScheduledDate;
+          blogIsPublished = false;
+        }
+        
+        fields = ['title', 'content', 'image', 'author', 'tags', 'published_date', 'is_published'];
+        values = [blogTitle, blogContent, blogImage, blogAuthor, JSON.stringify(tagsJson), blogPublishedDate, blogIsPublished];
         break;
+
+      case 'documentaries':
+        const { title: docTitle, description: docDesc, video_url, duration, published_date: docDate, publish_type: docPublishType = 'immediate', scheduled_date: docScheduledDate } = req.body;
+        const thumbnail = imageFile ? imageFile.filename : null;
+        
+        let docPublishedDate = docDate;
+        let docIsPublished = docPublishType === 'immediate';
+        
+        if (docPublishType === 'schedule' && docScheduledDate) {
+          docPublishedDate = docScheduledDate;
+          docIsPublished = false;
+        }
+        
+        fields = ['title', 'description', 'video_url', 'thumbnail', 'duration', 'published_date', 'is_published'];
+        values = [docTitle, docDesc, video_url, thumbnail, duration, docPublishedDate, docIsPublished];
+        break;
+    }
+
+    placeholders = fields.map(() => '?').join(', ');
+    const query = `INSERT INTO ${type} (${fields.join(', ')}) VALUES (${placeholders})`;
+    
+    const [result] = await db.query(query, values);
+    
+    res.json({
+      id: result.insertId,
+      message: `${type.slice(0, -1)} created successfully`,
+      is_published: values[values.length - 1]
+    });
+  } catch (error) {
+    console.error(`Error creating ${type}:`, error);
+    
+    // Clean up uploaded files if there was an error
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (unlinkError) {
+          console.error('Error cleaning up file:', unlinkError);
+        }
+      }
     }
     
-    db.query(query, values, (err, results) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ message: `${type.slice(0, -1)} updated successfully` });
+    res.status(500).json({ 
+      error: `Failed to create ${type}`,
+      details: error.message,
+      sqlMessage: error.sqlMessage 
     });
-  });
+  }
 });
 
-// Delete item for a specific media type
-router.delete('/:type/:id', (req, res) => {
+// Update item
+router.put('/:type/:id', upload, async (req, res) => {
   const { type, id } = req.params;
-  const validTypes = ['newsletters', 'stories', 'events', 'blogs', 'documentaries'];
   
-  if (!validTypes.includes(type)) {
+  if (!isValidMediaType(type)) {
     return res.status(400).json({ error: 'Invalid media type' });
   }
-  
-  const query = `DELETE FROM ${type} WHERE id = ?`;
-  
-  db.query(query, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    if (results.affectedRows === 0) {
+
+  try {
+    // Get existing item first
+    const [existingItems] = await db.query(`SELECT * FROM ${type} WHERE id = ?`, [id]);
+    
+    if (existingItems.length === 0) {
       return res.status(404).json({ error: 'Item not found' });
     }
+
+    const existingItem = existingItems[0];
+    let updates = [];
+    let values = [];
+
+    // Get files from request
+    const files = req.files || [];
+    const imageFile = files.find(file => file.fieldname === 'image');
+    const fileFile = files.find(file => file.fieldname === 'file');
+
+    switch (type) {
+      case 'newsletters':
+        const { title, description, published_date, publish_type, scheduled_date, is_published } = req.body;
+        let file_path = existingItem.file_path;
+        if (fileFile) file_path = fileFile.filename;
+        
+        let finalIsPublished = is_published;
+        if (publish_type === 'schedule' && scheduled_date) {
+          finalIsPublished = false;
+        } else if (publish_type === 'immediate') {
+          finalIsPublished = true;
+        }
+        
+        updates = ['title = ?', 'description = ?', 'file_path = ?', 'published_date = ?', 'is_published = ?'];
+        values = [title, description, file_path, published_date, finalIsPublished, id];
+        break;
+
+      case 'stories':
+        const { title: storyTitle, content, author, published_date: storyDate, publish_type: storyPublishType, scheduled_date: storyScheduledDate, is_published: storyIsPublished } = req.body;
+        let storyImage = existingItem.image;
+        if (imageFile) storyImage = imageFile.filename;
+        
+        let finalStoryPublished = storyIsPublished;
+        if (storyPublishType === 'schedule' && storyScheduledDate) {
+          finalStoryPublished = false;
+        } else if (storyPublishType === 'immediate') {
+          finalStoryPublished = true;
+        }
+        
+        updates = ['title = ?', 'content = ?', 'image = ?', 'author = ?', 'published_date = ?', 'is_published = ?'];
+        values = [storyTitle, content, storyImage, author, storyDate, finalStoryPublished, id];
+        break;
+
+      case 'events':
+        const { title: eventTitle, description: eventDesc, date, time, location, publish_type: eventPublishType, scheduled_date: eventScheduledDate, is_published: eventIsPublished } = req.body;
+        let eventImage = existingItem.image;
+        if (imageFile) eventImage = imageFile.filename;
+        
+        let finalEventPublished = eventIsPublished;
+        if (eventPublishType === 'schedule' && eventScheduledDate) {
+          finalEventPublished = false;
+        } else if (eventPublishType === 'immediate') {
+          finalEventPublished = true;
+        }
+        
+        updates = ['title = ?', 'description = ?', 'date = ?', 'time = ?', 'location = ?', 'image = ?', 'published_date = ?', 'is_published = ?'];
+        values = [eventTitle, eventDesc, date, time, location, eventImage, existingItem.published_date, finalEventPublished, id];
+        break;
+
+      case 'blogs':
+        const { title: blogTitle, content: blogContent, author: blogAuthor, tags, published_date: blogDate, publish_type: blogPublishType, scheduled_date: blogScheduledDate, is_published: blogIsPublished } = req.body;
+        let blogImage = existingItem.image;
+        if (imageFile) blogImage = imageFile.filename;
+        
+        // Handle tags parsing safely
+        let tagsJson = existingItem.tags;
+        if (tags) {
+          try {
+            tagsJson = typeof tags === 'string' ? JSON.parse(tags) : tags;
+            if (!Array.isArray(tagsJson)) {
+              tagsJson = [tagsJson];
+            }
+          } catch (error) {
+            console.warn('Error parsing tags, keeping existing:', error);
+          }
+        }
+        
+        let finalBlogPublished = blogIsPublished;
+        if (blogPublishType === 'schedule' && blogScheduledDate) {
+          finalBlogPublished = false;
+        } else if (blogPublishType === 'immediate') {
+          finalBlogPublished = true;
+        }
+        
+        updates = ['title = ?', 'content = ?', 'image = ?', 'author = ?', 'tags = ?', 'published_date = ?', 'is_published = ?'];
+        values = [blogTitle, blogContent, blogImage, blogAuthor, JSON.stringify(tagsJson), blogDate, finalBlogPublished, id];
+        break;
+
+      case 'documentaries':
+        const { title: docTitle, description: docDesc, video_url, duration, published_date: docDate, publish_type: docPublishType, scheduled_date: docScheduledDate, is_published: docIsPublished } = req.body;
+        let thumbnail = existingItem.thumbnail;
+        if (imageFile) thumbnail = imageFile.filename;
+        
+        let finalDocPublished = docIsPublished;
+        if (docPublishType === 'schedule' && docScheduledDate) {
+          finalDocPublished = false;
+        } else if (docPublishType === 'immediate') {
+          finalDocPublished = true;
+        }
+        
+        updates = ['title = ?', 'description = ?', 'video_url = ?', 'thumbnail = ?', 'duration = ?', 'published_date = ?', 'is_published = ?'];
+        values = [docTitle, docDesc, video_url, thumbnail, duration, docDate, finalDocPublished, id];
+        break;
+    }
+
+    const query = `UPDATE ${type} SET ${updates.join(', ')} WHERE id = ?`;
+    await db.query(query, values);
+    
+    res.json({ 
+      message: `${type.slice(0, -1)} updated successfully`,
+      is_published: values[values.length - 2]
+    });
+  } catch (error) {
+    console.error(`Error updating ${type}:`, error);
+    
+    // Clean up uploaded files if there was an error
+    if (req.files) {
+      for (const file of req.files) {
+        try {
+          await fs.unlink(file.path);
+        } catch (unlinkError) {
+          console.error('Error cleaning up file:', unlinkError);
+        }
+      }
+    }
+    
+    res.status(500).json({ 
+      error: `Failed to update ${type}`,
+      details: error.message,
+      sqlMessage: error.sqlMessage 
+    });
+  }
+});
+
+// Delete item
+router.delete('/:type/:id', async (req, res) => {
+  const { type, id } = req.params;
+  
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    // First get the item to check if it has files to delete
+    const [items] = await db.query(`SELECT * FROM ${type} WHERE id = ?`, [id]);
+    
+    if (items.length === 0) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    const item = items[0];
+    
+    // Delete associated files
+    if (item.image || item.file_path || item.thumbnail) {
+      try {
+        if (item.image) {
+          await fs.unlink(`uploads/media/${type}/${item.image}`);
+        }
+        if (item.file_path) {
+          await fs.unlink(`uploads/media/${type}/${item.file_path}`);
+        }
+        if (item.thumbnail) {
+          await fs.unlink(`uploads/media/${type}/${item.thumbnail}`);
+        }
+      } catch (unlinkError) {
+        console.warn('Error deleting associated files:', unlinkError);
+        // Continue with database deletion even if file deletion fails
+      }
+    }
+
+    const query = `DELETE FROM ${type} WHERE id = ?`;
+    const [result] = await db.query(query, [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
     res.json({ message: `${type.slice(0, -1)} deleted successfully` });
-  });
+  } catch (error) {
+    console.error(`Error deleting ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to delete ${type}`,
+      details: error.message 
+    });
+  }
+});
+
+// Toggle publish status
+router.patch('/:type/:id/publish', async (req, res) => {
+  const { type, id } = req.params;
+  const { is_published } = req.body;
+  
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    const query = `UPDATE ${type} SET is_published = ? WHERE id = ?`;
+    await db.query(query, [is_published, id]);
+    
+    res.json({ 
+      message: `${type.slice(0, -1)} ${is_published ? 'published' : 'unpublished'} successfully`,
+      is_published 
+    });
+  } catch (error) {
+    console.error(`Error toggling publish status for ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to update publish status`,
+      details: error.message 
+    });
+  }
+});
+
+// Get scheduled items for a specific media type
+router.get('/scheduled/:type', async (req, res) => {
+  const { type } = req.params;
+  
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    const query = `SELECT * FROM ${type} WHERE is_published = FALSE AND published_date > NOW() ORDER BY published_date ASC`;
+    const [results] = await db.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(`Error fetching scheduled ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch scheduled ${type}`,
+      details: error.message 
+    });
+  }
+});
+
+// Publish all scheduled items that are due
+router.post('/publish-scheduled', async (req, res) => {
+  try {
+    const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    let totalPublished = 0;
+
+    // Publish all scheduled items whose publish date has passed
+    for (const type of Object.keys(mediaTables)) {
+      const query = `UPDATE ${type} SET is_published = TRUE WHERE is_published = FALSE AND published_date <= ?`;
+      const [result] = await db.query(query, [now]);
+      totalPublished += result.affectedRows;
+    }
+    
+    res.json({ 
+      message: `Published ${totalPublished} scheduled items successfully`,
+      count: totalPublished 
+    });
+  } catch (error) {
+    console.error('Error publishing scheduled items:', error);
+    res.status(500).json({ 
+      error: 'Failed to publish scheduled items',
+      details: error.message 
+    });
+  }
+});
+
+// Get statistics for specific media type
+router.get('/stats/:type', async (req, res) => {
+  const { type } = req.params;
+  
+  if (!isValidMediaType(type)) {
+    return res.status(400).json({ error: 'Invalid media type' });
+  }
+
+  try {
+    const totalQuery = `SELECT COUNT(*) as total FROM ${type}`;
+    const publishedQuery = `SELECT COUNT(*) as published FROM ${type} WHERE is_published = TRUE`;
+    const scheduledQuery = `SELECT COUNT(*) as scheduled FROM ${type} WHERE is_published = FALSE AND published_date > NOW()`;
+    
+    const [totalResult] = await db.query(totalQuery);
+    const [publishedResult] = await db.query(publishedQuery);
+    const [scheduledResult] = await db.query(scheduledQuery);
+    
+    res.json({
+      total: totalResult[0].total,
+      published: publishedResult[0].published,
+      scheduled: scheduledResult[0].scheduled,
+      draft: totalResult[0].total - publishedResult[0].published - scheduledResult[0].scheduled
+    });
+  } catch (error) {
+    console.error(`Error fetching stats for ${type}:`, error);
+    res.status(500).json({ 
+      error: `Failed to fetch statistics`,
+      details: error.message 
+    });
+  }
 });
 
 module.exports = router;

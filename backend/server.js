@@ -13,9 +13,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Routes
+app.use('/api/registration', require('./routes/registration'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/reports', require('./routes/reports'));
@@ -23,6 +24,12 @@ app.use('/api/mentors', require('./routes/mentors'));
 app.use('/api/management', require('./routes/management'));
 app.use('/api/careers', require('./routes/careers'));
 app.use('/api/media', require('./routes/media'));
+app.use('/api/our-work', require('./routes/OurWork'));
+app.use('/api/quality-education', require('./routes/qualityEducation'));
+app.use('/api/livelihood', require('./routes/livelihood'));
+app.use('/api/healthcare', require('./routes/healthcare'));
+app.use('/api/environment-sustainability', require('./routes/environmentSustainability'));
+app.use('/api/integrated-development', require('./routes/integratedDevelopment'));
 
 // Basic route
 app.get('/', (req, res) => {
