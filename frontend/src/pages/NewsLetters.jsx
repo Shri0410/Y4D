@@ -1,82 +1,99 @@
-// src/pages/Newsletters.jsx
 import React, { useState, useEffect } from 'react';
-import { getNewsletters } from '../services/api';
+import axios from 'axios';
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
-    const fetchNewsletters = async () => {
-      try {
-        setLoading(true);
-        const newslettersData = await getNewsletters();
-        setNewsletters(newslettersData);
-      } catch (err) {
-        setError('Failed to load newsletters. Please try again later.');
-        console.error('Error fetching newsletters:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchNewsletters();
   }, []);
 
-  const handleDownload = (filePath, title) => {
-    // Simulate download
-    window.open(`http://localhost:5000/uploads/media/newsletters/${filePath}`, '_blank');
+  const fetchNewsletters = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/media/published/newsletters`);
+      setNewsletters(response.data);
+    } catch (error) {
+      console.error('Error fetching newsletters:', error);
+    }
+    setLoading(false);
   };
 
-  if (loading) return <div className="page-container"><div className="loading">Loading newsletters...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  const handleDownload = async (newsletter) => {
+    try {
+      // Create a direct download link
+      const fileUrl = `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`;
+      
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = newsletter.file_path;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Optional: Open in new tab instead of downloading
+      // window.open(fileUrl, '_blank');
+    } catch (error) {
+      console.error('Error downloading newsletter:', error);
+      alert('Failed to download newsletter. Please try again.');
+    }
+  };
+
+  const handleView = (newsletter) => {
+    // Open PDF in new tab
+    window.open(`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`, '_blank');
+  };
+
+  if (loading) return <div className="loading">Loading newsletters...</div>;
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Newsletters</h2>
-          <p className="section-description">
-            Stay updated with our latest activities, impact stories, and organizational news through our quarterly newsletters.
-          </p>
-          
-          {newsletters.length === 0 ? (
-            <div className="no-data">
-              <p>No newsletters available at the moment. Please check back later.</p>
-            </div>
-          ) : (
-            <div className="newsletter-grid">
-              {newsletters.map(newsletter => (
-                <div key={newsletter.id} className="newsletter-card">
-                  <div className="newsletter-content">
-                    <h3>{newsletter.title}</h3>
-                    <p className="publish-date">
-                      Published: {new Date(newsletter.published_date).toLocaleDateString()}
-                    </p>
-                    <div className="newsletter-description">
-                      {newsletter.content.length > 150 
-                        ? `${newsletter.content.substring(0, 150)}...` 
-                        : newsletter.content
-                      }
-                    </div>
-                  </div>
-                  <div className="newsletter-actions">
-                    {newsletter.file_path && (
-                      <button 
-                        className="btn"
-                        onClick={() => handleDownload(newsletter.file_path, newsletter.title)}
-                      >
-                        Download Newsletter
-                      </button>
-                    )}
-                  </div>
+    <div className="newsletters-page">
+      <div className="page-header">
+        <h1>Newsletters</h1>
+        <p>Stay updated with our latest publications and monthly updates</p>
+      </div>
+
+      <div className="newsletters-grid">
+        {newsletters.length === 0 ? (
+          <div className="empty-state">
+            <p>No newsletters available at the moment</p>
+          </div>
+        ) : (
+          newsletters.map(newsletter => (
+            <div key={newsletter.id} className="newsletter-card">
+              <div className="newsletter-content">
+                <h3>{newsletter.title}</h3>
+                <p className="newsletter-description">{newsletter.description}</p>
+                <div className="newsletter-meta">
+                  <p className="newsletter-date">
+                    Published: {new Date(newsletter.published_date).toLocaleDateString()}
+                  </p>
+                  <p className="newsletter-status">
+                    Status: {newsletter.is_published ? 'Published' : 'Draft'}
+                  </p>
                 </div>
-              ))}
+                <div className="newsletter-actions">
+                  <button 
+                    onClick={() => handleView(newsletter)}
+                    className="btn-view"
+                  >
+                    View Online
+                  </button>
+                  <button 
+                    onClick={() => handleDownload(newsletter)}
+                    className="btn-download"
+                  >
+                    Download PDF
+                  </button>
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          ))
+        )}
+      </div>
     </div>
   );
 };

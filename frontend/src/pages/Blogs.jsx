@@ -1,117 +1,135 @@
-// src/pages/Blogs.jsx
 import React, { useState, useEffect } from 'react';
-import { getBlogs } from '../services/api';
+import axios from 'axios';
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedBlog, setSelectedBlog] = useState(null);
 
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        const blogsData = await getBlogs();
-        // Sort blogs by published date (newest first)
-        const sortedBlogs = blogsData.sort((a, b) => new Date(b.published_date) - new Date(a.published_date));
-        setBlogs(sortedBlogs);
-      } catch (err) {
-        setError('Failed to load blogs. Please try again later.');
-        console.error('Error fetching blogs:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const API_BASE = 'http://localhost:5000/api';
 
+  useEffect(() => {
     fetchBlogs();
   }, []);
 
-  if (loading) return <div className="page-container"><div className="loading">Loading blogs...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  const fetchBlogs = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/media/published/blogs`);
+      setBlogs(response.data);
+    } catch (error) {
+      console.error('Error fetching blogs:', error);
+    }
+    setLoading(false);
+  };
+
+  const openBlogModal = (blog) => {
+    setSelectedBlog(blog);
+  };
+
+  const closeBlogModal = () => {
+    setSelectedBlog(null);
+  };
+
+  const renderTags = (tags) => {
+    if (!tags) return null;
+    try {
+      const tagArray = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      return (
+        <div className="blog-tags">
+          {tagArray.map((tag, index) => (
+            <span key={index} className="tag">#{tag}</span>
+          ))}
+        </div>
+      );
+    } catch (error) {
+      return null;
+    }
+  };
+
+  if (loading) return <div className="loading">Loading blogs...</div>;
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Blogs</h2>
-          <p className="section-description">
-            Insights, updates, and perspectives from our team and partners.
-          </p>
-          
-          {blogs.length === 0 ? (
-            <div className="no-data">
-              <p>No blogs available at the moment. Please check back later.</p>
-            </div>
-          ) : (
-            <div className="blogs-grid">
-              {blogs.map(blog => (
-                <div key={blog.id} className="blog-card">
-                  {blog.image && (
-                    <div className="blog-image">
-                      <img 
-                        src={`http://localhost:5000/uploads/media/blogs/${blog.image}`} 
-                        alt={blog.title}
-                      />
-                    </div>
-                  )}
-                  <div className="blog-content">
-                    <h3>{blog.title}</h3>
-                    <p className="blog-meta">
-                      By {blog.author} • {new Date(blog.published_date).toLocaleDateString()}
-                    </p>
-                    {blog.tags && (
-                      <div className="blog-tags">
-                        {blog.tags.map((tag, index) => (
-                          <span key={index} className="tag">{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="blog-excerpt">
-                      {blog.content.length > 200 
-                        ? `${blog.content.substring(0, 200)}...` 
-                        : blog.content
-                      }
-                    </div>
-                    <button 
-                      className="btn"
-                      onClick={() => setSelectedBlog(blog)}
-                    >
-                      Read More
-                    </button>
-                  </div>
+    <div className="blogs-page">
+      <div className="page-header">
+        <h1>Blog Articles</h1>
+        <p>Insights, stories, and updates from our team and community</p>
+      </div>
+
+      <div className="blogs-grid">
+        {blogs.length === 0 ? (
+          <div className="empty-state">
+            <p>No blog articles available at the moment</p>
+          </div>
+        ) : (
+          blogs.map(blog => (
+            <div key={blog.id} className="blog-card">
+              {blog.image && (
+                <div className="blog-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/blogs/${blog.image}`} 
+                    alt={blog.title}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-blog.jpg';
+                    }}
+                  />
                 </div>
-              ))}
+              )}
+              <div className="blog-content">
+                <h3>{blog.title}</h3>
+                {renderTags(blog.tags)}
+                <p className="blog-excerpt">
+                  {blog.content.length > 120 ? 
+                    `${blog.content.substring(0, 120)}...` : 
+                    blog.content
+                  }
+                </p>
+                <div className="blog-meta">
+                  <p className="blog-author">By {blog.author}</p>
+                  <p className="blog-date">
+                    {new Date(blog.published_date).toLocaleDateString()}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => openBlogModal(blog)}
+                  className="btn-read-more"
+                >
+                  Read Article
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          ))
+        )}
+      </div>
 
       {/* Blog Modal */}
       {selectedBlog && (
-        <div className="modal-overlay" onClick={() => setSelectedBlog(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelectedBlog(null)}>×</button>
-            <h2>{selectedBlog.title}</h2>
-            <p className="blog-meta">
-              By {selectedBlog.author} • {new Date(selectedBlog.published_date).toLocaleDateString()}
-            </p>
-            {selectedBlog.tags && (
-              <div className="blog-tags">
-                {selectedBlog.tags.map((tag, index) => (
-                  <span key={index} className="tag">{tag}</span>
+        <div className="modal-overlay" onClick={closeBlogModal}>
+          <div className="modal-content blog-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{selectedBlog.title}</h2>
+              <button onClick={closeBlogModal} className="close-btn">&times;</button>
+            </div>
+            <div className="modal-body">
+              {selectedBlog.image && (
+                <div className="modal-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/blogs/${selectedBlog.image}`} 
+                    alt={selectedBlog.title}
+                  />
+                </div>
+              )}
+              <div className="blog-meta-modal">
+                <span className="author">By {selectedBlog.author}</span>
+                <span className="date">
+                  {new Date(selectedBlog.published_date).toLocaleDateString()}
+                </span>
+              </div>
+              {renderTags(selectedBlog.tags)}
+              <div className="blog-full-content">
+                {selectedBlog.content.split('\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
                 ))}
               </div>
-            )}
-            {selectedBlog.image && (
-              <img 
-                src={`http://localhost:5000/uploads/media/blogs/${selectedBlog.image}`} 
-                alt={selectedBlog.title}
-                className="modal-image"
-              />
-            )}
-            <div className="blog-full-content">
-              {selectedBlog.content}
             </div>
           </div>
         </div>

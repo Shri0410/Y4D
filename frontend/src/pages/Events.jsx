@@ -1,120 +1,153 @@
-// src/pages/Events.jsx
 import React, { useState, useEffect } from 'react';
-import { getEvents } from '../services/api';
+import axios from 'axios';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all'); // all, upcoming, past
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const API_BASE = 'http://localhost:5000/api';
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const eventsData = await getEvents();
-        // Sort events by date (newest first)
-        const sortedEvents = eventsData.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setEvents(sortedEvents);
-      } catch (err) {
-        setError('Failed to load events. Please try again later.');
-        console.error('Error fetching events:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEvents();
   }, []);
 
-  const filterEvents = () => {
-    const now = new Date();
-    switch (filter) {
-      case 'upcoming':
-        return events.filter(event => new Date(event.date) >= now);
-      case 'past':
-        return events.filter(event => new Date(event.date) < now);
-      default:
-        return events;
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/media/published/events`);
+      // Sort events by date (most recent first)
+      const sortedEvents = response.data.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setEvents(sortedEvents);
+    } catch (error) {
+      console.error('Error fetching events:', error);
     }
+    setLoading(false);
   };
 
-  const filteredEvents = filterEvents();
+  const openEventModal = (event) => {
+    setSelectedEvent(event);
+  };
 
-  if (loading) return <div className="page-container"><div className="loading">Loading events...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  const closeEventModal = () => {
+    setSelectedEvent(null);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString) => {
+    if (!timeString) return 'Time TBD';
+    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  if (loading) return <div className="loading">Loading events...</div>;
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Events</h2>
-          <p className="section-description">
-            Join us in our mission through various events, workshops, and community programs.
-          </p>
-          
-          {/* Filter buttons */}
-          <div className="event-filters">
-            <button 
-              className={filter === 'all' ? 'active' : ''}
-              onClick={() => setFilter('all')}
-            >
-              All Events
-            </button>
-            <button 
-              className={filter === 'upcoming' ? 'active' : ''}
-              onClick={() => setFilter('upcoming')}
-            >
-              Upcoming Events
-            </button>
-            <button 
-              className={filter === 'past' ? 'active' : ''}
-              onClick={() => setFilter('past')}
-            >
-              Past Events
-            </button>
+    <div className="events-page">
+      <div className="page-header">
+        <h1>Upcoming Events</h1>
+        <p>Join us for workshops, seminars, and community gatherings</p>
+      </div>
+
+      <div className="events-grid">
+        {events.length === 0 ? (
+          <div className="empty-state">
+            <p>No upcoming events at the moment</p>
           </div>
-          
-          {filteredEvents.length === 0 ? (
-            <div className="no-data">
-              <p>No {filter} events available at the moment. Please check back later.</p>
-            </div>
-          ) : (
-            <div className="events-grid">
-              {filteredEvents.map(event => (
-                <div key={event.id} className="event-card">
-                  {event.image && (
-                    <div className="event-image">
-                      <img 
-                        src={`http://localhost:5000/uploads/media/events/${event.image}`} 
-                        alt={event.title}
-                      />
+        ) : (
+          events.map(event => (
+            <div key={event.id} className="event-card">
+              {event.image && (
+                <div className="event-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/events/${event.image}`} 
+                    alt={event.title}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-event.jpg';
+                    }}
+                  />
+                </div>
+              )}
+              <div className="event-content">
+                <h3>{event.title}</h3>
+                <p className="event-description">
+                  {event.description}
+                </p>
+                <div className="event-details">
+                  <div className="event-date">
+                    <strong>Date:</strong> {formatDate(event.date)}
+                  </div>
+                  {event.time && (
+                    <div className="event-time">
+                      <strong>Time:</strong> {formatTime(event.time)}
                     </div>
                   )}
-                  <div className="event-content">
-                    <h3>{event.title}</h3>
-                    <div className="event-details">
-                      <p className="event-date">
-                        <strong>Date:</strong> {new Date(event.date).toLocaleDateString()}
-                        {event.time && ` • ${event.time}`}
-                      </p>
-                      {event.location && (
-                        <p className="event-location">
-                          <strong>Location:</strong> {event.location}
-                        </p>
-                      )}
+                  {event.location && (
+                    <div className="event-location">
+                      <strong>Location:</strong> {event.location}
                     </div>
-                    <div className="event-description">
-                      {event.description}
-                    </div>
-                    <button className="btn">Learn More</button>
-                  </div>
+                  )}
                 </div>
-              ))}
+                <button 
+                  onClick={() => openEventModal(event)}
+                  className="btn-event-details"
+                >
+                  View Details
+                </button>
+              </div>
             </div>
-          )}
+          ))
+        )}
+      </div>
+
+      {/* Event Modal */}
+      {selectedEvent && (
+        <div className="modal-overlay" onClick={closeEventModal}>
+          <div className="modal-content event-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{selectedEvent.title}</h2>
+              <button onClick={closeEventModal} className="close-btn">&times;</button>
+            </div>
+            <div className="modal-body">
+              {selectedEvent.image && (
+                <div className="modal-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/events/${selectedEvent.image}`} 
+                    alt={selectedEvent.title}
+                  />
+                </div>
+              )}
+              <div className="event-full-details">
+                <div className="detail-row">
+                  <strong>Date:</strong> {formatDate(selectedEvent.date)}
+                </div>
+                {selectedEvent.time && (
+                  <div className="detail-row">
+                    <strong>Time:</strong> {formatTime(selectedEvent.time)}
+                  </div>
+                )}
+                {selectedEvent.location && (
+                  <div className="detail-row">
+                    <strong>Location:</strong> {selectedEvent.location}
+                  </div>
+                )}
+                <div className="event-description-full">
+                  {selectedEvent.description}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 };

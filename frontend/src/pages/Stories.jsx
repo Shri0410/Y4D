@@ -1,101 +1,115 @@
-// src/pages/Stories.jsx
 import React, { useState, useEffect } from 'react';
-import { getStories } from '../services/api';
+import axios from 'axios';
 
 const Stories = () => {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedStory, setSelectedStory] = useState(null);
 
-  useEffect(() => {
-    const fetchStories = async () => {
-      try {
-        setLoading(true);
-        const storiesData = await getStories();
-        setStories(storiesData);
-      } catch (err) {
-        setError('Failed to load stories. Please try again later.');
-        console.error('Error fetching stories:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const API_BASE = 'http://localhost:5000/api';
 
+  useEffect(() => {
     fetchStories();
   }, []);
 
-  if (loading) return <div className="page-container"><div className="loading">Loading stories...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  const fetchStories = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/media/published/stories`);
+      setStories(response.data);
+    } catch (error) {
+      console.error('Error fetching stories:', error);
+    }
+    setLoading(false);
+  };
+
+  const openStoryModal = (story) => {
+    setSelectedStory(story);
+  };
+
+  const closeStoryModal = () => {
+    setSelectedStory(null);
+  };
+
+  if (loading) return <div className="loading">Loading stories...</div>;
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Stories of Empowerment</h2>
-          <p className="section-description">
-            Read inspiring stories of transformation and empowerment from the communities we serve.
-          </p>
-          
-          {stories.length === 0 ? (
-            <div className="no-data">
-              <p>No stories available at the moment. Please check back later.</p>
-            </div>
-          ) : (
-            <div className="stories-grid">
-              {stories.map(story => (
-                <div key={story.id} className="story-card">
-                  {story.image && (
-                    <div className="story-image">
-                      <img 
-                        src={`http://localhost:5000/uploads/media/stories/${story.image}`} 
-                        alt={story.title}
-                      />
-                    </div>
-                  )}
-                  <div className="story-content">
-                    <h3>{story.title}</h3>
-                    <p className="story-meta">
-                      By {story.author} • {new Date(story.published_date).toLocaleDateString()}
-                    </p>
-                    <div className="story-excerpt">
-                      {story.content.length > 200 
-                        ? `${story.content.substring(0, 200)}...` 
-                        : story.content
-                      }
-                    </div>
-                    <button 
-                      className="btn"
-                      onClick={() => setSelectedStory(story)}
-                    >
-                      Read Full Story
-                    </button>
-                  </div>
+    <div className="stories-page">
+      <div className="page-header">
+        <h1>Stories of Empowerment</h1>
+        <p>Inspiring success stories from our community</p>
+      </div>
+
+      <div className="stories-grid">
+        {stories.length === 0 ? (
+          <div className="empty-state">
+            <p>No stories available at the moment</p>
+          </div>
+        ) : (
+          stories.map(story => (
+            <div key={story.id} className="story-card">
+              {story.image && (
+                <div className="story-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/stories/${story.image}`} 
+                    alt={story.title}
+                    onError={(e) => {
+                      e.target.src = '/placeholder-image.jpg'; // Fallback image
+                    }}
+                  />
                 </div>
-              ))}
+              )}
+              <div className="story-content">
+                <h3>{story.title}</h3>
+                <p className="story-excerpt">
+                  {story.content.length > 150 ? 
+                    `${story.content.substring(0, 150)}...` : 
+                    story.content
+                  }
+                </p>
+                <div className="story-meta">
+                  <p className="story-author">By {story.author}</p>
+                  <p className="story-date">
+                    Published: {new Date(story.published_date).toLocaleDateString()}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => openStoryModal(story)}
+                  className="btn-read-more"
+                >
+                  Read Full Story
+                </button>
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          ))
+        )}
+      </div>
 
       {/* Story Modal */}
       {selectedStory && (
-        <div className="modal-overlay" onClick={() => setSelectedStory(null)}>
+        <div className="modal-overlay" onClick={closeStoryModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setSelectedStory(null)}>×</button>
-            <h2>{selectedStory.title}</h2>
-            <p className="story-meta">
-              By {selectedStory.author} • {new Date(selectedStory.published_date).toLocaleDateString()}
-            </p>
-            {selectedStory.image && (
-              <img 
-                src={`http://localhost:5000/uploads/media/stories/${selectedStory.image}`} 
-                alt={selectedStory.title}
-                className="modal-image"
-              />
-            )}
-            <div className="story-full-content">
-              {selectedStory.content}
+            <div className="modal-header">
+              <h2>{selectedStory.title}</h2>
+              <button onClick={closeStoryModal} className="close-btn">&times;</button>
+            </div>
+            <div className="modal-body">
+              {selectedStory.image && (
+                <div className="modal-image">
+                  <img 
+                    src={`${API_BASE}/uploads/media/stories/${selectedStory.image}`} 
+                    alt={selectedStory.title}
+                  />
+                </div>
+              )}
+              <div className="story-author">By {selectedStory.author}</div>
+              <div className="story-date">
+                Published: {new Date(selectedStory.published_date).toLocaleDateString()}
+              </div>
+              <div className="story-full-content">
+                {selectedStory.content.split('\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           </div>
         </div>

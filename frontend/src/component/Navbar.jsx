@@ -20,8 +20,8 @@ const Navbar = () => {
   const dropdownItems = {
     about: [
       { id: '/about', label: 'About Us' },
-      { id: '/our-team', label: 'Our Team' },
       { id: '/reach-presence', label: 'Reach and Presence' },
+      { id: '/our-team', label: 'Our Team' },
       { id: '/legal-status', label: 'Legal Status' }
     ],
     work: [

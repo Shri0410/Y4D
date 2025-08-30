@@ -1,101 +1,206 @@
+/* User Management Styles */
 .user-management {
   padding: 1rem;
 }
 
-.user-management-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.create-user-form {
-  background: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 5px;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
-.create-user-form h3 {
-  margin-top: 0;
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-create {
+  padding: 0.75rem 1.5rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-create:hover {
+  background: #218838;
+}
+
+.refresh-btn {
+  padding: 0.75rem 1.5rem;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.refresh-btn:hover {
+  background: #138496;
+}
+
+.users-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 .users-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.users-table th,
-.users-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #dee2e6;
 }
 
 .users-table th {
-  background-color: #343a40;
-  color: white;
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
   font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
 }
 
 .users-table tr:hover {
-  background-color: #f8f9fa;
-}
-
-.users-table select {
-  padding: 0.25rem;
-  border: 1px solid #ced4da;
-  border-radius: 3px;
-}
-
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.8rem;
+  background: #f8f9fa;
 }
 
 .user-info {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.btn-logout {
+.user-info small {
+  color: #6c757d;
+  font-size: 0.8rem;
+}
+
+.role-select,
+.status-select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+}
+
+.role-select:focus,
+.status-select:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-delete {
   padding: 0.5rem 1rem;
   background: #dc3545;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.9rem;
 }
 
-.btn-logout:hover {
+.btn-delete:hover {
   background: #c82333;
 }
 
-/* Role-based styling */
-.role-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.8rem;
-  font-weight: 600;
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
 }
 
-.role-super_admin { background: #dc3545; color: white; }
-.role-admin { background: #fd7e14; color: white; }
-.role-editor { background: #17a2b8; color: white; }
-.role-viewer { background: #6c757d; color: white; }
-
+/* Status and Role Badges */
 .status-badge {
   padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.8rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
 }
 
-.status-approved { background: #28a745; color: white; }
-.status-pending { background: #ffc107; color: black; }
-.status-rejected { background: #dc3545; color: white; }
-.status-suspended { background: #6c757d; color: white; }
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-suspended {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.role-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.role-super-admin {
+  background: #6f42c1;
+  color: white;
+}
+
+.role-admin {
+  background: #007bff;
+  color: white;
+}
+
+.role-editor {
+  background: #17a2b8;
+  color: white;
+}
+
+.role-viewer {
+  background: #6c757d;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .users-table {
+    font-size: 0.9rem;
+  }
+  
+  .users-table th,
+  .users-table td {
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

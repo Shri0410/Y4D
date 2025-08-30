@@ -1,37 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import UserManagement from './UserManagement';
+import RegistrationRequests from './RegistrationRequests';
+import MediaManager from './MediaManager';
+import OurWorkManagement from './OurWorkManagement'; 
 import './Dashboard.css';
 
-const Dashboard = () => {
+const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [activeTab, setActiveTab] = useState('reports');
   const [reports, setReports] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
   const [careers, setCareers] = useState([]);
-  const [media, setMedia] = useState({});
   const [loading, setLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
+  const [currentMediaType, setCurrentMediaType] = useState(null);
+  const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null); 
 
   // Form states
   const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
   const [mentorForm, setMentorForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [managementForm, setManagementForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
-  const [mediaForm, setMediaForm] = useState({});
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const canManageContent = currentUser && ['super_admin', 'admin', 'editor'].includes(currentUser.role);
   const API_BASE = 'http://localhost:5000/api';
 
+  // Add this useEffect to clear sub-sections when tabs change
   useEffect(() => {
-    // Load user from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
+    // Clear sub-sections when switching tabs
+    setCurrentMediaType(null);
+    setCurrentOurWorkCategory(null);
+  }, [activeTab]); // This runs whenever activeTab changes
+
+  useEffect(() => {
+    // Load user from localStorage if not provided via props
+    if (!currentUser) {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setCurrentUser(JSON.parse(userData));
+      }
     }
-    fetchData(activeTab);
-  }, [activeTab]);
+    if (activeTab !== 'media' && !currentMediaType && activeTab !== 'ourWork' && !currentOurWorkCategory) {
+      fetchData(activeTab);
+    }
+  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory]);
 
   const fetchData = async (type) => {
     setLoading(true);
@@ -53,9 +67,6 @@ const Dashboard = () => {
         case 'careers':
           response = await axios.get(`${API_BASE}/careers`);
           setCareers(response.data);
-          break;
-        case 'media':
-          // handle media types separately
           break;
         default:
           break;
@@ -223,6 +234,28 @@ const Dashboard = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/admin';
+  };
+
+  const getMediaTypeIcon = (type) => {
+    const icons = {
+      newsletters: '📰',
+      stories: '📖',
+      events: '🎉',
+      blogs: '✍️',
+      documentaries: '🎬'
+    };
+    return icons[type] || '📁';
+  };
+
+  const getMediaTypeDescription = (type) => {
+    const descriptions = {
+      newsletters: 'Manage monthly newsletters and publications',
+      stories: 'Share inspiring success stories',
+      events: 'Manage upcoming events and workshops',
+      blogs: 'Create and manage blog posts',
+      documentaries: 'Upload and manage video content'
+    };
+    return descriptions[type] || 'Manage content';
   };
 
   const renderForm = () => {
@@ -476,13 +509,37 @@ const Dashboard = () => {
         return (
           <div className="media-dashboard">
             <h3>Media Management</h3>
-            <p>Select a media type from the sub-menu to manage content.</p>
-            <div className="media-types">
-              <button onClick={() => setActiveTab('newsletters')}>Newsletters</button>
-              <button onClick={() => setActiveTab('stories')}>Stories of Empowerment</button>
-              <button onClick={() => setActiveTab('events')}>Events</button>
-              <button onClick={() => setActiveTab('blogs')}>Blogs</button>
-              <button onClick={() => setActiveTab('documentaries')}>Documentaries</button>
+            <div className="media-types-grid">
+              {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+                <div key={type} className="media-type-card" onClick={() => setCurrentMediaType(type)}>
+                  <h4>{getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</h4>
+                  <p>{getMediaTypeDescription(type)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+        case 'ourWork':
+        return (
+          <div className="our-work-dashboard">
+            <h3>Our Work Management</h3>
+            <div className="our-work-categories-grid">
+              {[
+                'quality_education', 
+                'livelihood', 
+                'healthcare', 
+                'environment_sustainability', 
+                'integrated_development'
+              ].map(category => (
+                <div 
+                  key={category} 
+                  className="our-work-category-card" 
+                  onClick={() => setCurrentOurWorkCategory(category)}
+                >
+                  <h4>{getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}</h4>
+                  <p>{getOurWorkCategoryDescription(category)}</p>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -491,7 +548,39 @@ const Dashboard = () => {
         return null;
     }
   };
+    const getOurWorkCategoryIcon = (category) => {
+        const icons = {
+          quality_education: '🎓',
+          livelihood: '💼',
+          healthcare: '🏥',
+          environment_sustainability: '🌱',
+          integrated_development: '🤝'
+        };
+        return icons[category] || '📁';
+      };
 
+      const getOurWorkCategoryLabel = (category) => {
+        const labels = {
+          quality_education: 'Quality Education',
+          livelihood: 'Livelihood',
+          healthcare: 'Healthcare',
+          environment_sustainability: 'Environment Sustainability',
+          integrated_development: 'Integrated Development (IDP)'
+        };
+        return labels[category] || category;
+      };
+
+      const getOurWorkCategoryDescription = (category) => {
+        const descriptions = {
+          quality_education: 'Manage quality education programs and initiatives',
+          livelihood: 'Manage livelihood and employment programs',
+          healthcare: 'Manage healthcare services and initiatives',
+          environment_sustainability: 'Manage environmental sustainability programs',
+          integrated_development: 'Manage integrated development programs'
+        };
+        return descriptions[category] || 'Manage content';
+      };
+      
   const renderContent = () => {
     if (loading) return <div className="loading">Loading...</div>;
     
@@ -615,15 +704,12 @@ const Dashboard = () => {
                         <button onClick={() => handleDelete(career.id, 'careers')}>Delete</button>
                       </div>
                     </div>
-                  </div>
+                    </div>
                 ))}
               </div>
             )}
           </div>
-        );
-      
-      default:
-        return <div>Select a category to manage</div>;
+        );      
     }
   };
 
@@ -657,17 +743,40 @@ const Dashboard = () => {
             <li className={activeTab === 'media' ? 'active' : ''}>
               <button onClick={() => setActiveTab('media')}>Media</button>
             </li>
-            {canManageUsers && (
-              <li className={activeTab === 'users' ? 'active' : ''}>
-                <button onClick={() => setActiveTab('users')}>User Management</button>
+            {canManageContent && (
+              <li className={activeTab === 'ourWork' ? 'active' : ''}>
+                <button onClick={() => setActiveTab('ourWork')}>Our Work</button>
               </li>
+            )}
+
+            {canManageUsers && (
+              <>
+                <li className={activeTab === 'users' ? 'active' : ''}>
+                  <button onClick={() => setActiveTab('users')}>User Management</button>
+                </li>
+                <li className={activeTab === 'registrations' ? 'active' : ''}>
+                  <button onClick={() => setActiveTab('registrations')}>Registration Requests</button>
+                </li>
+              </>
             )}
           </ul>
         </nav>
         
         <main className="dashboard-content">
-          {activeTab === 'users' && canManageUsers ? (
+          {currentMediaType ? (
+            <MediaManager 
+              mediaType={currentMediaType} 
+              onClose={() => setCurrentMediaType(null)}
+            />
+          ) : currentOurWorkCategory ? (
+            <OurWorkManagement 
+              category={currentOurWorkCategory}
+              onClose={() => setCurrentOurWorkCategory(null)}
+            />
+          ) : activeTab === 'users' && canManageUsers ? (
             <UserManagement />
+          ) : activeTab === 'registrations' && canManageUsers ? (
+            <RegistrationRequests />
           ) : (
             <>
               {renderForm()}
