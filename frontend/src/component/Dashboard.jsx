@@ -258,6 +258,39 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     return descriptions[type] || 'Manage content';
   };
 
+  const getOurWorkCategoryIcon = (category) => {
+    const icons = {
+      quality_education: '🎓',
+      livelihood: '💼',
+      healthcare: '🏥',
+      environment_sustainability: '🌱',
+      integrated_development: '🤝'
+    };
+    return icons[category] || '📁';
+  };
+
+  const getOurWorkCategoryLabel = (category) => {
+    const labels = {
+      quality_education: 'Quality Education',
+      livelihood: 'Livelihood',
+      healthcare: 'Healthcare',
+      environment_sustainability: 'Environment Sustainability',
+      integrated_development: 'Integrated Development (IDP)'
+    };
+    return labels[category] || category;
+  };
+
+  const getOurWorkCategoryDescription = (category) => {
+    const descriptions = {
+      quality_education: 'Manage quality education programs and initiatives',
+      livelihood: 'Manage livelihood and employment programs',
+      healthcare: 'Manage healthcare services and initiatives',
+      environment_sustainability: 'Manage environmental sustainability programs',
+      integrated_development: 'Manage integrated development programs'
+    };
+    return descriptions[category] || 'Manage content';
+  };
+
   const renderForm = () => {
     switch (activeTab) {
       case 'reports':
@@ -519,23 +552,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           </div>
         );
-        case 'ourWork':
+      
+      case 'ourWork':
         return (
-          <div className="our-work-dashboard">
-            <h3>Our Work Management</h3>
-            <div className="our-work-categories-grid">
-              {[
-                'quality_education', 
-                'livelihood', 
-                'healthcare', 
-                'environment_sustainability', 
-                'integrated_development'
-              ].map(category => (
-                <div 
-                  key={category} 
-                  className="our-work-category-card" 
-                  onClick={() => setCurrentOurWorkCategory(category)}
-                >
+          <div className="media-dashboard">
+            <h3>Our Work</h3>
+            <div className="media-types-grid">
+              {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+                <div key={category} className="media-type-card" onClick={() => setCurrentOurWorkCategory(category)}>
                   <h4>{getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}</h4>
                   <p>{getOurWorkCategoryDescription(category)}</p>
                 </div>
@@ -548,39 +572,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         return null;
     }
   };
-    const getOurWorkCategoryIcon = (category) => {
-        const icons = {
-          quality_education: '🎓',
-          livelihood: '💼',
-          healthcare: '🏥',
-          environment_sustainability: '🌱',
-          integrated_development: '🤝'
-        };
-        return icons[category] || '📁';
-      };
 
-      const getOurWorkCategoryLabel = (category) => {
-        const labels = {
-          quality_education: 'Quality Education',
-          livelihood: 'Livelihood',
-          healthcare: 'Healthcare',
-          environment_sustainability: 'Environment Sustainability',
-          integrated_development: 'Integrated Development (IDP)'
-        };
-        return labels[category] || category;
-      };
-
-      const getOurWorkCategoryDescription = (category) => {
-        const descriptions = {
-          quality_education: 'Manage quality education programs and initiatives',
-          livelihood: 'Manage livelihood and employment programs',
-          healthcare: 'Manage healthcare services and initiatives',
-          environment_sustainability: 'Manage environmental sustainability programs',
-          integrated_development: 'Manage integrated development programs'
-        };
-        return descriptions[category] || 'Manage content';
-      };
-      
   const renderContent = () => {
     if (loading) return <div className="loading">Loading...</div>;
     
@@ -704,7 +696,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                         <button onClick={() => handleDelete(career.id, 'careers')}>Delete</button>
                       </div>
                     </div>
-                    </div>
+                  </div>
                 ))}
               </div>
             )}

@@ -1,4 +1,3 @@
-// src/pages/Healthcare.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OurWorkPages.css';
@@ -8,24 +7,26 @@ const Healthcare = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const API_BASE = 'http://localhost:5000/api';
+
   useEffect(() => {
     fetchItems();
   }, []);
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/our-work/public/healthcare');
-      setItems(response.data.items);
+      const response = await axios.get(`${API_BASE}/our-work/published/healthcare`);
+      setItems(response.data);
     } catch (error) {
-      console.error('Error fetching healthcare items:', error);
+      console.error('Error fetching healthcare initiatives:', error);
       setError('Failed to load healthcare initiatives');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="loading">Loading Healthcare Initiatives...</div>;
-  if (error) return <div className="error-message">{error}</div>;
+  if (loading) return <div className="page-container"><div className="loading">Loading Healthcare Initiatives...</div></div>;
+  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
 
   return (
     <div className="page-container">

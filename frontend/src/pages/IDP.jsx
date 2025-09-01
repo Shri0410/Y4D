@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './OurWorkPages.css';
 
 const IDP = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    content: '',
-    image_url: '',
-    video_url: '',
-    additional_images: [],
-    meta_title: '',
-    meta_description: '',
-    meta_keywords: '',
-    is_active: true,
-    display_order: 0
-  });
+  const [error, setError] = useState('');
 
   const API_BASE = 'http://localhost:5000/api';
 
@@ -28,100 +15,82 @@ const IDP = () => {
 
   const fetchItems = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get(`${API_BASE}/integrated_development`);
+      const response = await axios.get(`${API_BASE}/our-work/published/integrated_development`);
       setItems(response.data);
-    } catch (err) {
-      setError('Failed to load IDP programs');
-      console.error('Error fetching items:', err);
+    } catch (error) {
+      console.error('Error fetching IDP programs:', error);
+      setError('Failed to load integrated development programs');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_BASE}/integrated_development`, formData);
-      setShowForm(false);
-      setFormData({
-        title: '',
-        description: '',
-        content: '',
-        image_url: '',
-        video_url: '',
-        additional_images: [],
-        meta_title: '',
-        meta_description: '',
-        meta_keywords: '',
-        is_active: true,
-        display_order: 0
-      });
-      fetchItems();
-      alert('Item created successfully!');
-    } catch (err) {
-      setError('Failed to create item');
-      console.error('Error creating item:', err);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      try {
-        await axios.delete(`${API_BASE}/integrated_development/${id}`);
-        fetchItems();
-        alert('Item deleted successfully!');
-      } catch (err) {
-        setError('Failed to delete item');
-        console.error('Error deleting item:', err);
-      }
-    }
-  };
-
-  if (loading) return <div className="page-container"><div className="loading">Loading IDP programs...</div></div>;
+  if (loading) return <div className="page-container"><div className="loading">Loading Integrated Development Programs...</div></div>;
   if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
 
   return (
     <div className="page-container">
       <section className="section">
         <div className="container">
-          <h2 className="section-title">IDP Programs</h2>
+          <div className="section-header">
+            <h1 className="section-title">Integrated Development Program (IDP)</h1>
+            <p className="section-subtitle">Holistic community development for sustainable change</p>
+          </div>
           
-          {!showForm ? (
-            <button 
-              onClick={() => setShowForm(true)} 
-              className="btn btn-primary"
-              style={{marginBottom: '20px'}}
-            >
-              + Add New Program
-            </button>
-          ) : (
-            <div className="career-form">
-              <h3>Add New IDP Program</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Program Title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                {/* ... same form fields as QualityEducation ... */}
-              </form>
-            </div>
-          )}
-
-          {/* ... same item display logic as QualityEducation ... */}
+          <div className="content">
+            {items.length === 0 ? (
+              <div className="empty-state">
+                <h3>No integrated development programs available at the moment</h3>
+                <p>We are working on comprehensive community development initiatives</p>
+              </div>
+            ) : (
+              <div className="programs-grid">
+                {items.map(item => (
+                  <div key={item.id} className="program-card">
+                    {item.image_url && (
+                      <div className="program-image">
+                        <img src={item.image_url} alt={item.title} />
+                        <div className="image-overlay"></div>
+                      </div>
+                    )}
+                    
+                    <div className="program-content">
+                      <h2>{item.title}</h2>
+                      <p className="program-description">{item.description}</p>
+                      
+                      {item.content && (
+                        <div 
+                          className="program-details"
+                          dangerouslySetInnerHTML={{ __html: item.content }} 
+                        />
+                      )}
+                      
+                      {item.video_url && (
+                        <div className="program-video">
+                          <h4>Watch Video</h4>
+                          <div className="video-wrapper">
+                            <iframe
+                              src={item.video_url}
+                              title={item.title}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="program-meta">
+                        <span className="date">
+                          Last updated: {new Date(item.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>

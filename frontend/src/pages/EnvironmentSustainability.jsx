@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './OurWorkPages.css';
 
-const EnviormentSustainability = () => {
+const EnvironmentSustainability = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    content: '',
-    image_url: '',
-    video_url: '',
-    additional_images: [],
-    meta_title: '',
-    meta_description: '',
-    meta_keywords: '',
-    is_active: true,
-    display_order: 0
-  });
+  const [error, setError] = useState('');
 
   const API_BASE = 'http://localhost:5000/api';
 
@@ -28,193 +15,86 @@ const EnviormentSustainability = () => {
 
   const fetchItems = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get(`${API_BASE}/environment_sustainability`);
+      const response = await axios.get(`${API_BASE}/our-work/published/environment_sustainability`);
       setItems(response.data);
-    } catch (err) {
-      setError('Failed to load Enviorment Sustainability programs');
-      console.error('Error fetching items:', err);
+    } catch (error) {
+      console.error('Error fetching environment sustainability programs:', error);
+      setError('Failed to load environment sustainability programs');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_BASE}/environment_sustainability`, formData);
-      setShowForm(false);
-      setFormData({
-        title: '',
-        description: '',
-        content: '',
-        image_url: '',
-        video_url: '',
-        additional_images: [],
-        meta_title: '',
-        meta_description: '',
-        meta_keywords: '',
-        is_active: true,
-        display_order: 0
-      });
-      fetchItems();
-      alert('Item created successfully!');
-    } catch (err) {
-      setError('Failed to create item');
-      console.error('Error creating item:', err);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      try {
-        await axios.delete(`${API_BASE}/environment_sustainability/${id}`);
-        fetchItems();
-        alert('Item deleted successfully!');
-      } catch (err) {
-        setError('Failed to delete item');
-        console.error('Error deleting item:', err);
-      }
-    }
-  };
-
-  if (loading) return <div className="page-container"><div className="loading">Loading Enviorment Sustainability programs...</div></div>;
+  if (loading) return <div className="page-container"><div className="loading">Loading Environment Sustainability Programs...</div></div>;
   if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
 
   return (
     <div className="page-container">
       <section className="section">
         <div className="container">
-          <h2 className="section-title">Enviorment Sustainability Programs</h2>
+          <div className="section-header">
+            <h1 className="section-title">Environment Sustainability</h1>
+            <p className="section-subtitle">Protecting our planet for future generations</p>
+          </div>
           
-          {!showForm ? (
-            <button 
-              onClick={() => setShowForm(true)} 
-              className="btn btn-primary"
-              style={{marginBottom: '20px'}}
-            >
-              + Add New Program
-            </button>
-          ) : (
-            <div className="career-form">
-              <h3>Add New environment_sustainability Program</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <input
-                    type="text"
-                    name="title"
-                    placeholder="Program Title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <textarea
-                    name="description"
-                    placeholder="Short Description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    rows="3"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <textarea
-                    name="content"
-                    placeholder="Detailed Content (HTML supported)"
-                    value={formData.content}
-                    onChange={handleInputChange}
-                    rows="6"
-                  />
-                </div>
-                <div className="form-group">
-                  <input
-                    type="url"
-                    name="image_url"
-                    placeholder="Image URL"
-                    value={formData.image_url}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <input
-                    type="url"
-                    name="video_url"
-                    placeholder="Video URL"
-                    value={formData.video_url}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="form-group">
-                  <input
-                    type="number"
-                    name="display_order"
-                    placeholder="Display Order"
-                    value={formData.display_order}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div className="form-actions">
-                  <button type="submit" className="btn">Create Program</button>
-                  <button 
-                    type="button" 
-                    onClick={() => setShowForm(false)}
-                    className="btn btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-          {items.length === 0 ? (
-            <div className="no-items">
-              <p>No quality education programs available.</p>
-            </div>
-          ) : (
-            <div className="items-list">
-              {items.map(item => (
-                <div key={item.id} className="item-card">
-                  <h4>{item.title}</h4>
-                  <div className="item-details">
-                    <p><strong>Description:</strong> {item.description}</p>
+          <div className="content">
+            {items.length === 0 ? (
+              <div className="empty-state">
+                <h3>No environment sustainability programs available at the moment</h3>
+                <p>We are working on environmental conservation initiatives</p>
+              </div>
+            ) : (
+              <div className="programs-grid">
+                {items.map(item => (
+                  <div key={item.id} className="program-card">
                     {item.image_url && (
-                      <p><strong>Image:</strong> {item.image_url}</p>
+                      <div className="program-image">
+                        <img src={item.image_url} alt={item.title} />
+                        <div className="image-overlay"></div>
+                      </div>
                     )}
-                    {item.video_url && (
-                      <p><strong>Video:</strong> {item.video_url}</p>
-                    )}
-                    <p><strong>Status:</strong> {item.is_active ? 'Active' : 'Inactive'}</p>
-                    <p><strong>Order:</strong> {item.display_order}</p>
+                    
+                    <div className="program-content">
+                      <h2>{item.title}</h2>
+                      <p className="program-description">{item.description}</p>
+                      
+                      {item.content && (
+                        <div 
+                          className="program-details"
+                          dangerouslySetInnerHTML={{ __html: item.content }} 
+                        />
+                      )}
+                      
+                      {item.video_url && (
+                        <div className="program-video">
+                          <h4>Watch Video</h4>
+                          <div className="video-wrapper">
+                            <iframe
+                              src={item.video_url}
+                              title={item.title}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="program-meta">
+                        <span className="date">
+                          Last updated: {new Date(item.updated_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  {item.content && (
-                    <div className="item-content" dangerouslySetInnerHTML={{ __html: item.content }} />
-                  )}
-                  <div className="item-actions">
-                    <button className="btn">Edit</button>
-                    <button 
-                      onClick={() => handleDelete(item.id)} 
-                      className="btn btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </div>
   );
 };
 
-export default EnviormentSustainability;
+export default EnvironmentSustainability;

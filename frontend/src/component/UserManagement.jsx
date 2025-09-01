@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './UserManagement.css'; // We'll create this CSS file
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({
     username: '',
@@ -14,58 +14,50 @@ const UserManagement = () => {
     password: '',
     confirmPassword: '',
     role: 'viewer',
-    status: 'pending'
+    mobile_number: '',
+    address: ''
   });
 
   const API_BASE = 'http://localhost:5000/api';
   const token = localStorage.getItem('token');
 
-useEffect(() => {
-  if (!token) {
-    setError('Authentication required. Please log in.');
-    setLoading(false);
-    return;
-  }
-  fetchUsers();
-}, []);
+  useEffect(() => {
+    if (!token) {
+      setError('Authentication required. Please log in.');
+      setLoading(false);
+      return;
+    }
+    fetchUsers();
+  }, [token]);
 
   const fetchUsers = async () => {
-  try {
-    setLoading(true);
-    setError('');
-    console.log('Fetching users from:', `${API_BASE}/users`);
-    
-    const response = await axios.get(`${API_BASE}/users`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    try {
+      setLoading(true);
+      setError('');
+      
+      const response = await axios.get(`${API_BASE}/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      setUsers(response.data);
+      
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      
+      if (error.response) {
+        setError(error.response.data?.error || `Server error: ${error.response.status}`);
+      } else if (error.request) {
+        setError('Network error: Could not connect to server');
+      } else {
+        setError(error.message || 'Failed to fetch users');
       }
-    });
-    
-    console.log('Users fetched successfully:', response.data);
-    setUsers(response.data);
-    
-  } catch (error) {
-    console.error('Error fetching users:', error);
-    
-    // More detailed error handling
-    if (error.response) {
-      // Server responded with error status
-      console.error('Response data:', error.response.data);
-      console.error('Response status:', error.response.status);
-      setError(error.response.data?.error || `Server error: ${error.response.status}`);
-    } else if (error.request) {
-      // Request was made but no response received
-      console.error('No response received:', error.request);
-      setError('Network error: Could not connect to server');
-    } else {
-      // Something else happened
-      console.error('Error:', error.message);
-      setError(error.message || 'Failed to fetch users');
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -87,7 +79,9 @@ useEffect(() => {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        role: formData.role
+        role: formData.role,
+        mobile_number: formData.mobile_number,
+        address: formData.address
       }, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -101,10 +95,11 @@ useEffect(() => {
         password: '',
         confirmPassword: '',
         role: 'viewer',
-        status: 'pending'
+        mobile_number: '',
+        address: ''
       });
       fetchUsers();
-      alert('User created successfully!');
+      setError('');
     } catch (error) {
       setError(error.response?.data?.error || 'Failed to create user');
     }
@@ -121,7 +116,6 @@ useEffect(() => {
         }
       });
       fetchUsers();
-      alert(`User status updated to ${newStatus}`);
     } catch (error) {
       setError(error.response?.data?.error || 'Failed to update user status');
     }
@@ -137,14 +131,13 @@ useEffect(() => {
         }
       });
       fetchUsers();
-      alert(`User role updated to ${newRole}`);
     } catch (error) {
       setError(error.response?.data?.error || 'Failed to update user role');
     }
   };
 
   const handleDeleteUser = async (userId, username) => {
-    if (window.confirm(`Are you sure you want to delete user "${username}"?`)) {
+    if (window.confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
       try {
         await axios.delete(`${API_BASE}/users/${userId}`, {
           headers: {
@@ -152,7 +145,6 @@ useEffect(() => {
           }
         });
         fetchUsers();
-        alert('User deleted successfully!');
       } catch (error) {
         setError(error.response?.data?.error || 'Failed to delete user');
       }
@@ -169,7 +161,7 @@ useEffect(() => {
     
     return (
       <span className={`status-badge ${statusClasses[status]}`}>
-        {status.toUpperCase()}
+        {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
@@ -189,103 +181,161 @@ useEffect(() => {
     );
   };
 
-if (loading) return (
-  <div className="loading-container">
-    <div className="loading-spinner"></div>
-    <p>Loading users...</p>
-  </div>
-);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) return (
+    <div className="user-management-loading">
+      <div className="spinner"></div>
+      <p>Loading users...</p>
+    </div>
+  );
+
   return (
     <div className="user-management">
-      <div className="section-header">
-        <h3>User Management</h3>
+      <div className="user-management-header">
+        <h2>User Management</h2>
         <div className="header-actions">
           <button 
             onClick={() => setShowCreateModal(true)}
-            className="btn-create"
+            className="btn btn-primary"
           >
-            + Create New User
+            <i className="fas fa-plus"></i> Create New User
           </button>
-          <button onClick={fetchUsers} className="refresh-btn">
-            Refresh
+          <button onClick={fetchUsers} className="btn btn-secondary">
+            <i className="fas fa-sync-alt"></i> Refresh
           </button>
         </div>
       </div>
 
-      {error && <div className="message error">{error}</div>}
+      {error && (
+        <div className="alert alert-error">
+          <i className="fas fa-exclamation-circle"></i>
+          {error}
+          <button onClick={() => setError('')} className="alert-close">
+            &times;
+          </button>
+        </div>
+      )}
+
+      <div className="user-stats">
+        <div className="stat-card">
+          <h3>{users.length}</h3>
+          <p>Total Users</p>
+        </div>
+        <div className="stat-card">
+          <h3>{users.filter(u => u.status === 'approved').length}</h3>
+          <p>Active Users</p>
+        </div>
+        <div className="stat-card">
+          <h3>{users.filter(u => u.status === 'pending').length}</h3>
+          <p>Pending Users</p>
+        </div>
+      </div>
 
       <div className="users-table-container">
-        <table className="users-table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.length === 0 ? (
+        <div className="table-header">
+          <h3>All Users</h3>
+          <span className="table-count">{users.length} users found</span>
+        </div>
+        
+        <div className="table-responsive">
+          <table className="users-table">
+            <thead>
               <tr>
-                <td colSpan="6" className="empty-state">
-                  No users found
-                </td>
+                <th>User Information</th>
+                <th>Contact</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
               </tr>
-            ) : (
-              users.map(user => (
-                <tr key={user.id}>
-                  <td>
-                    <div className="user-info">
-                      <strong>{user.username}</strong>
-                      {user.created_by_name && (
-                        <small>Created by: {user.created_by_name}</small>
-                      )}
-                    </div>
-                  </td>
-                  <td>{user.email}</td>
-                  <td>
-                    <select
-                      value={user.role}
-                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                      className="role-select"
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="editor">Editor</option>
-                      <option value="admin">Admin</option>
-                      <option value="super_admin">Super Admin</option>
-                    </select>
-                  </td>
-                  <td>
-                    <select
-                      value={user.status}
-                      onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                      className="status-select"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="suspended">Suspended</option>
-                    </select>
-                  </td>
-                  <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                  <td>
-                    <div className="user-actions">
-                      <button
-                        onClick={() => handleDeleteUser(user.id, user.username)}
-                        className="btn-delete"
-                        title="Delete User"
-                      >
-                        Delete
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="empty-state">
+                    <i className="fas fa-users"></i>
+                    <p>No users found</p>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                users.map(user => (
+                  <tr key={user.id} className="user-row">
+                    <td>
+                      <div className="user-info">
+                        <div className="user-avatar">
+                          {user.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="user-details">
+                          <strong>{user.username}</strong>
+                          {user.created_by_name && (
+                            <small>Created by: {user.created_by_name}</small>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="contact-info">
+                        <div>{user.email}</div>
+                        {user.mobile_number && (
+                          <small>{user.mobile_number}</small>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <select
+                        value={user.role}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                        className="role-select"
+                        disabled={user.role === 'super_admin'}
+                      >
+                        <option value="viewer">Viewer</option>
+                        <option value="editor">Editor</option>
+                        <option value="admin">Admin</option>
+                        <option value="super_admin">Super Admin</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select
+                        value={user.status}
+                        onChange={(e) => handleStatusChange(user.id, e.target.value)}
+                        className="status-select"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="suspended">Suspended</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div className="date-info">
+                        {formatDate(user.created_at)}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.username)}
+                          className="btn btn-danger btn-sm"
+                          disabled={user.role === 'super_admin'}
+                          title={user.role === 'super_admin' ? 'Cannot delete super admin' : 'Delete user'}
+                        >
+                          <i className="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Create User Modal */}
@@ -294,75 +344,101 @@ if (loading) return (
           <div className="modal">
             <div className="modal-header">
               <h3>Create New User</h3>
-              <button onClick={() => setShowCreateModal(false)} className="close-btn">&times;</button>
+              <button onClick={() => setShowCreateModal(false)} className="modal-close">
+                &times;
+              </button>
             </div>
 
-            <form onSubmit={handleCreateUser}>
-              <div className="form-group">
-                <label>Username:</label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  required
-                  placeholder="Enter username"
-                />
-              </div>
+            <form onSubmit={handleCreateUser} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Username *</label>
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    required
+                    placeholder="Enter username"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Email:</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  required
-                  placeholder="Enter email address"
-                />
-              </div>
+                <div className="form-group">
+                  <label>Email *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    required
+                    placeholder="Enter email address"
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Password:</label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  required
-                  placeholder="Enter password"
-                  minLength={6}
-                />
-              </div>
+                <div className="form-group">
+                  <label>Password *</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    required
+                    placeholder="Enter password (min 6 characters)"
+                    minLength={6}
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Confirm Password:</label>
-                <input
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                  required
-                  placeholder="Confirm password"
-                  minLength={6}
-                />
-              </div>
+                <div className="form-group">
+                  <label>Confirm Password *</label>
+                  <input
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                    required
+                    placeholder="Confirm password"
+                    minLength={6}
+                  />
+                </div>
 
-              <div className="form-group">
-                <label>Role:</label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData({...formData, role: e.target.value})}
-                >
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
+                <div className="form-group">
+                  <label>Role *</label>
+                  <select
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                  >
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
 
-              {error && <div className="message error">{error}</div>}
+                <div className="form-group">
+                  <label>Mobile Number</label>
+                  <input
+                    type="tel"
+                    value={formData.mobile_number}
+                    onChange={(e) => setFormData({...formData, mobile_number: e.target.value})}
+                    placeholder="Optional mobile number"
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label>Address</label>
+                  <textarea
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    placeholder="Optional address"
+                    rows="3"
+                  />
+                </div>
+              </div>
 
               <div className="modal-actions">
-                <button type="submit" disabled={loading}>
+                <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Creating...' : 'Create User'}
                 </button>
-                <button type="button" onClick={() => setShowCreateModal(false)}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowCreateModal(false)}
+                  className="btn btn-secondary"
+                >
                   Cancel
                 </button>
               </div>

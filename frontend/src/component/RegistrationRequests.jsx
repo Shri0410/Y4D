@@ -1,5 +1,7 @@
+// RegistrationRequests.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './UserManagement.css'; // reuse the same styles
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -45,7 +47,6 @@ const RegistrationRequests = () => {
 
   const handleApprove = (request) => {
     setSelectedRequest(request);
-    // Generate username from email (first part before @)
     const usernameFromEmail = request.email.split('@')[0];
     setApproveForm({
       username: usernameFromEmail,
@@ -113,72 +114,114 @@ const RegistrationRequests = () => {
       approved: 'status-approved',
       rejected: 'status-rejected'
     };
-    
-    return (
-      <span className={`status-badge ${statusClasses[status]}`}>
-        {status.toUpperCase()}
-      </span>
-    );
+    return <span className={`status-badge ${statusClasses[status]}`}>{status.toUpperCase()}</span>;
   };
 
-  if (loading) return <div className="loading">Loading registration requests...</div>;
+  const formatDate = (dateString) =>
+    new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  if (loading) {
+    return (
+      <div className="user-management-loading">
+        <div className="spinner"></div>
+        <p>Loading registration requests...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="registration-requests">
-      <div className="section-header">
-        <h3>Registration Requests</h3>
-        <div className="stats">
-          <span className="stat total">Total: {stats.total}</span>
-          <span className="stat pending">Pending: {stats.pending}</span>
-          <span className="stat approved">Approved: {stats.approved}</span>
-          <span className="stat rejected">Rejected: {stats.rejected}</span>
+    <div className="user-management">
+      {/* Header */}
+      <div className="user-management-header">
+        <h2>Registration Requests</h2>
+        <div className="header-actions">
+          <button onClick={fetchRequests} className="btn btn-secondary">
+            <i className="fas fa-sync-alt"></i> Refresh
+          </button>
         </div>
-        <button onClick={fetchRequests} className="refresh-btn">Refresh</button>
       </div>
 
-      {message && <div className="message success">{message}</div>}
-      {error && <div className="message error">{error}</div>}
+      {/* Alerts */}
+      {message && <div className="alert alert-success">{message}</div>}
+      {error && (
+        <div className="alert alert-error">
+          <i className="fas fa-exclamation-circle"></i>
+          {error}
+          <button onClick={() => setError('')} className="alert-close">&times;</button>
+        </div>
+      )}
 
-      <div className="requests-grid">
-        {requests.length === 0 ? (
-          <div className="empty-state">
-            <p>No pending registration requests</p>
-          </div>
-        ) : (
-          requests.map(request => (
-            <div key={request.id} className="request-card">
-              <div className="request-header">
-                <h4>{request.name}</h4>
-                {getStatusBadge(request.status)}
-              </div>
-              
-              <div className="request-details">
-                <p><strong>Email:</strong> {request.email}</p>
-                <p><strong>Mobile:</strong> {request.mobile_number}</p>
-                <p><strong>Address:</strong> {request.address}</p>
-                <p><strong>Submitted:</strong> {new Date(request.created_at).toLocaleDateString()}</p>
-                <p><strong>Status:</strong> {request.status}</p>
-              </div>
+      {/* Stats */}
+      <div className="user-stats">
+        <div className="stat-card"><h3>{stats.total}</h3><p>Total Requests</p></div>
+        <div className="stat-card"><h3>{stats.pending}</h3><p>Pending</p></div>
+        <div className="stat-card"><h3>{stats.approved}</h3><p>Approved</p></div>
+        <div className="stat-card"><h3>{stats.rejected}</h3><p>Rejected</p></div>
+      </div>
 
-              {request.status === 'pending' && (
-                <div className="request-actions">
-                  <button 
-                    onClick={() => handleApprove(request)}
-                    className="btn-approve"
-                  >
-                    Approve
-                  </button>
-                  <button 
-                    onClick={() => handleReject(request.id)}
-                    className="btn-reject"
-                  >
-                    Reject
-                  </button>
-                </div>
+      {/* Requests Table */}
+      <div className="users-table-container">
+        <div className="table-header">
+          <h3>All Registration Requests</h3>
+          <span className="table-count">{requests.length} requests found</span>
+        </div>
+        <div className="table-responsive">
+          <table className="users-table">
+            <thead>
+              <tr>
+                <th>User Info</th>
+                <th>Contact</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {requests.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="empty-state">
+                    <i className="fas fa-user-clock"></i>
+                    <p>No pending registration requests</p>
+                  </td>
+                </tr>
+              ) : (
+                requests.map((request) => (
+                  <tr key={request.id}>
+                    <td>
+                      <div className="user-info">
+                        <div className="user-avatar">{request.name.charAt(0).toUpperCase()}</div>
+                        <div className="user-details">
+                          <strong>{request.name}</strong>
+                          <small>{request.email}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="contact-info">
+                        <div>{request.mobile_number}</div>
+                        <small>{request.address}</small>
+                      </div>
+                    </td>
+                    <td><div className="date-info">{formatDate(request.created_at)}</div></td>
+                    <td>{getStatusBadge(request.status)}</td>
+                    <td>
+                      {request.status === 'pending' && (
+                        <div className="action-buttons">
+                          <button onClick={() => handleApprove(request)} className="btn btn-primary btn-sm">
+                            Approve
+                          </button>
+                          <button onClick={() => handleReject(request.id)} className="btn btn-danger btn-sm">
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
               )}
-            </div>
-          ))
-        )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Approve Modal */}
@@ -187,71 +230,60 @@ const RegistrationRequests = () => {
           <div className="modal">
             <div className="modal-header">
               <h3>Approve Registration</h3>
-              <button onClick={() => setShowApproveModal(false)} className="close-btn">&times;</button>
+              <button onClick={() => setShowApproveModal(false)} className="modal-close">&times;</button>
             </div>
 
-            <div className="user-info">
-              <p><strong>Name:</strong> {selectedRequest.name}</p>
-              <p><strong>Email:</strong> {selectedRequest.email}</p>
-              <p><strong>Mobile:</strong> {selectedRequest.mobile_number}</p>
-              <p><strong>Address:</strong> {selectedRequest.address}</p>
-            </div>
-
-            <form onSubmit={handleApproveSubmit}>
-              <div className="form-group">
-                <label>Username:</label>
-                <input
-                  type="text"
-                  value={approveForm.username}
-                  onChange={(e) => setApproveForm({...approveForm, username: e.target.value})}
-                  required
-                  placeholder="Choose a username"
-                />
+            <form onSubmit={handleApproveSubmit} className="modal-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Username *</label>
+                  <input
+                    type="text"
+                    value={approveForm.username}
+                    onChange={(e) => setApproveForm({ ...approveForm, username: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Password *</label>
+                  <input
+                    type="password"
+                    value={approveForm.password}
+                    onChange={(e) => setApproveForm({ ...approveForm, password: e.target.value })}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Confirm Password *</label>
+                  <input
+                    type="password"
+                    value={approveForm.confirmPassword}
+                    onChange={(e) => setApproveForm({ ...approveForm, confirmPassword: e.target.value })}
+                    required
+                    minLength={6}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Role *</label>
+                  <select
+                    value={approveForm.role}
+                    onChange={(e) => setApproveForm({ ...approveForm, role: e.target.value })}
+                  >
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Password:</label>
-                <input
-                  type="password"
-                  value={approveForm.password}
-                  onChange={(e) => setApproveForm({...approveForm, password: e.target.value})}
-                  required
-                  placeholder="Set temporary password"
-                  minLength={6}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Confirm Password:</label>
-                <input
-                  type="password"
-                  value={approveForm.confirmPassword}
-                  onChange={(e) => setApproveForm({...approveForm, confirmPassword: e.target.value})}
-                  required
-                  placeholder="Confirm password"
-                  minLength={6}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Role:</label>
-                <select
-                  value={approveForm.role}
-                  onChange={(e) => setApproveForm({...approveForm, role: e.target.value})}
-                >
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              {error && <div className="message error">{error}</div>}
+              {error && <div className="alert alert-error">{error}</div>}
 
               <div className="modal-actions">
-                <button type="submit" disabled={loading}>
+                <button type="submit" className="btn btn-primary" disabled={loading}>
                   {loading ? 'Creating...' : 'Create User Account'}
                 </button>
-                <button type="button" onClick={() => setShowApproveModal(false)}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowApproveModal(false)}>
                   Cancel
                 </button>
               </div>

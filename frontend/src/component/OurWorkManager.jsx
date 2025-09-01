@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './OurWorkManagement.css';
 
-const OurWorkManagement = ({ category, onClose }) => {
+const OurWorkManager = ({ category, onClose }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
@@ -19,8 +18,6 @@ const OurWorkManagement = ({ category, onClose }) => {
     is_active: true,
     display_order: 0
   });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState('');
 
   const API_BASE = 'http://localhost:5000/api';
@@ -64,46 +61,21 @@ const OurWorkManagement = ({ category, onClose }) => {
     setError('');
 
     try {
-      // Create FormData object for file uploads
-      const formDataToSend = new FormData();
-      
-      // Append all form fields
-      Object.keys(formData).forEach(key => {
-        if (key === 'additional_images') {
-          // Stringify array for backend
-          formDataToSend.append(key, JSON.stringify(formData[key]));
-        } else if (key === 'image') {
-          if (key === 'is_active') {
-            formDataToSend.append(key, processedData[key] ? '1' : '0');
-          } else {
-            formDataToSend.append(key, processedData[key]);
-          }
-        } else {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      // Append image file if selected
-      if (imageFile) {
-        formDataToSend.append('image', imageFile);
-      }
-
       let response;
-      const config = {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      };
-
       if (editingItem) {
-        response = await axios.put(`${API_BASE}/our-work/admin/${category}/${editingItem.id}`, 
-                                    formDataToSend, 
-                                    config);
+        response = await axios.put(`${API_BASE}/our-work/admin/${category}/${editingItem.id}`, formData, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       } else {
-        response = await axios.post(`${API_BASE}/our-work/admin/${category}`, 
-                                    formDataToSend, 
-                                    config);
+        response = await axios.post(`${API_BASE}/our-work/admin/${category}`, formData, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
       }
 
       setEditingItem(null);
@@ -120,8 +92,6 @@ const OurWorkManagement = ({ category, onClose }) => {
         is_active: true,
         display_order: 0
       });
-      setImageFile(null);
-      setImagePreview(null);
       fetchItems();
       
       alert(`Item ${editingItem ? 'updated' : 'created'} successfully!`);
@@ -148,9 +118,6 @@ const OurWorkManagement = ({ category, onClose }) => {
       is_active: item.is_active,
       display_order: item.display_order
     });
-    if (item.image_url) {
-      setImagePreview(item.image_url);
-    }
   };
 
   const handleDelete = async (id) => {
@@ -186,44 +153,15 @@ const OurWorkManagement = ({ category, onClose }) => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImageFile(file);
-    
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
-  };
+  if (loading) return <div className="loading">Loading...</div>;
 
-  const addImageUrl = () => {
-    setFormData(prev => ({
-      ...prev,
-      additional_images: [...prev.additional_images, '']
-    }));
-  };
+  return (
+    <div className="our-work-manager">
+      <div className="our-work-header">
+        <h2>{categoryLabels[category]} Management</h2>
+        <button onClick={onClose} className="close-btn">← Back</button>
+      </div>
 
-  const removeImageUrl = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      additional_images: prev.additional_images.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateImageUrl = (index, value) => {
-    setFormData(prev => ({
-      ...prev,
-      additional_images: prev.additional_images.map((url, i) => 
-        i === index ? value : url
-      )
-    }));
-  };
-
-  const renderForm = () => {
-    return (
       <form onSubmit={handleSubmit} className="our-work-form">
         <h3>{editingItem ? 'Edit' : 'Add New'} Item</h3>
         
@@ -270,20 +208,6 @@ const OurWorkManagement = ({ category, onClose }) => {
         </div>
 
         <div className="form-group">
-          <label>Or Upload Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          {imagePreview && (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" />
-            </div>
-          )}
-        </div>
-
-        <div className="form-group">
           <label>Video URL:</label>
           <input
             type="url"
@@ -291,36 +215,6 @@ const OurWorkManagement = ({ category, onClose }) => {
             onChange={(e) => setFormData({...formData, video_url: e.target.value})}
             placeholder="https://youtube.com/embed/video-id"
           />
-        </div>
-
-        <div className="form-group">
-          <label>Additional Images:</label>
-          <div className="additional-images">
-            {formData.additional_images.map((url, index) => (
-              <div key={index} className="image-url-input">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => updateImageUrl(index, e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
-                <button 
-                  type="button" 
-                  onClick={() => removeImageUrl(index)}
-                  className="remove-btn"
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-            <button 
-              type="button" 
-              onClick={addImageUrl}
-              className="add-btn"
-            >
-              + Add Image URL
-            </button>
-          </div>
         </div>
 
         <div className="form-group">
@@ -362,26 +256,11 @@ const OurWorkManagement = ({ category, onClose }) => {
               is_active: true,
               display_order: 0
             });
-            setImageFile(null);
-            setImagePreview(null);
           }}>
             Cancel
           </button>
         </div>
       </form>
-    );
-  };
-
-  if (loading) return <div className="loading">Loading...</div>;
-
-  return (
-    <div className="our-work-manager">
-      <div className="our-work-header">
-        <h2>{categoryLabels[category]} Management</h2>
-        <button onClick={onClose} className="close-btn">← Back</button>
-      </div>
-
-      {renderForm()}
 
       <div className="our-work-list">
         <h3>Existing Items</h3>
@@ -392,7 +271,7 @@ const OurWorkManagement = ({ category, onClose }) => {
             {items.map(item => (
               <div key={item.id} className="item-card">
                 {item.image_url && (
-<div className="item-image">
+                  <div className="item-image">
   <img
     src={
       item.image_url
@@ -409,7 +288,7 @@ const OurWorkManagement = ({ category, onClose }) => {
     }}
   />
 </div>
-
+   
                 )}
                 <div className="item-content">
                   <h4>{item.title}</h4>
@@ -435,4 +314,4 @@ const OurWorkManagement = ({ category, onClose }) => {
   );
 };
 
-export default OurWorkManagement;
+export default OurWorkManager;
