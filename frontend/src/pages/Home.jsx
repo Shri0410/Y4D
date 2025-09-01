@@ -1,8 +1,17 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import Counter from '../component/Counter';
-import { getMentors, getManagement, getReports } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Slider from "react-slick";
+import Counter from "../component/Counter";
+import { getMentors, getManagement, getReports } from "../services/api";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./Home.css";
+
+import first from "../assets/BannerImages/f.jpeg";
+import Second from "../assets/BannerImages/s.jpeg";
+import Third from "../assets/BannerImages/t.jpeg";
+import Fourth from "../assets/BannerImages/fo.jpeg";
 
 const Home = () => {
   const [teamCount, setTeamCount] = useState(0);
@@ -15,13 +24,13 @@ const Home = () => {
         const [mentorsData, managementData, reportsData] = await Promise.all([
           getMentors(),
           getManagement(),
-          getReports()
+          getReports(),
         ]);
-        
+
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
       } catch (err) {
-        console.error('Error fetching home data:', err);
+        console.error("Error fetching home data:", err);
       } finally {
         setLoading(false);
       }
@@ -30,41 +39,125 @@ const Home = () => {
     fetchHomeData();
   }, []);
 
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+  };
+
   return (
     <div className="home">
+      {/* ✅ Hero Slider Section */}
+      <section className="hero-slider">
+        <Slider {...sliderSettings}>
+          {/* First Image */}
+          <div>
+            <img src={first} alt="Slide 1" className="slide-img" />
+          </div>
+
+          {/* Second Image */}
+          <div>
+            <img src={Second} alt="Slide 2" className="slide-img" />
+          </div>
+
+          {/* Third Image with Title & Button */}
+          <div className="slide-content">
+            <img src={Third} alt="Slide 3" className="slide-img" />
+            <div className="overlay1">
+              <Link to="/about" className="img1-btn">
+                Know More
+              </Link>
+            </div>
+          </div>
+
+          {/* Fourth Image with Title & Button */}
+          <div className="slide-content">
+            <img src={Fourth} alt="Slide 4" className="slide-img" />
+            <div className="overlay2">
+              <Link to="/our-work" className="img2-btn">
+                Know More
+              </Link>
+            </div>
+          </div>
+        </Slider>
+      </section>
       {/* About Y4D Section */}
       <section className="section">
         <div className="container">
           <h2 className="section-title">About Y4D</h2>
           <div className="about-content">
             <p>
-              Y4D Foundation is a non-profit organization dedicated to creating sustainable change 
-              in communities across India through education, healthcare, and livelihood programs. 
-              We believe in empowering individuals and communities to build a better future for themselves.
+              Y4D Foundation is a youth-led organization in India that focuses
+              on empowering underprivileged sections of our society. Its main
+              goal is to uplift students through skill-based education, health
+              initiatives, employment opportunities, and empowerment programs.
+              The foundation aims to improve their livelihoods, health, and
+              quality of life. Its holistic approach addresses the diverse needs
+              of youth and children, promoting sustainable development and
+              social transformation. <br /> <br /> Y4D aligns its work with the
+              United Nations' Agenda 2030 Sustainable Development Goals and
+              engages in areas like environmental conservation, food safety, and
+              security. Over the past decade, Y4D has made significant
+              contributions to these key sectors.
             </p>
-            <Link to="/about" className="btn">
+            <Link to="/our-work" className="about-btn">
               Know More
             </Link>
           </div>
         </div>
       </section>
-
       {/* Our Reach Section */}
-      <section className="section bg-light">
+      <section className="our-reach-section">
         <div className="container">
-          <h2 className="section-title">Our Reach</h2>
-          <div className="grid grid-3">
-            <div className="card text-center">
-              <Counter end={150000} suffix="+" duration={2} />
-              <h3>Beneficiaries</h3>
+          <h2 className="reach-title">Our Impact</h2>
+          <div className="reach-grid">
+            {/* Item 1 */}
+            <div className="reach-item">
+              <h3 className="reach-number">
+                <Counter end={20} />+
+              </h3>
+              <p className="reach-subtitle">LAC</p>
+              <p className="reach-text">
+                children and their families are impacted every year
+              </p>
             </div>
-            <div className="card text-center">
-              <Counter end={20} suffix="+" duration={2} />
-              <h3>States</h3>
+
+            {/* Item 2 */}
+            <div className="reach-item">
+              <h3 className="reach-number">
+                <Counter end={2000} />+
+              </h3>
+              <p className="reach-subtitle">VILLAGES</p>
+              <p className="reach-text">
+                and slums are reached out to across the country
+              </p>
             </div>
-            <div className="card text-center">
-              <Counter end={200} suffix="+" duration={2} />
-              <h3>Projects</h3>
+
+            {/* Item 3 */}
+            <div className="reach-item">
+              <h3 className="reach-number">
+                <Counter end={400} />+
+              </h3>
+              <p className="reach-subtitle">PROJECTS</p>
+              <p className="reach-text">
+                focused on education, healthcare, and women empowerment
+              </p>
+            </div>
+
+            {/* Item 4 */}
+            <div className="reach-item">
+              <h3 className="reach-number">
+                <Counter end={27} />+
+              </h3>
+              <p className="reach-subtitle">STATES</p>
+              <p className="reach-text">
+                are reached including the remotest areas
+              </p>
             </div>
           </div>
         </div>
@@ -76,15 +169,35 @@ const Home = () => {
           <h2 className="section-title">Our Interventions</h2>
           <div className="grid grid-3">
             {[
-              'Quality Education',
-              'Livelihood',
-              'Healthcare',
-              'Environment Sustainability',
-              'Integrated Development Program (IDP)'
-            ].map((intervention, index) => (
-              <div key={index} className="card text-center">
-                <h3>{intervention}</h3>
-                <Link to="/our-work" className="btn">
+              {
+                title: "Quality Education",
+                img: "/assets/interventions/education.png",
+              },
+              {
+                title: "Livelihood",
+                img: "/assets/interventions/livelihood.png",
+              },
+              {
+                title: "Healthcare",
+                img: "/assets/interventions/healthcare.png",
+              },
+              {
+                title: "Environment Sustainability",
+                img: "/assets/interventions/environment.png",
+              },
+              {
+                title: "Integrated Development Program (IDP)",
+                img: "/assets/interventions/idp.png",
+              },
+            ].map((item, index) => (
+              <div key={index} className="card text-center intervention-card">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="intervention-icon"
+                />
+                <h3>{item.title}</h3>
+                <Link to="/our-work" className="inter-btn">
                   Learn More
                 </Link>
               </div>
@@ -97,37 +210,55 @@ const Home = () => {
       <section className="section">
         <div className="container">
           <h2 className="section-title">Towards Achieving SDG's</h2>
-          <div className="sdg-grid">
-            {[1, 2, 3, 4, 5, 6, 7].map(sdg => (
+          <Slider
+            slidesToShow={5}
+            slidesToScroll={1}
+            infinite={true}
+            autoplay={true}
+            autoplaySpeed={0}
+            speed={4000}
+            cssEase="linear"
+            arrows={false}
+            dots={false}
+          >
+            {[1, 2, 3, 4, 5, 6, 7].map((sdg) => (
               <div key={sdg} className="sdg-item">
-                <img 
-                  src={`/assets/sdg-${sdg}.png`} 
-                  alt={`SDG ${sdg}`} 
+                <img
+                  src={`/assets/sdg-${sdg}.png`}
+                  alt={`SDG ${sdg}`}
                   className="sdg-icon"
                 />
               </div>
             ))}
-          </div>
+          </Slider>
         </div>
       </section>
-{/* Partners Section */}
+      {/* Partners Section */}
       <section className="section">
         <div className="container">
           <h2 className="section-title">Our Partners</h2>
-          <div className="partners-grid">
-            {[1, 2, 3, 4, 5, 6].map(partner => (
+          <Slider
+            slidesToShow={5}
+            slidesToScroll={1}
+            infinite={true}
+            autoplay={true}
+            autoplaySpeed={0}
+            speed={4000}
+            cssEase="linear"
+            arrows={false}
+            dots={false}
+          >
+            {[1, 2, 3, 4, 5, 6].map((partner) => (
               <div key={partner} className="partner-item">
-                <img 
-                  src={`/assets/partner-${partner}.png`} 
-                  alt={`Partner ${partner}`} 
+                <img
+                  src={`/assets/partner-${partner}.png`}
+                  alt={`Partner ${partner}`}
                 />
               </div>
             ))}
-          </div>
+          </Slider>
         </div>
       </section>
-
-
       {/* Media Highlights Section */}
       <section className="section bg-light">
         <div className="container">
@@ -136,17 +267,23 @@ const Home = () => {
             <div className="card text-center">
               <h3>Newsletters</h3>
               <p>Stay updated with our latest activities and impact stories</p>
-              <Link to="/newsletters" className="btn">Read Now</Link>
+              <Link to="/newsletters" className="btn">
+                Read Now
+              </Link>
             </div>
             <div className="card text-center">
               <h3>Stories of Empowerment</h3>
               <p>Inspiring stories of transformation from our communities</p>
-              <Link to="/stories" className="btn">Read Stories</Link>
+              <Link to="/stories" className="btn">
+                Read Stories
+              </Link>
             </div>
             <div className="card text-center">
               <h3>Blogs</h3>
               <p>Join us in our mission through various events and programs</p>
-              <Link to="/blogs" className="btn">View Events</Link>
+              <Link to="/blogs" className="btn">
+                View Events
+              </Link>
             </div>
           </div>
         </div>
