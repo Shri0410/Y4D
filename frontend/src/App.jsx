@@ -81,7 +81,7 @@ function AppContent({ isAuthenticated, setIsAuthenticated, currentUser, setCurre
                 <Route path="/contact" element={<Contact />} />
               </Routes>
             </main>
-            <DonateButton />
+            {/* <DonateButton /> */}
             <Footer />
           </>
         } />

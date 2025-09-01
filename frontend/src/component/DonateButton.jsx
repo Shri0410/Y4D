@@ -1,4 +1,3 @@
-// src/component/DonateButton.jsx
 import React from 'react';
 
 const DonateButton = () => {

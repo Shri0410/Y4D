@@ -70,33 +70,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Team and Reports Count Section */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Our Impact</h2>
-          <div className="grid grid-2">
-            <div className="card text-center">
-              {!loading ? (
-                <Counter end={teamCount} suffix="+" duration={2} />
-              ) : (
-                <div className="loading-counter">...</div>
-              )}
-              <h3>Dedicated Team Members</h3>
-              <Link to="/our-team" className="btn">Meet Our Team</Link>
-            </div>
-            <div className="card text-center">
-              {!loading ? (
-                <Counter end={reportsCount} suffix="+" duration={2} />
-              ) : (
-                <div className="loading-counter">...</div>
-              )}
-              <h3>Completed Projects</h3>
-              <Link to="/our-work" className="btn">View Our Work</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Our Interventions Section */}
       <section className="section">
         <div className="container">
@@ -120,30 +93,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Media Highlights Section */}
-      <section className="section bg-light">
-        <div className="container">
-          <h2 className="section-title">Latest from Our Media Corner</h2>
-          <div className="grid grid-3">
-            <div className="card text-center">
-              <h3>Newsletters</h3>
-              <p>Stay updated with our latest activities and impact stories</p>
-              <Link to="/newsletters" className="btn">Read Now</Link>
-            </div>
-            <div className="card text-center">
-              <h3>Success Stories</h3>
-              <p>Inspiring stories of transformation from our communities</p>
-              <Link to="/stories" className="btn">Read Stories</Link>
-            </div>
-            <div className="card text-center">
-              <h3>Events</h3>
-              <p>Join us in our mission through various events and programs</p>
-              <Link to="/events" className="btn">View Events</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* SDGs Section */}
       <section className="section">
         <div className="container">
@@ -161,8 +110,7 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* Partners Section */}
+{/* Partners Section */}
       <section className="section">
         <div className="container">
           <h2 className="section-title">Our Partners</h2>
@@ -175,6 +123,31 @@ const Home = () => {
                 />
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* Media Highlights Section */}
+      <section className="section bg-light">
+        <div className="container">
+          <h2 className="section-title">Latest from Our Media Corner</h2>
+          <div className="grid grid-3">
+            <div className="card text-center">
+              <h3>Newsletters</h3>
+              <p>Stay updated with our latest activities and impact stories</p>
+              <Link to="/newsletters" className="btn">Read Now</Link>
+            </div>
+            <div className="card text-center">
+              <h3>Stories of Empowerment</h3>
+              <p>Inspiring stories of transformation from our communities</p>
+              <Link to="/stories" className="btn">Read Stories</Link>
+            </div>
+            <div className="card text-center">
+              <h3>Blogs</h3>
+              <p>Join us in our mission through various events and programs</p>
+              <Link to="/blogs" className="btn">View Events</Link>
+            </div>
           </div>
         </div>
       </section>
