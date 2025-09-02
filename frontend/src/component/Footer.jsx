@@ -11,13 +11,13 @@ const Footer = () => {
             <h4>About Us</h4>
             <ul>
               <li>
-                <a href="#">Our Story</a>
+                <a href="#">Reach & Presence</a>
               </li>
               <li>
-                <a href="#">Mission</a>
+                <a href="#">Our Team</a>
               </li>
               <li>
-                <a href="#">Vision</a>
+                <a href="#">Legal Status</a>
               </li>
             </ul>
           </div>
@@ -26,13 +26,19 @@ const Footer = () => {
             <h4>Our Work</h4>
             <ul>
               <li>
-                <a href="#">Projects</a>
+                <a href="#">Quality Education</a>
               </li>
               <li>
-                <a href="#">Case Studies</a>
+                <a href="#">Livelihood</a>
               </li>
               <li>
-                <a href="#">Research</a>
+                <a href="#">Healthcare</a>
+              </li>
+              <li>
+                <a href="#">Envirnment Sustainability</a>
+              </li>
+              <li>
+                <a href="#">IDP</a>
               </li>
             </ul>
           </div>
@@ -41,13 +47,13 @@ const Footer = () => {
             <h4>Get Involved</h4>
             <ul>
               <li>
-                <a href="#">Volunteer</a>
+                <a href="#">Corporate Partnership</a>
+              </li>
+              <li>
+                <a href="#">Volunteers & Internship</a>
               </li>
               <li>
                 <a href="#">Careers</a>
-              </li>
-              <li>
-                <a href="#">Donate</a>
               </li>
             </ul>
           </div>
@@ -56,13 +62,19 @@ const Footer = () => {
             <h4>Media Corner</h4>
             <ul>
               <li>
-                <a href="#">News</a>
+                <a href="#">Newsletters</a>
               </li>
               <li>
-                <a href="#">Press Release</a>
+                <a href="#">Stories of Empowerment</a>
               </li>
               <li>
-                <a href="#">Gallery</a>
+                <a href="#">Events</a>
+              </li>
+              <li>
+                <a href="#">Blogs</a>
+              </li>
+              <li>
+                <a href="#">Documentaries</a>
               </li>
             </ul>
           </div>
@@ -74,8 +86,11 @@ const Footer = () => {
         {/* Left side */}
         <div className="footer-left">
           <div className="footer-address">
-            <strong>Address:</strong>
-            <p>Head Office | Mumbai Office</p>
+            <p style={{ marginBottom: "8px", fontWeight: "bolder" }}>
+              Address:
+            </p>
+            <p>Head Office: </p>
+            <p>Mumbai Office:</p>
           </div>
           <div className="footer-social">
             <strong>Social Media Handles:</strong>

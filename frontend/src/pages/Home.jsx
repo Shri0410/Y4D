@@ -259,6 +259,42 @@ const Home = () => {
           </Slider>
         </div>
       </section>
+
+      {/* Accreditations Section */}
+      <section className="section">
+        <div className="container">
+          <h2 className="section-title">Accreditations</h2>
+          <Slider
+            slidesToShow={4}
+            slidesToScroll={1}
+            infinite={true}
+            autoplay={true}
+            autoplaySpeed={2000}
+            speed={800}
+            arrows={false}
+            dots={false}
+          >
+            {[
+              { img: "/assets/accreditation-1.png", title: "ISO Certified" },
+              { img: "/assets/accreditation-2.png", title: "Govt. of India" },
+              { img: "/assets/accreditation-3.png", title: "UN Partnership" },
+              { img: "/assets/accreditation-4.png", title: "CSR Registered" },
+              { img: "/assets/accreditation-5.png", title: "NITI Aayog" },
+              { img: "/assets/accreditation-6.png", title: "Skill India" },
+            ].map((item, index) => (
+              <div key={index} className="accreditation-card">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="accreditation-icon"
+                />
+                <h3>{item.title}</h3>
+              </div>
+            ))}
+          </Slider>
+        </div>
+      </section>
+
       {/* Media Highlights Section */}
       <section className="section bg-light">
         <div className="container">
@@ -267,21 +303,21 @@ const Home = () => {
             <div className="card text-center">
               <h3>Newsletters</h3>
               <p>Stay updated with our latest activities and impact stories</p>
-              <Link to="/newsletters" className="btn">
+              <Link to="/newsletters" className="MC-btn">
                 Read Now
               </Link>
             </div>
             <div className="card text-center">
               <h3>Stories of Empowerment</h3>
               <p>Inspiring stories of transformation from our communities</p>
-              <Link to="/stories" className="btn">
+              <Link to="/stories" className="MC-btn">
                 Read Stories
               </Link>
             </div>
             <div className="card text-center">
               <h3>Blogs</h3>
               <p>Join us in our mission through various events and programs</p>
-              <Link to="/blogs" className="btn">
+              <Link to="/blogs" className="MC-btn">
                 View Events
               </Link>
             </div>

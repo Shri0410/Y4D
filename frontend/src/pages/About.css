@@ -1,0 +1,77 @@
+.our-story-page {
+  margin-top: 80px;
+  font-family: "Arial", sans-serif;
+  background: #f9f9f9;
+}
+
+/* Banner */
+.story-banner img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Tabs Bar */
+.story-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 50px auto;
+  background: #fefc00;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  justify-content: space-between;
+  width: 80%;
+}
+
+.story-tab {
+  padding: 27px 25px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: transparent;
+  margin: 0;
+  transition: background 0.3s;
+}
+
+.story-tab:hover {
+  background: #8cbf3f;
+  color: white;
+}
+.story-tab.active {
+  background-color: #2a9d8f;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Section */
+.story-section {
+  margin: 40px auto;
+  max-width: 1000px;
+  padding: 0 20px;
+}
+
+.story-section > .story-tab {
+  background: #fefc00;
+  display: inline-block;
+  font-size: 20px;
+  padding: 12px 20px;
+  border-radius: 4px 4px 0 0;
+}
+
+.story-content-container {
+  background: #fff;
+  padding: 30px;
+  line-height: 1.8;
+  color: #333;
+  border-radius: 0 6px 6px 6px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.story-content-container p {
+  margin-bottom: 15px;
+  font-size: 16px;
+  text-align: justify;
+}
