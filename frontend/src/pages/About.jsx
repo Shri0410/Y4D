@@ -1,94 +1,245 @@
-// src/pages/About.jsx
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from "react";
+import "../pages/About.css";
+import bannerImg from "../assets/BannerImages/f.jpeg"; // replace with your banner image path
 
 const About = () => {
-  const [activeTab, setActiveTab] = useState('mission');
-
-  const tabs = [
-    { id: 'mission', label: 'Mission, Vision, Value' },
-    { id: 'philosophy', label: 'Philosophy of Change' },
-    { id: 'pyramid', label: 'Pyramid of Empowerment' },
-    { id: 'how-we-work', label: 'How We Work' },
-    { id: 'why-trust', label: 'Why Trust Us?' }
-  ];
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'mission':
-        return (
-          <div>
-            <h3>Our Mission</h3>
-            <p>To empower communities through sustainable development initiatives.</p>
-            <h3>Our Vision</h3>
-            <p>A world where every individual has the opportunity to thrive.</p>
-            <h3>Our Values</h3>
-            <ul>
-              <li>Integrity</li>
-              <li>Transparency</li>
-              <li>Innovation</li>
-              <li>Collaboration</li>
-            </ul>
-          </div>
-        );
-      case 'philosophy':
-        return <p>Our philosophy centers on community-led development and sustainable change.</p>;
-      case 'pyramid':
-        return <p>The Pyramid of Empowerment represents our approach to development.</p>;
-      case 'how-we-work':
-        return <p>We work through partnerships, community engagement, and evidence-based programs.</p>;
-      case 'why-trust':
-        return <p>We maintain the highest standards of transparency and accountability.</p>;
-      default:
-        return null;
-    }
+  // Refs for each section
+  const sectionRefs = {
+    mission: useRef(null),
+    vision: useRef(null),
+    value: useRef(null),
+    philosophy: useRef(null),
+    Pyramid: useRef(null),
+    work: useRef(null),
+    trust: useRef(null),
   };
 
+  const tabs = [
+    { id: "mission", label: "MISSION" },
+    { id: "vision", label: "VISION" },
+    { id: "value", label: "value" },
+    { id: "philosophy", label: "PHILOSOPHY OF CHANGE" },
+    { id: "Pyramid", label: "Pyramid of empowerment" },
+    { id: "work", label: "HOW WE WORK" },
+    { id: "trust", label: "WHY TRUST US?" },
+  ];
+
+  const [activeTab, setActiveTab] = useState("story");
+
+  // Scroll to section on tab click
+  const handleScroll = (id) => {
+    sectionRefs[id].current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  // Observe section visibility to update active tab
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveTab(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.6 } // 60% of section in view
+    );
+
+    Object.values(sectionRefs).forEach((ref) => {
+      if (ref.current) observer.observe(ref.current);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="about-page">
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">About Us</h2>
-          
-          <div className="tabs">
-            <div className="tab-headers">
-              {tabs.map(tab => (
-                <button
-                  key={tab.id}
-                  className={activeTab === tab.id ? 'active' : ''}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-            <div className="tab-content">
-              {renderTabContent()}
-            </div>
-          </div>
+    <div className="our-story-page">
+      {/* Banner */}
+      <div className="story-banner">
+        <img src={bannerImg} alt="Our Story Banner" />
+      </div>
 
-          <div className="useful-links">
-            <h3>You May Find Useful</h3>
-            <div className="link-buttons">
-              <button className="btn">Legal Status</button>
-              <button className="btn">Career</button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      <section className="section bg-light">
-        <div className="container">
-          <h2 className="section-title">Reach and Presence</h2>
-          {/* Impact counters and map would go here */}
+      <div ref={sectionRefs.mission} id="mission" className="story-section">
+        <div className="story-content-container">
+          <p>
+            Y4D is a youth-led, futuristic organization committed to empowering
+            the underserved sections of society by empowering them through 3E
+            formulae of Encouragement, Education, and Employment. Y4D envisions
+            shaping up a sustainable society for future generations.
+          </p>
         </div>
-      </section>
+      </div>
 
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Our Team</h2>
-          {/* Team members would be listed here */}
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={sectionRefs.vision} id="vision" className="story-section">
+        <div className="story-content-container">
+          <p>
+            Y4D envisions fostering the development of a happy, healthy, and
+            sustainable society in which every individual has an equal
+            opportunity for growth and a life of dignity.
+          </p>
         </div>
-      </section>
+      </div>
+
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={sectionRefs.value} id="value" className="story-section">
+        <div className="story-content-container">
+          <p>
+            To empower underprivileged children, youth and women through
+            relevant education, innovative healthcare and livelihood programmes.
+          </p>
+        </div>
+      </div>
+
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        ref={sectionRefs.philosophy}
+        id="philosophy"
+        className="story-section"
+      >
+        <div className="story-content-container">
+          <p>
+            At Y4D Foundation, we believe that sustainable transformation begins
+            with empowering individuals to become agents of their own change.
+            Our philosophy is rooted in three core principles:
+          </p>
+          <h4>Grassroots Empowerment:</h4>
+          <p>
+            Real change happens at the community level. We work directly with
+            individuals, understanding their unique challenges and building
+            solutions that emerge from within their communities.
+          </p>
+          <h4>Collaborative Growth:</h4>
+          <p>
+            We don't work for communities, we work with them. Every program is
+            designed through active participation, ensuring that beneficiaries
+            become partners in their own development journey.
+          </p>
+          <h4>Sustainable Impact:</h4>
+          <p>
+            Our interventions are designed to create ripple effects. When we
+            empower one individual, they become catalysts for change in their
+            families, communities, and beyond.
+          </p>
+          <h4>The Y4D Approach:</h4>
+          <p>
+            We don't just provide solutions, we build capacity, transfer
+            ownership, and create systems that continue to generate positive
+            impact long after our direct intervention ends.
+          </p>
+        </div>
+      </div>
+
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={sectionRefs.Pyramid} id="Pyramid" className="story-section">
+        <div className="story-content-container">
+          <p>
+            We work on the overall development of children, their families and
+            communities...
+          </p>
+        </div>
+      </div>
+
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={sectionRefs.work} id="work" className="story-section">
+        <div className="story-content-container">
+          <p>
+            Our Methodology: The 3E Framework in Action: ENCOURAGEMENT -
+            Building confidence and hope EDUCATION - Providing knowledge and
+            skills EMPLOYMENT - Creating sustainable opportunities
+          </p>
+        </div>
+      </div>
+
+      <div className="story-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
+            onClick={() => handleScroll(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div ref={sectionRefs.trust} id="trust" className="story-section">
+        <div className="story-content-container">
+          <p>
+            Transparency, accountability and impact measurement are the
+            cornerstones of our work...
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

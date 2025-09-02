@@ -18,7 +18,7 @@
   flex: 1;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 200px;
+  gap: 185px;
 }
 
 .footer-column h4 {
@@ -66,7 +66,7 @@
 .social-icons a {
   color: white;
   margin-right: 12px;
-  font-size: 18px;
+  font-size: 30px;
 }
 
 .footer-linkedin {

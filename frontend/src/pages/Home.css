@@ -31,6 +31,10 @@
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
+.about-content p {
+  text-align: justify;
+}
+
 .slide-content h2 {
   font-size: 2.5rem;
   margin-bottom: 1rem;
@@ -118,7 +122,7 @@
 /* Our Reach Section */
 .our-reach-section {
   background: #f7f7f7;
-  padding: 60px 20px;
+  padding: 40px 20px;
   text-align: center;
 }
 
@@ -209,11 +213,92 @@
   margin-bottom: 15px;
 }
 
+.inter-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.inter-btn:hover {
+  font-weight: bold;
+}
+.inter-btn::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+.inter-btn:hover::after {
+  transform: translateX(5px);
+}
+
+.MC-btn {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.MC-btn::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+.MC-btn:hover::after {
+  transform: translateX(5px);
+}
+
+/* Accreditations Section */
+.accreditation-card {
+  max-width: 280px;
+  background: #fff;
+  padding: 20px;
+  border: 2px solid black;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.accreditation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.accreditation-icon {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.accreditation-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .reach-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
+  }
+  .accreditation-card {
+    padding: 15px;
+  }
+  .accreditation-icon {
+    width: 80px;
+    height: 80px;
   }
 }
 
@@ -224,5 +309,12 @@
 
   .reach-number {
     font-size: 48px;
+  }
+  .accreditation-card h3 {
+    font-size: 0.9rem;
+  }
+  .accreditation-icon {
+    width: 70px;
+    height: 70px;
   }
 }
