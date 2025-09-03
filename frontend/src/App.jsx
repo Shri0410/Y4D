@@ -21,7 +21,7 @@ import Healthcare from "./pages/Healthcare";
 import EnvironmentSustainability from "./pages/EnvironmentSustainability";
 import IDP from "./pages/IDP";
 import GetInvolved from "./pages/GetInvolved";
-import CorporatePartnership from "./pages/CorporatePartnership";
+import CorporatePartnership from "./pages/Corporatepartnership";
 import Careers from "./pages/Careers";
 import MediaCorner from "./pages/MediaCorner";
 import Newsletters from "./pages/Newsletters";
