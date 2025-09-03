@@ -21,7 +21,7 @@
   text-align: center;
   font-size: 2.8rem;
   font-weight: 700;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   position: relative;
   color: #222;
 }
@@ -169,7 +169,7 @@
   font-size: 2.8rem;
   color: #2c3e50;
   font-weight: 700;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
 }
 
 .reach-grid {
@@ -313,7 +313,7 @@
   background: #fff;
   max-width: 77%;
   margin: 0px auto;
-  padding: 80px 20px;
+  padding: 60px 20px;
   transition: all 0.5s ease;
 }
 .accreditations-container:hover {
@@ -363,13 +363,78 @@
   padding: 40px 0;
 }
 
+.our-reach-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.Interventions-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+.grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(218px, 1fr));
+}
+
+.SDGs-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.Partners-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.Media-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 /* Responsive */
 @media (max-width: 1280px) {
   .accreditations-container {
     max-width: 88%;
   }
   .accreditation-card {
-    max-width: 260px;
+    max-width: 240px;
+  }
+  .About-container {
+    width: 86%;
+  }
+  .Interventions-container {
+    width: 86%;
+  }
+  .grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(193px, 1fr));
+  }
+  .SDGs-container {
+    width: 86%;
+  }
+  .Partners-container {
+    width: 86%;
+  }
+  .accreditations-container {
+    width: 84%;
+  }
+  .Media-container {
+    width: 86%;
   }
 }
 @media (max-width: 1024px) {
