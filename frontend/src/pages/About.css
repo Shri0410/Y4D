@@ -25,7 +25,7 @@
 }
 
 .story-tab {
-  padding: 40px 25px;
+  padding: 20px 25px;
   color: #fff;
   border: 1px solid white;
   cursor: pointer;
@@ -34,7 +34,7 @@
   background: transparent;
   margin: 0;
   transition: background 0.3s;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .story-tab:hover {
