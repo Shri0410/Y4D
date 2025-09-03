@@ -17,16 +17,17 @@
   display: flex;
   flex-wrap: wrap;
   margin: 50px auto;
-  background: #fefc00;
+  background: #ef6022;
   position: sticky;
   top: 0;
   z-index: 10;
   justify-content: space-between;
-  width: 80%;
+  width: 77%;
 }
 
 .story-tab {
   padding: 27px 25px;
+  color: #fff;
   border: none;
   cursor: pointer;
   font-weight: bold;
@@ -41,7 +42,7 @@
   color: white;
 }
 .story-tab.active {
-  background-color: #2a9d8f;
+  background-color: #005e30;
   color: #fff;
   font-weight: bold;
 }
@@ -62,16 +63,71 @@
 }
 
 .story-content-container {
-  background: #fff;
   padding: 30px;
   line-height: 1.8;
   color: #333;
-  border-radius: 0 6px 6px 6px;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .story-content-container p {
   margin-bottom: 15px;
-  font-size: 16px;
+  font-size: 18px;
   text-align: justify;
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+  .story-banner img {
+    height: 300px;
+  }
+
+  .story-tabs {
+    width: 90%;
+    margin: 30px auto;
+  }
+
+  .story-tab {
+    padding: 18px 15px;
+    font-size: 14px;
+  }
+
+  .story-content-container {
+    padding: 20px;
+  }
+
+  .story-content-container p {
+    font-size: 16px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .story-banner img {
+    height: 200px;
+  }
+
+  .story-tabs {
+    position: relative;
+    flex-direction: column;
+    width: 95%;
+  }
+
+  .story-tab {
+    width: 100%;
+    padding: 15px 10px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .story-section {
+    padding: 0 15px;
+  }
+
+  .story-content-container {
+    padding: 15px;
+  }
+
+  .story-content-container p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
 }

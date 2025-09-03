@@ -86,14 +86,28 @@ const Footer = () => {
         {/* Left side */}
         <div className="footer-left">
           <div className="footer-address">
-            <p style={{ marginBottom: "8px", fontWeight: "bolder" }}>
+            <p
+              style={{
+                marginBottom: "8px",
+                fontWeight: "bolder",
+                fontSize: "18px",
+              }}
+            >
               Address:
             </p>
             <p>Head Office: </p>
             <p>Mumbai Office:</p>
           </div>
           <div className="footer-social">
-            <strong>Social Media Handles:</strong>
+            <p
+              style={{
+                marginBottom: "0px",
+                fontWeight: "bolder",
+                fontSize: "18px",
+              }}
+            >
+              Social Media Handles:
+            </p>
             <div className="social-icons">
               <a href="#">
                 <i className="fab fa-facebook"></i>
