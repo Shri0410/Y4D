@@ -24,7 +24,7 @@ import GetInvolved from "./pages/GetInvolved";
 import CorporatePartnership from "./pages/Corporatepartnership";
 import Careers from "./pages/Careers";
 import MediaCorner from "./pages/MediaCorner";
-import Newsletters from "./pages/Newsletters";
+import Newsletters from "./pages/NewsLetters";
 import Stories from "./pages/Stories";
 import Events from "./pages/Events";
 import Blogs from "./pages/Blogs";
