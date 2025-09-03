@@ -95,8 +95,14 @@ const Footer = () => {
             >
               Address:
             </p>
-            <p>Head Office: </p>
-            <p>Mumbai Office:</p>
+            <p style={{ fontWeight: "bold" }}>Head Office:</p>
+            <p>
+              Y4D Foundation, 402, The Onyx, Near Euro School,
+              <br /> Wakad, Pune, Maharashtra, India - 411057
+            </p>
+            <p style={{ fontWeight: "bold", marginTop: "10px" }}>
+              Mumbai Office:
+            </p>
           </div>
           <div className="footer-social">
             <p
@@ -109,17 +115,40 @@ const Footer = () => {
               Social Media Handles:
             </p>
             <div className="social-icons">
-              <a href="#">
+              <a
+                href="https://www.facebook.com/Y4DTeam"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="fab fa-facebook"></i>
               </a>
-              <a href="#">
+              <a
+                href="https://x.com/intent/follow?source=followbutton&variant=1.0&screen_name=y4dteam"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="fab fa-twitter"></i>
               </a>
-              <a href="#">
+              <a
+                href="https://www.instagram.com/y4dteam/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="fab fa-instagram"></i>
               </a>
-              <a href="#">
+              <a
+                href="https://www.linkedin.com/company/y4dteam/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="fab fa-linkedin"></i>
+              </a>
+              <a
+                href="https://www.youtube.com/user/Y4DTeam"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i className="fab fa-youtube"></i>
               </a>
             </div>
           </div>
