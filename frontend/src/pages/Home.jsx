@@ -273,6 +273,20 @@ const Home = () => {
             speed={800}
             arrows={false}
             dots={false}
+            responsive={[
+              {
+                breakpoint: 1024, // tablets
+                settings: {
+                  slidesToShow: 2,
+                },
+              },
+              {
+                breakpoint: 768, // mobile
+                settings: {
+                  slidesToShow: 1,
+                },
+              },
+            ]}
           >
             {[
               { img: "/assets/accreditation-1.png", title: "ISO Certified" },
