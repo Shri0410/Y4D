@@ -15,10 +15,9 @@
 /* Tabs Bar */
 .story-tabs {
   display: flex;
-
   margin: 50px auto;
   background: #ef6022;
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 10;
   justify-content: space-between;
@@ -26,19 +25,20 @@
 }
 
 .story-tab {
-  padding: 27px 25px;
+  padding: 40px 25px;
   color: #fff;
-  border: none;
+  border: 1px solid white;
   cursor: pointer;
   font-weight: bold;
   text-transform: uppercase;
   background: transparent;
   margin: 0;
   transition: background 0.3s;
+  font-size: 18px;
 }
 
 .story-tab:hover {
-  background: #8cbf3f;
+  background: #005e30;
   color: white;
 }
 .story-tab.active {
@@ -72,6 +72,26 @@
   margin-bottom: 15px;
   font-size: 18px;
   text-align: justify;
+}
+
+.read-more-container {
+  text-align: center;
+  margin-top: 12px;
+}
+.read-more-btn {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.read-more-btn:hover {
+  color: #000;
 }
 
 /* Tablet view */

@@ -238,6 +238,9 @@ const About = () => {
             Transparency, accountability and impact measurement are the
             cornerstones of our work...
           </p>
+          <div className="read-more-container">
+            <button className="read-more-btn">Read more &gt;</button>
+          </div>
         </div>
       </div>
     </div>

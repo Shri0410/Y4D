@@ -87,8 +87,8 @@ const Home = () => {
         </Slider>
       </section>
       {/* About Y4D Section */}
-      <section className="section">
-        <div className="container">
+      <section className="About-section">
+        <div className="About-container">
           <h2 className="section-title">About Y4D</h2>
           <div className="about-content">
             <p>
@@ -119,33 +119,35 @@ const Home = () => {
             {/* Item 1 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={20} />+
+                <Counter end={15} />
+                L+
               </h3>
-              <p className="reach-subtitle">LAC</p>
+              <p className="reach-subtitle">Beneficiaries</p>
               <p className="reach-text">
-                children and their families are impacted every year
+                Children and their families are impacted every year
               </p>
             </div>
 
             {/* Item 2 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={2000} />+
+                <Counter end={20} />+
               </h3>
-              <p className="reach-subtitle">VILLAGES</p>
+              <p className="reach-subtitle">States</p>
               <p className="reach-text">
-                and slums are reached out to across the country
+                Active presence across more than 20 states and underserved
+                communities
               </p>
             </div>
 
             {/* Item 3 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={400} />+
+                <Counter end={200} />+
               </h3>
               <p className="reach-subtitle">PROJECTS</p>
               <p className="reach-text">
-                focused on education, healthcare, and women empowerment
+                Projects in education, healthcare, and women empowerment
               </p>
             </div>
           </div>
@@ -153,7 +155,7 @@ const Home = () => {
       </section>
 
       {/* Our Interventions Section */}
-      <section className="section">
+      <section className="Interventions-section">
         <div className="container">
           <h2 className="section-title">Our Interventions</h2>
           <div className="grid grid-3">
@@ -196,7 +198,7 @@ const Home = () => {
       </section>
 
       {/* SDGs Section */}
-      <section className="section">
+      <section className="SDGs-section">
         <div className="container">
           <h2 className="section-title">Towards Achieving SDG's</h2>
           <Slider
@@ -223,7 +225,7 @@ const Home = () => {
         </div>
       </section>
       {/* Partners Section */}
-      <section className="section">
+      <section className="Partners-section">
         <div className="container">
           <h2 className="section-title">Our Partners</h2>
           <Slider
@@ -250,9 +252,9 @@ const Home = () => {
       </section>
 
       {/* Accreditations Section */}
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title">Accreditations</h2>
+      <section className=" accreditations-section">
+        <h2 className="section-title">Accreditations</h2>
+        <div className="accreditations-container">
           <Slider
             slidesToShow={4}
             slidesToScroll={1}
@@ -305,7 +307,7 @@ const Home = () => {
       </section>
 
       {/* Media Highlights Section */}
-      <section className="section bg-light">
+      <section className="Media-section bg-light">
         <div className="container">
           <h2 className="section-title">Latest from Our Media Corner</h2>
           <div className="grid grid-3">
