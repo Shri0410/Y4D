@@ -148,17 +148,6 @@ const Home = () => {
                 focused on education, healthcare, and women empowerment
               </p>
             </div>
-
-            {/* Item 4 */}
-            <div className="reach-item">
-              <h3 className="reach-number">
-                <Counter end={27} />+
-              </h3>
-              <p className="reach-subtitle">STATES</p>
-              <p className="reach-text">
-                are reached including the remotest areas
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -277,13 +266,19 @@ const Home = () => {
               {
                 breakpoint: 1024, // tablets
                 settings: {
-                  slidesToShow: 2,
+                  slidesToShow: 3,
                 },
               },
               {
-                breakpoint: 768, // mobile
+                breakpoint: 768, // large mobiles
                 settings: {
-                  slidesToShow: 1,
+                  slidesToShow: 2, // show 2 cards instead of 1
+                },
+              },
+              {
+                breakpoint: 480, // very small screens
+                settings: {
+                  slidesToShow: 1, // fallback to 1 card
                 },
               },
             ]}
