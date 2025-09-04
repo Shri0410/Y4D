@@ -1,8 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../pages/About.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
 
 const About = () => {
+  const navigate = useNavigate();
+  const handleReadMore = () => {
+    navigate("/legalreports");
+  };
   // Refs for each section
   const sectionRefs = {
     mission: useRef(null),
@@ -239,7 +244,9 @@ const About = () => {
             cornerstones of our work...
           </p>
           <div className="read-more-container">
-            <button className="read-more-btn">Read more &gt;</button>
+            <button className="read-more-btn" onClick={handleReadMore}>
+              Read more &gt;
+            </button>
           </div>
         </div>
       </div>
