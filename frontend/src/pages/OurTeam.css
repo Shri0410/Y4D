@@ -130,7 +130,7 @@
 
 /* Responsive */
 
-@media (min-width: 1280px) and (max-width: 1360px) {
+@media (min-width: 1280px) and (max-width: 1380px) {
   .FOT-section {
     padding-top: 45px;
   }
@@ -147,8 +147,11 @@
     height: auto;
   }
   .team-card img {
-    width: 220px;
-    height: 220px;
+    width: 200px;
+    height: 200px;
+  }
+  .team-card {
+    max-width: calc(25% - 30px);
   }
 }
 @media (max-width: 1024px) {
