@@ -80,12 +80,12 @@
 }
 
 /* Responsive */
-@media (min-width: 1280px) and (max-width: 1360px) {
+@media (min-width: 1280px) and (max-width: 1380px) {
   .footer-links {
-    gap: 140px;
+    gap: 100px;
   }
   .footer-bottom {
-    gap: 325px;
+    gap: 210px;
   }
 }
 @media (max-width: 1024px) {
