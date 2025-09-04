@@ -34,6 +34,8 @@ import ScrollToTop from "./ScrollToTop";
 import Dashboard from "./component/Dashboard";
 import LoginPage from "./component/LoginPage";
 import PageTransition from "./component/PageTransition";
+import LegalReports from "./pages/LegalReports";
+
 import "./App.css";
 
 function AppContent({
@@ -98,6 +100,7 @@ function AppContent({
                   <Route path="/blogs" element={<Blogs />} />
                   <Route path="/documentaries" element={<Documentaries />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/legalreports" element={<LegalReports />} />
                 </Routes>
               </main>
               <Footer />
