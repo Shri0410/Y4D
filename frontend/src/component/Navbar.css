@@ -15,9 +15,9 @@
   background-color: rgba(255, 255, 255, 0.98);
 }
 
-.navbar .container {
+.navbar .Nav-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 }
 
@@ -38,7 +38,7 @@
 
 .logo {
   height: 50px;
-  margin-right: 10px;
+  margin-right: 150px;
 }
 
 .nav-list {
@@ -177,10 +177,111 @@
   background-color: #ff5252;
 }
 
+@media (max-width: 1280px) {
+  .navbar .Nav-container {
+    display: flex;
+    justify-content: center;
+  }
+  .nav-list {
+    gap: 0px;
+  }
+  .logo {
+    margin-right: 50px;
+  }
+  .footer-links {
+    gap: 140px;
+  }
+  .footer-bottom {
+    gap: 440px;
+  }
+}
+
+/* Tablet view (up to 1024px) */
+@media (max-width: 1024px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .navbar .Nav-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 40px;
+  }
+
+  .nav-menu {
+    position: fixed;
+    left: -100%;
+    top: 70px;
+    flex-direction: column;
+    background-color: white;
+    width: 100%;
+    text-align: left;
+    transition: 0.3s;
+    box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+  }
+
+  .nav-menu.active {
+    left: 0;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .nav-list > li {
+    width: 100%;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .nav-list a,
+  .nav-list .dropdown > button {
+    padding: 15px 10px;
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 0;
+  }
+
+  .dropdown-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .dropdown.active .dropdown-menu {
+    max-height: 500px;
+  }
+
+  .dropdown-menu a {
+    padding-left: 30px;
+  }
+
+  /* Reduce logo margin on tab */
+  .logo {
+    margin-right: 20px;
+  }
+}
+
 /* Mobile styles */
 @media (max-width: 768px) {
   .hamburger {
     display: flex;
+  }
+  .navbar .Nav-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 20px;
   }
 
   .nav-menu {

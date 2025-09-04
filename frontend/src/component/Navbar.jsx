@@ -68,7 +68,7 @@ const Navbar = () => {
 
   return (
     <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
-      <div className="container">
+      <div className="Nav-container">
         <div className="nav-brand">
           <Link to="/" onClick={closeAllDropdowns}>
             <img src={logo} alt="Y4D Logo" className="logo" />

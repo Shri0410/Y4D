@@ -113,7 +113,7 @@ const Home = () => {
       </section>
       {/* Our Reach Section */}
       <section className="our-reach-section">
-        <div className="container">
+        <div className="our-reach-container">
           <h2 className="reach-title">Our Impact</h2>
           <div className="reach-grid">
             {/* Item 1 */}
@@ -156,7 +156,7 @@ const Home = () => {
 
       {/* Our Interventions Section */}
       <section className="Interventions-section">
-        <div className="container">
+        <div className="Interventions-container">
           <h2 className="section-title">Our Interventions</h2>
           <div className="grid grid-3">
             {[
@@ -199,7 +199,7 @@ const Home = () => {
 
       {/* SDGs Section */}
       <section className="SDGs-section">
-        <div className="container">
+        <div className="SDGs-container">
           <h2 className="section-title">Towards Achieving SDG's</h2>
           <Slider
             slidesToShow={5}
@@ -226,7 +226,7 @@ const Home = () => {
       </section>
       {/* Partners Section */}
       <section className="Partners-section">
-        <div className="container">
+        <div className="Partners-container">
           <h2 className="section-title">Our Partners</h2>
           <Slider
             slidesToShow={5}
@@ -308,7 +308,7 @@ const Home = () => {
 
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">
-        <div className="container">
+        <div className="Media-container">
           <h2 className="section-title">Latest from Our Media Corner</h2>
           <div className="grid grid-3">
             <div className="card text-center">

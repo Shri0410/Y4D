@@ -69,15 +69,6 @@ body {
   padding: 60px 0;
 }
 
-.grid {
-  display: grid;
-  gap: 20px;
-}
-
-.grid-3 {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-}
-
 .card {
   background: white;
   border-radius: 8px;
