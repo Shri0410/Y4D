@@ -14,8 +14,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
+
+  // Sub-selections
   const [currentMediaType, setCurrentMediaType] = useState(null);
   const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null); 
+
+  // NEW: sidebar dropdown state
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   // Form states
   const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
@@ -24,18 +29,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
   const canManageContent = currentUser && ['super_admin', 'admin', 'editor'].includes(currentUser.role);
+  const canManageUsers = currentUser && ['super_admin', 'admin'].includes(currentUser.role);
   const API_BASE = 'http://localhost:5000/api';
 
-  // Add this useEffect to clear sub-sections when tabs change
+  // Clear sub-sections when switching tabs
   useEffect(() => {
-    // Clear sub-sections when switching tabs
     setCurrentMediaType(null);
     setCurrentOurWorkCategory(null);
-  }, [activeTab]); // This runs whenever activeTab changes
+  }, [activeTab]);
 
   useEffect(() => {
-    // Load user from localStorage if not provided via props
     if (!currentUser) {
       const userData = localStorage.getItem('user');
       if (userData) {
@@ -78,8 +83,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(false);
   };
 
-  const canManageUsers = currentUser && ['super_admin', 'admin'].includes(currentUser.role);
-
   const handleImageChange = (e, setFormFunction) => {
     const file = e.target.files[0];
     setFormFunction(prev => ({ ...prev, image: file }));
@@ -88,7 +91,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     reader.onloadend = () => {
       setImagePreview(reader.result);
     };
-    reader.readAsDataURL(file);
+    if (file) reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e, type) => {
@@ -236,14 +239,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     window.location.href = '/admin';
   };
 
+  // Helpers for Media & OurWork cards
   const getMediaTypeIcon = (type) => {
-    const icons = {
-      newsletters: '📰',
-      stories: '📖',
-      events: '🎉',
-      blogs: '✍️',
-      documentaries: '🎬'
-    };
+    const icons = { newsletters: '📰', stories: '📖', events: '🎉', blogs: '✍️', documentaries: '🎬' };
     return icons[type] || '📁';
   };
 
@@ -291,6 +289,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     return descriptions[category] || 'Manage content';
   };
 
+  // ORIGINAL renderForm (preserved)
   const renderForm = () => {
     switch (activeTab) {
       case 'reports':
@@ -537,42 +536,50 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           </form>
         );
-      
+
       case 'media':
-        return (
-          <div className="media-dashboard">
-            <h3>Media Management</h3>
-            <div className="media-types-grid">
-              {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
-                <div key={type} className="media-type-card" onClick={() => setCurrentMediaType(type)}>
-                  <h4>{getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</h4>
-                  <p>{getMediaTypeDescription(type)}</p>
-                </div>
-              ))}
+        // If no sub-type selected, show your original media type cards
+        if (!currentMediaType) {
+          return (
+            <div className="media-dashboard">
+              <h3>Media</h3>
+              <div className="media-types-grid">
+                {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+                  <div key={type} className="media-type-card" onClick={() => setCurrentMediaType(type)}>
+                    <h4>{getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</h4>
+                    <p>{getMediaTypeDescription(type)}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      
+          );
+        }
+        return null; // Managed by <MediaManager /> below
+
       case 'ourWork':
-        return (
-          <div className="media-dashboard">
-            <h3>Our Work</h3>
-            <div className="media-types-grid">
-              {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-                <div key={category} className="media-type-card" onClick={() => setCurrentOurWorkCategory(category)}>
-                  <h4>{getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}</h4>
-                  <p>{getOurWorkCategoryDescription(category)}</p>
-                </div>
-              ))}
+        if (!currentOurWorkCategory) {
+          return (
+            <div className="media-dashboard">
+              <h3>Our Interventions</h3>
+              <div className="media-types-grid">
+                {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+                  <div key={category} className="media-type-card" onClick={() => setCurrentOurWorkCategory(category)}>
+                    <h4>{getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}</h4>
+                    <p>{getOurWorkCategoryDescription(category)}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        );
+          );
+        }
+        return null; // Managed by <OurWorkManagement /> below
       
       default:
         return null;
     }
   };
 
+  // ORIGINAL renderContent (preserved)
   const renderContent = () => {
     if (loading) return <div className="loading">Loading...</div>;
     
@@ -701,8 +708,20 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               </div>
             )}
           </div>
-        );      
+        );
+
+      // media & ourWork content handled by dedicated components below
+      default:
+        return null;
     }
+  };
+
+  // Toggle a dropdown (media / ourWork / users). Clicking other top-level tabs closes any open dropdown.
+  const selectTopLevelTab = (tab) => {
+    setActiveTab(tab);
+    if (tab !== 'media' && openDropdown === 'media') setOpenDropdown(null);
+    if (tab !== 'ourWork' && openDropdown === 'ourWork') setOpenDropdown(null);
+    if (tab !== 'users' && openDropdown === 'users') setOpenDropdown(null);
   };
 
   return (
@@ -721,36 +740,103 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <nav className="dashboard-sidebar">
           <ul>
             <li className={activeTab === 'reports' ? 'active' : ''}>
-              <button onClick={() => setActiveTab('reports')}>Report Management</button>
+              <button onClick={() => selectTopLevelTab('reports')}>All Reports</button>
             </li>
             <li className={activeTab === 'mentors' ? 'active' : ''}>
-              <button onClick={() => setActiveTab('mentors')}>Our Mentors</button>
+              <button onClick={() => selectTopLevelTab('mentors')}>Mentors</button>
             </li>
             <li className={activeTab === 'management' ? 'active' : ''}>
-              <button onClick={() => setActiveTab('management')}>Management Team</button>
+              <button onClick={() => selectTopLevelTab('management')}>Management Team</button>
             </li>
             <li className={activeTab === 'careers' ? 'active' : ''}>
-              <button onClick={() => setActiveTab('careers')}>Career Page</button>
+              <button onClick={() => selectTopLevelTab('careers')}>Career Page</button>
             </li>
-            <li className={activeTab === 'media' ? 'active' : ''}>
-              <button onClick={() => setActiveTab('media')}>Media</button>
-            </li>
-            {canManageContent && (
-              <li className={activeTab === 'ourWork' ? 'active' : ''}>
-                <button onClick={() => setActiveTab('ourWork')}>Our Work</button>
-              </li>
-            )}
 
-            {canManageUsers && (
-              <>
-                <li className={activeTab === 'users' ? 'active' : ''}>
-                  <button onClick={() => setActiveTab('users')}>User Management</button>
-                </li>
-                <li className={activeTab === 'registrations' ? 'active' : ''}>
-                  <button onClick={() => setActiveTab('registrations')}>Registration Requests</button>
-                </li>
-              </>
-            )}
+{/* Media dropdown */}
+<li className={activeTab === 'media' ? 'active' : ''}>
+  <button
+    onClick={() => setOpenDropdown(openDropdown === 'media' ? null : 'media')}
+  >
+    Media ▾
+  </button>
+  {openDropdown === 'media' && (
+    <ul className="submenu">
+      {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+        <li key={type}>
+          <button
+            className={currentMediaType === type ? 'active-sub' : ''}
+            onClick={() => {
+              setCurrentMediaType(type);
+              setActiveTab('media');
+            }}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</li>
+
+{/* Interventions dropdown */}
+{canManageContent && (
+  <li className={activeTab === 'ourWork' ? 'active' : ''}>
+    <button
+      onClick={() => setOpenDropdown(openDropdown === 'ourWork' ? null : 'ourWork')}
+    >
+      Our Interventions ▾
+    </button>
+    {openDropdown === 'ourWork' && (
+      <ul className="submenu">
+        {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+          <li key={category}>
+            <button
+              className={currentOurWorkCategory === category ? 'active-sub' : ''}
+              onClick={() => {
+                setCurrentOurWorkCategory(category);
+                setActiveTab('ourWork');
+              }}
+            >
+              {getOurWorkCategoryLabel(category)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    )}
+  </li>
+)}
+
+{/* User management dropdown */}
+{canManageUsers && (
+  <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
+    <button
+      onClick={() => setOpenDropdown(openDropdown === 'users' ? null : 'users')}
+    >
+      User Management ▾
+    </button>
+    {openDropdown === 'users' && (
+      <ul className="submenu">
+        <li>
+          <button
+            className={activeTab === 'users' ? 'active-sub' : ''}
+            onClick={() => setActiveTab('users')}
+          >
+            Users
+          </button>
+        </li>
+        <li>
+          <button
+            className={activeTab === 'registrations' ? 'active-sub' : ''}
+            onClick={() => setActiveTab('registrations')}
+          >
+            Registration Requests
+          </button>
+        </li>
+      </ul>
+    )}
+  </li>
+)}
+
           </ul>
         </nav>
         
