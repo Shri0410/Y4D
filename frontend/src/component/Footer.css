@@ -20,7 +20,7 @@
   gap: 173px;
 }
 .footer-column {
-  width: 158px;
+  width: 178px;
 }
 
 .footer-column h4 {
@@ -86,7 +86,7 @@
     gap: 140px;
   }
   .footer-bottom {
-    gap: 470px;
+    gap: 280px;
   }
 }
 @media (max-width: 1024px) {

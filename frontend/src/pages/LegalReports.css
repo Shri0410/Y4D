@@ -1,0 +1,78 @@
+.legal-page {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  padding: 75px 0px;
+}
+
+.legal-banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.legal-section {
+  width: 77%;
+  margin: 40px auto;
+}
+
+.legal-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .legal-section h2 {
+    font-size: 1.5rem;
+  }
+
+  table td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .legal-section h2 {
+    font-size: 1.3rem;
+  }
+
+  table td {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .legal-page {
+    padding: 10px;
+  }
+
+  .legal-section h2 {
+    font-size: 1.1rem;
+  }
+
+  table td {
+    padding: 5px;
+    font-size: 0.7rem;
+  }
+}

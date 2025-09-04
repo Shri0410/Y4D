@@ -178,22 +178,22 @@
 }
 
 @media (max-width: 1280px) {
-  .navbar .Nav-container {
+  /* .navbar .Nav-container {
     display: flex;
     justify-content: center;
   }
   .nav-list {
     gap: 0px;
-  }
+  } */
   .logo {
     margin-right: 50px;
   }
-  .footer-links {
+  /* .footer-links {
     gap: 140px;
   }
   .footer-bottom {
     gap: 440px;
-  }
+  } */
 }
 
 /* Tablet view (up to 1024px) */

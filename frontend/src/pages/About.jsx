@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import "../pages/About.css";
-import bannerImg from "../assets/BannerImages/f.jpeg"; // replace with your banner image path
+import bannerImg from "../assets/BannerImages/f.jpeg";
 
 const About = () => {
   // Refs for each section

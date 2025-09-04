@@ -89,7 +89,9 @@ const Home = () => {
       {/* About Y4D Section */}
       <section className="About-section">
         <div className="About-container">
-          <h2 className="section-title">About Y4D</h2>
+          <h2 className="section-title">
+            About Y4D<span></span>
+          </h2>
           <div className="about-content">
             <p>
               Y4D Foundation is a youth-led organization in India that focuses
@@ -114,7 +116,9 @@ const Home = () => {
       {/* Our Reach Section */}
       <section className="our-reach-section">
         <div className="our-reach-container">
-          <h2 className="reach-title">Our Impact</h2>
+          <h2 className="section-title">
+            Our Impact<span></span>
+          </h2>
           <div className="reach-grid">
             {/* Item 1 */}
             <div className="reach-item">
@@ -157,7 +161,9 @@ const Home = () => {
       {/* Our Interventions Section */}
       <section className="Interventions-section">
         <div className="Interventions-container">
-          <h2 className="section-title">Our Interventions</h2>
+          <h2 className="section-title">
+            Our Interventions<span></span>
+          </h2>
           <div className="grid grid-3">
             {[
               {
@@ -200,7 +206,9 @@ const Home = () => {
       {/* SDGs Section */}
       <section className="SDGs-section">
         <div className="SDGs-container">
-          <h2 className="section-title">Towards Achieving SDG's</h2>
+          <h2 className="section-title">
+            Towards Achieving SDG's<span></span>
+          </h2>
           <Slider
             slidesToShow={5}
             slidesToScroll={1}
@@ -227,7 +235,9 @@ const Home = () => {
       {/* Partners Section */}
       <section className="Partners-section">
         <div className="Partners-container">
-          <h2 className="section-title">Our Partners</h2>
+          <h2 className="section-title">
+            Our Partners<span></span>
+          </h2>
           <Slider
             slidesToShow={5}
             slidesToScroll={1}
@@ -253,7 +263,9 @@ const Home = () => {
 
       {/* Accreditations Section */}
       <section className=" accreditations-section">
-        <h2 className="section-title">Accreditations</h2>
+        <h2 className="section-title">
+          Accreditations<span></span>
+        </h2>
         <div className="accreditations-container">
           <Slider
             slidesToShow={4}
@@ -309,7 +321,9 @@ const Home = () => {
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">
         <div className="Media-container">
-          <h2 className="section-title">Latest from Our Media Corner</h2>
+          <h2 className="section-title">
+            Latest from Our Media Corner<span></span>
+          </h2>
           <div className="grid grid-3">
             <div className="card text-center">
               <h3>Newsletters</h3>
@@ -327,9 +341,11 @@ const Home = () => {
             </div>
             <div className="card text-center">
               <h3>Blogs</h3>
-              <p>Join us in our mission through various events and programs</p>
+              <p>
+                Read stories, insights, and updates from our inspiring journey.
+              </p>
               <Link to="/blogs" className="MC-btn">
-                View Events
+                View Blogs
               </Link>
             </div>
           </div>

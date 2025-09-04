@@ -1,5 +1,6 @@
 /* Newsletters Page Styles */
 .newsletters-page {
+  font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
@@ -122,15 +123,15 @@
   .newsletters-page {
     padding: 1rem;
   }
-  
+
   .newsletters-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .newsletter-actions {
     flex-direction: column;
   }
-  
+
   .btn-view,
   .btn-download {
     width: 100%;
