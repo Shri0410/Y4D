@@ -61,7 +61,7 @@ const OurTeam = () => {
       {/* Our Mentors */}
       <section className="OT-section">
         <h2 className="section-title">
-          Our Mentors<span></span>
+          Our Mentors <span></span>
         </h2>
         {loadingMentors ? (
           <p>Loading mentors...</p>

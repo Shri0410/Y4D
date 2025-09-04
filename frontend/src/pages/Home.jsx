@@ -327,7 +327,7 @@ const Home = () => {
           <div className="grid grid-3">
             <div className="card text-center">
               <h3>Newsletters</h3>
-              <p>Stay updated with our latest activities and impact stories</p>
+              <p>Stay updated with our latest activities and impact stories </p>
               <Link to="/newsletters" className="MC-btn">
                 Read Now
               </Link>
