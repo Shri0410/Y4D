@@ -35,6 +35,7 @@ import Dashboard from "./component/Dashboard";
 import LoginPage from "./component/LoginPage";
 import PageTransition from "./component/PageTransition";
 import LegalReports from "./pages/LegalReports";
+import VolunteersInternship from "./pages/VolunteersInternship";
 
 import "./App.css";
 
@@ -91,6 +92,10 @@ function AppContent({
                   <Route
                     path="/corporate-partnership"
                     element={<CorporatePartnership />}
+                  />
+                  <Route
+                    path="/volunteers-internship"
+                    element={<VolunteersInternship />}
                   />
                   <Route path="/careers" element={<Careers />} />
                   <Route path="/media-corner" element={<MediaCorner />} />

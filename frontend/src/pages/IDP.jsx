@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './OurWorkPages.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./IDP.css"; // unique CSS file
 
 const IDP = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchItems();
@@ -15,60 +15,73 @@ const IDP = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/our-work/published/integrated_development`);
+      const response = await axios.get(
+        `${API_BASE}/our-work/published/integrated_development`
+      );
       setItems(response.data);
     } catch (error) {
-      console.error('Error fetching IDP programs:', error);
-      setError('Failed to load integrated development programs');
+      console.error("Error fetching IDP programs:", error);
+      setError("Failed to load integrated development programs");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="page-container"><div className="loading">Loading Integrated Development Programs...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  if (loading)
+    return (
+      <div className="idp-page-container">
+        <div className="idp-loading">
+          Loading Integrated Development Programs...
+        </div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="idp-page-container">
+        <div className="idp-error-message">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h1 className="section-title">Integrated Development Program (IDP)</h1>
-            <p className="section-subtitle">Holistic community development for sustainable change</p>
+    <div className="idp-page-container">
+      <section className="idp-section">
+        <div className="idp-container">
+          <div className="idp-section-header">
+            <h1 className="idp-section-title">
+              Integrated Development Program (IDP)<span></span>
+            </h1>
           </div>
-          
-          <div className="content">
+
+          <div className="idp-content">
             {items.length === 0 ? (
-              <div className="empty-state">
-                <h3>No integrated development programs available at the moment</h3>
-                <p>We are working on comprehensive community development initiatives</p>
-              </div>
+              <div className="idp-empty-state"></div>
             ) : (
-              <div className="programs-grid">
-                {items.map(item => (
-                  <div key={item.id} className="program-card">
+              <div className="idp-grid">
+                {items.map((item) => (
+                  <div key={item.id} className="idp-card">
                     {item.image_url && (
-                      <div className="program-image">
+                      <div className="idp-card-image">
                         <img src={item.image_url} alt={item.title} />
-                        <div className="image-overlay"></div>
+                        <div className="idp-image-overlay"></div>
                       </div>
                     )}
-                    
-                    <div className="program-content">
-                      <h2>{item.title}</h2>
-                      <p className="program-description">{item.description}</p>
-                      
+
+                    <div className="idp-card-content">
+                      <h2 className="idp-card-title">{item.title}</h2>
+                      <p className="idp-card-description">{item.description}</p>
+
                       {item.content && (
-                        <div 
-                          className="program-details"
-                          dangerouslySetInnerHTML={{ __html: item.content }} 
+                        <div
+                          className="idp-card-details"
+                          dangerouslySetInnerHTML={{ __html: item.content }}
                         />
                       )}
-                      
+
                       {item.video_url && (
-                        <div className="program-video">
+                        <div className="idp-card-video">
                           <h4>Watch Video</h4>
-                          <div className="video-wrapper">
+                          <div className="idp-video-wrapper">
                             <iframe
                               src={item.video_url}
                               title={item.title}
@@ -79,11 +92,16 @@ const IDP = () => {
                           </div>
                         </div>
                       )}
-                      
-                      <div className="program-meta">
-                        <span className="date">
-                          Last updated: {new Date(item.updated_at).toLocaleDateString()}
+
+                      <div className="idp-card-meta">
+                        <span className="idp-date">
+                          Last updated:{" "}
+                          {new Date(item.updated_at).toLocaleDateString()}
                         </span>
+                      </div>
+
+                      <div className="idp-card-footer">
+                        <a className="idp-read-more">Read More</a>
                       </div>
                     </div>
                   </div>

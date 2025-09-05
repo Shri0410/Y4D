@@ -1,0 +1,230 @@
+.lv-page {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 80px auto;
+}
+
+.lv-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.lv-title::before {
+  content: "";
+  position: absolute;
+  right: 280px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.lv-title::after {
+  content: "";
+  position: absolute;
+  right: 260px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.lv-title span::before {
+  content: "";
+  position: absolute;
+  left: 280px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.lv-title span::after {
+  content: "";
+  position: absolute;
+  left: 260px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.lv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.lv-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+.lv-card:hover {
+  transform: translateY(-5px);
+}
+
+.lv-card-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.lv-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lv-org-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: #f39c12;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.lv-card-body {
+  padding: 1.2rem;
+  flex: 1;
+}
+
+.lv-card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.lv-card-desc {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.lv-card-details {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.lv-card-video {
+  margin: 1rem 0;
+}
+
+.lv-video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+
+.lv-video-wrapper iframe {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.lv-card-meta {
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 0.5rem;
+}
+
+.lv-card-footer {
+  margin-top: 1rem;
+}
+
+.lv-readmore-btn {
+  display: flex;
+  justify-content: start;
+  margin-top: 10px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.lv-readmore-btn::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.lv-readmore-btn:hover::after {
+  transform: translateX(5px);
+}
+@media (min-width: 1025px) {
+  .lv-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .lv-title {
+    font-size: 2rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+  }
+  .lv-title::before {
+    right: 140px;
+  }
+
+  /* Right bottom line */
+  .lv-title::after {
+    right: 120px;
+  }
+
+  /* Left side */
+  .lv-title span::before {
+    left: 140px;
+  }
+
+  .lv-title span::after {
+    left: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lv-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .lv-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .lv-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .lv-title span::before {
+    left: 40px;
+  }
+
+  .lv-title span::after {
+    left: 20px;
+  }
+}
