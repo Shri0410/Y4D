@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './OurWorkPages.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import "./Livelihood.css"; // ✅ separate stylesheet
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchItems();
@@ -15,80 +16,103 @@ const Livelihood = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/our-work/published/livelihood`);
+      const response = await axios.get(
+        `${API_BASE}/our-work/published/livelihood`
+      );
       setItems(response.data);
     } catch (error) {
-      console.error('Error fetching livelihood programs:', error);
-      setError('Failed to load livelihood programs');
+      console.error("Error fetching livelihood programs:", error);
+      setError("Failed to load livelihood programs");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="page-container"><div className="loading">Loading Livelihood Programs...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  if (loading)
+    return (
+      <div className="lv-page">
+        <div className="lv-loading">Loading Livelihood Programs...</div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="lv-page">
+        <div className="lv-error">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h1 className="section-title">Livelihood Programs</h1>
-            <p className="section-subtitle">Creating sustainable income opportunities for communities</p>
+    <div className="lv-page">
+      <section className="lv-section">
+        <div className="lv-container">
+          <div className="lv-header">
+            <h1 className="lv-title">
+              Livelihood Programs <span></span>
+            </h1>
           </div>
-          
-          <div className="content">
+
+          <div className="lv-grid">
             {items.length === 0 ? (
-              <div className="empty-state">
+              <div className="lv-empty">
                 <h3>No livelihood programs available at the moment</h3>
-                <p>We are working on creating sustainable livelihood opportunities</p>
+                <p>
+                  We are working on creating sustainable livelihood
+                  opportunities
+                </p>
               </div>
             ) : (
-              <div className="programs-grid">
-                {items.map(item => (
-                  <div key={item.id} className="program-card">
-                    {item.image_url && (
-                      <div className="program-image">
-                        <img src={item.image_url} alt={item.title} />
-                        <div className="image-overlay"></div>
+              items.map((item) => (
+                <div key={item.id} className="lv-card">
+                  {item.image_url && (
+                    <div className="lv-card-image">
+                      <img src={item.image_url} alt={item.title} />
+                      {item.organization && (
+                        <div className="lv-org-badge">{item.organization}</div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="lv-card-body">
+                    <h2 className="lv-card-title">{item.title}</h2>
+                    <p className="lv-card-desc">{item.description}</p>
+
+                    {item.content && (
+                      <div
+                        className="lv-card-details"
+                        dangerouslySetInnerHTML={{ __html: item.content }}
+                      />
+                    )}
+
+                    {item.video_url && (
+                      <div className="lv-card-video">
+                        <h4>Watch Video</h4>
+                        <div className="lv-video-wrapper">
+                          <iframe
+                            src={item.video_url}
+                            title={item.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
                       </div>
                     )}
-                    
-                    <div className="program-content">
-                      <h2>{item.title}</h2>
-                      <p className="program-description">{item.description}</p>
-                      
-                      {item.content && (
-                        <div 
-                          className="program-details"
-                          dangerouslySetInnerHTML={{ __html: item.content }} 
-                        />
-                      )}
-                      
-                      {item.video_url && (
-                        <div className="program-video">
-                          <h4>Watch Video</h4>
-                          <div className="video-wrapper">
-                            <iframe
-                              src={item.video_url}
-                              title={item.title}
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="program-meta">
-                        <span className="date">
-                          Last updated: {new Date(item.updated_at).toLocaleDateString()}
-                        </span>
-                      </div>
+
+                    <div className="lv-card-meta">
+                      <span>
+                        Last updated:{" "}
+                        {new Date(item.updated_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {/* ✅ Read More button */}
+                    <div className="lv-card-footer">
+                      <Link className="lv-readmore-btn">Read More</Link>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))
             )}
           </div>
         </div>

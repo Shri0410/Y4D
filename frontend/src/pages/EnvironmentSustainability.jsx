@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './OurWorkPages.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./EnvironmentSustainability.css"; // unique stylesheet for this page
 
 const EnvironmentSustainability = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchItems();
@@ -15,80 +15,101 @@ const EnvironmentSustainability = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/our-work/published/environment_sustainability`);
+      const response = await axios.get(
+        `${API_BASE}/our-work/published/environment_sustainability`
+      );
       setItems(response.data);
     } catch (error) {
-      console.error('Error fetching environment sustainability programs:', error);
-      setError('Failed to load environment sustainability programs');
+      console.error(
+        "Error fetching environment sustainability programs:",
+        error
+      );
+      setError("Failed to load environment sustainability programs");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div className="page-container"><div className="loading">Loading Environment Sustainability Programs...</div></div>;
-  if (error) return <div className="page-container"><div className="error-message">{error}</div></div>;
+  if (loading)
+    return (
+      <div className="es-page">
+        <div className="es-loading">
+          Loading Environment Sustainability Programs...
+        </div>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="es-page">
+        <div className="es-error">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="page-container">
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <h1 className="section-title">Environment Sustainability</h1>
-            <p className="section-subtitle">Protecting our planet for future generations</p>
+    <div className="es-page">
+      <section className="es-section">
+        <div className="es-container">
+          <div className="es-header">
+            <h1 className="es-title">
+              Environment Sustainability <span></span>
+            </h1>
           </div>
-          
-          <div className="content">
+
+          <div className="es-grid">
             {items.length === 0 ? (
-              <div className="empty-state">
-                <h3>No environment sustainability programs available at the moment</h3>
-                <p>We are working on environmental conservation initiatives</p>
-              </div>
+              <div className="es-empty"></div>
             ) : (
-              <div className="programs-grid">
-                {items.map(item => (
-                  <div key={item.id} className="program-card">
-                    {item.image_url && (
-                      <div className="program-image">
-                        <img src={item.image_url} alt={item.title} />
-                        <div className="image-overlay"></div>
+              items.map((item) => (
+                <div key={item.id} className="es-card">
+                  {item.image_url && (
+                    <div className="es-card-image">
+                      <img src={item.image_url} alt={item.title} />
+                      {item.organization && (
+                        <div className="es-org-badge">{item.organization}</div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="es-card-body">
+                    <h2 className="es-card-title">{item.title}</h2>
+                    <p className="es-card-desc">{item.description}</p>
+
+                    {item.content && (
+                      <div
+                        className="es-card-details"
+                        dangerouslySetInnerHTML={{ __html: item.content }}
+                      />
+                    )}
+
+                    {item.video_url && (
+                      <div className="es-card-video">
+                        <h4>Watch Video</h4>
+                        <div className="es-video-wrapper">
+                          <iframe
+                            src={item.video_url}
+                            title={item.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
                       </div>
                     )}
-                    
-                    <div className="program-content">
-                      <h2>{item.title}</h2>
-                      <p className="program-description">{item.description}</p>
-                      
-                      {item.content && (
-                        <div 
-                          className="program-details"
-                          dangerouslySetInnerHTML={{ __html: item.content }} 
-                        />
-                      )}
-                      
-                      {item.video_url && (
-                        <div className="program-video">
-                          <h4>Watch Video</h4>
-                          <div className="video-wrapper">
-                            <iframe
-                              src={item.video_url}
-                              title={item.title}
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      )}
-                      
-                      <div className="program-meta">
-                        <span className="date">
-                          Last updated: {new Date(item.updated_at).toLocaleDateString()}
-                        </span>
-                      </div>
+
+                    <div className="es-card-meta">
+                      <span>
+                        Last updated:{" "}
+                        {new Date(item.updated_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <div className="es-card-footer">
+                      <a className="es-read-more">Read More</a>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))
             )}
           </div>
         </div>

@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./NewsLetters.css";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchNewsletters();
@@ -13,10 +14,12 @@ const Newsletters = () => {
 
   const fetchNewsletters = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/media/published/newsletters`);
+      const response = await axios.get(
+        `${API_BASE}/media/published/newsletters`
+      );
       setNewsletters(response.data);
     } catch (error) {
-      console.error('Error fetching newsletters:', error);
+      console.error("Error fetching newsletters:", error);
     }
     setLoading(false);
   };
@@ -25,26 +28,29 @@ const Newsletters = () => {
     try {
       // Create a direct download link
       const fileUrl = `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`;
-      
+
       // Create a temporary anchor element to trigger download
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = fileUrl;
       link.download = newsletter.file_path;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Optional: Open in new tab instead of downloading
       // window.open(fileUrl, '_blank');
     } catch (error) {
-      console.error('Error downloading newsletter:', error);
-      alert('Failed to download newsletter. Please try again.');
+      console.error("Error downloading newsletter:", error);
+      alert("Failed to download newsletter. Please try again.");
     }
   };
 
   const handleView = (newsletter) => {
     // Open PDF in new tab
-    window.open(`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`, '_blank');
+    window.open(
+      `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`,
+      "_blank"
+    );
   };
 
   if (loading) return <div className="loading">Loading newsletters...</div>;
@@ -52,7 +58,9 @@ const Newsletters = () => {
   return (
     <div className="newsletters-page">
       <div className="page-header">
-        <h1>Newsletters</h1>
+        <h1>
+          Newsletters<span></span>
+        </h1>
         <p>Stay updated with our latest publications and monthly updates</p>
       </div>
 
@@ -62,31 +70,28 @@ const Newsletters = () => {
             <p>No newsletters available at the moment</p>
           </div>
         ) : (
-          newsletters.map(newsletter => (
+          newsletters.map((newsletter) => (
             <div key={newsletter.id} className="newsletter-card">
               <div className="newsletter-content">
                 <h3>{newsletter.title}</h3>
-                <p className="newsletter-description">{newsletter.description}</p>
+                <p className="newsletter-description">
+                  {newsletter.description}
+                </p>
                 <div className="newsletter-meta">
                   <p className="newsletter-date">
-                    Published: {new Date(newsletter.published_date).toLocaleDateString()}
+                    Published:{" "}
+                    {new Date(newsletter.published_date).toLocaleDateString()}
                   </p>
                   <p className="newsletter-status">
-                    Status: {newsletter.is_published ? 'Published' : 'Draft'}
+                    Status: {newsletter.is_published ? "Published" : "Draft"}
                   </p>
                 </div>
                 <div className="newsletter-actions">
-                  <button 
-                    onClick={() => handleView(newsletter)}
-                    className="btn-view"
-                  >
-                    View Online
-                  </button>
-                  <button 
+                  <button
                     onClick={() => handleDownload(newsletter)}
-                    className="btn-download"
+                    className="download-btn"
                   >
-                    Download PDF
+                    <i className="fas fa-download"></i> Download
                   </button>
                 </div>
               </div>

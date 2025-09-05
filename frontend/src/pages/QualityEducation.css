@@ -1,0 +1,212 @@
+.qe-page {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 80px auto;
+}
+
+.qe-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.qe-title::before {
+  content: "";
+  position: absolute;
+  right: 200px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.qe-title::after {
+  content: "";
+  position: absolute;
+  right: 180px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.qe-title span::before {
+  content: "";
+  position: absolute;
+  left: 200px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.qe-title span::after {
+  content: "";
+  position: absolute;
+  left: 180px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.qe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.qe-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+
+.qe-card:hover {
+  transform: translateY(-5px);
+}
+
+.qe-card-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.qe-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.qe-org-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.qe-card-body {
+  padding: 1.2rem;
+}
+
+.qe-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.qe-card-desc {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+
+.qe-card-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 1rem;
+}
+
+.qe-card-footer {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.qe-read-more {
+  display: flex;
+  justify-content: start;
+  margin-top: 10px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.qe-read-more::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+.qe-read-more:hover::after {
+  transform: translateX(5px);
+}
+
+/* Force 3 cards on desktop screens */
+@media (min-width: 1025px) {
+  .qe-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .qe-title {
+    font-size: 2rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+  }
+  .qe-title::before {
+    right: 90px;
+  }
+
+  /* Right bottom line */
+  .qe-title::after {
+    right: 70px;
+  }
+
+  /* Left side */
+  .qe-title span::before {
+    left: 90px;
+  }
+
+  .qe-title span::after {
+    left: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .qe-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .qe-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .qe-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .qe-title span::before {
+    left: 40px;
+  }
+
+  .qe-title span::after {
+    left: 20px;
+  }
+}

@@ -1,0 +1,174 @@
+.corporate-page {
+  font-family: "Poppins", sans-serif;
+  color: #333;
+}
+
+/* Banner */
+.banner img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+/* About Section */
+.about-section {
+  max-width: 900px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+.about-section h2 {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.about-section h2::before {
+  content: "";
+  position: absolute;
+  right: 130px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.about-section h2::after {
+  content: "";
+  position: absolute;
+  right: 110px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.about-section h2 span::before {
+  content: "";
+  position: absolute;
+  left: 130px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.about-section h2 span::after {
+  content: "";
+  position: absolute;
+  left: 110px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.about-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Form Section */
+.form-section {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+.form-section h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+.partnership-form .form-group {
+  margin-bottom: 15px;
+}
+.partnership-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.partnership-form input,
+.partnership-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.submit-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: #ff6b6b;
+  color: #fff;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.submit-btn:hover {
+  background: #ff5252;
+}
+
+/* Responsive Design */
+@media (max-width: 1260px) {
+  .about-section h2 {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .form-section {
+    margin: 30px auto;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 0 10px;
+  }
+  .about-section h2 {
+    font-size: 1.6rem;
+    line-height: 30px;
+  }
+  .about-section p {
+    text-align: justify;
+    padding: 0px 10px;
+  }
+  .partnership-form input,
+  .partnership-form textarea {
+    font-size: 0.9rem;
+  }
+  .about-section h2::before {
+    right: 290px;
+  }
+
+  /* Right bottom line */
+  .about-section h2::after {
+    right: 290px;
+  }
+
+  /* Left side */
+  .about-section h2 span::before {
+    left: 290px;
+  }
+
+  .about-section h2 span::after {
+    left: 290px;
+  }
+  .form-section h3 {
+    font-size: 1.6rem;
+  }
+}

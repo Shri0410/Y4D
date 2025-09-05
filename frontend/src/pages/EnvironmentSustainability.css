@@ -1,0 +1,203 @@
+.es-page {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 80px auto;
+}
+
+.es-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.es-title::before {
+  content: "";
+  position: absolute;
+  right: 200px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.es-title::after {
+  content: "";
+  position: absolute;
+  right: 180px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.es-title span::before {
+  content: "";
+  position: absolute;
+  left: 200px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.es-title span::after {
+  content: "";
+  position: absolute;
+  left: 180px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.es-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.es-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+
+.es-card:hover {
+  transform: translateY(-5px);
+}
+
+.es-card-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.es-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.es-org-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.es-card-body {
+  padding: 1.2rem;
+}
+
+.es-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.es-card-desc {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+
+.es-card-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 1rem;
+}
+
+.es-card-footer {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.es-read-more {
+  display: flex;
+  justify-content: start;
+  margin-top: 10px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.es-read-more::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.es-read-more:hover::after {
+  transform: translateX(5px);
+}
+
+/* Force 3 cards on desktop screens */
+@media (min-width: 1025px) {
+  .es-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .es-title {
+    font-size: 2rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+  }
+  .es-title::before {
+    right: 90px;
+  }
+  .es-title::after {
+    right: 70px;
+  }
+  .es-title span::before {
+    left: 90px;
+  }
+  .es-title span::after {
+    left: 70px;
+  }
+}
+
+@media (max-width: 768px) {
+  .es-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .es-title::before {
+    right: 20px;
+  }
+  .es-title::after {
+    right: 0px;
+  }
+  .es-title span::before {
+    left: 20px;
+  }
+  .es-title span::after {
+    left: 0px;
+  }
+}
