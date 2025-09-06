@@ -53,7 +53,9 @@ const Documentaries = () => {
   return (
     <div className="documentaries-page">
       <div className="page-header">
-        <h1>Documentaries</h1>
+        <h1>
+          Documentaries<span></span>
+        </h1>
         <p>Watch our inspiring video content and stories</p>
       </div>
 
