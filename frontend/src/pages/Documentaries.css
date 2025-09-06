@@ -1,0 +1,279 @@
+/* Documentaries Page */
+.documentaries-page {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 80px auto 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.page-header h1::after {
+  content: "";
+  display: block;
+  height: 4px;
+  width: 60px;
+  background-color: #0077cc;
+  margin: 0.5rem auto 0;
+  border-radius: 2px;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/* Grid */
+.documentaries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* Documentary Card */
+.documentary-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.documentary-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.doc-thumbnail {
+  position: relative;
+}
+
+.doc-thumbnail img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.doc-thumbnail:hover .play-overlay {
+  opacity: 1;
+}
+
+.play-icon {
+  font-size: 3rem;
+  color: #fff;
+}
+
+.doc-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.doc-content h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.75rem;
+}
+
+.doc-description {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.doc-meta {
+  font-size: 0.95rem;
+  color: #444;
+  margin-bottom: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.doc-duration {
+  font-style: italic;
+}
+
+.doc-date {
+  font-style: italic;
+}
+
+/* Button */
+.btn-watch {
+  padding: 0.6rem 1.2rem;
+  background-color: #0077cc;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+  align-self: flex-start;
+}
+
+.btn-watch:hover {
+  background-color: #005fa3;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #777;
+  padding: 2rem;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content.doc-modal {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 95%;
+  padding: 1.5rem;
+  position: relative;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+.modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  margin-bottom: 1rem;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.doc-details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.doc-details p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.doc-meta-full {
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 1260px) {
+  .documentaries-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .page-header h1 {
+    font-size: 2.2rem;
+  }
+  .doc-content h3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .documentaries-page {
+    padding: 1rem;
+  }
+  .page-header h1 {
+    font-size: 1.8rem;
+  }
+  .page-header p {
+    font-size: 1rem;
+  }
+}

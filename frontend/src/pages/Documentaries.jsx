@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./Documentaries.css";
 
 const Documentaries = () => {
   const [documentaries, setDocumentaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchDocumentaries();
@@ -14,10 +15,12 @@ const Documentaries = () => {
 
   const fetchDocumentaries = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/media/published/documentaries`);
+      const response = await axios.get(
+        `${API_BASE}/media/published/documentaries`
+      );
       setDocumentaries(response.data);
     } catch (error) {
-      console.error('Error fetching documentaries:', error);
+      console.error("Error fetching documentaries:", error);
     }
     setLoading(false);
   };
@@ -31,16 +34,17 @@ const Documentaries = () => {
   };
 
   const getYouTubeEmbedUrl = (url) => {
-    if (!url) return '';
-    
+    if (!url) return "";
+
     // Handle various YouTube URL formats
-    const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const regex =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
-    
+
     if (match && match[1]) {
       return `https://www.youtube.com/embed/${match[1]}`;
     }
-    
+
     return url;
   };
 
@@ -59,39 +63,39 @@ const Documentaries = () => {
             <p>No documentaries available at the moment</p>
           </div>
         ) : (
-          documentaries.map(doc => (
+          documentaries.map((doc) => (
             <div key={doc.id} className="documentary-card">
               {doc.thumbnail && (
                 <div className="doc-thumbnail">
-                  <img 
-                    src={`${API_BASE}/uploads/media/documentaries/${doc.thumbnail}`} 
+                  <img
+                    src={`${API_BASE}/uploads/media/documentaries/${doc.thumbnail}`}
                     alt={doc.title}
                     onError={(e) => {
-                      e.target.src = '/placeholder-video.jpg';
+                      e.target.src = "/placeholder-video.jpg";
                     }}
                   />
-                  <div className="play-overlay" onClick={() => openDocModal(doc)}>
+                  <div
+                    className="play-overlay"
+                    onClick={() => openDocModal(doc)}
+                  >
                     <span className="play-icon">▶</span>
                   </div>
                 </div>
               )}
               <div className="doc-content">
                 <h3>{doc.title}</h3>
-                <p className="doc-description">
-                  {doc.description}
-                </p>
+                <p className="doc-description">{doc.description}</p>
                 <div className="doc-meta">
                   {doc.duration && (
-                    <span className="doc-duration">Duration: {doc.duration}</span>
+                    <span className="doc-duration">
+                      Duration: {doc.duration}
+                    </span>
                   )}
                   <span className="doc-date">
                     {new Date(doc.published_date).toLocaleDateString()}
                   </span>
                 </div>
-                <button 
-                  onClick={() => openDocModal(doc)}
-                  className="btn-watch"
-                >
+                <button onClick={() => openDocModal(doc)} className="btn-watch">
                   Watch Documentary
                 </button>
               </div>
@@ -103,10 +107,15 @@ const Documentaries = () => {
       {/* Documentary Modal */}
       {selectedDoc && (
         <div className="modal-overlay" onClick={closeDocModal}>
-          <div className="modal-content doc-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content doc-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <h2>{selectedDoc.title}</h2>
-              <button onClick={closeDocModal} className="close-btn">&times;</button>
+              <button onClick={closeDocModal} className="close-btn">
+                &times;
+              </button>
             </div>
             <div className="modal-body">
               <div className="video-container">
@@ -123,9 +132,14 @@ const Documentaries = () => {
                 <p>{selectedDoc.description}</p>
                 <div className="doc-meta-full">
                   {selectedDoc.duration && (
-                    <p><strong>Duration:</strong> {selectedDoc.duration}</p>
+                    <p>
+                      <strong>Duration:</strong> {selectedDoc.duration}
+                    </p>
                   )}
-                  <p><strong>Published:</strong> {new Date(selectedDoc.published_date).toLocaleDateString()}</p>
+                  <p>
+                    <strong>Published:</strong>{" "}
+                    {new Date(selectedDoc.published_date).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </div>

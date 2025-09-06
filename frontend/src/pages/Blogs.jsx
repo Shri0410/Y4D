@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./Blogs.css";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBlog, setSelectedBlog] = useState(null);
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchBlogs();
@@ -17,7 +18,7 @@ const Blogs = () => {
       const response = await axios.get(`${API_BASE}/media/published/blogs`);
       setBlogs(response.data);
     } catch (error) {
-      console.error('Error fetching blogs:', error);
+      console.error("Error fetching blogs:", error);
     }
     setLoading(false);
   };
@@ -33,11 +34,13 @@ const Blogs = () => {
   const renderTags = (tags) => {
     if (!tags) return null;
     try {
-      const tagArray = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      const tagArray = typeof tags === "string" ? JSON.parse(tags) : tags;
       return (
         <div className="blog-tags">
           {tagArray.map((tag, index) => (
-            <span key={index} className="tag">#{tag}</span>
+            <span key={index} className="tag">
+              #{tag}
+            </span>
           ))}
         </div>
       );
@@ -61,15 +64,15 @@ const Blogs = () => {
             <p>No blog articles available at the moment</p>
           </div>
         ) : (
-          blogs.map(blog => (
+          blogs.map((blog) => (
             <div key={blog.id} className="blog-card">
               {blog.image && (
                 <div className="blog-image">
-                  <img 
-                    src={`${API_BASE}/uploads/media/blogs/${blog.image}`} 
+                  <img
+                    src={`${API_BASE}/uploads/media/blogs/${blog.image}`}
                     alt={blog.title}
                     onError={(e) => {
-                      e.target.src = '/placeholder-blog.jpg';
+                      e.target.src = "/placeholder-blog.jpg";
                     }}
                   />
                 </div>
@@ -78,10 +81,9 @@ const Blogs = () => {
                 <h3>{blog.title}</h3>
                 {renderTags(blog.tags)}
                 <p className="blog-excerpt">
-                  {blog.content.length > 120 ? 
-                    `${blog.content.substring(0, 120)}...` : 
-                    blog.content
-                  }
+                  {blog.content.length > 120
+                    ? `${blog.content.substring(0, 120)}...`
+                    : blog.content}
                 </p>
                 <div className="blog-meta">
                   <p className="blog-author">By {blog.author}</p>
@@ -89,7 +91,7 @@ const Blogs = () => {
                     {new Date(blog.published_date).toLocaleDateString()}
                   </p>
                 </div>
-                <button 
+                <button
                   onClick={() => openBlogModal(blog)}
                   className="btn-read-more"
                 >
@@ -104,16 +106,21 @@ const Blogs = () => {
       {/* Blog Modal */}
       {selectedBlog && (
         <div className="modal-overlay" onClick={closeBlogModal}>
-          <div className="modal-content blog-modal" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-content blog-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
               <h2>{selectedBlog.title}</h2>
-              <button onClick={closeBlogModal} className="close-btn">&times;</button>
+              <button onClick={closeBlogModal} className="close-btn">
+                &times;
+              </button>
             </div>
             <div className="modal-body">
               {selectedBlog.image && (
                 <div className="modal-image">
-                  <img 
-                    src={`${API_BASE}/uploads/media/blogs/${selectedBlog.image}`} 
+                  <img
+                    src={`${API_BASE}/uploads/media/blogs/${selectedBlog.image}`}
                     alt={selectedBlog.title}
                   />
                 </div>
@@ -126,7 +133,7 @@ const Blogs = () => {
               </div>
               {renderTags(selectedBlog.tags)}
               <div className="blog-full-content">
-                {selectedBlog.content.split('\n').map((paragraph, index) => (
+                {selectedBlog.content.split("\n").map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>

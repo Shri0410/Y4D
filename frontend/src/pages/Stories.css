@@ -1,0 +1,295 @@
+/* =============================
+   STORIES PAGE LAYOUT & STYLES
+   ============================= */
+.st-page {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 80px auto;
+}
+
+.st-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.st-title::before {
+  content: "";
+  position: absolute;
+  right: 240px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.st-title::after {
+  content: "";
+  position: absolute;
+  right: 220px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.st-title span::before {
+  content: "";
+  position: absolute;
+  left: 240px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.st-title span::after {
+  content: "";
+  position: absolute;
+  left: 220px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.st-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.st-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.st-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out;
+}
+
+.st-card:hover {
+  transform: translateY(-5px);
+}
+
+.st-card-image {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.st-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.st-card-body {
+  padding: 1.2rem;
+}
+
+.st-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.st-card-desc {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 0.8rem;
+  line-height: 1.5;
+}
+
+.st-card-meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 0.8rem;
+}
+
+.st-card-footer {
+  margin-top: 1rem;
+  text-align: right;
+}
+
+.st-read-more {
+  display: flex;
+  justify-content: start;
+  margin-top: 10px;
+  gap: 8px;
+  text-decoration: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.st-read-more::after {
+  content: "›";
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.st-read-more:hover::after {
+  transform: translateX(5px);
+}
+
+/* Empty state */
+.st-empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 2rem;
+  color: #777;
+}
+
+/* Force 3 cards on desktop */
+@media (min-width: 1025px) {
+  .st-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .st-title {
+    font-size: 2rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+  }
+  .st-title::before {
+    right: 100px;
+  }
+  .st-title::after {
+    right: 80px;
+  }
+  .st-title span::before {
+    left: 100px;
+  }
+  .st-title span::after {
+    left: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .st-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .st-title::before {
+    right: 0px;
+  }
+  .st-title::after {
+    right: -20px;
+  }
+  .st-title span::before {
+    left: 10px;
+  }
+  .st-title span::after {
+    left: -10px;
+  }
+}
+
+/* =============================
+   MODAL STYLING
+   ============================= */
+.st-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.st-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.3s ease;
+}
+
+.st-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2rem;
+  border-bottom: 1px solid #eee;
+}
+
+.st-modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.st-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.st-modal-body {
+  padding: 1.2rem;
+}
+
+.st-modal-image img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.st-modal-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.st-full-content p {
+  margin-bottom: 1rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* Fade in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
