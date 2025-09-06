@@ -21,7 +21,6 @@
   padding: 0 70px;
 }
 
-/* Right top line */
 .idp-section-title::before {
   content: "";
   position: absolute;
