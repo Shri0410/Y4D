@@ -53,8 +53,10 @@ const Blogs = () => {
 
   return (
     <div className="blogs-page">
-      <div className="page-header">
-        <h1>Blog Articles</h1>
+      <div className="blog-header">
+        <h1>
+          Blog Articles <span></span>
+        </h1>
         <p>Insights, stories, and updates from our team and community</p>
       </div>
 

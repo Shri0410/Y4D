@@ -6,28 +6,63 @@
   margin: 80px auto 0 auto;
 }
 
-.page-header {
+.blog-header {
   text-align: center;
   margin-bottom: 3rem;
 }
 
-.page-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 0.5rem;
+.blog-header h1 {
   position: relative;
-  display: inline-block;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
 }
 
-.page-header h1::after {
+/* Right top line */
+.blog-header h1::before {
   content: "";
-  display: block;
-  height: 4px;
-  width: 60px;
-  background-color: #0077cc;
-  margin: 0.5rem auto 0;
-  border-radius: 2px;
+  position: absolute;
+  right: 360px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.blog-header h1::after {
+  content: "";
+  position: absolute;
+  right: 340px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.blog-header h1 span::before {
+  content: "";
+  position: absolute;
+  left: 360px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.blog-header h1 span::after {
+  content: "";
+  position: absolute;
+  left: 340px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
 }
 
 .page-header p {
@@ -239,6 +274,18 @@
   .page-header h1 {
     font-size: 2.2rem;
   }
+  .blog-header h1::before {
+    right: 140px;
+  }
+  .blog-header h1::after {
+    right: 120px;
+  }
+  .blog-header h1 span::before {
+    left: 140px;
+  }
+  .blog-header h1 span::after {
+    left: 120px;
+  }
   .blog-content h3 {
     font-size: 1.25rem;
   }
@@ -248,8 +295,22 @@
   .blogs-page {
     padding: 1rem;
   }
-  .page-header h1 {
+  .blog-header h1 {
     font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .blog-header h1::before {
+    right: 40px;
+  }
+  .blog-header h1::after {
+    right: 20px;
+  }
+  .blog-header h1 span::before {
+    left: 40px;
+  }
+  .blog-header h1 span::after {
+    left: 20px;
   }
   .page-header p {
     font-size: 1rem;
