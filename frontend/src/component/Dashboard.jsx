@@ -4,6 +4,7 @@ import UserManagement from './UserManagement';
 import RegistrationRequests from './RegistrationRequests';
 import MediaManager from './MediaManager';
 import OurWorkManagement from './OurWorkManagement'; 
+import ImpactDataEditor from './ImpactDataEditor';
 import './Dashboard.css';
 
 const Dashboard = ({ currentUser: propCurrentUser }) => {
@@ -47,7 +48,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         setCurrentUser(JSON.parse(userData));
       }
     }
-    if (activeTab !== 'media' && !currentMediaType && activeTab !== 'ourWork' && !currentOurWorkCategory) {
+    if (activeTab !== 'media' && !currentMediaType && activeTab !== 'ourWork' && !currentOurWorkCategory && activeTab !== 'impact') {
       fetchData(activeTab);
     }
   }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory]);
@@ -722,6 +723,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     if (tab !== 'media' && openDropdown === 'media') setOpenDropdown(null);
     if (tab !== 'ourWork' && openDropdown === 'ourWork') setOpenDropdown(null);
     if (tab !== 'users' && openDropdown === 'users') setOpenDropdown(null);
+    if (tab !== 'impact' && openDropdown === 'impact') setOpenDropdown(null);
   };
 
   return (
@@ -752,91 +754,99 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               <button onClick={() => selectTopLevelTab('careers')}>Career Page</button>
             </li>
 
-{/* Media dropdown */}
-<li className={activeTab === 'media' ? 'active' : ''}>
-  <button
-    onClick={() => setOpenDropdown(openDropdown === 'media' ? null : 'media')}
-  >
-    Media ▾
-  </button>
-  {openDropdown === 'media' && (
-    <ul className="submenu">
-      {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
-        <li key={type}>
-          <button
-            className={currentMediaType === type ? 'active-sub' : ''}
-            onClick={() => {
-              setCurrentMediaType(type);
-              setActiveTab('media');
-            }}
-          >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </button>
-        </li>
-      ))}
-    </ul>
-  )}
-</li>
+            {/* Media dropdown */}
+            <li className={activeTab === 'media' ? 'active' : ''}>
+              <button
+                onClick={() => setOpenDropdown(openDropdown === 'media' ? null : 'media')}
+              >
+                Media ▾
+              </button>
+              {openDropdown === 'media' && (
+                <ul className="submenu">
+                  {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+                    <li key={type}>
+                      <button
+                        className={currentMediaType === type ? 'active-sub' : ''}
+                        onClick={() => {
+                          setCurrentMediaType(type);
+                          setActiveTab('media');
+                        }}
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </li>
 
-{/* Interventions dropdown */}
-{canManageContent && (
-  <li className={activeTab === 'ourWork' ? 'active' : ''}>
-    <button
-      onClick={() => setOpenDropdown(openDropdown === 'ourWork' ? null : 'ourWork')}
-    >
-      Our Interventions ▾
-    </button>
-    {openDropdown === 'ourWork' && (
-      <ul className="submenu">
-        {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-          <li key={category}>
-            <button
-              className={currentOurWorkCategory === category ? 'active-sub' : ''}
-              onClick={() => {
-                setCurrentOurWorkCategory(category);
-                setActiveTab('ourWork');
-              }}
-            >
-              {getOurWorkCategoryLabel(category)}
-            </button>
-          </li>
-        ))}
-      </ul>
-    )}
-  </li>
-)}
+            {/* Interventions dropdown */}
+            {canManageContent && (
+              <li className={activeTab === 'ourWork' ? 'active' : ''}>
+                <button
+                  onClick={() => setOpenDropdown(openDropdown === 'ourWork' ? null : 'ourWork')}
+                >
+                  Our Interventions ▾
+                </button>
+                {openDropdown === 'ourWork' && (
+                  <ul className="submenu">
+                    {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+                      <li key={category}>
+                        <button
+                          className={currentOurWorkCategory === category ? 'active-sub' : ''}
+                          onClick={() => {
+                            setCurrentOurWorkCategory(category);
+                            setActiveTab('ourWork');
+                          }}
+                        >
+                          {getOurWorkCategoryLabel(category)}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )}
 
-{/* User management dropdown */}
-{canManageUsers && (
-  <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
-    <button
-      onClick={() => setOpenDropdown(openDropdown === 'users' ? null : 'users')}
-    >
-      User Management ▾
-    </button>
-    {openDropdown === 'users' && (
-      <ul className="submenu">
-        <li>
-          <button
-            className={activeTab === 'users' ? 'active-sub' : ''}
-            onClick={() => setActiveTab('users')}
-          >
-            Users
-          </button>
-        </li>
-        <li>
-          <button
-            className={activeTab === 'registrations' ? 'active-sub' : ''}
-            onClick={() => setActiveTab('registrations')}
-          >
-            Registration Requests
-          </button>
-        </li>
-      </ul>
-    )}
-  </li>
-)}
+            {/* Impact Data Section */}
+            {canManageContent && (
+              <li className={activeTab === 'impact' ? 'active' : ''}>
+                <button onClick={() => selectTopLevelTab('impact')}>
+                  Impact Data
+                </button>
+              </li>
+            )}
 
+            {/* User management dropdown */}
+            {canManageUsers && (
+              <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
+                <button
+                  onClick={() => setOpenDropdown(openDropdown === 'users' ? null : 'users')}
+                >
+                  User Management ▾
+                </button>
+                {openDropdown === 'users' && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        className={activeTab === 'users' ? 'active-sub' : ''}
+                        onClick={() => setActiveTab('users')}
+                      >
+                        Users
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className={activeTab === 'registrations' ? 'active-sub' : ''}
+                        onClick={() => setActiveTab('registrations')}
+                      >
+                        Registration Requests
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            )}
           </ul>
         </nav>
         
@@ -855,6 +865,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <UserManagement />
           ) : activeTab === 'registrations' && canManageUsers ? (
             <RegistrationRequests />
+          ) : activeTab === 'impact' && canManageContent ? (
+            <ImpactDataEditor />
           ) : (
             <>
               {renderForm()}

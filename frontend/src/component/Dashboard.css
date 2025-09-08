@@ -1119,3 +1119,75 @@
   border: 1px solid #f5c6cb;
   margin: 20px 0;
 }
+
+
+/* Impact management */
+.dashboard-form-container {
+  padding: 20px;
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.preview-section {
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.reach-grid-preview {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.reach-item-preview {
+  text-align: center;
+  flex: 1;
+  padding: 15px;
+}
+
+.reach-item-preview h3 {
+  font-size: 24px;
+  color: #007bff;
+  margin-bottom: 10px;
+}

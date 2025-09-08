@@ -19,7 +19,20 @@ export const apiCall = async (method, endpoint, data = null) => {
     throw error;
   }
 };
-
+export const getImpactData = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/impact-data`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching impact data:', error);
+    // Return default values if API fails
+    return {
+      beneficiaries: 15,
+      states: 20,
+      projects: 200
+    };
+  }
+};
 // Specific API functions
 export const getReports = () => apiCall('get', '/reports');
 export const getMentors = () => apiCall('get', '/mentors');
