@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const impactDataRoutes = require('./routes/impactData');
 require('dotenv').config();
 
 const db = require('./config/database');
@@ -30,6 +31,7 @@ app.use('/api/livelihood', require('./routes/livelihood'));
 app.use('/api/healthcare', require('./routes/healthcare'));
 app.use('/api/environment-sustainability', require('./routes/environmentSustainability'));
 app.use('/api/integrated-development', require('./routes/integratedDevelopment'));
+app.use('/api', impactDataRoutes);
 
 // Basic route
 app.get('/', (req, res) => {
