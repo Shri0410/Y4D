@@ -50,7 +50,7 @@ const OurTeam = () => {
 
       {/* Board of Trustee */}
       <section className="FOT-section">
-        <h2 className="section-title">
+        <h2 className="trustee-title">
           Our Board of Trustee<span></span>
         </h2>
         <div className="empty-box">
@@ -60,7 +60,7 @@ const OurTeam = () => {
 
       {/* Our Mentors */}
       <section className="OT-section">
-        <h2 className="section-title">
+        <h2 className="mentors-title">
           Our Mentors <span></span>
         </h2>
         {loadingMentors ? (
@@ -83,7 +83,7 @@ const OurTeam = () => {
 
       {/* Management Team */}
       <section className="OT-section">
-        <h2 className="section-title">
+        <h2 className="management-title">
           Management Team<span></span>
         </h2>
         {loadingManagement ? (
@@ -106,7 +106,7 @@ const OurTeam = () => {
 
       {/* You May Find Useful */}
       <section className="OT-section">
-        <h2 className="section-title">
+        <h2 className="useful-title">
           You May Find Useful<span></span>
         </h2>
         <div className="useful-container">

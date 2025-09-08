@@ -89,7 +89,7 @@ const Home = () => {
       {/* About Y4D Section */}
       <section className="About-section">
         <div className="About-container">
-          <h2 className="section-title">
+          <h2 className="about-title">
             About Y4D<span></span>
           </h2>
           <div className="about-content">
@@ -116,7 +116,7 @@ const Home = () => {
       {/* Our Reach Section */}
       <section className="our-reach-section">
         <div className="our-reach-container">
-          <h2 className="section-title">
+          <h2 className="impact-title">
             Our Impact<span></span>
           </h2>
           <div className="reach-grid">
@@ -161,7 +161,7 @@ const Home = () => {
       {/* Our Interventions Section */}
       <section className="Interventions-section">
         <div className="Interventions-container">
-          <h2 className="section-title">
+          <h2 className="Inter-title">
             Our Interventions<span></span>
           </h2>
           <div className="grid grid-3">
@@ -206,7 +206,7 @@ const Home = () => {
       {/* SDGs Section */}
       <section className="SDGs-section">
         <div className="SDGs-container">
-          <h2 className="section-title">
+          <h2 className="sdg-title">
             Towards Achieving SDG's<span></span>
           </h2>
           <Slider
@@ -235,7 +235,7 @@ const Home = () => {
       {/* Partners Section */}
       <section className="Partners-section">
         <div className="Partners-container">
-          <h2 className="section-title">
+          <h2 className="partner-title">
             Our Partners<span></span>
           </h2>
           <Slider
@@ -263,7 +263,7 @@ const Home = () => {
 
       {/* Accreditations Section */}
       <section className=" accreditations-section">
-        <h2 className="section-title">
+        <h2 className="accreditations-title">
           Accreditations<span></span>
         </h2>
         <div className="accreditations-container">
@@ -321,7 +321,7 @@ const Home = () => {
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">
         <div className="Media-container">
-          <h2 className="section-title">
+          <h2 className="media-title">
             Latest from Our Media Corner<span></span>
           </h2>
           <div className="grid grid-3">
