@@ -163,6 +163,20 @@ const Events = () => {
               <div className="ev-full-content">
                 <p>{selectedEvent.description}</p>
               </div>
+              <div className="ev-modal-footer">
+                <a
+                  href={`mailto:waghmareshrinivas99@gmail.com?subject=Inquiry about ${
+                    selectedEvent.title
+                  }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${
+                    selectedEvent.title
+                  }" happening on ${formatDate(
+                    selectedEvent.date
+                  )}.%0D%0A%0D%0AThanks,%0D%0A[Your Name]`}
+                  className="ev-connect-btn"
+                >
+                  Connect with Us
+                </a>
+              </div>
             </div>
           </div>
         </div>

@@ -150,6 +150,7 @@ const About = () => {
         className="story-section"
       >
         <div className="story-content-container">
+          <h4>Philosophy of Change:</h4>
           <p>
             At Y4D Foundation, we believe that sustainable transformation begins
             with empowering individuals to become agents of their own change.
@@ -197,9 +198,58 @@ const About = () => {
       <div ref={sectionRefs.Pyramid} id="Pyramid" className="story-section">
         <div className="story-content-container">
           <p>
-            We work on the overall development of children, their families and
-            communities...
+            The pyramid presents a thoughtful hierarchy for human development
+            and well-being, where each level builds upon and strengthens the one
+            below it. Starting from the base:
           </p>
+          <ul>
+            <li>
+              <h4>Education</h4>
+              <p>
+                forms the critical foundation, equipping individuals with
+                essential knowledge, practical skills, and the ability to think
+                critically. This empowers them to seize opportunities, pursue
+                personal growth, and lay the groundwork for a stable and
+                fulfilling livelihood.
+              </p>
+            </li>
+            <li>
+              <h4>Livelihood</h4>
+              <p>
+                emerges from education, providing economic stability and the
+                resources needed to sustain oneself and one’s family. This
+                includes access to employment, entrepreneurial ventures, or
+                other income sources, fostering financial independence and
+                resilience.
+              </p>
+            </li>
+            <li>
+              <h4>Health</h4>
+              <p>
+                depends on a secure livelihood, allowing individuals to invest
+                in their physical, mental, and social well-being. With financial
+                stability, they can afford quality healthcare services,
+                nutritious diets, clean water, and a safe living environment,
+                all of which are vital for a productive life.
+              </p>
+            </li>
+            <li>
+              <h4>Environment Sustainability</h4>
+              <p>
+                crowns the pyramid as the ultimate objective, emphasizing the
+                preservation of our planet for current and future generations.
+                Only when foundational human needs of education, livelihood, and
+                health are met, individuals focus on engaging in sustainable
+                practices and giving back to the society.
+              </p>
+            </li>
+            <p>
+              The pyramid's design highlights a crucial principle: neglecting
+              any foundational level threatens the stability of those above it.
+              Each layer is intricately linked, working together to advance the
+              broader vision of sustainable and thriving living.
+            </p>
+          </ul>
         </div>
       </div>
 
@@ -217,11 +267,10 @@ const About = () => {
 
       <div ref={sectionRefs.work} id="work" className="story-section">
         <div className="story-content-container">
-          <p>
-            Our Methodology: The 3E Framework in Action: ENCOURAGEMENT -
-            Building confidence and hope EDUCATION - Providing knowledge and
-            skills EMPLOYMENT - Creating sustainable opportunities
-          </p>
+          <p>Our Methodology: The 3E Framework in Action:</p>
+          <p>ENCOURAGEMENT - Building confidence and hope</p>
+          <p>EDUCATION - Providing knowledge and skills</p>
+          <p>EMPLOYMENT - Creating sustainable opportunities</p>
         </div>
       </div>
 

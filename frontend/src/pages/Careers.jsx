@@ -1,6 +1,6 @@
 // src/pages/Careers.jsx
 import React, { useState, useEffect } from "react";
-import { getCareers } from "../services/api";
+import { getCareers, applyForJob } from "../services/api";
 import "./Careers.css";
 
 const Careers = () => {
@@ -8,12 +8,24 @@ const Careers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCareer, setSelectedCareer] = useState(null); // for popup modal
-  const [contactForm, setContactForm] = useState({
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applicationData, setApplicationData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
+    resume: null,
   });
+
+  // Handle file change
+  const handleFileChange = (e) => {
+    setApplicationData({
+      ...applicationData,
+      resume: e.target.files[0],
+    });
+  };
 
   useEffect(() => {
     const fetchCareersData = async () => {
@@ -34,19 +46,49 @@ const Careers = () => {
     fetchCareersData();
   }, []);
 
-  const handleContactSubmit = (e) => {
-    e.preventDefault();
-    alert(
-      "Thank you for your interest! We will contact you when opportunities become available."
-    );
-    setContactForm({ name: "", email: "", phone: "", message: "" });
-  };
-
-  const handleInputChange = (e) => {
-    setContactForm({
-      ...contactForm,
+  const handleApplicationChange = (e) => {
+    setApplicationData({
+      ...applicationData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleApplicationSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true); // show loading popup
+    try {
+      const formData = new FormData();
+      formData.append("name", applicationData.name);
+      formData.append("email", applicationData.email);
+      formData.append("phone", applicationData.phone);
+      formData.append("message", applicationData.message);
+      formData.append("careerId", selectedCareer.id);
+      if (applicationData.resume) {
+        formData.append("resume", applicationData.resume);
+      }
+
+      await applyForJob(formData, true);
+      // ✅ Show success popup
+      setShowSuccessPopup(true);
+      setApplicationData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        resume: null,
+      });
+      setShowApplicationForm(false);
+      // ✅ Close success popup after 3 seconds
+      setTimeout(() => {
+        setShowSuccessPopup(false);
+        setSelectedCareer(null);
+      }, 3000);
+    } catch (error) {
+      console.error("Error applying for job:", error);
+      alert("Something went wrong. Please try again later.");
+    } finally {
+      setIsSubmitting(false); // remove loading
+    }
   };
 
   if (loading)
@@ -81,14 +123,14 @@ const Careers = () => {
               {/* Interest Form */}
               <div className="careers-form">
                 <h3>Express Interest</h3>
-                <form onSubmit={handleContactSubmit}>
+                <form onSubmit={handleApplicationSubmit}>
                   <div className="careers-form-group">
                     <input
                       type="text"
                       name="name"
                       placeholder="Your Name"
-                      value={contactForm.name}
-                      onChange={handleInputChange}
+                      value={applicationData.name}
+                      onChange={handleApplicationChange}
                       required
                     />
                   </div>
@@ -97,8 +139,8 @@ const Careers = () => {
                       type="email"
                       name="email"
                       placeholder="Your Email"
-                      value={contactForm.email}
-                      onChange={handleInputChange}
+                      value={applicationData.email}
+                      onChange={handleApplicationChange}
                       required
                     />
                   </div>
@@ -107,16 +149,16 @@ const Careers = () => {
                       type="tel"
                       name="phone"
                       placeholder="Your Phone"
-                      value={contactForm.phone}
-                      onChange={handleInputChange}
+                      value={applicationData.phone}
+                      onChange={handleApplicationChange}
                     />
                   </div>
                   <div className="careers-form-group">
                     <textarea
                       name="message"
-                      placeholder="Your Message and Areas of Interest"
-                      value={contactForm.message}
-                      onChange={handleInputChange}
+                      placeholder="Your Message / Areas of Interest"
+                      value={applicationData.message}
+                      onChange={handleApplicationChange}
                       rows="4"
                       required
                     />
@@ -142,7 +184,6 @@ const Careers = () => {
                     </p>
                   </div>
 
-                  {/* Short description */}
                   <div className="careers-description">
                     {career.shortDescription || (
                       <div
@@ -154,7 +195,15 @@ const Careers = () => {
                   </div>
 
                   <div className="careers-card-actions">
-                    <button className="careers-btn">Apply Now</button>
+                    <button
+                      className="careers-btn"
+                      onClick={() => {
+                        setSelectedCareer(career);
+                        setShowApplicationForm(false);
+                      }}
+                    >
+                      Apply Now
+                    </button>
                     <button
                       className="careers-btn"
                       onClick={() => setSelectedCareer(career)}
@@ -175,7 +224,10 @@ const Careers = () => {
           <div className="career-modal-content">
             <button
               className="career-modal-close"
-              onClick={() => setSelectedCareer(null)}
+              onClick={() => {
+                setSelectedCareer(null);
+                setShowApplicationForm(false);
+              }}
             >
               &times;
             </button>
@@ -198,7 +250,87 @@ const Careers = () => {
               }}
             />
 
-            <button className="careers-btn">Apply Now</button>
+            {!showApplicationForm ? (
+              <button
+                className="careers-btn"
+                onClick={() => setShowApplicationForm(true)}
+              >
+                Apply Now
+              </button>
+            ) : (
+              <form className="careers-form" onSubmit={handleApplicationSubmit}>
+                <div className="careers-form-group">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Your Name"
+                    value={applicationData.name}
+                    onChange={handleApplicationChange}
+                    required
+                  />
+                </div>
+                <div className="careers-form-group">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Your Email"
+                    value={applicationData.email}
+                    onChange={handleApplicationChange}
+                    required
+                  />
+                </div>
+                <div className="careers-form-group">
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Your Phone"
+                    value={applicationData.phone}
+                    onChange={handleApplicationChange}
+                  />
+                </div>
+                <div className="careers-form-group">
+                  <textarea
+                    name="message"
+                    placeholder="Your Cover Letter / Message"
+                    value={applicationData.message}
+                    onChange={handleApplicationChange}
+                    rows="4"
+                    required
+                  />
+                </div>
+                <div className="careers-form-group">
+                  <label>Upload Resume (PDF)</label>
+                  <input
+                    type="file"
+                    name="resume"
+                    accept="application/pdf"
+                    onChange={handleFileChange}
+                  />
+                </div>
+
+                <button type="submit" className="careers-btn">
+                  Submit Application
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* -------- SUCCESS POPUP -------- */}
+      {showSuccessPopup && (
+        <div className="success-popup">
+          <div className="success-popup-content">
+            <h3>✅ Application Submitted</h3>
+            <p>Thank you for applying! We will get back to you soon.</p>
+          </div>
+        </div>
+      )}
+      {isSubmitting && (
+        <div className="loading-popup">
+          <div className="loading-popup-content">
+            <h3>⏳ Submitting...</h3>
+            <p>Please wait while we process your application.</p>
           </div>
         </div>
       )}

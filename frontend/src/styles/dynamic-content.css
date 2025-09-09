@@ -1,5 +1,6 @@
-/* Loading and error states */
-.loading, .error-message, .no-data {
+.loading,
+.error-message,
+.no-data {
   text-align: center;
   padding: 2rem;
   font-size: 1.1rem;
@@ -168,7 +169,7 @@
   .documentaries-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content {
     margin: 1rem;
     max-width: calc(100% - 2rem);

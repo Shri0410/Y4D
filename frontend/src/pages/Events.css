@@ -231,6 +231,21 @@
   line-height: 1.6;
 }
 
+.ev-connect-btn {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #28a745;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.ev-connect-btn:hover {
+  background-color: #218838;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from {

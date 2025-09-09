@@ -16,18 +16,18 @@
 .work-tabs {
   display: flex;
   margin: 30px auto;
-  background: #ef6022;
+  background: #fff;
   position: relative;
-  top: 0;
-  z-index: 10;
-  justify-content: space-between;
-  width: 100%;
+  justify-content: center;
+  width: 97%;
+  border-radius: 20px;
+  border: 2px solid #222;
 }
 
 .work-tab {
   padding: 16px 20px;
-  color: #fff;
-  border: 1px solid white;
+  color: #222;
+  border: none;
   cursor: pointer;
   font-weight: bold;
   text-transform: uppercase;
@@ -40,38 +40,61 @@
 .work-tab:hover {
   background: #005e30;
   color: white;
+  border-radius: 20px;
 }
 
 .work-tab.active {
   background-color: #005e30;
   color: #fff;
   font-weight: bold;
+  border-radius: 19px;
 }
 
 /* Section */
 .work-section {
   margin: 40px auto;
-  max-width: 1000px;
+  max-width: 1200px;
   padding: 0 20px;
 }
 
+/* Content layout: image left + text right */
 .work-content-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
   padding: 30px;
-  line-height: 1.8;
-  color: #333;
   background: #f9f9f9;
 }
 
-.work-content-container h3 {
+.work-image {
+  flex: 1;
+}
+
+.work-image img {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.work-text {
+  flex: 2;
+  color: #333;
+}
+
+.work-text h3 {
   font-size: 24px;
   margin-bottom: 15px;
   color: #ef6022;
 }
 
-.work-content-container p {
-  margin-bottom: 15px;
+.work-text p {
   font-size: 18px;
+  margin-bottom: 15px;
   text-align: justify;
+  line-height: 1.8;
 }
 
 /* Reports */
@@ -140,12 +163,6 @@
 }
 
 /* Tablet view */
-@media (max-width: 1280px) {
-  .work-tabs {
-    width: 84%;
-  }
-}
-
 @media (max-width: 1024px) {
   .work-banner img {
     height: 300px;
@@ -162,10 +179,11 @@
   }
 
   .work-content-container {
+    gap: 20px;
     padding: 20px;
   }
 
-  .work-content-container p {
+  .work-text p {
     font-size: 16px;
   }
 }
@@ -188,15 +206,16 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
   }
 
-  .work-section {
-    padding: 0 15px;
-  }
-
   .work-content-container {
+    flex-direction: column;
     padding: 15px;
   }
 
-  .work-content-container p {
+  .work-image img {
+    max-width: 100%;
+  }
+
+  .work-text p {
     font-size: 14px;
     line-height: 1.6;
   }
