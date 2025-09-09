@@ -3,7 +3,12 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import Counter from "../component/Counter";
-import { getMentors, getManagement, getReports } from "../services/api";
+import {
+  getMentors,
+  getManagement,
+  getReports,
+  getImpactData,
+} from "../services/api";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
@@ -13,22 +18,61 @@ import Second from "../assets/BannerImages/s.jpeg";
 import Third from "../assets/BannerImages/t.jpeg";
 import Fourth from "../assets/BannerImages/fo.jpeg";
 
+import edu from "../assets/Interventions/education.png";
+import livelihood from "../assets/Interventions/Livelihood.png";
+import healthcare from "../assets/Interventions/Healthcare.png";
+import environment from "../assets/Interventions/EnvironmentSustainibility.png";
+import idp from "../assets/Interventions/IDP.png";
+
+import sdg1 from "../assets/SDG/SDG1.png";
+import sdg2 from "../assets/SDG/SDG2.png";
+import sdg3 from "../assets/SDG/SDG3.png";
+import sdg4 from "../assets/SDG/SDG4.png";
+import sdg5 from "../assets/SDG/SDG5.png";
+import sdg6 from "../assets/SDG/SDG6.png";
+import sdg8 from "../assets/SDG/SDG8.png";
+import sdg9 from "../assets/SDG/SDG9.png";
+import sdg10 from "../assets/SDG/SDG10.png";
+import sdg11 from "../assets/SDG/SDG11.png";
+
+// ✅ Store your array here
+const sdgImages = [
+  sdg1,
+  sdg2,
+  sdg3,
+  sdg4,
+  sdg5,
+  sdg6,
+  sdg8,
+  sdg9,
+  sdg10,
+  sdg11,
+];
+
 const Home = () => {
   const [teamCount, setTeamCount] = useState(0);
   const [reportsCount, setReportsCount] = useState(0);
+  const [impact, setImpact] = useState({
+    beneficiaries: 0,
+    states: 0,
+    projects: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [mentorsData, managementData, reportsData] = await Promise.all([
-          getMentors(),
-          getManagement(),
-          getReports(),
-        ]);
+        const [mentorsData, managementData, reportsData, impactData] =
+          await Promise.all([
+            getMentors(),
+            getManagement(),
+            getReports(),
+            getImpactData(),
+          ]);
 
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
+        setImpact(impactData);
       } catch (err) {
         console.error("Error fetching home data:", err);
       } finally {
@@ -55,17 +99,12 @@ const Home = () => {
       {/* ✅ Hero Slider Section */}
       <section className="hero-slider">
         <Slider {...sliderSettings}>
-          {/* First Image */}
           <div>
             <img src={first} alt="Slide 1" className="slide-img" />
           </div>
-
-          {/* Second Image */}
           <div>
             <img src={Second} alt="Slide 2" className="slide-img" />
           </div>
-
-          {/* Third Image with Title & Button */}
           <div className="slide-content">
             <img src={Third} alt="Slide 3" className="slide-img" />
             <div className="overlay1">
@@ -74,8 +113,6 @@ const Home = () => {
               </Link>
             </div>
           </div>
-
-          {/* Fourth Image with Title & Button */}
           <div className="slide-content">
             <img src={Fourth} alt="Slide 4" className="slide-img" />
             <div className="overlay2">
@@ -86,6 +123,7 @@ const Home = () => {
           </div>
         </Slider>
       </section>
+
       {/* About Y4D Section */}
       <section className="About-section">
         <div className="About-container">
@@ -113,6 +151,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       {/* Our Reach Section */}
       <section className="our-reach-section">
         <div className="our-reach-container">
@@ -120,10 +159,9 @@ const Home = () => {
             Our Impact<span></span>
           </h2>
           <div className="reach-grid">
-            {/* Item 1 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={15} />
+                <Counter end={impact.beneficiaries} />
                 L+
               </h3>
               <p className="reach-subtitle">Beneficiaries</p>
@@ -132,10 +170,9 @@ const Home = () => {
               </p>
             </div>
 
-            {/* Item 2 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={20} />+
+                <Counter end={impact.states} />+
               </h3>
               <p className="reach-subtitle">States</p>
               <p className="reach-text">
@@ -144,12 +181,11 @@ const Home = () => {
               </p>
             </div>
 
-            {/* Item 3 */}
             <div className="reach-item">
               <h3 className="reach-number">
-                <Counter end={200} />+
+                <Counter end={impact.projects} />+
               </h3>
-              <p className="reach-subtitle">PROJECTS</p>
+              <p className="reach-subtitle">Projects</p>
               <p className="reach-text">
                 Projects in education, healthcare, and women empowerment
               </p>
@@ -168,23 +204,23 @@ const Home = () => {
             {[
               {
                 title: "Quality Education",
-                img: "/assets/interventions/education.png",
+                img: edu,
               },
               {
-                title: "Livelihood",
-                img: "/assets/interventions/livelihood.png",
+                title: " Livelihood",
+                img: livelihood,
               },
               {
-                title: "Healthcare",
-                img: "/assets/interventions/healthcare.png",
+                title: " Healthcare",
+                img: healthcare,
               },
               {
-                title: "Environment Sustainability",
-                img: "/assets/interventions/environment.png",
+                title: " Environment & Sustainability",
+                img: environment,
               },
               {
-                title: "Integrated Development Program (IDP)",
-                img: "/assets/interventions/idp.png",
+                title: " Integrated Development Program (IDP)",
+                img: idp,
               },
             ].map((item, index) => (
               <div key={index} className="card text-center intervention-card">
@@ -207,31 +243,33 @@ const Home = () => {
       <section className="SDGs-section">
         <div className="SDGs-container">
           <h2 className="sdg-title">
-            Towards Achieving SDG's<span></span>
+            Towards Achieving SDGs<span></span>
           </h2>
           <Slider
             slidesToShow={5}
             slidesToScroll={1}
-            infinite={true}
-            autoplay={true}
+            infinite
+            autoplay
             autoplaySpeed={0}
-            speed={4000}
+            speed={6000}
             cssEase="linear"
             arrows={false}
             dots={false}
+            responsive={[
+              { breakpoint: 1024, settings: { slidesToShow: 4 } },
+              { breakpoint: 768, settings: { slidesToShow: 3 } },
+              { breakpoint: 480, settings: { slidesToShow: 2 } },
+            ]}
           >
-            {[1, 2, 3, 4, 5, 6, 7].map((sdg) => (
-              <div key={sdg} className="sdg-item">
-                <img
-                  src={`/assets/sdg-${sdg}.png`}
-                  alt={`SDG ${sdg}`}
-                  className="sdg-icon"
-                />
+            {sdgImages.map((img, index) => (
+              <div key={index} className="sdg-item">
+                <img src={img} alt={`SDG ${index + 1}`} className="sdg-icon" />
               </div>
             ))}
           </Slider>
         </div>
       </section>
+
       {/* Partners Section */}
       <section className="Partners-section">
         <div className="Partners-container">
@@ -277,24 +315,9 @@ const Home = () => {
             arrows={false}
             dots={false}
             responsive={[
-              {
-                breakpoint: 1024, // tablets
-                settings: {
-                  slidesToShow: 3,
-                },
-              },
-              {
-                breakpoint: 768, // large mobiles
-                settings: {
-                  slidesToShow: 2, // show 2 cards instead of 1
-                },
-              },
-              {
-                breakpoint: 480, // very small screens
-                settings: {
-                  slidesToShow: 1, // fallback to 1 card
-                },
-              },
+              { breakpoint: 1024, settings: { slidesToShow: 3 } },
+              { breakpoint: 768, settings: { slidesToShow: 2 } },
+              { breakpoint: 480, settings: { slidesToShow: 1 } },
             ]}
           >
             {[
