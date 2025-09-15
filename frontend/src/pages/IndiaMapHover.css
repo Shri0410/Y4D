@@ -1,0 +1,175 @@
+.india-map-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.map-container {
+  width: 100%;
+  position: relative;
+  padding-bottom: 64%; /* adjust to match your map image aspect ratio */
+  background-size: contain;
+  background-position: center top;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  overflow: visible;
+}
+
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.maharashtra-dot,
+.karnataka-dot,
+.tamil-nadu-dot,
+.kerala-dot,
+.gujarat-dot,
+.delhi-dot,
+.west-bengal-dot,
+.uttar-pradesh-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(11, 118, 255, 0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* individual colors */
+.maharashtra-dot {
+  background: #0b76ff;
+}
+.karnataka-dot {
+  background: #4caf50;
+}
+.tamil-nadu-dot {
+  background: #ff9800;
+}
+.kerala-dot {
+  background: #9c27b0;
+}
+.gujarat-dot {
+  background: #e91e63;
+}
+.delhi-dot {
+  background: #03a9f4;
+}
+.west-bengal-dot {
+  background: #8bc34a;
+}
+.uttar-pradesh-dot {
+  background: #ff5722;
+}
+
+/* hover effect (can be common) */
+.hotspot:hover span,
+.hotspot:focus span {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 10px rgba(11, 118, 255, 0.14);
+}
+
+.tooltip-box {
+  position: absolute;
+  transform: translate(-50%, -110%);
+  min-width: 160px;
+  max-width: 240px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-size: 14px;
+  line-height: 1.2;
+  pointer-events: none; /* so mouse leaves hotspot don't flicker */
+  z-index: 40;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.tooltip-body strong {
+  font-weight: 700;
+}
+
+.legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #333;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #0b76ff;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+}
+
+/* responsive tweaks */
+@media (max-width: 900px) {
+  .map-container {
+    padding-bottom: 72%;
+  }
+  .hotspot {
+    width: 24px;
+    height: 24px;
+  }
+  .hotspot-dot {
+    width: 10px;
+    height: 10px;
+  }
+  .tooltip-box {
+    min-width: 140px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-container {
+    padding-bottom: 80%;
+  }
+  .hotspot {
+    width: 20px;
+    height: 20px;
+  }
+  .hotspot-dot {
+    width: 9px;
+    height: 9px;
+  }
+  .tooltip-box {
+    right: 6px;
+    left: auto;
+    transform: translate(0, -120%);
+  }
+}

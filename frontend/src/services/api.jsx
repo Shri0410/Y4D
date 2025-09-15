@@ -20,7 +20,7 @@ export const applyForJob = async (applicationData) => {
 
 // Example: fetch impact data
 export const getImpactData = async () => {
-  const response = await axios.get("http://localhost:5000/api/impact");
+  const response = await axios.get("http://localhost:5000/api/impact-data");
   return response.data;
 };
 
