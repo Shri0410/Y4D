@@ -28,6 +28,7 @@ import Newsletters from "./pages/NewsLetters";
 import Stories from "./pages/Stories";
 import Events from "./pages/Events";
 import Blogs from "./pages/Blogs";
+import BlogDetails from "./pages/BlogDetails";
 import Documentaries from "./pages/Documentaries";
 import Contact from "./pages/Contact";
 import ScrollToTop from "./ScrollToTop";
@@ -36,6 +37,7 @@ import LoginPage from "./component/LoginPage";
 import PageTransition from "./component/PageTransition";
 import LegalReports from "./pages/LegalReports";
 import VolunteersInternship from "./pages/VolunteersInternship";
+import IndiaMapHover from "./pages/IndiaMapHover";
 
 import "./App.css";
 
@@ -103,9 +105,11 @@ function AppContent({
                   <Route path="/stories" element={<Stories />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/blogs" element={<Blogs />} />
+                  <Route path="/blogs/:id" element={<BlogDetails />} />
                   <Route path="/documentaries" element={<Documentaries />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/legalreports" element={<LegalReports />} />
+                  <Route path="/india-map" element={<IndiaMapHover />} />
                 </Routes>
               </main>
               <Footer />

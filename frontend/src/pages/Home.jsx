@@ -348,21 +348,21 @@ const Home = () => {
             Latest from Our Media Corner<span></span>
           </h2>
           <div className="grid grid-3">
-            <div className="card text-center">
+            <div className="Media-card text-center">
               <h3>Newsletters</h3>
               <p>Stay updated with our latest activities and impact stories </p>
               <Link to="/newsletters" className="MC-btn">
                 Read Now
               </Link>
             </div>
-            <div className="card text-center">
+            <div className="Media-card text-center">
               <h3>Stories of Empowerment</h3>
               <p>Inspiring stories of transformation from our communities</p>
               <Link to="/stories" className="MC-btn">
                 Read Stories
               </Link>
             </div>
-            <div className="card text-center">
+            <div className="Media-card text-center">
               <h3>Blogs</h3>
               <p>
                 Read stories, insights, and updates from our inspiring journey.

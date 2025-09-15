@@ -1,11 +1,12 @@
+// pages/Blogs.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import "./Blogs.css";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBlog, setSelectedBlog] = useState(null);
 
   const API_BASE = "http://localhost:5000/api";
 
@@ -21,14 +22,6 @@ const Blogs = () => {
       console.error("Error fetching blogs:", error);
     }
     setLoading(false);
-  };
-
-  const openBlogModal = (blog) => {
-    setSelectedBlog(blog);
-  };
-
-  const closeBlogModal = () => {
-    setSelectedBlog(null);
   };
 
   const renderTags = (tags) => {
@@ -93,56 +86,14 @@ const Blogs = () => {
                     {new Date(blog.published_date).toLocaleDateString()}
                   </p>
                 </div>
-                <button
-                  onClick={() => openBlogModal(blog)}
-                  className="btn-read-more"
-                >
+                <Link to={`/blogs/${blog.id}`} className="btn-read-more">
                   Read Article
-                </button>
+                </Link>
               </div>
             </div>
           ))
         )}
       </div>
-
-      {/* Blog Modal */}
-      {selectedBlog && (
-        <div className="modal-overlay" onClick={closeBlogModal}>
-          <div
-            className="modal-content blog-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <h2>{selectedBlog.title}</h2>
-              <button onClick={closeBlogModal} className="close-btn">
-                &times;
-              </button>
-            </div>
-            <div className="modal-body">
-              {selectedBlog.image && (
-                <div className="modal-image">
-                  <img
-                    src={`${API_BASE}/uploads/media/blogs/${selectedBlog.image}`}
-                    alt={selectedBlog.title}
-                  />
-                </div>
-              )}
-              <div className="blog-meta-modal">
-                <span className="author">By {selectedBlog.author}</span>
-                <span className="date">
-                  {new Date(selectedBlog.published_date).toLocaleDateString()}
-                </span>
-              </div>
-              {renderTags(selectedBlog.tags)}
-              <div className="blog-full-content">
-                {selectedBlog.content.split("\n").map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

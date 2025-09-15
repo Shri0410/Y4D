@@ -443,7 +443,7 @@
 
 .Partners-section {
   background-color: #f7f7f7;
-  padding: 40px 0;
+  padding: 0px 0px 40px 0px;
 }
 
 .img1-btn {
@@ -790,6 +790,17 @@
   margin: 0 auto;
   padding: 0 15px;
   text-align: center;
+}
+
+.Media-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 50px 16px;
+  transition: transform 0.3s;
+}
+.Media-card:hover {
+  transform: translateY(-5px);
 }
 
 /* Responsive */
