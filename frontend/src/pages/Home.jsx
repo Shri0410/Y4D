@@ -18,7 +18,7 @@ import Second from "../assets/BannerImages/s.jpeg";
 import Third from "../assets/BannerImages/t.jpeg";
 import Fourth from "../assets/BannerImages/fo.jpeg";
 
-import edu from "../assets/Interventions/education.png";
+import edu from "../assets/Interventions/Education.png";
 import livelihood from "../assets/Interventions/Livelihood.png";
 import healthcare from "../assets/Interventions/Healthcare.png";
 import environment from "../assets/Interventions/EnvironmentSustainibility.png";
