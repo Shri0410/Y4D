@@ -1,8 +1,43 @@
 .lv-page {
   font-family: "Poppins", sans-serif;
-  padding: 2rem;
-  max-width: 1200px;
   margin: 80px auto;
+}
+.lv-banner {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.lv-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lv-banner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4); /* dark overlay */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lv-banner-overlay h1 {
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+}
+.lv-section {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .lv-title {

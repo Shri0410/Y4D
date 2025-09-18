@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../pages/About.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
+import pyramidImg from "../assets/Pyramid.png";
 
 const About = () => {
   const navigate = useNavigate();
@@ -195,36 +196,44 @@ const About = () => {
         ))}
       </div>
 
-      <div ref={sectionRefs.Pyramid} id="Pyramid" className="story-section">
-        <div className="story-content-container">
-          <p>
-            The pyramid presents a thoughtful hierarchy for human development
-            and well-being, where each level builds upon and strengthens the one
-            below it. Starting from the base:
-          </p>
+      <div
+        ref={sectionRefs.Pyramid}
+        id="Pyramid"
+        className="story-section pyramid-section"
+      >
+        <div className="pyramid-container">
+          {/* Left Side Image */}
+          <div className="pyramid-image">
+            <img src={pyramidImg} alt="Pyramid of Empowerment" />
+          </div>
+
+          {/* Right Side Intro + Education */}
+          <div className="pyramid-text">
+            <p>
+              The pyramid presents a thoughtful hierarchy for human development
+              and well-being, where each level builds upon and strengthens the
+              one below it. Starting from the base:
+            </p>
+            <ul>
+              <li>
+                <h4>ENVIRNMENT SUSTAINABILITY</h4>
+                <p>
+                  crowns the pyramid as the ultimate objective, emphasizing the
+                  preservation of our planet for current and future generations.
+                  Only when foundational human needs of education, livelihood,
+                  and health are met, individuals focus on engaging in
+                  sustainable practices and giving back to the society.
+                </p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Remaining Content Below */}
+        <div className="pyramid-lower-content">
           <ul>
             <li>
-              <h4>Education</h4>
-              <p>
-                forms the critical foundation, equipping individuals with
-                essential knowledge, practical skills, and the ability to think
-                critically. This empowers them to seize opportunities, pursue
-                personal growth, and lay the groundwork for a stable and
-                fulfilling livelihood.
-              </p>
-            </li>
-            <li>
-              <h4>Livelihood</h4>
-              <p>
-                emerges from education, providing economic stability and the
-                resources needed to sustain oneself and one’s family. This
-                includes access to employment, entrepreneurial ventures, or
-                other income sources, fostering financial independence and
-                resilience.
-              </p>
-            </li>
-            <li>
-              <h4>Health</h4>
+              <h4>HEALTHCARE</h4>
               <p>
                 depends on a secure livelihood, allowing individuals to invest
                 in their physical, mental, and social well-being. With financial
@@ -234,22 +243,32 @@ const About = () => {
               </p>
             </li>
             <li>
-              <h4>Environment Sustainability</h4>
+              <h4>LIVELIHOOD</h4>
               <p>
-                crowns the pyramid as the ultimate objective, emphasizing the
-                preservation of our planet for current and future generations.
-                Only when foundational human needs of education, livelihood, and
-                health are met, individuals focus on engaging in sustainable
-                practices and giving back to the society.
+                emerges from education, providing economic stability and the
+                resources needed to sustain oneself and one’s family. This
+                includes access to employment, entrepreneurial ventures, or
+                other income sources, fostering financial independence and
+                resilience.
               </p>
             </li>
-            <p>
-              The pyramid's design highlights a crucial principle: neglecting
-              any foundational level threatens the stability of those above it.
-              Each layer is intricately linked, working together to advance the
-              broader vision of sustainable and thriving living.
-            </p>
+            <li>
+              <h4>EDUCATION</h4>
+              <p>
+                forms the critical foundation, equipping individuals with
+                essential knowledge, practical skills, and the ability to think
+                critically. This empowers them to seize opportunities, pursue
+                personal growth, and lay the groundwork for a stable and
+                fulfilling livelihood.
+              </p>
+            </li>
           </ul>
+          <p>
+            The pyramid's design highlights a crucial principle: neglecting any
+            foundational level threatens the stability of those above it. Each
+            layer is intricately linked, working together to advance the broader
+            vision of sustainable and thriving living.
+          </p>
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./Livelihood.css"; // ✅ separate stylesheet
+import "./Livelihood.css";
+import bannerImg from "../assets/BannerImages/fo.jpeg";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
@@ -44,6 +45,10 @@ const Livelihood = () => {
 
   return (
     <div className="lv-page">
+      {/* Banner Section */}
+      <div className="lv-banner">
+        <img src={bannerImg} alt="Quality Education Banner" />
+      </div>
       <section className="lv-section">
         <div className="lv-container">
           <div className="lv-header">

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import "./QualityEducation.css"; // new CSS file for unique styling
+import "./QualityEducation.css";
+import bannerImg from "../assets/BannerImages/f.jpeg";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
@@ -43,6 +44,10 @@ const QualityEducation = () => {
 
   return (
     <div className="qe-page">
+      {/* Banner Section */}
+      <div className="qe-banner">
+        <img src={bannerImg} alt="Quality Education Banner" />
+      </div>
       <section className="qe-section">
         <div className="qe-container">
           <div className="qe-header">
