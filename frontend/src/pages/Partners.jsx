@@ -127,9 +127,9 @@ const Partners = () => {
     autoplaySpeed: 2000,
     speed: 800,
     cssEase: "ease",
-
     arrows: false,
     dots: false,
+    lazyLoad: "ondemand", // slick built-in lazy loading
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 4 } },
       { breakpoint: 768, settings: { slidesToShow: 3 } },
@@ -146,7 +146,11 @@ const Partners = () => {
         <Slider {...settings}>
           {partnerLogos.map((logo, index) => (
             <div key={index} className="partner-item">
-              <img src={logo} alt={`Partner ${index + 1}`} />
+              <img
+                src={logo}
+                alt={`Partner ${index + 1}`}
+                loading="lazy" // native browser lazy load
+              />
             </div>
           ))}
         </Slider>
