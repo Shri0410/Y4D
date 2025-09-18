@@ -119,19 +119,23 @@ const Partners = () => {
     p55,
   ];
 
+  const logosLoop = [...partnerLogos, ...partnerLogos];
+
   const settings = {
-    slidesToShow: 5,
+    slidesToShow: 6,
     slidesToScroll: 1,
     infinite: true,
     autoplay: true,
-    autoplaySpeed: 2000,
-    speed: 800,
-    cssEase: "ease",
+    autoplaySpeed: 0, // remove delay
+    speed: 5000, // duration of movement (longer = smoother)
+    cssEase: "linear", // smooth nonstop scroll
     arrows: false,
     dots: false,
-    lazyLoad: "ondemand", // slick built-in lazy loading
+    pauseOnHover: false,
+    pauseOnFocus: false,
+    swipeToSlide: true,
     responsive: [
-      { breakpoint: 1024, settings: { slidesToShow: 4 } },
+      { breakpoint: 1024, settings: { slidesToShow: 5 } },
       { breakpoint: 768, settings: { slidesToShow: 3 } },
       { breakpoint: 480, settings: { slidesToShow: 2 } },
     ],
@@ -140,16 +144,14 @@ const Partners = () => {
   return (
     <section className="partners-section">
       <div className="partners-container">
-        <h2 className="partner-title">
-          Our Partners<span></span>
-        </h2>
+        <h2 className="partner-title">Our Partners</h2>
         <Slider {...settings}>
-          {partnerLogos.map((logo, index) => (
+          {logosLoop.map((logo, index) => (
             <div key={index} className="partner-item">
               <img
                 src={logo}
                 alt={`Partner ${index + 1}`}
-                loading="lazy" // native browser lazy load
+                loading="lazy"
               />
             </div>
           ))}

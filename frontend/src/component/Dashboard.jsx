@@ -210,20 +210,56 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
   };
 
-  const handleDelete = async (id, type) => {
-    if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
+// In your Dashboard.jsx, update the handleDelete function:
+const handleDelete = async (id, type) => {
+  if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
+  
+  setLoading(true);
+  try {
+    // Fix the endpoint - ensure it matches your API routes
+    let endpoint = `${API_BASE}/${type}`;
     
-    setLoading(true);
-    try {
-      await axios.delete(`${API_BASE}/${type}/${id}`);
-      fetchData(activeTab);
+    // Handle special cases where the type doesn't match the API endpoint
+    if (type === 'management') {
+      // management is already correct
+    } else if (type === 'mentors' || type === 'reports' || type === 'careers') {
+      // These are already correct (plural)
+    } else {
+      // For other types, make sure they're plural
+      endpoint = `${API_BASE}/${type}s`;
+    }
+    
+    const response = await axios.delete(`${endpoint}/${id}`);
+    
+    // Check if response has data (status 200) or is empty (status 204)
+    if (response.data) {
+      console.log('Delete successful:', response.data);
       alert(`${type.slice(0, -1)} deleted successfully!`);
-    } catch (error) {
-      console.error(`Error deleting ${type}:`, error);
+    } else {
+      // Handle 204 No Content responses
+      console.log('Delete successful (no content returned)');
+      alert(`${type.slice(0, -1)} deleted successfully!`);
+    }
+    
+    fetchData(activeTab);
+  } catch (error) {
+    console.error(`Error deleting ${type}:`, error);
+    
+    // More detailed error handling
+    if (error.response) {
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+      alert(`Error deleting ${type}: ${error.response.data?.error || error.message}`);
+    } else if (error.request) {
+      console.error('Error request:', error.request);
+      alert(`Error deleting ${type}: No response from server`);
+    } else {
+      console.error('Error message:', error.message);
       alert(`Error deleting ${type}: ${error.message}`);
     }
-    setLoading(false);
-  };
+  }
+  setLoading(false);
+};
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -366,25 +402,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 type="text"
                 value={mentorForm.position}
                 onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Bio:</label>
-              <textarea
-                value={mentorForm.bio}
-                onChange={(e) => setMentorForm({...mentorForm, bio: e.target.value})}
-                required
-                rows="4"
-              />
-            </div>
-            <div className="form-group">
-              <label>Social Links (JSON):</label>
-              <textarea
-                value={mentorForm.social_links}
-                onChange={(e) => setMentorForm({...mentorForm, social_links: e.target.value})}
-                placeholder='{"twitter": "https://...", "linkedin": "https://..."}'
-                rows="3"
+                
               />
             </div>
             <div className="form-group">
@@ -431,24 +449,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 value={managementForm.position}
                 onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
                 required
-              />
-            </div>
-            <div className="form-group">
-              <label>Bio:</label>
-              <textarea
-                value={managementForm.bio}
-                onChange={(e) => setManagementForm({...managementForm, bio: e.target.value})}
-                required
-                rows="4"
-              />
-            </div>
-            <div className="form-group">
-              <label>Social Links (JSON):</label>
-              <textarea
-                value={managementForm.social_links}
-                onChange={(e) => setManagementForm({...managementForm, social_links: e.target.value})}
-                placeholder='{"twitter": "https://...", "linkedin": "https://..."}'
-                rows="3"
               />
             </div>
             <div className="form-group">

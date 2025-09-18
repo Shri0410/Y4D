@@ -35,6 +35,11 @@ import sdg9 from "../assets/SDG/SDG9.png";
 import sdg10 from "../assets/SDG/SDG10.png";
 import sdg11 from "../assets/SDG/SDG11.png";
 
+import accr1 from "../assets/Accredations/Purviz Shroff Social.jpg";
+import accr2 from "../assets/Accredations/Bhamashah Award RJ.jpg";
+import accr3 from "../assets/Accredations/CAF International Certificate.jpg";
+import accr4 from "../assets/Accredations/NGO Grading Certificate_Y4D_June23_Design.jpg";
+
 import Partners from "./Partners";
 
 // ✅ Store your array here
@@ -299,12 +304,10 @@ const Home = () => {
             ]}
           >
             {[
-              { img: "/assets/accreditation-1.png", title: "ISO Certified" },
-              { img: "/assets/accreditation-2.png", title: "Govt. of India" },
-              { img: "/assets/accreditation-3.png", title: "UN Partnership" },
-              { img: "/assets/accreditation-4.png", title: "CSR Registered" },
-              { img: "/assets/accreditation-5.png", title: "NITI Aayog" },
-              { img: "/assets/accreditation-6.png", title: "Skill India" },
+              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+              { img: accr2, title: "Bhamashah Award" },
+              { img: accr3, title: "India Impact Summit – Socio Story" },
+              { img: accr4, title: "IRR NGO Grading - 3" },
             ].map((item, index) => (
               <div key={index} className="accreditation-card">
                 <img

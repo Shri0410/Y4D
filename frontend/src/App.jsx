@@ -38,6 +38,7 @@ import PageTransition from "./component/PageTransition";
 import LegalReports from "./pages/LegalReports";
 import VolunteersInternship from "./pages/VolunteersInternship";
 import IndiaMapHover from "./pages/IndiaMapHover";
+import Popup from "./pages/Popup";
 
 import "./App.css";
 
@@ -63,6 +64,7 @@ function AppContent({
 
   return (
     <div className="App">
+      <Popup />
       <ScrollToTop />
       <Routes>
         {/* Public routes */}
