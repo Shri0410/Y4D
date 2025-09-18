@@ -219,7 +219,7 @@ const Home = () => {
                 img: environment,
               },
               {
-                title: " Integrated Development Program (IDP)",
+                title: " Integrated Development Program",
                 img: idp,
               },
             ].map((item, index) => (

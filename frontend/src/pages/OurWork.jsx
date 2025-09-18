@@ -31,7 +31,7 @@ const OurWork = () => {
       id: "education",
       title: "Quality Education",
       description:
-        "Our education programs focus on improving access to quality education for underprivileged children.",
+        "Y4D Foundation transforms education for underserved communities by providing digital learning labs,skill-based training, scholarships, and teacher capacity building, empowering youth with quality education for a resilient and equitable future. We bridge the education gap through innovative solutions, fostering digital literacy, leadership, and lifelong learning to enable social and economic progress.",
       image: QE,
       color: "#38b6e9",
     },
@@ -39,7 +39,7 @@ const OurWork = () => {
       id: "livelihood",
       title: "Livelihood",
       description:
-        "We provide skill development and employment opportunities to empower communities economically.",
+        "Y4D Foundation promotes sustainable livelihoods aligned with SDG 8 by empowering marginalized communities through skill development, financial literacy, and digital education, enabling self-reliance and economic stability. Our industry-relevant training bridges the gap between knowledge and practice, fostering employability, entrepreneurship, and long-term socio-economic growth.",
       image: LS,
       color: "#febd2c",
     },
@@ -47,7 +47,7 @@ const OurWork = () => {
       id: "healthcare",
       title: "Healthcare",
       description:
-        "Our healthcare initiatives aim to improve health outcomes in underserved communities.",
+        "Y4D Foundation advances SDG 3 by enhancing healthcare access for underserved communities through preventive health camps, awareness campaigns on nutrition, fitness, and early detection, empowering individuals for healthier lives. By promoting health education and providing regular medical check-ups, Y4D tackles barriers like financial constraints and lack of awareness, fostering well-being and long-term community health.",
       image: HS,
       color: "#e63a34",
     },
@@ -55,7 +55,7 @@ const OurWork = () => {
       id: "environment",
       title: "Environment Sustainability",
       description:
-        "We work towards environmental conservation and sustainable development practices.",
+        "Y4D Foundation supports SDG 15 by promoting environmental sustainability through tree planting drives, ecological restoration, and awareness programs, fostering conservation and climate resilience. Using innovative methods like Miyawaki Afforestation, Y4D enhances green cover and ecological balance, empowering communities to contribute to a healthier, sustainable planet.",
       image: ES,
       color: "#42b242",
     },
@@ -63,7 +63,7 @@ const OurWork = () => {
       id: "idp",
       title: "Integrated Development Program (IDP)",
       description:
-        "Our comprehensive approach to community development addressing multiple needs simultaneously.",
+        "Y4D Foundation’s Integrated Development Program (IDP) drives holistic community development by combining education, healthcare, livelihood, and environmental sustainability, aligned with SDGs 1, 3, 4, 8, and 13. Through supporting FPOs, SHGs, skill training, and financial literacy, Y4D empowers marginalized communities with economic stability, market access, and self-reliance for sustainable growth.",
       image: IDP,
       color: "#803a96",
     },
@@ -155,7 +155,7 @@ const OurWork = () => {
               <h3>{intervention.title}</h3>
               <p>{intervention.description}</p>
 
-              <div className="reports-section">
+              {/* <div className="reports-section">
                 <h4>Related Reports and Projects</h4>
                 {reports.filter(
                   (report) =>
@@ -194,7 +194,7 @@ const OurWork = () => {
                       ))}
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
