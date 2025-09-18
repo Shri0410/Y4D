@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./LegalReports.css";
 import bannerImg from "../assets/BannerImages/t.jpeg"; // replace with your banner image
+import axios from "axios";
 
 const LegalReports = () => {
+  const [reports, setReports] = useState([]);
+
+  // your backend URL
+  const BACKEND_URL = "http://localhost:5000";
+
+  // Fetch reports from backend
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/reports`);
+        setReports(res.data);
+      } catch (err) {
+        console.error("Error fetching reports:", err);
+      }
+    };
+    fetchReports();
+  }, []);
+
   const legalStatusData = [
     { title: "1) Niti Ayog (Darpan)", value: "MH/2015/0093159" },
     { title: "2) Public Trust Act, 1950", value: "E-7269 (24/09/2015)" },
@@ -21,6 +40,7 @@ const LegalReports = () => {
     { title: "7) TAN", value: "88302012554372" },
     { title: "8) CSR Registration Number", value: "CSR00000374" },
   ];
+
   return (
     <div className="legal-page">
       {/* Banner Section */}
@@ -30,7 +50,12 @@ const LegalReports = () => {
 
       {/* Legal Status Section */}
       <section className="legal-section">
-        <h2>Legal Status</h2>
+        <div className="ls-header">
+          <h2 className="ls-title">
+            Legal Status<span></span>
+          </h2>
+        </div>
+
         <div className="table-container">
           <table>
             <tbody>
@@ -47,20 +72,45 @@ const LegalReports = () => {
 
       {/* All Reports Section */}
       <section className="legal-section">
-        <h2>All Reports</h2>
-        <div className="table-container">
-          <table>
-            <tbody>
-              {Array.from({ length: 8 }).map((_, i) => (
-                <tr key={i}>
-                  <td>Row {i + 1} Col 1</td>
-                  <td>Row {i + 1} Col 2</td>
-                  <td>Row {i + 1} Col 3</td>
-                  <td>Row {i + 1} Col 4</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="lr-header">
+          <h2 className="lr-title">
+            All Reports<span></span>
+          </h2>
+        </div>
+        <div className="reports-container">
+          {reports.length === 0 ? (
+            <p>No reports available</p>
+          ) : (
+            reports.map((report) => (
+              <div className="report-card" key={report.id}>
+                <div className="report-image">
+                  {report.image ? (
+                    <img
+                      src={`${BACKEND_URL}/uploads/reports/${report.image}`}
+                      alt={report.title}
+                    />
+                  ) : (
+                    <div className="no-image">No Image</div>
+                  )}
+                </div>
+                <div className="report-content">
+                  <h3>{report.title}</h3>
+                  <p>{report.description}</p>
+                </div>
+                <div className="report-actions">
+                  {report.image && (
+                    <a
+                      href={`${BACKEND_URL}/uploads/reports/${report.image}`}
+                      download
+                      className="download-btn"
+                    >
+                      Download
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
     </div>

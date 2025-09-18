@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./EnvironmentSustainability.css"; // unique stylesheet for this page
+import "./EnvironmentSustainability.css";
+import bannerImg from "../assets/BannerImages/fo.jpeg";
 
 const EnvironmentSustainability = () => {
   const [items, setItems] = useState([]);
@@ -48,6 +49,10 @@ const EnvironmentSustainability = () => {
 
   return (
     <div className="es-page">
+      {/* Banner Section */}
+      <div className="es-banner">
+        <img src={bannerImg} alt="Quality Education Banner" />
+      </div>
       <section className="es-section">
         <div className="es-container">
           <div className="es-header">

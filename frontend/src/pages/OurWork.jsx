@@ -1,4 +1,3 @@
-// src/pages/OurWork.jsx
 import React, { useRef, useState, useEffect } from "react";
 import { getReports } from "../services/api";
 import bannerImg from "../assets/BannerImages/f.jpeg";
@@ -25,7 +24,7 @@ const OurWork = () => {
     idp: useRef(null),
   };
 
-  // Intervention data with images
+  // Intervention data
   const interventions = [
     {
       id: "education",
@@ -127,7 +126,7 @@ const OurWork = () => {
           id={intervention.id}
           className="work-section"
         >
-          {/* Tabs at top of each section */}
+          {/* Tabs */}
           <div className="work-tabs">
             {interventions.map((tab) => (
               <button
@@ -145,7 +144,7 @@ const OurWork = () => {
             ))}
           </div>
 
-          {/* Content with image + text */}
+          {/* Content */}
           <div className="work-content-container">
             <div className="work-image">
               <img src={intervention.image} alt={intervention.title} />
@@ -155,46 +154,96 @@ const OurWork = () => {
               <h3>{intervention.title}</h3>
               <p>{intervention.description}</p>
 
-              {/* <div className="reports-section">
-                <h4>Related Reports and Projects</h4>
-                {reports.filter(
-                  (report) =>
-                    report.title
-                      .toLowerCase()
-                      .includes(intervention.id.toLowerCase()) ||
-                    report.description
-                      .toLowerCase()
-                      .includes(intervention.id.toLowerCase())
-                ).length === 0 ? (
-                  <p>No reports available for this intervention yet.</p>
-                ) : (
-                  <div className="reports-grid">
-                    {reports
-                      .filter(
-                        (report) =>
-                          report.title
-                            .toLowerCase()
-                            .includes(intervention.id.toLowerCase()) ||
-                          report.description
-                            .toLowerCase()
-                            .includes(intervention.id.toLowerCase())
-                      )
-                      .map((report, index) => (
-                        <div key={index} className="report-card">
-                          {report.image && (
-                            <img
-                              src={`http://localhost:5000/uploads/reports/${report.image}`}
-                              alt={report.title}
-                            />
-                          )}
-                          <h5>{report.title}</h5>
-                          <p>{report.description}</p>
-                          <button className="btn">Learn More</button>
-                        </div>
-                      ))}
-                  </div>
+              {/* Stats List */}
+              <ul className="work-stats">
+                {intervention.id === "education" && (
+                  <>
+                    <li>
+                      <strong>Students Empowered: 75,000</strong>
+                    </li>
+                    <li>
+                      <strong>Teachers Benefitted: 5,600</strong>
+                    </li>
+                    <li>
+                      <strong>Classrooms Transformed: 200</strong>
+                    </li>
+                    <li>
+                      <strong>Anganwadi & School Upgraded: 30</strong>
+                    </li>
+                  </>
                 )}
-              </div> */}
+
+                {intervention.id === "livelihood" && (
+                  <>
+                    <li>
+                      <strong>Candidates Trained: 98,000 (75% Female)</strong>
+                    </li>
+                    <li>
+                      <strong>
+                        Youth Trained under Skill Initiatives : 17,000 (75%
+                        Female)
+                      </strong>
+                    </li>
+                    <li>
+                      <strong>Placement Ratio: 80%</strong>
+                    </li>
+                    <li>
+                      <strong>Enterprises Supported: 323</strong>
+                    </li>
+                  </>
+                )}
+
+                {intervention.id === "healthcare" && (
+                  <>
+                    <li>
+                      <strong>Total Beneficiaries: 7,00,000</strong>
+                    </li>
+                    <li>
+                      <strong>Health Camps Conducted: 450</strong>
+                    </li>
+                    <li>
+                      <strong>PHC’s Upgraded: 15</strong>
+                    </li>
+                    <li>
+                      <strong>Ambulance Donated: 30</strong>
+                    </li>
+                  </>
+                )}
+
+                {intervention.id === "environment" && (
+                  <>
+                    <li>
+                      <strong>Trees Planted: 61,000</strong>
+                    </li>
+                    <li>
+                      <strong>Agrarians Empowered: 100</strong>
+                    </li>
+                    <li>
+                      <strong>Ecological Restoration of Land: 15 acres</strong>
+                    </li>
+                    <li>
+                      <strong>Solar Panel/Lights Installed: 150</strong>
+                    </li>
+                  </>
+                )}
+
+                {intervention.id === "idp" && (
+                  <>
+                    <li>
+                      <strong>State - 14</strong>
+                    </li>
+                    <li>
+                      <strong>Districts - 62</strong>
+                    </li>
+                    <li>
+                      <strong>Villages - 440</strong>
+                    </li>
+                    <li>
+                      <strong>Projects - 39</strong>
+                    </li>
+                  </>
+                )}
+              </ul>
             </div>
           </div>
         </div>
