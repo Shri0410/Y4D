@@ -441,11 +441,6 @@
   padding: 10px;
 }
 
-.Partners-section {
-  background-color: #f7f7f7;
-  padding: 0px 0px 40px 0px;
-}
-
 .img1-btn {
   display: inline-flex;
   align-items: center;
@@ -770,14 +765,6 @@
 }
 
 .SDGs-container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-  text-align: center;
-}
-
-.Partners-container {
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
