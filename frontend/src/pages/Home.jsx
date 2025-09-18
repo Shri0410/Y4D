@@ -35,6 +35,8 @@ import sdg9 from "../assets/SDG/SDG9.png";
 import sdg10 from "../assets/SDG/SDG10.png";
 import sdg11 from "../assets/SDG/SDG11.png";
 
+import Partners from "./Partners";
+
 // ✅ Store your array here
 const sdgImages = [
   sdg1,
@@ -272,31 +274,7 @@ const Home = () => {
 
       {/* Partners Section */}
       <section className="Partners-section">
-        <div className="Partners-container">
-          <h2 className="partner-title">
-            Our Partners<span></span>
-          </h2>
-          <Slider
-            slidesToShow={5}
-            slidesToScroll={1}
-            infinite={true}
-            autoplay={true}
-            autoplaySpeed={0}
-            speed={4000}
-            cssEase="linear"
-            arrows={false}
-            dots={false}
-          >
-            {[1, 2, 3, 4, 5, 6].map((partner) => (
-              <div key={partner} className="partner-item">
-                <img
-                  src={`/assets/partner-${partner}.png`}
-                  alt={`Partner ${partner}`}
-                />
-              </div>
-            ))}
-          </Slider>
-        </div>
+        <Partners />
       </section>
 
       {/* Accreditations Section */}

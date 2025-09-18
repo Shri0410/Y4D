@@ -1,0 +1,41 @@
+.partners-section {
+  padding: 40px 0;
+  background: #f9f9f9;
+}
+
+.partners-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.partner-title {
+  font-size: 2.8rem;
+  margin-bottom: 30px;
+}
+
+.partner-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.partner-item img {
+  max-width: 100px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .partner-item img {
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .partner-item img {
+    max-width: 60px;
+  }
+}

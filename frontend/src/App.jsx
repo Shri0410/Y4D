@@ -53,7 +53,7 @@ function AppContent({
   // Trigger transition on every route change
   useEffect(() => {
     setPageLoading(true);
-    const timer = setTimeout(() => setPageLoading(false), 1700); // duration of transition
+    const timer = setTimeout(() => setPageLoading(false), 1700);
     return () => clearTimeout(timer);
   }, [location]);
 
