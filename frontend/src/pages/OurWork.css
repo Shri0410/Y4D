@@ -73,7 +73,7 @@
 .work-image img {
   width: 100%;
   max-width: 400px;
-  height: auto;
+  height: 400px;
   border-radius: 10px;
   object-fit: cover;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
@@ -160,6 +160,23 @@
 
 .report-card .btn:hover {
   background: #005e30;
+}
+
+.work-stats {
+  margin-top: 15px;
+  padding-left: 20px;
+  list-style-type: disc;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.work-stats li {
+  margin-bottom: 8px;
+}
+
+.work-stats strong {
+  color: #222;
 }
 
 /* Tablet view */

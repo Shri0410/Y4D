@@ -23,7 +23,7 @@ const Navbar = () => {
       { id: "/about", label: "About Us" },
       { id: "/reach-presence", label: "Reach and Presence" },
       { id: "/our-team", label: "Our Team" },
-      { id: "/legal-status", label: "Legal Status" },
+      { id: "/legalreports", label: "Legal Status" },
     ],
     work: [
       { id: "/quality-education", label: "Quality Education" },

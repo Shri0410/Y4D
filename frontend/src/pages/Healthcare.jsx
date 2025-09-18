@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Healthcare.css"; // new CSS file for Healthcare styles
+import "./Healthcare.css";
+import bannerImg from "../assets/BannerImages/s.jpeg";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
@@ -43,6 +44,10 @@ const Healthcare = () => {
 
   return (
     <div className="hc-page">
+      {/* Banner Section */}
+      <div className="hc-banner">
+        <img src={bannerImg} alt="Quality Education Banner" />
+      </div>
       <section className="hc-section">
         <div className="hc-container">
           <div className="hc-header">
