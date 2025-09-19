@@ -6,7 +6,16 @@ require('dotenv').config();
 
 const db = require('./config/database');
 const { authenticateToken } = require('./middleware/auth');
-
+const ensureUploadDirs = () => {
+  const dirs = ['mentors', 'management', 'board-trustees']; // Add board-trustees here
+  dirs.forEach(dir => {
+    const dirPath = path.join(uploadsDir, dir);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`Created upload directory: ${dirPath}`);
+    }
+  });
+};
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -15,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use('/api/board-trustees', require('./routes/boardTrustees'));
 
 // Routes
 app.use('/api/registration', require('./routes/registration'));

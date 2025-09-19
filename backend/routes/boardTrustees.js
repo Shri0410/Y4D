@@ -1,0 +1,228 @@
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const db = require('../config/database');
+
+const router = express.Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/board-trustees/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: function (req, file, cb) {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
+
+// Get all board trustees
+router.get('/', async (req, res) => {
+  try {
+    const [results] = await db.query('SELECT * FROM board_trustees ORDER BY name');
+    
+    const trusteesWithParsedLinks = results.map(trustee => {
+      try {
+        trustee.social_links = trustee.social_links ? 
+          (typeof trustee.social_links === 'string' ? JSON.parse(trustee.social_links) : trustee.social_links) 
+          : {};
+      } catch (parseError) {
+        console.error('Error parsing social_links:', parseError);
+        trustee.social_links = {};
+      }
+      return trustee;
+    });
+    
+    res.json(trusteesWithParsedLinks);
+  } catch (err) {
+    console.error('Database error fetching trustees:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch board trustees',
+      details: err.message
+    });
+  }
+});
+
+// Get single trustee
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [results] = await db.query('SELECT * FROM board_trustees WHERE id = ?', [id]);
+    
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Trustee not found' });
+    }
+    
+    const trustee = results[0];
+    try {
+      trustee.social_links = trustee.social_links ? 
+        (typeof trustee.social_links === 'string' ? JSON.parse(trustee.social_links) : trustee.social_links) 
+        : {};
+    } catch (parseError) {
+      console.error('Error parsing social_links:', parseError);
+      trustee.social_links = {};
+    }
+    
+    res.json(trustee);
+  } catch (err) {
+    console.error('Database error fetching trustee:', err);
+    res.status(500).json({ 
+      error: 'Failed to fetch trustee',
+      details: err.message
+    });
+  }
+});
+
+// Create trustee
+router.post('/', upload.single('image'), async (req, res) => {
+  try {
+    const { name, position, bio, social_links } = req.body;
+    const image = req.file ? req.file.filename : null;
+    
+    if (!name || name.trim() === '') {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+    
+    let socialLinksJson = {};
+    try {
+      if (social_links && social_links.trim() !== '') {
+        socialLinksJson = JSON.parse(social_links);
+      }
+    } catch (parseError) {
+      return res.status(400).json({ 
+        error: 'Invalid social links format',
+        details: 'Use valid JSON format for social links'
+      });
+    }
+    
+    const [result] = await db.query(
+      'INSERT INTO board_trustees (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)',
+      [name.trim(), position?.trim() || null, bio?.trim() || null, image, JSON.stringify(socialLinksJson)]
+    );
+    
+    const createdTrustee = {
+      id: result.insertId,
+      name: name.trim(),
+      position: position?.trim() || null,
+      bio: bio?.trim() || null,
+      image: image,
+      social_links: socialLinksJson
+    };
+    
+    res.status(201).json({ 
+      message: 'Board trustee created successfully',
+      trustee: createdTrustee
+    });
+    
+  } catch (err) {
+    console.error('Database error creating trustee:', err);
+    res.status(500).json({ 
+      error: 'Failed to create trustee',
+      details: err.message
+    });
+  }
+});
+
+// Update trustee
+router.put('/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, position, bio, social_links } = req.body;
+    
+    const [existingRows] = await db.query('SELECT * FROM board_trustees WHERE id = ?', [id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ error: 'Trustee not found' });
+    }
+    
+    const existingTrustee = existingRows[0];
+    const image = req.file ? req.file.filename : existingTrustee.image;
+    
+    let socialLinksJson;
+    try {
+      if (social_links && social_links.trim() !== '') {
+        socialLinksJson = JSON.parse(social_links);
+      } else {
+        socialLinksJson = typeof existingTrustee.social_links === 'string' ? 
+          JSON.parse(existingTrustee.social_links) : existingTrustee.social_links;
+      }
+    } catch (parseError) {
+      return res.status(400).json({ 
+        error: 'Invalid social links format',
+        details: 'Use valid JSON format for social links'
+      });
+    }
+    
+    const [result] = await db.query(
+      'UPDATE board_trustees SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?',
+      [
+        name?.trim() || existingTrustee.name,
+        position?.trim() || existingTrustee.position,
+        bio?.trim() || existingTrustee.bio,
+        image,
+        JSON.stringify(socialLinksJson),
+        id
+      ]
+    );
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Trustee not found' });
+    }
+    
+    res.json({ 
+      message: 'Trustee updated successfully',
+      trustee: {
+        id: parseInt(id),
+        name: name?.trim() || existingTrustee.name,
+        position: position?.trim() || existingTrustee.position,
+        bio: bio?.trim() || existingTrustee.bio,
+        image: image,
+        social_links: socialLinksJson
+      }
+    });
+    
+  } catch (err) {
+    console.error('Database error updating trustee:', err);
+    res.status(500).json({ 
+      error: 'Failed to update trustee',
+      details: err.message
+    });
+  }
+});
+
+// Delete trustee
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const [result] = await db.query('DELETE FROM board_trustees WHERE id = ?', [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Trustee not found' });
+    }
+    
+    res.json({ 
+      message: 'Trustee deleted successfully',
+      deletedId: id
+    });
+    
+  } catch (err) {
+    console.error('Database error deleting trustee:', err);
+    res.status(500).json({ 
+      error: 'Failed to delete trustee',
+      details: err.message
+    });
+  }
+});
+
+module.exports = router;
