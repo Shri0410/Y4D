@@ -6,8 +6,10 @@ import bannerImg from "../assets/BannerImages/s.jpeg"; // replace with your bann
 const OurTeam = () => {
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
+  const [trustees, setTrustees] = useState([]);
   const [loadingMentors, setLoadingMentors] = useState(true);
   const [loadingManagement, setLoadingManagement] = useState(true);
+  const [loadingTrustees, setLoadingTrustees] = useState(true);
 
   // Fetch mentors
   useEffect(() => {
@@ -41,6 +43,24 @@ const OurTeam = () => {
     fetchManagement();
   }, []);
 
+useEffect(() => {
+    const fetchTrustees = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/board-trustees");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setTrustees(data);
+        setLoadingTrustees(false);
+      } catch (error) {
+        console.error("❌ Error fetching board trustees:", error);
+        setLoadingTrustees(false);
+      }
+    };
+    fetchTrustees();
+  }, []);
+
   return (
     <div className="advisory-page">
       {/* Banner */}
@@ -51,11 +71,41 @@ const OurTeam = () => {
       {/* Board of Trustee */}
       <section className="FOT-section">
         <h2 className="trustee-title">
-          Our Board of Trustee<span></span>
+          Our Board of Trustees<span></span>
         </h2>
-        <div className="empty-box">
-          <p>Content will be added soon...</p>
-        </div>
+        {loadingTrustees ? (
+          <p>Loading board trustees...</p>
+        ) : trustees.length === 0 ? (
+          <div className="empty-box">
+            <p>Content will be added soon...</p>
+          </div>
+        ) : (
+          <div className="team-container">
+            {trustees.map((trustee) => (
+              <div key={trustee.id} className="team-card">
+                {trustee.image ? (
+                  <img
+                    src={`http://localhost:5000/uploads/board-trustees/${trustee.image}`}
+                    alt={trustee.name}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'block';
+                    }}
+                  />
+                ) : (
+                  <div className="placeholder-image">
+                    <span>👤</span>
+                  </div>
+                )}
+                <h3>{trustee.name}</h3>
+                <p className="role">{trustee.position}</p>
+                {trustee.bio && (
+                  <p className="bio">{trustee.bio.substring(0, 100)}...</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Our Mentors */}

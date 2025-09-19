@@ -13,14 +13,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
   const [careers, setCareers] = useState([]);
+  const [boardTrustees, setBoardTrustees] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
 
   // Sub-selections
   const [currentMediaType, setCurrentMediaType] = useState(null);
   const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null); 
+  const [currentTeamType, setCurrentTeamType] = useState(null);
 
-  // NEW: sidebar dropdown state
+  // Sidebar dropdown state
   const [openDropdown, setOpenDropdown] = useState(null);
 
   // Form states
@@ -28,6 +30,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [mentorForm, setMentorForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [managementForm, setManagementForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
+  const [trusteeForm, setTrusteeForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -39,8 +42,21 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   useEffect(() => {
     setCurrentMediaType(null);
     setCurrentOurWorkCategory(null);
+    setCurrentTeamType(null);
   }, [activeTab]);
+// Add this useEffect hook near your other useEffect hooks
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (openDropdown && !event.target.closest('.dashboard-sidebar')) {
+      setOpenDropdown(null);
+    }
+  };
 
+  document.addEventListener('mousedown', handleClickOutside);
+  return () => {
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [openDropdown]);
   useEffect(() => {
     if (!currentUser) {
       const userData = localStorage.getItem('user');
@@ -48,10 +64,15 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         setCurrentUser(JSON.parse(userData));
       }
     }
-    if (activeTab !== 'media' && !currentMediaType && activeTab !== 'ourWork' && !currentOurWorkCategory && activeTab !== 'impact') {
+    if (activeTab !== 'media' && !currentMediaType && 
+        activeTab !== 'ourWork' && !currentOurWorkCategory && 
+        activeTab !== 'impact' && activeTab !== 'our-team') {
       fetchData(activeTab);
     }
-  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory]);
+    if (activeTab === 'our-team' && currentTeamType) {
+      fetchData(currentTeamType);
+    }
+  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory, currentTeamType]);
 
   const fetchData = async (type) => {
     setLoading(true);
@@ -73,6 +94,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         case 'careers':
           response = await axios.get(`${API_BASE}/careers`);
           setCareers(response.data);
+          break;
+        case 'board-trustees': 
+          response = await axios.get(`${API_BASE}/board-trustees`);
+          setBoardTrustees(response.data);
           break;
         default:
           break;
@@ -149,13 +174,30 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
           break;
         
+        case 'board-trustees': 
+          Object.keys(trusteeForm).forEach(key => {
+            if (key === 'image' && trusteeForm.image) {
+              formData.append('image', trusteeForm.image);
+            } else {
+              formData.append(key, trusteeForm[key]);
+            }
+          });
+          endpoint = editingId ? `${API_BASE}/board-trustees/${editingId}` : `${API_BASE}/board-trustees`;
+          await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
+          setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+          break;
+
         default:
           break;
       }
 
       setEditingId(null);
       setImagePreview(null);
-      fetchData(activeTab);
+      if (activeTab === 'our-team') {
+        fetchData(currentTeamType);
+      } else {
+        fetchData(activeTab);
+      }
       alert(`${type.slice(0, -1)} ${editingId ? 'updated' : 'created'} successfully!`);
     } catch (error) {
       console.error(`Error saving ${type}:`, error);
@@ -205,61 +247,64 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           type: item.type
         });
         break;
+      case 'board-trustees': 
+        setTrusteeForm({
+          name: item.name,
+          position: item.position,
+          bio: item.bio,
+          image: null,
+          social_links: JSON.stringify(item.social_links || {})
+        });
+        if (item.image) setImagePreview(`${API_BASE}/uploads/board-trustees/${item.image}`);
+        break;
       default:
         break;
     }
   };
 
-// In your Dashboard.jsx, update the handleDelete function:
-const handleDelete = async (id, type) => {
-  if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
-  
-  setLoading(true);
-  try {
-    // Fix the endpoint - ensure it matches your API routes
-    let endpoint = `${API_BASE}/${type}`;
+  const handleDelete = async (id, type) => {
+    if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
     
-    // Handle special cases where the type doesn't match the API endpoint
-    if (type === 'management') {
-      // management is already correct
-    } else if (type === 'mentors' || type === 'reports' || type === 'careers') {
-      // These are already correct (plural)
-    } else {
-      // For other types, make sure they're plural
-      endpoint = `${API_BASE}/${type}s`;
+    setLoading(true);
+    try {
+      let endpoint = `${API_BASE}/${type}`;
+      
+      if (type === 'board-trustees') {
+        endpoint = `${API_BASE}/board-trustees`;
+      }
+      
+      const response = await axios.delete(`${endpoint}/${id}`);
+      
+      if (response.data) {
+        console.log('Delete successful:', response.data);
+        alert(`${type.slice(0, -1)} deleted successfully!`);
+      } else {
+        console.log('Delete successful (no content returned)');
+        alert(`${type.slice(0, -1)} deleted successfully!`);
+      }
+      
+      if (activeTab === 'our-team') {
+        fetchData(currentTeamType);
+      } else {
+        fetchData(activeTab);
+      }
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+      
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        alert(`Error deleting ${type}: ${error.response.data?.error || error.message}`);
+      } else if (error.request) {
+        console.error('Error request:', error.request);
+        alert(`Error deleting ${type}: No response from server`);
+      } else {
+        console.error('Error message:', error.message);
+        alert(`Error deleting ${type}: ${error.message}`);
+      }
     }
-    
-    const response = await axios.delete(`${endpoint}/${id}`);
-    
-    // Check if response has data (status 200) or is empty (status 204)
-    if (response.data) {
-      console.log('Delete successful:', response.data);
-      alert(`${type.slice(0, -1)} deleted successfully!`);
-    } else {
-      // Handle 204 No Content responses
-      console.log('Delete successful (no content returned)');
-      alert(`${type.slice(0, -1)} deleted successfully!`);
-    }
-    
-    fetchData(activeTab);
-  } catch (error) {
-    console.error(`Error deleting ${type}:`, error);
-    
-    // More detailed error handling
-    if (error.response) {
-      console.error('Error response data:', error.response.data);
-      console.error('Error response status:', error.response.status);
-      alert(`Error deleting ${type}: ${error.response.data?.error || error.message}`);
-    } else if (error.request) {
-      console.error('Error request:', error.request);
-      alert(`Error deleting ${type}: No response from server`);
-    } else {
-      console.error('Error message:', error.message);
-      alert(`Error deleting ${type}: ${error.message}`);
-    }
-  }
-  setLoading(false);
-};
+    setLoading(false);
+  };
 
   const cancelEdit = () => {
     setEditingId(null);
@@ -267,6 +312,7 @@ const handleDelete = async (id, type) => {
     setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
+    setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setImagePreview(null);
   };
 
@@ -326,8 +372,179 @@ const handleDelete = async (id, type) => {
     return descriptions[category] || 'Manage content';
   };
 
-  // ORIGINAL renderForm (preserved)
   const renderForm = () => {
+    if (activeTab === 'our-team') {
+      switch (currentTeamType) {
+        case 'mentors':
+          return (
+            <form onSubmit={(e) => handleSubmit(e, 'mentors')} className="dashboard-form">
+              <h3>{editingId ? 'Edit' : 'Add New'} Mentor</h3>
+              <div className="form-group">
+                <label>Name:</label>
+                <input
+                  type="text"
+                  value={mentorForm.name}
+                  onChange={(e) => setMentorForm({...mentorForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Position:</label>
+                <input
+                  type="text"
+                  value={mentorForm.position}
+                  onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Bio:</label>
+                <textarea
+                  value={mentorForm.bio}
+                  onChange={(e) => setMentorForm({...mentorForm, bio: e.target.value})}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>Image:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, setMentorForm)}
+                />
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                  </div>
+                )}
+              </div>
+              <div className="form-actions">
+                <button type="submit" disabled={loading}>
+                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Mentor
+                </button>
+                {editingId && (
+                  <button type="button" onClick={cancelEdit}>Cancel</button>
+                )}
+              </div>
+            </form>
+          );
+        
+        case 'management':
+          return (
+            <form onSubmit={(e) => handleSubmit(e, 'management')} className="dashboard-form">
+              <h3>{editingId ? 'Edit' : 'Add New'} Management Member</h3>
+              <div className="form-group">
+                <label>Name:</label>
+                <input
+                  type="text"
+                  value={managementForm.name}
+                  onChange={(e) => setManagementForm({...managementForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Position:</label>
+                <input
+                  type="text"
+                  value={managementForm.position}
+                  onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Bio:</label>
+                <textarea
+                  value={managementForm.bio}
+                  onChange={(e) => setManagementForm({...managementForm, bio: e.target.value})}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>Image:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, setManagementForm)}
+                />
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                  </div>
+                )}
+              </div>
+              <div className="form-actions">
+                <button type="submit" disabled={loading}>
+                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Member
+                </button>
+                {editingId && (
+                  <button type="button" onClick={cancelEdit}>Cancel</button>
+                )}
+              </div>
+            </form>
+          );
+        
+        case 'board-trustees':
+          return (
+            <form onSubmit={(e) => handleSubmit(e, 'board-trustees')} className="dashboard-form">
+              <h3>{editingId ? 'Edit' : 'Add New'} Board Trustee</h3>
+              <div className="form-group">
+                <label>Name:</label>
+                <input
+                  type="text"
+                  value={trusteeForm.name}
+                  onChange={(e) => setTrusteeForm({...trusteeForm, name: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Position:</label>
+                <input
+                  type="text"
+                  value={trusteeForm.position}
+                  onChange={(e) => setTrusteeForm({...trusteeForm, position: e.target.value})}
+                />
+              </div>
+              <div className="form-group">
+                <label>Bio:</label>
+                <textarea
+                  value={trusteeForm.bio}
+                  onChange={(e) => setTrusteeForm({...trusteeForm, bio: e.target.value})}
+                  rows="3"
+                />
+              </div>
+              <div className="form-group">
+                <label>Image:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, setTrusteeForm)}
+                />
+                {imagePreview && (
+                  <div className="image-preview">
+                    <img src={imagePreview} alt="Preview" />
+                  </div>
+                )}
+              </div>
+              <div className="form-actions">
+                <button type="submit" disabled={loading}>
+                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Trustee
+                </button>
+                {editingId && (
+                  <button type="button" onClick={cancelEdit}>Cancel</button>
+                )}
+              </div>
+            </form>
+          );
+        
+        default:
+          return (
+            <div className="welcome-message">
+              <h3>Our Team Management</h3>
+              <p>Select a team type from the sidebar to manage content.</p>
+            </div>
+          );
+      }
+    }
+
     switch (activeTab) {
       case 'reports':
         return (
@@ -375,98 +592,6 @@ const handleDelete = async (id, type) => {
             <div className="form-actions">
               <button type="submit" disabled={loading}>
                 {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Report
-              </button>
-              {editingId && (
-                <button type="button" onClick={cancelEdit}>Cancel</button>
-              )}
-            </div>
-          </form>
-        );
-      
-      case 'mentors':
-        return (
-          <form onSubmit={(e) => handleSubmit(e, 'mentors')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Mentor</h3>
-            <div className="form-group">
-              <label>Name:</label>
-              <input
-                type="text"
-                value={mentorForm.name}
-                onChange={(e) => setMentorForm({...mentorForm, name: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Position:</label>
-              <input
-                type="text"
-                value={mentorForm.position}
-                onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
-                
-              />
-            </div>
-            <div className="form-group">
-              <label>Image:</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, setMentorForm)}
-              />
-              {imagePreview && (
-                <div className="image-preview">
-                  <img src={imagePreview} alt="Preview" />
-                </div>
-              )}
-            </div>
-            <div className="form-actions">
-              <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Mentor
-              </button>
-              {editingId && (
-                <button type="button" onClick={cancelEdit}>Cancel</button>
-              )}
-            </div>
-          </form>
-        );
-      
-      case 'management':
-        return (
-          <form onSubmit={(e) => handleSubmit(e, 'management')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Management Member</h3>
-            <div className="form-group">
-              <label>Name:</label>
-              <input
-                type="text"
-                value={managementForm.name}
-                onChange={(e) => setManagementForm({...managementForm, name: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Position:</label>
-              <input
-                type="text"
-                value={managementForm.position}
-                onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Image:</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleImageChange(e, setManagementForm)}
-              />
-              {imagePreview && (
-                <div className="image-preview">
-                  <img src={imagePreview} alt="Preview" />
-                </div>
-              )}
-            </div>
-            <div className="form-actions">
-              <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Member
               </button>
               {editingId && (
                 <button type="button" onClick={cancelEdit}>Cancel</button>
@@ -539,7 +664,6 @@ const handleDelete = async (id, type) => {
         );
 
       case 'media':
-        // If no sub-type selected, show your original media type cards
         if (!currentMediaType) {
           return (
             <div className="media-dashboard">
@@ -555,7 +679,7 @@ const handleDelete = async (id, type) => {
             </div>
           );
         }
-        return null; // Managed by <MediaManager /> below
+        return null;
 
       case 'ourWork':
         if (!currentOurWorkCategory) {
@@ -573,17 +697,135 @@ const handleDelete = async (id, type) => {
             </div>
           );
         }
-        return null; // Managed by <OurWorkManagement /> below
+        return null;
       
       default:
         return null;
     }
   };
 
-  // ORIGINAL renderContent (preserved)
   const renderContent = () => {
     if (loading) return <div className="loading">Loading...</div>;
     
+    if (activeTab === 'our-team') {
+      switch (currentTeamType) {
+        case 'mentors':
+          return (
+            <div className="content-list">
+              <h3>Mentors</h3>
+              {mentors.length === 0 ? (
+                <p>No mentors found</p>
+              ) : (
+                <div className="items-grid">
+                  {mentors.map(mentor => (
+                    <div key={mentor.id} className="item-card">
+                      {mentor.image && (
+                        <div className="item-image">
+                          <img 
+                            src={`${API_BASE}/uploads/mentors/${mentor.image}`} 
+                            alt={mentor.name} 
+                          />
+                        </div>
+                      )}
+                      <div className="item-content">
+                        <h4>{mentor.name}</h4>
+                        <p>{mentor.position}</p>
+                        <div className="item-actions">
+                          <button onClick={() => handleEdit(mentor, 'mentors')}>Edit</button>
+                          <button onClick={() => handleDelete(mentor.id, 'mentors')}>Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        
+        case 'management':
+          return (
+            <div className="content-list">
+              <h3>Management Team</h3>
+              {management.length === 0 ? (
+                <p>No management members found</p>
+              ) : (
+                <div className="items-grid">
+                  {management.map(member => (
+                    <div key={member.id} className="item-card">
+                      {member.image && (
+                        <div className="item-image">
+                          <img 
+                            src={`${API_BASE}/uploads/management/${member.image}`} 
+                            alt={member.name} 
+                          />
+                        </div>
+                      )}
+                      <div className="item-content">
+                        <h4>{member.name}</h4>
+                        <p>{member.position}</p>
+                        <div className="item-actions">
+                          <button onClick={() => handleEdit(member, 'management')}>Edit</button>
+                          <button onClick={() => handleDelete(member.id, 'management')}>Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        
+        case 'board-trustees':
+          return (
+            <div className="content-list">
+              <h3>Board of Trustees</h3>
+              {boardTrustees.length === 0 ? (
+                <p>No board trustees found</p>
+              ) : (
+                <div className="items-grid">
+                  {boardTrustees.map(trustee => (
+                    <div key={trustee.id} className="item-card">
+                      {trustee.image && (
+                        <div className="item-image">
+                          <img 
+                            src={`${API_BASE}/uploads/board-trustees/${trustee.image}`} 
+                            alt={trustee.name} 
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'block';
+                            }}
+                          />
+                          <div className="image-placeholder" style={{display: 'none'}}>
+                            👤
+                          </div>
+                        </div>
+                      )}
+                      <div className="item-content">
+                        <h4>{trustee.name}</h4>
+                        <p>{trustee.position}</p>
+                        {trustee.bio && <p className="bio-preview">{trustee.bio.substring(0, 100)}...</p>}
+                        <div className="item-actions">
+                          <button onClick={() => handleEdit(trustee, 'board-trustees')}>Edit</button>
+                          <button onClick={() => handleDelete(trustee.id, 'board-trustees')}>Delete</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        
+        default:
+          return (
+            <div className="welcome-message">
+              <h3>Welcome to Our Team Management</h3>
+              <p>Select a team type from the sidebar to view and manage content.</p>
+            </div>
+          );
+      }
+    }
+
     switch (activeTab) {
       case 'reports':
         return (
@@ -609,72 +851,6 @@ const handleDelete = async (id, type) => {
                       <div className="item-actions">
                         <button onClick={() => handleEdit(report, 'reports')}>Edit</button>
                         <button onClick={() => handleDelete(report.id, 'reports')}>Delete</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      
-      case 'mentors':
-        return (
-          <div className="content-list">
-            <h3>Mentors</h3>
-            {mentors.length === 0 ? (
-              <p>No mentors found</p>
-            ) : (
-              <div className="items-grid">
-                {mentors.map(mentor => (
-                  <div key={mentor.id} className="item-card">
-                    {mentor.image && (
-                      <div className="item-image">
-                        <img 
-                          src={`${API_BASE}/uploads/mentors/${mentor.image}`} 
-                          alt={mentor.name} 
-                        />
-                      </div>
-                    )}
-                    <div className="item-content">
-                      <h4>{mentor.name}</h4>
-                      <p>{mentor.position}</p>
-                      <div className="item-actions">
-                        <button onClick={() => handleEdit(mentor, 'mentors')}>Edit</button>
-                        <button onClick={() => handleDelete(mentor.id, 'mentors')}>Delete</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      
-      case 'management':
-        return (
-          <div className="content-list">
-            <h3>Management Team</h3>
-            {management.length === 0 ? (
-              <p>No management members found</p>
-            ) : (
-              <div className="items-grid">
-                {management.map(member => (
-                  <div key={member.id} className="item-card">
-                    {member.image && (
-                      <div className="item-image">
-                        <img 
-                          src={`${API_BASE}/uploads/management/${member.image}`} 
-                          alt={member.name} 
-                        />
-                      </div>
-                    )}
-                    <div className="item-content">
-                      <h4>{member.name}</h4>
-                      <p>{member.position}</p>
-                      <div className="item-actions">
-                        <button onClick={() => handleEdit(member, 'management')}>Edit</button>
-                        <button onClick={() => handleDelete(member.id, 'management')}>Delete</button>
                       </div>
                     </div>
                   </div>
@@ -710,21 +886,19 @@ const handleDelete = async (id, type) => {
             )}
           </div>
         );
-
-      // media & ourWork content handled by dedicated components below
+      
       default:
         return null;
     }
   };
 
-  // Toggle a dropdown (media / ourWork / users). Clicking other top-level tabs closes any open dropdown.
-  const selectTopLevelTab = (tab) => {
-    setActiveTab(tab);
-    if (tab !== 'media' && openDropdown === 'media') setOpenDropdown(null);
-    if (tab !== 'ourWork' && openDropdown === 'ourWork') setOpenDropdown(null);
-    if (tab !== 'users' && openDropdown === 'users') setOpenDropdown(null);
-    if (tab !== 'impact' && openDropdown === 'impact') setOpenDropdown(null);
-  };
+const selectTopLevelTab = (tab) => {
+  setActiveTab(tab);
+  setOpenDropdown(null); // Close any open dropdowns when switching tabs
+  setCurrentTeamType(null); // Reset team type when switching away from our-team
+  setCurrentMediaType(null); // Reset media type
+  setCurrentOurWorkCategory(null); // Reset our work category
+};
 
   return (
     <div className="dashboard">
@@ -744,69 +918,131 @@ const handleDelete = async (id, type) => {
             <li className={activeTab === 'reports' ? 'active' : ''}>
               <button onClick={() => selectTopLevelTab('reports')}>All Reports</button>
             </li>
-            <li className={activeTab === 'mentors' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('mentors')}>Mentors</button>
-            </li>
-            <li className={activeTab === 'management' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('management')}>Management Team</button>
-            </li>
+
+{/* Our Team Dropdown */}
+<li className={activeTab === 'our-team' ? 'active' : ''}>
+  <button
+    onClick={() => {
+      if (openDropdown === 'our-team') {
+        setOpenDropdown(null);
+      } else {
+        setOpenDropdown('our-team');
+        setActiveTab('our-team');
+      }
+    }}
+  >
+    Our Team {openDropdown === 'our-team' ? '▴' : '▾'}
+  </button>
+  {openDropdown === 'our-team' && (
+    <ul className="submenu">
+      <li>
+        <button
+          className={currentTeamType === 'mentors' ? 'active-sub' : ''}
+          onClick={() => {
+            setCurrentTeamType('mentors');
+            setOpenDropdown(null); // Close dropdown after selection
+          }}
+        >
+          Mentors
+        </button>
+      </li>
+      <li>
+        <button
+          className={currentTeamType === 'management' ? 'active-sub' : ''}
+          onClick={() => {
+            setCurrentTeamType('management');
+            setOpenDropdown(null); // Close dropdown after selection
+          }}
+        >
+          Management Team
+        </button>
+      </li>
+      <li>
+        <button
+          className={currentTeamType === 'board-trustees' ? 'active-sub' : ''}
+          onClick={() => {
+            setCurrentTeamType('board-trustees');
+            setOpenDropdown(null); // Close dropdown after selection
+          }}
+        >
+          Board of Trustees
+        </button>
+      </li>
+    </ul>
+  )}
+</li>
+
             <li className={activeTab === 'careers' ? 'active' : ''}>
               <button onClick={() => selectTopLevelTab('careers')}>Career Page</button>
             </li>
 
             {/* Media dropdown */}
-            <li className={activeTab === 'media' ? 'active' : ''}>
-              <button
-                onClick={() => setOpenDropdown(openDropdown === 'media' ? null : 'media')}
-              >
-                Media ▾
-              </button>
-              {openDropdown === 'media' && (
-                <ul className="submenu">
-                  {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
-                    <li key={type}>
-                      <button
-                        className={currentMediaType === type ? 'active-sub' : ''}
-                        onClick={() => {
-                          setCurrentMediaType(type);
-                          setActiveTab('media');
-                        }}
-                      >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
+<li className={activeTab === 'media' ? 'active' : ''}>
+  <button
+    onClick={() => {
+      if (openDropdown === 'media') {
+        setOpenDropdown(null);
+      } else {
+        setOpenDropdown('media');
+        setActiveTab('media');
+      }
+    }}
+  >
+    Media {openDropdown === 'media' ? '▴' : '▾'}
+  </button>
+  {openDropdown === 'media' && (
+    <ul className="submenu">
+      {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+        <li key={type}>
+          <button
+            className={currentMediaType === type ? 'active-sub' : ''}
+            onClick={() => {
+              setCurrentMediaType(type);
+              setOpenDropdown(null); // Close dropdown after selection
+            }}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+</li>
 
             {/* Interventions dropdown */}
-            {canManageContent && (
-              <li className={activeTab === 'ourWork' ? 'active' : ''}>
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === 'ourWork' ? null : 'ourWork')}
-                >
-                  Our Interventions ▾
-                </button>
-                {openDropdown === 'ourWork' && (
-                  <ul className="submenu">
-                    {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-                      <li key={category}>
-                        <button
-                          className={currentOurWorkCategory === category ? 'active-sub' : ''}
-                          onClick={() => {
-                            setCurrentOurWorkCategory(category);
-                            setActiveTab('ourWork');
-                          }}
-                        >
-                          {getOurWorkCategoryLabel(category)}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            )}
+{canManageContent && (
+  <li className={activeTab === 'ourWork' ? 'active' : ''}>
+    <button
+      onClick={() => {
+        if (openDropdown === 'ourWork') {
+          setOpenDropdown(null);
+        } else {
+          setOpenDropdown('ourWork');
+          setActiveTab('ourWork');
+        }
+      }}
+    >
+      Our Interventions {openDropdown === 'ourWork' ? '▴' : '▾'}
+    </button>
+    {openDropdown === 'ourWork' && (
+      <ul className="submenu">
+        {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+          <li key={category}>
+            <button
+              className={currentOurWorkCategory === category ? 'active-sub' : ''}
+              onClick={() => {
+                setCurrentOurWorkCategory(category);
+                setOpenDropdown(null); // Close dropdown after selection
+              }}
+            >
+              {getOurWorkCategoryLabel(category)}
+            </button>
+          </li>
+        ))}
+      </ul>
+    )}
+  </li>
+)}
 
             {/* Impact Data Section */}
             {canManageContent && (
@@ -817,36 +1053,49 @@ const handleDelete = async (id, type) => {
               </li>
             )}
 
-            {/* User management dropdown */}
-            {canManageUsers && (
-              <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
-                <button
-                  onClick={() => setOpenDropdown(openDropdown === 'users' ? null : 'users')}
-                >
-                  User Management ▾
-                </button>
-                {openDropdown === 'users' && (
-                  <ul className="submenu">
-                    <li>
-                      <button
-                        className={activeTab === 'users' ? 'active-sub' : ''}
-                        onClick={() => setActiveTab('users')}
-                      >
-                        Users
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={activeTab === 'registrations' ? 'active-sub' : ''}
-                        onClick={() => setActiveTab('registrations')}
-                      >
-                        Registration Requests
-                      </button>
-                    </li>
-                  </ul>
-                )}
-              </li>
-            )}
+{/* User management dropdown */}
+{canManageUsers && (
+  <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
+    <button
+      onClick={() => {
+        if (openDropdown === 'users') {
+          setOpenDropdown(null);
+        } else {
+          setOpenDropdown('users');
+          setActiveTab('users');
+        }
+      }}
+    >
+      User Management {openDropdown === 'users' ? '▴' : '▾'}
+    </button>
+    {openDropdown === 'users' && (
+      <ul className="submenu">
+        <li>
+          <button
+            className={activeTab === 'users' ? 'active-sub' : ''}
+            onClick={() => {
+              setActiveTab('users');
+              setOpenDropdown(null); // Close dropdown after selection
+            }}
+          >
+            Users
+          </button>
+        </li>
+        <li>
+          <button
+            className={activeTab === 'registrations' ? 'active-sub' : ''}
+            onClick={() => {
+              setActiveTab('registrations');
+              setOpenDropdown(null); // Close dropdown after selection
+            }}
+          >
+            Registration Requests
+          </button>
+        </li>
+      </ul>
+    )}
+  </li>
+)}
           </ul>
         </nav>
         

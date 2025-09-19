@@ -1191,3 +1191,85 @@
   color: #007bff;
   margin-bottom: 10px;
 }
+
+/* Add these styles to your Dashboard.css */
+
+.dashboard-sidebar .submenu {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0 0;
+  background: #2c3e50;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  position: absolute;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.dashboard-sidebar .submenu li {
+  margin: 0;
+}
+
+.dashboard-sidebar .submenu button {
+  width: 100%;
+  text-align: left;
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  color: #ecf0f1;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 14px;
+}
+
+.dashboard-sidebar .submenu button:hover {
+  background: #34495e;
+}
+
+.dashboard-sidebar .submenu .active-sub {
+  background: #3498db;
+  color: white;
+}
+
+.dashboard-sidebar li {
+  position: relative;
+}
+
+/* Welcome message styling */
+.welcome-message {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.welcome-message h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.welcome-message p {
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+/* Dropdown arrow animation */
+.dashboard-sidebar button {
+  transition: all 0.3s ease;
+}
+
+/* Responsive design for dropdowns */
+@media (max-width: 768px) {
+  .dashboard-sidebar .submenu {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    margin-top: 5px;
+  }
+  
+  .dashboard-sidebar .submenu button {
+    padding: 10px 15px 10px 30px;
+  }
+}
