@@ -18,7 +18,6 @@
   background-position: center top;
   background-repeat: no-repeat;
   border-radius: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   overflow: visible;
 }
 
@@ -36,14 +35,21 @@
   cursor: pointer;
 }
 
-.maharashtra-dot,
-.karnataka-dot,
-.tamil-nadu-dot,
-.kerala-dot,
-.gujarat-dot,
-.delhi-dot,
-.west-bengal-dot,
-.uttar-pradesh-dot {
+/* Add dots for new states with different colors */
+.rajasthan-dot,
+.madhya-pradesh-dot,
+.andhra-pradesh-dot,
+.telangana-dot,
+.odisha-dot,
+.bihar-dot,
+.jharkhand-dot,
+.haryana-dot,
+.punjab-dot,
+.himachal-pradesh-dot,
+.uttarakhand-dot,
+.chhattisgarh-dot,
+.assam-dot,
+.meghalaya-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
@@ -51,8 +57,25 @@
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
+/* All dots black by default */
+.hotspot span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* Hover effect still works */
+.hotspot:hover span,
+.hotspot:focus span {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.18);
+}
+
 /* individual colors */
-.maharashtra-dot {
+.Maharashtra-dot {
   background: #0b76ff;
 }
 .karnataka-dot {
@@ -77,16 +100,10 @@
   background: #ff5722;
 }
 
-/* hover effect (can be common) */
-.hotspot:hover span,
-.hotspot:focus span {
-  transform: scale(1.25);
-  box-shadow: 0 0 0 10px rgba(11, 118, 255, 0.14);
-}
-
 .tooltip-box {
   position: absolute;
-  transform: translate(-50%, -110%);
+  /* transform: translate(-50%, -110%);  remove old transform */
+  transform: translate(0, -50%); /* keep vertical centering */
   min-width: 160px;
   max-width: 240px;
   background: #fff;
@@ -95,7 +112,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   font-size: 14px;
   line-height: 1.2;
-  pointer-events: none; /* so mouse leaves hotspot don't flicker */
+  pointer-events: none;
   z-index: 40;
 }
 
