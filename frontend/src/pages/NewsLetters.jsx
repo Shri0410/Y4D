@@ -77,15 +77,6 @@ const Newsletters = () => {
                 <p className="newsletter-description">
                   {newsletter.description}
                 </p>
-                <div className="newsletter-meta">
-                  <p className="newsletter-date">
-                    Published:{" "}
-                    {new Date(newsletter.published_date).toLocaleDateString()}
-                  </p>
-                  <p className="newsletter-status">
-                    Status: {newsletter.is_published ? "Published" : "Draft"}
-                  </p>
-                </div>
                 <div className="newsletter-actions">
                   <button
                     onClick={() => handleDownload(newsletter)}

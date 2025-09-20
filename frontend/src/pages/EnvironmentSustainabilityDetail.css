@@ -1,0 +1,152 @@
+/* === General page container === */
+.es-detail-page {
+  max-width: 1100px;
+  margin: 80px auto 0 auto;
+  padding: 20px;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* === Loading / Error / Empty states === */
+.es-loading,
+.es-error,
+.es-empty {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* === Back link === */
+.es-detail-back {
+  margin-bottom: 20px;
+}
+
+.es-detail-back a {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0.95rem;
+  color: #1e88e5;
+  padding: 6px 12px;
+  background: #f0f6ff;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.es-detail-back a:hover {
+  background: #e3efff;
+}
+
+/* === Main image === */
+.es-detail-image {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.es-detail-image img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* === Content section === */
+.es-detail-content {
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* Title */
+.es-detail-title {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #222;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Description */
+.es-detail-description,
+.es-detail-html {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
+}
+
+/* HTML content */
+.es-detail-html h2,
+.es-detail-html h3,
+.es-detail-html h4 {
+  margin-top: 20px;
+  color: #1e88e5;
+}
+
+.es-detail-html p {
+  margin-bottom: 15px;
+}
+
+/* === Video section === */
+.es-detail-video {
+  margin-top: 40px;
+}
+
+.es-detail-video h3 {
+  text-align: center;
+  color: #1e88e5;
+  margin-bottom: 15px;
+}
+
+/* Responsive iframe wrapper */
+.es-video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.es-video-wrapper iframe,
+.es-video-wrapper video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* === Responsive adjustments === */
+@media (max-width: 768px) {
+  .es-detail-content {
+    padding: 20px;
+  }
+
+  .es-detail-title {
+    font-size: 1.5rem;
+  }
+
+  .es-detail-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .es-detail-page {
+    padding: 15px;
+  }
+
+  .es-detail-title {
+    font-size: 1.3rem;
+  }
+
+  .es-detail-description {
+    font-size: 0.95rem;
+  }
+}

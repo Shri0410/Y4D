@@ -10,6 +10,13 @@ const Livelihood = () => {
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
+  const SERVER_BASE = "http://localhost:5000";
+
+  const getImageUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
 
   useEffect(() => {
     fetchItems();
@@ -71,7 +78,7 @@ const Livelihood = () => {
                 <div key={item.id} className="lv-card">
                   {item.image_url && (
                     <div className="lv-card-image">
-                      <img src={item.image_url} alt={item.title} />
+                      <img src={getImageUrl(item.image_url)} alt={item.title} />
                       {item.organization && (
                         <div className="lv-org-badge">{item.organization}</div>
                       )}
@@ -89,31 +96,14 @@ const Livelihood = () => {
                       />
                     )}
 
-                    {item.video_url && (
-                      <div className="lv-card-video">
-                        <h4>Watch Video</h4>
-                        <div className="lv-video-wrapper">
-                          <iframe
-                            src={item.video_url}
-                            title={item.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="lv-card-meta">
-                      <span>
-                        Last updated:{" "}
-                        {new Date(item.updated_at).toLocaleDateString()}
-                      </span>
-                    </div>
-
                     {/* ✅ Read More button */}
                     <div className="lv-card-footer">
-                      <Link className="lv-readmore-btn">Read More</Link>
+                      <Link
+                        to={`/livelihood/${item.id}`}
+                        className="lv-readmore-btn"
+                      >
+                        Read More
+                      </Link>
                     </div>
                   </div>
                 </div>

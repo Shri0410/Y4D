@@ -40,6 +40,12 @@ import VolunteersInternship from "./pages/VolunteersInternship";
 import IndiaMapHover from "./pages/IndiaMapHover";
 import Popup from "./pages/Popup";
 
+import QualityEducationDetail from "./pages/QualityEducationDetail";
+import LivelihoodDetail from "./pages/LivelihoodDetail";
+import HealthcareDetail from "./pages/HealthcareDetail";
+import EnvironmentSustainabilityDetail from "./pages/EnvironmentSustainabilityDetail";
+import IDPDetail from "./pages/IDPDetail";
+
 import "./App.css";
 
 function AppContent({
@@ -85,13 +91,31 @@ function AppContent({
                     path="/quality-education"
                     element={<QualityEducation />}
                   />
+                  <Route
+                    path="/quality-education/:id"
+                    element={<QualityEducationDetail />}
+                  />
                   <Route path="/livelihood" element={<Livelihood />} />
+                  <Route
+                    path="/livelihood/:id"
+                    element={<LivelihoodDetail />}
+                  />
                   <Route path="/healthcare" element={<Healthcare />} />
+                  <Route
+                    path="/healthcare/:id"
+                    element={<HealthcareDetail />}
+                  />
                   <Route
                     path="/environment-sustainability"
                     element={<EnvironmentSustainability />}
                   />
+                  <Route
+                    path="/environment-sustainability/:id"
+                    element={<EnvironmentSustainabilityDetail />}
+                  />
+
                   <Route path="/idp" element={<IDP />} />
+                  <Route path="/idp/:id" element={<IDPDetail />} />
                   <Route path="/get-involved" element={<GetInvolved />} />
                   <Route
                     path="/corporate-partnership"
