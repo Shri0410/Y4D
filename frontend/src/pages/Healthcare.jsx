@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import "./Healthcare.css";
 import bannerImg from "../assets/BannerImages/s.jpeg";
@@ -9,6 +10,13 @@ const Healthcare = () => {
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
+  const SERVER_BASE = "http://localhost:5000";
+
+  const getImageUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
 
   useEffect(() => {
     fetchItems();
@@ -66,7 +74,7 @@ const Healthcare = () => {
                 <div key={item.id} className="hc-card">
                   {item.image_url && (
                     <div className="hc-card-image">
-                      <img src={item.image_url} alt={item.title} />
+                      <img src={getImageUrl(item.image_url)} alt={item.title} />
                       {item.organization && (
                         <div className="hc-org-badge">{item.organization}</div>
                       )}
@@ -84,30 +92,13 @@ const Healthcare = () => {
                       />
                     )}
 
-                    {item.video_url && (
-                      <div className="hc-card-video">
-                        <h4>Watch Video</h4>
-                        <div className="hc-video-wrapper">
-                          <iframe
-                            src={item.video_url}
-                            title={item.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="hc-card-meta">
-                      <span>
-                        Last updated:{" "}
-                        {new Date(item.updated_at).toLocaleDateString()}
-                      </span>
-                    </div>
-
                     <div className="hc-card-footer">
-                      <a className="hc-read-more">Read More</a>
+                      <Link
+                        to={`/healthcare/${item.id}`}
+                        className="hc-read-more"
+                      >
+                        Read More
+                      </Link>
                     </div>
                   </div>
                 </div>

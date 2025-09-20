@@ -10,6 +10,13 @@ const QualityEducation = () => {
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
+  const SERVER_BASE = "http://localhost:5000"; // or from env
+
+  const getImageUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
 
   useEffect(() => {
     fetchItems();
@@ -70,7 +77,8 @@ const QualityEducation = () => {
                 <div key={item.id} className="qe-card">
                   {item.image_url && (
                     <div className="qe-card-image">
-                      <img src={item.image_url} alt={item.title} />
+                      <img src={getImageUrl(item.image_url)} alt={item.title} />
+
                       {item.organization && (
                         <div className="qe-org-badge">{item.organization}</div>
                       )}
@@ -88,30 +96,14 @@ const QualityEducation = () => {
                       />
                     )}
 
-                    {item.video_url && (
-                      <div className="qe-card-video">
-                        <h4>Watch Video</h4>
-                        <div className="qe-video-wrapper">
-                          <iframe
-                            src={item.video_url}
-                            title={item.title}
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="qe-card-meta">
-                      <span>
-                        Last updated:{" "}
-                        {new Date(item.updated_at).toLocaleDateString()}
-                      </span>
-                    </div>
                     {/* Read More button */}
                     <div className="qe-card-footer">
-                      <Link className="qe-read-more">Read More</Link>
+                      <Link
+                        to={`/quality-education/${item.id}`}
+                        className="qe-read-more"
+                      >
+                        Read More
+                      </Link>
                     </div>
                   </div>
                 </div>

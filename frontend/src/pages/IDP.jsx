@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import "./IDP.css";
 import bannerImg from "../assets/BannerImages/fo.jpeg";
@@ -9,6 +10,13 @@ const IDP = () => {
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
+  const SERVER_BASE = "http://localhost:5000";
+
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http")) return path;
+    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+  };
 
   useEffect(() => {
     fetchItems();
@@ -67,7 +75,11 @@ const IDP = () => {
                   <div key={item.id} className="idp-card">
                     {item.image_url && (
                       <div className="idp-card-image">
-                        <img src={item.image_url} alt={item.title} />
+                        <img
+                          src={getFullUrl(item.image_url)}
+                          alt={item.title}
+                        />
+
                         <div className="idp-image-overlay"></div>
                       </div>
                     )}
@@ -83,30 +95,10 @@ const IDP = () => {
                         />
                       )}
 
-                      {item.video_url && (
-                        <div className="idp-card-video">
-                          <h4>Watch Video</h4>
-                          <div className="idp-video-wrapper">
-                            <iframe
-                              src={item.video_url}
-                              title={item.title}
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="idp-card-meta">
-                        <span className="idp-date">
-                          Last updated:{" "}
-                          {new Date(item.updated_at).toLocaleDateString()}
-                        </span>
-                      </div>
-
                       <div className="idp-card-footer">
-                        <a className="idp-read-more">Read More</a>
+                        <Link to={`/idp/${item.id}`} className="idp-read-more">
+                          Read More
+                        </Link>
                       </div>
                     </div>
                   </div>
