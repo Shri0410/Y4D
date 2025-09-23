@@ -12,8 +12,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [reports, setReports] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
-  const [careers, setCareers] = useState([]);
   const [boardTrustees, setBoardTrustees] = useState([]);
+  const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
 
@@ -21,6 +21,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentMediaType, setCurrentMediaType] = useState(null);
   const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null); 
   const [currentTeamType, setCurrentTeamType] = useState(null);
+  const [teamAction, setTeamAction] = useState('view'); // 'view', 'add', 'update'
+  
+  // Career dropdown state
+  const [careerOpeningType, setCareerOpeningType] = useState('current'); // 'current', 'new'
+  
+  // Legal Report action state
+  const [legalReportAction, setLegalReportAction] = useState('view'); // 'view', 'add', 'update'
 
   // Sidebar dropdown state
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -29,7 +36,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
   const [mentorForm, setMentorForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [managementForm, setManagementForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-  const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
+  const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
   const [trusteeForm, setTrusteeForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -43,20 +50,24 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setCurrentMediaType(null);
     setCurrentOurWorkCategory(null);
     setCurrentTeamType(null);
+    setTeamAction('view');
+    setCareerOpeningType('current');
+    setLegalReportAction('view');
   }, [activeTab]);
-// Add this useEffect hook near your other useEffect hooks
-useEffect(() => {
-  const handleClickOutside = (event) => {
-    if (openDropdown && !event.target.closest('.dashboard-sidebar')) {
-      setOpenDropdown(null);
-    }
-  };
 
-  document.addEventListener('mousedown', handleClickOutside);
-  return () => {
-    document.removeEventListener('mousedown', handleClickOutside);
-  };
-}, [openDropdown]);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && !event.target.closest('.dashboard-sidebar')) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdown]);
+
   useEffect(() => {
     if (!currentUser) {
       const userData = localStorage.getItem('user');
@@ -64,15 +75,36 @@ useEffect(() => {
         setCurrentUser(JSON.parse(userData));
       }
     }
+    
+    if (activeTab === 'our-team' && teamAction === 'view') {
+      fetchAllTeamData();
+    }
+    
     if (activeTab !== 'media' && !currentMediaType && 
         activeTab !== 'ourWork' && !currentOurWorkCategory && 
         activeTab !== 'impact' && activeTab !== 'our-team') {
       fetchData(activeTab);
     }
-    if (activeTab === 'our-team' && currentTeamType) {
-      fetchData(currentTeamType);
+  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory, teamAction]);
+
+  const fetchAllTeamData = async () => {
+    setLoading(true);
+    try {
+      const [mentorsRes, managementRes, trusteesRes] = await Promise.all([
+        axios.get(`${API_BASE}/mentors`),
+        axios.get(`${API_BASE}/management`),
+        axios.get(`${API_BASE}/board-trustees`)
+      ]);
+      
+      setMentors(mentorsRes.data);
+      setManagement(managementRes.data);
+      setBoardTrustees(trusteesRes.data);
+    } catch (error) {
+      console.error('Error fetching team data:', error);
+      alert(`Error fetching team data: ${error.message}`);
     }
-  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory, currentTeamType]);
+    setLoading(false);
+  };
 
   const fetchData = async (type) => {
     setLoading(true);
@@ -140,6 +172,7 @@ useEffect(() => {
           endpoint = editingId ? `${API_BASE}/reports/${editingId}` : `${API_BASE}/reports`;
           await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
           setReportForm({ title: '', description: '', content: '', image: null });
+          setLegalReportAction('view');
           break;
         
         case 'mentors':
@@ -171,7 +204,8 @@ useEffect(() => {
         case 'careers':
           endpoint = editingId ? `${API_BASE}/careers/${editingId}` : `${API_BASE}/careers`;
           await (editingId ? axios.put(endpoint, careerForm) : axios.post(endpoint, careerForm));
-          setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
+          setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
+          setCareerOpeningType('current');
           break;
         
         case 'board-trustees': 
@@ -193,11 +227,9 @@ useEffect(() => {
 
       setEditingId(null);
       setImagePreview(null);
-      if (activeTab === 'our-team') {
-        fetchData(currentTeamType);
-      } else {
-        fetchData(activeTab);
-      }
+      setTeamAction('view');
+      fetchAllTeamData();
+      fetchData(type);
       alert(`${type.slice(0, -1)} ${editingId ? 'updated' : 'created'} successfully!`);
     } catch (error) {
       console.error(`Error saving ${type}:`, error);
@@ -208,6 +240,16 @@ useEffect(() => {
 
   const handleEdit = (item, type) => {
     setEditingId(item.id);
+    
+    if (type === 'reports') {
+      setLegalReportAction('update');
+    } else if (type === 'careers') {
+      setCareerOpeningType('new');
+    } else {
+      setTeamAction('update');
+      setCurrentTeamType(type);
+    }
+    
     switch (type) {
       case 'reports':
         setReportForm({
@@ -217,6 +259,16 @@ useEffect(() => {
           image: null
         });
         if (item.image) setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
+        break;
+      case 'careers':
+        setCareerForm({
+          title: item.title,
+          description: item.description,
+          requirements: item.requirements,
+          location: item.location,
+          type: item.type,
+          status: item.status
+        });
         break;
       case 'mentors':
         setMentorForm({
@@ -237,15 +289,6 @@ useEffect(() => {
           social_links: JSON.stringify(item.social_links || {})
         });
         if (item.image) setImagePreview(`${API_BASE}/uploads/management/${item.image}`);
-        break;
-      case 'careers':
-        setCareerForm({
-          title: item.title,
-          description: item.description,
-          requirements: item.requirements,
-          location: item.location,
-          type: item.type
-        });
         break;
       case 'board-trustees': 
         setTrusteeForm({
@@ -283,11 +326,8 @@ useEffect(() => {
         alert(`${type.slice(0, -1)} deleted successfully!`);
       }
       
-      if (activeTab === 'our-team') {
-        fetchData(currentTeamType);
-      } else {
-        fetchData(activeTab);
-      }
+      fetchAllTeamData();
+      fetchData(type);
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
       
@@ -308,10 +348,14 @@ useEffect(() => {
 
   const cancelEdit = () => {
     setEditingId(null);
+    setTeamAction('view');
+    setCurrentTeamType(null);
+    setCareerOpeningType('current');
+    setLegalReportAction('view');
     setReportForm({ title: '', description: '', content: '', image: null });
     setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time' });
+    setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
     setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
     setImagePreview(null);
   };
@@ -372,208 +416,67 @@ useEffect(() => {
     return descriptions[category] || 'Manage content';
   };
 
-  const renderForm = () => {
-    if (activeTab === 'our-team') {
-      switch (currentTeamType) {
-        case 'mentors':
-          return (
-            <form onSubmit={(e) => handleSubmit(e, 'mentors')} className="dashboard-form">
-              <h3>{editingId ? 'Edit' : 'Add New'} Mentor</h3>
-              <div className="form-group">
-                <label>Name:</label>
-                <input
-                  type="text"
-                  value={mentorForm.name}
-                  onChange={(e) => setMentorForm({...mentorForm, name: e.target.value})}
-                  required
-                />
+  const renderTeamForm = () => {
+    if (!currentTeamType) {
+      return (
+        <div className="team-type-selection">
+          <h3>Select Team Type</h3>
+          <div className="team-type-options">
+            <button 
+              className="team-type-btn"
+              onClick={() => setCurrentTeamType('mentors')}
+            >
+              <span>👥</span>
+              <div>
+                <h4>Mentors</h4>
+                <p>Add new mentor to the team</p>
               </div>
-              <div className="form-group">
-                <label>Position:</label>
-                <input
-                  type="text"
-                  value={mentorForm.position}
-                  onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
-                />
+            </button>
+            <button 
+              className="team-type-btn"
+              onClick={() => setCurrentTeamType('management')}
+            >
+              <span>💼</span>
+              <div>
+                <h4>Management Team</h4>
+                <p>Add new management team member</p>
               </div>
-              <div className="form-group">
-                <label>Bio:</label>
-                <textarea
-                  value={mentorForm.bio}
-                  onChange={(e) => setMentorForm({...mentorForm, bio: e.target.value})}
-                  rows="3"
-                />
+            </button>
+            <button 
+              className="team-type-btn"
+              onClick={() => setCurrentTeamType('board-trustees')}
+            >
+              <span>🏛️</span>
+              <div>
+                <h4>Board of Trustees</h4>
+                <p>Add new board trustee</p>
               </div>
-              <div className="form-group">
-                <label>Image:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e, setMentorForm)}
-                />
-                {imagePreview && (
-                  <div className="image-preview">
-                    <img src={imagePreview} alt="Preview" />
-                  </div>
-                )}
-              </div>
-              <div className="form-actions">
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Mentor
-                </button>
-                {editingId && (
-                  <button type="button" onClick={cancelEdit}>Cancel</button>
-                )}
-              </div>
-            </form>
-          );
-        
-        case 'management':
-          return (
-            <form onSubmit={(e) => handleSubmit(e, 'management')} className="dashboard-form">
-              <h3>{editingId ? 'Edit' : 'Add New'} Management Member</h3>
-              <div className="form-group">
-                <label>Name:</label>
-                <input
-                  type="text"
-                  value={managementForm.name}
-                  onChange={(e) => setManagementForm({...managementForm, name: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Position:</label>
-                <input
-                  type="text"
-                  value={managementForm.position}
-                  onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Bio:</label>
-                <textarea
-                  value={managementForm.bio}
-                  onChange={(e) => setManagementForm({...managementForm, bio: e.target.value})}
-                  rows="3"
-                />
-              </div>
-              <div className="form-group">
-                <label>Image:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e, setManagementForm)}
-                />
-                {imagePreview && (
-                  <div className="image-preview">
-                    <img src={imagePreview} alt="Preview" />
-                  </div>
-                )}
-              </div>
-              <div className="form-actions">
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Member
-                </button>
-                {editingId && (
-                  <button type="button" onClick={cancelEdit}>Cancel</button>
-                )}
-              </div>
-            </form>
-          );
-        
-        case 'board-trustees':
-          return (
-            <form onSubmit={(e) => handleSubmit(e, 'board-trustees')} className="dashboard-form">
-              <h3>{editingId ? 'Edit' : 'Add New'} Board Trustee</h3>
-              <div className="form-group">
-                <label>Name:</label>
-                <input
-                  type="text"
-                  value={trusteeForm.name}
-                  onChange={(e) => setTrusteeForm({...trusteeForm, name: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Position:</label>
-                <input
-                  type="text"
-                  value={trusteeForm.position}
-                  onChange={(e) => setTrusteeForm({...trusteeForm, position: e.target.value})}
-                />
-              </div>
-              <div className="form-group">
-                <label>Bio:</label>
-                <textarea
-                  value={trusteeForm.bio}
-                  onChange={(e) => setTrusteeForm({...trusteeForm, bio: e.target.value})}
-                  rows="3"
-                />
-              </div>
-              <div className="form-group">
-                <label>Image:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(e, setTrusteeForm)}
-                />
-                {imagePreview && (
-                  <div className="image-preview">
-                    <img src={imagePreview} alt="Preview" />
-                  </div>
-                )}
-              </div>
-              <div className="form-actions">
-                <button type="submit" disabled={loading}>
-                  {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Trustee
-                </button>
-                {editingId && (
-                  <button type="button" onClick={cancelEdit}>Cancel</button>
-                )}
-              </div>
-            </form>
-          );
-        
-        default:
-          return (
-            <div className="welcome-message">
-              <h3>Our Team Management</h3>
-              <p>Select a team type from the sidebar to manage content.</p>
-            </div>
-          );
-      }
+            </button>
+          </div>
+        </div>
+      );
     }
 
-    switch (activeTab) {
-      case 'reports':
+    switch (currentTeamType) {
+      case 'mentors':
         return (
-          <form onSubmit={(e) => handleSubmit(e, 'reports')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Report</h3>
+          <form onSubmit={(e) => handleSubmit(e, 'mentors')} className="dashboard-form">
+            <h3>{editingId ? 'Edit' : 'Add New'} Mentor</h3>
             <div className="form-group">
-              <label>Title:</label>
+              <label>Name:</label>
               <input
                 type="text"
-                value={reportForm.title}
-                onChange={(e) => setReportForm({...reportForm, title: e.target.value})}
+                value={mentorForm.name}
+                onChange={(e) => setMentorForm({...mentorForm, name: e.target.value})}
                 required
               />
             </div>
             <div className="form-group">
-              <label>Description:</label>
-              <textarea
-                value={reportForm.description}
-                onChange={(e) => setReportForm({...reportForm, description: e.target.value})}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Content:</label>
-              <textarea
-                value={reportForm.content}
-                onChange={(e) => setReportForm({...reportForm, content: e.target.value})}
-                required
-                rows="5"
+              <label>Designation:</label>
+              <input
+                type="text"
+                value={mentorForm.position}
+                onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
               />
             </div>
             <div className="form-group">
@@ -581,7 +484,7 @@ useEffect(() => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleImageChange(e, setReportForm)}
+                onChange={(e) => handleImageChange(e, setMentorForm)}
               />
               {imagePreview && (
                 <div className="image-preview">
@@ -591,83 +494,396 @@ useEffect(() => {
             </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Report
+                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Mentor
               </button>
-              {editingId && (
-                <button type="button" onClick={cancelEdit}>Cancel</button>
-              )}
+              <button type="button" onClick={cancelEdit}>Cancel</button>
             </div>
           </form>
         );
       
-      case 'careers':
+      case 'management':
         return (
-          <form onSubmit={(e) => handleSubmit(e, 'careers')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Career Opening</h3>
+          <form onSubmit={(e) => handleSubmit(e, 'management')} className="dashboard-form">
+            <h3>{editingId ? 'Edit' : 'Add New'} Management Member</h3>
             <div className="form-group">
-              <label>Title:</label>
+              <label>Name:</label>
               <input
                 type="text"
-                value={careerForm.title}
-                onChange={(e) => setCareerForm({...careerForm, title: e.target.value})}
+                value={managementForm.name}
+                onChange={(e) => setManagementForm({...managementForm, name: e.target.value})}
                 required
               />
             </div>
             <div className="form-group">
-              <label>Description:</label>
-              <textarea
-                value={careerForm.description}
-                onChange={(e) => setCareerForm({...careerForm, description: e.target.value})}
-                required
-                rows="4"
-              />
-            </div>
-            <div className="form-group">
-              <label>Requirements:</label>
-              <textarea
-                value={careerForm.requirements}
-                onChange={(e) => setCareerForm({...careerForm, requirements: e.target.value})}
-                required
-                rows="3"
-              />
-            </div>
-            <div className="form-group">
-              <label>Location:</label>
+              <label>Designation:</label>
               <input
                 type="text"
-                value={careerForm.location}
-                onChange={(e) => setCareerForm({...careerForm, location: e.target.value})}
+                value={managementForm.position}
+                onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
                 required
               />
-            </div>
-            <div className="form-group">
-              <label>Type:</label>
-              <select
-                value={careerForm.type}
-                onChange={(e) => setCareerForm({...careerForm, type: e.target.value})}
-              >
-                <option value="full-time">Full Time</option>
-                <option value="part-time">Part Time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
-              </select>
             </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Opening
+                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Member
               </button>
-              {editingId && (
-                <button type="button" onClick={cancelEdit}>Cancel</button>
-              )}
+              <button type="button" onClick={cancelEdit}>Cancel</button>
             </div>
           </form>
         );
+      
+      case 'board-trustees':
+        return (
+          <form onSubmit={(e) => handleSubmit(e, 'board-trustees')} className="dashboard-form">
+            <h3>{editingId ? 'Edit' : 'Add New'} Board Trustee</h3>
+            <div className="form-group">
+              <label>Name:</label>
+              <input
+                type="text"
+                value={trusteeForm.name}
+                onChange={(e) => setTrusteeForm({...trusteeForm, name: e.target.value})}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Designation:</label>
+              <input
+                type="text"
+                value={trusteeForm.position}
+                onChange={(e) => setTrusteeForm({...trusteeForm, position: e.target.value})}
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" disabled={loading}>
+                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Trustee
+              </button>
+              <button type="button" onClick={cancelEdit}>Cancel</button>
+            </div>
+          </form>
+        );
+      
+      default:
+        return null;
+    }
+  };
 
+  const renderTeamView = () => {
+    if (loading) return <div className="loading">Loading...</div>;
+
+    return (
+      <div className="team-dashboard">
+        <div className="team-header">
+          <h3>Team</h3>
+          <button 
+            className="btn-primary"
+            onClick={() => {
+              setTeamAction('add');
+              setCurrentTeamType(null);
+            }}
+          >
+            + Add User
+          </button>
+        </div>
+
+        {/* Mentors Section */}
+        <div className="team-section">
+          <h4>Mentors ({mentors.length})</h4>
+          {mentors.length === 0 ? (
+            <p className="no-data">No mentors found</p>
+          ) : (
+            <div className="team-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mentors.map(mentor => (
+                    <tr key={mentor.id}>
+                      <td>
+                        {mentor.image ? (
+                          <img 
+                            src={`${API_BASE}/uploads/mentors/${mentor.image}`} 
+                            alt={mentor.name}
+                            className="team-avatar"
+                          />
+                        ) : (
+                          <div className="avatar-placeholder">👤</div>
+                        )}
+                      </td>
+                      <td>{mentor.name}</td>
+                      <td>{mentor.position}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button 
+                            className="btn-edit"
+                            onClick={() => handleEdit(mentor, 'mentors')}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn-delete"
+                            onClick={() => handleDelete(mentor.id, 'mentors')}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Management Team Section */}
+        <div className="team-section">
+          <h4>Management Team ({management.length})</h4>
+          {management.length === 0 ? (
+            <p className="no-data">No management members found</p>
+          ) : (
+            <div className="team-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {management.map(member => (
+                    <tr key={member.id}>
+                      <td>{member.name}</td>
+                      <td>{member.position}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button 
+                            className="btn-edit"
+                            onClick={() => handleEdit(member, 'management')}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn-delete"
+                            onClick={() => handleDelete(member.id, 'management')}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Board of Trustees Section */}
+        <div className="team-section">
+          <h4>Board of Trustees ({boardTrustees.length})</h4>
+          {boardTrustees.length === 0 ? (
+            <p className="no-data">No board trustees found</p>
+          ) : (
+            <div className="team-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {boardTrustees.map(trustee => (
+                    <tr key={trustee.id}>
+                      <td>{trustee.name}</td>
+                      <td>{trustee.position}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <button 
+                            className="btn-edit"
+                            onClick={() => handleEdit(trustee, 'board-trustees')}
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            className="btn-delete"
+                            onClick={() => handleDelete(trustee.id, 'board-trustees')}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCareerForm = () => {
+    return (
+      <form onSubmit={(e) => handleSubmit(e, 'careers')} className="dashboard-form">
+        <h3>{editingId ? 'Edit' : 'Add New'} Career Opening</h3>
+        <div className="form-group">
+          <label>Title:</label>
+          <input
+            type="text"
+            value={careerForm.title}
+            onChange={(e) => setCareerForm({...careerForm, title: e.target.value})}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Description:</label>
+          <textarea
+            value={careerForm.description}
+            onChange={(e) => setCareerForm({...careerForm, description: e.target.value})}
+            required
+            rows="4"
+          />
+        </div>
+        <div className="form-group">
+          <label>Requirements:</label>
+          <textarea
+            value={careerForm.requirements}
+            onChange={(e) => setCareerForm({...careerForm, requirements: e.target.value})}
+            required
+            rows="3"
+          />
+        </div>
+        <div className="form-group">
+          <label>Location:</label>
+          <input
+            type="text"
+            value={careerForm.location}
+            onChange={(e) => setCareerForm({...careerForm, location: e.target.value})}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Type:</label>
+          <select
+            value={careerForm.type}
+            onChange={(e) => setCareerForm({...careerForm, type: e.target.value})}
+          >
+            <option value="full-time">Full Time</option>
+            <option value="part-time">Part Time</option>
+            <option value="contract">Contract</option>
+            <option value="internship">Internship</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Status:</label>
+          <select
+            value={careerForm.status}
+            onChange={(e) => setCareerForm({...careerForm, status: e.target.value})}
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div className="form-actions">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Opening
+          </button>
+          <button type="button" onClick={cancelEdit}>Cancel</button>
+        </div>
+      </form>
+    );
+  };
+
+  const renderLegalReportForm = () => {
+    return (
+      <form onSubmit={(e) => handleSubmit(e, 'reports')} className="dashboard-form">
+        <h3>{editingId ? 'Edit' : 'Add New'} Legal Report</h3>
+        <div className="form-group">
+          <label>Title:</label>
+          <input
+            type="text"
+            value={reportForm.title}
+            onChange={(e) => setReportForm({...reportForm, title: e.target.value})}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Description:</label>
+          <textarea
+            value={reportForm.description}
+            onChange={(e) => setReportForm({...reportForm, description: e.target.value})}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <label>Content:</label>
+          <textarea
+            value={reportForm.content}
+            onChange={(e) => setReportForm({...reportForm, content: e.target.value})}
+            required
+            rows="5"
+          />
+        </div>
+        <div className="form-group">
+          <label>Image:</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleImageChange(e, setReportForm)}
+          />
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Preview" />
+            </div>
+          )}
+        </div>
+        <div className="form-actions">
+          <button type="submit" disabled={loading}>
+            {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Report
+          </button>
+          <button type="button" onClick={cancelEdit}>Cancel</button>
+        </div>
+      </form>
+    );
+  };
+
+  const renderForm = () => {
+    if (activeTab === 'our-team') {
+      if (teamAction === 'view') {
+        return renderTeamView();
+      } else if (teamAction === 'add' || teamAction === 'update') {
+        return renderTeamForm();
+      }
+    }
+
+    if (activeTab === 'careers') {
+      if (careerOpeningType === 'new') {
+        return renderCareerForm();
+      }
+    }
+
+    if (activeTab === 'reports') {
+      if (legalReportAction === 'add' || legalReportAction === 'update') {
+        return renderLegalReportForm();
+      }
+    }
+
+    switch (activeTab) {
       case 'media':
         if (!currentMediaType) {
           return (
             <div className="media-dashboard">
-              <h3>Media</h3>
+              <h3>Media Corner</h3>
               <div className="media-types-grid">
                 {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
                   <div key={type} className="media-type-card" onClick={() => setCurrentMediaType(type)}>
@@ -705,132 +921,32 @@ useEffect(() => {
   };
 
   const renderContent = () => {
-    if (loading) return <div className="loading">Loading...</div>;
-    
     if (activeTab === 'our-team') {
-      switch (currentTeamType) {
-        case 'mentors':
-          return (
-            <div className="content-list">
-              <h3>Mentors</h3>
-              {mentors.length === 0 ? (
-                <p>No mentors found</p>
-              ) : (
-                <div className="items-grid">
-                  {mentors.map(mentor => (
-                    <div key={mentor.id} className="item-card">
-                      {mentor.image && (
-                        <div className="item-image">
-                          <img 
-                            src={`${API_BASE}/uploads/mentors/${mentor.image}`} 
-                            alt={mentor.name} 
-                          />
-                        </div>
-                      )}
-                      <div className="item-content">
-                        <h4>{mentor.name}</h4>
-                        <p>{mentor.position}</p>
-                        <div className="item-actions">
-                          <button onClick={() => handleEdit(mentor, 'mentors')}>Edit</button>
-                          <button onClick={() => handleDelete(mentor.id, 'mentors')}>Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        
-        case 'management':
-          return (
-            <div className="content-list">
-              <h3>Management Team</h3>
-              {management.length === 0 ? (
-                <p>No management members found</p>
-              ) : (
-                <div className="items-grid">
-                  {management.map(member => (
-                    <div key={member.id} className="item-card">
-                      {member.image && (
-                        <div className="item-image">
-                          <img 
-                            src={`${API_BASE}/uploads/management/${member.image}`} 
-                            alt={member.name} 
-                          />
-                        </div>
-                      )}
-                      <div className="item-content">
-                        <h4>{member.name}</h4>
-                        <p>{member.position}</p>
-                        <div className="item-actions">
-                          <button onClick={() => handleEdit(member, 'management')}>Edit</button>
-                          <button onClick={() => handleDelete(member.id, 'management')}>Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        
-        case 'board-trustees':
-          return (
-            <div className="content-list">
-              <h3>Board of Trustees</h3>
-              {boardTrustees.length === 0 ? (
-                <p>No board trustees found</p>
-              ) : (
-                <div className="items-grid">
-                  {boardTrustees.map(trustee => (
-                    <div key={trustee.id} className="item-card">
-                      {trustee.image && (
-                        <div className="item-image">
-                          <img 
-                            src={`${API_BASE}/uploads/board-trustees/${trustee.image}`} 
-                            alt={trustee.name} 
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'block';
-                            }}
-                          />
-                          <div className="image-placeholder" style={{display: 'none'}}>
-                            👤
-                          </div>
-                        </div>
-                      )}
-                      <div className="item-content">
-                        <h4>{trustee.name}</h4>
-                        <p>{trustee.position}</p>
-                        {trustee.bio && <p className="bio-preview">{trustee.bio.substring(0, 100)}...</p>}
-                        <div className="item-actions">
-                          <button onClick={() => handleEdit(trustee, 'board-trustees')}>Edit</button>
-                          <button onClick={() => handleDelete(trustee.id, 'board-trustees')}>Delete</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        
-        default:
-          return (
-            <div className="welcome-message">
-              <h3>Welcome to Our Team Management</h3>
-              <p>Select a team type from the sidebar to view and manage content.</p>
-            </div>
-          );
-      }
+      return null;
     }
 
+    if (loading) return <div className="loading">Loading...</div>;
+    
     switch (activeTab) {
       case 'reports':
         return (
           <div className="content-list">
-            <h3>Reports</h3>
+            <div className="content-header">
+              <h3>Legal Reports</h3>
+              <div className="content-actions">
+                <button 
+                  className="btn-primary"
+                  onClick={() => {
+                    setLegalReportAction('add');
+                    setEditingId(null);
+                    setReportForm({ title: '', description: '', content: '', image: null });
+                    setImagePreview(null);
+                  }}
+                >
+                  + Add Report
+                </button>
+              </div>
+            </div>
             {reports.length === 0 ? (
               <p>No reports found</p>
             ) : (
@@ -861,28 +977,59 @@ useEffect(() => {
         );
       
       case 'careers':
+        const currentOpenings = careers.filter(career => career.status === 'active');
+        
         return (
           <div className="content-list">
-            <h3>Career Openings</h3>
-            {careers.length === 0 ? (
-              <p>No career openings found</p>
-            ) : (
-              <div className="items-list">
-                {careers.map(career => (
-                  <div key={career.id} className="item-card">
-                    <div className="item-content">
-                      <h4>{career.title}</h4>
-                      <p><strong>Location:</strong> {career.location}</p>
-                      <p><strong>Type:</strong> {career.type}</p>
-                      <p><strong>Status:</strong> {career.is_active ? 'Active' : 'Inactive'}</p>
-                      <div className="item-actions">
-                        <button onClick={() => handleEdit(career, 'careers')}>Edit</button>
-                        <button onClick={() => handleDelete(career.id, 'careers')}>Delete</button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="content-header">
+              <h3>Career Openings</h3>
+              <div className="content-actions">
+                <select 
+                  value={careerOpeningType} 
+                  onChange={(e) => setCareerOpeningType(e.target.value)}
+                  className="dropdown-select"
+                >
+                  <option value="current">Current Openings</option>
+                  <option value="new">New Opening</option>
+                </select>
+                {careerOpeningType === 'current' && (
+                  <button 
+                    className="btn-primary"
+                    onClick={() => {
+                      setCareerOpeningType('new');
+                      setEditingId(null);
+                      setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
+                    }}
+                  >
+                    + Add Opening
+                  </button>
+                )}
               </div>
+            </div>
+            
+            {careerOpeningType === 'current' && (
+              <>
+                {currentOpenings.length === 0 ? (
+                  <p>No current openings found</p>
+                ) : (
+                  <div className="items-list">
+                    {currentOpenings.map(career => (
+                      <div key={career.id} className="item-card">
+                        <div className="item-content">
+                          <h4>{career.title}</h4>
+                          <p><strong>Location:</strong> {career.location}</p>
+                          <p><strong>Type:</strong> {career.type}</p>
+                          <p><strong>Status:</strong> {career.status}</p>
+                          <div className="item-actions">
+                            <button onClick={() => handleEdit(career, 'careers')}>Edit</button>
+                            <button onClick={() => handleDelete(career.id, 'careers')}>Delete</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         );
@@ -892,13 +1039,28 @@ useEffect(() => {
     }
   };
 
-const selectTopLevelTab = (tab) => {
-  setActiveTab(tab);
-  setOpenDropdown(null); // Close any open dropdowns when switching tabs
-  setCurrentTeamType(null); // Reset team type when switching away from our-team
-  setCurrentMediaType(null); // Reset media type
-  setCurrentOurWorkCategory(null); // Reset our work category
-};
+  const selectTopLevelTab = (tab) => {
+    setActiveTab(tab);
+    setOpenDropdown(null); 
+    setCurrentTeamType(null); 
+    setCurrentMediaType(null); 
+    setCurrentOurWorkCategory(null); 
+    setTeamAction('view');
+    setCareerOpeningType('current');
+    setLegalReportAction('view');
+  };
+
+  const handleTeamAction = (action) => {
+    if (action === 'team') {
+      setTeamAction('view');
+    } else if (action === 'add') {
+      setTeamAction('add');
+      setCurrentTeamType(null);
+    } else if (action === 'update') {
+      setTeamAction('update');
+      setCurrentTeamType(null);
+    }
+  };
 
   return (
     <div className="dashboard">
@@ -915,136 +1077,75 @@ const selectTopLevelTab = (tab) => {
       <div className="dashboard-container">
         <nav className="dashboard-sidebar">
           <ul>
-            <li className={activeTab === 'reports' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('reports')}>All Reports</button>
+            {/* 1) Interventions */}
+            {canManageContent && (
+              <li className={activeTab === 'ourWork' ? 'active' : ''}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === 'ourWork') {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown('ourWork');
+                      setActiveTab('ourWork');
+                    }
+                  }}
+                >
+                  Interventions {openDropdown === 'ourWork' ? '▴' : '▾'}
+                </button>
+                {openDropdown === 'ourWork' && (
+                  <ul className="submenu">
+                    {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
+                      <li key={category}>
+                        <button
+                          className={currentOurWorkCategory === category ? 'active-sub' : ''}
+                          onClick={() => {
+                            setCurrentOurWorkCategory(category);
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          {getOurWorkCategoryLabel(category)}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            )}
+
+            {/* 2) Media */}
+            <li className={activeTab === 'media' ? 'active' : ''}>
+              <button
+                onClick={() => {
+                  if (openDropdown === 'media') {
+                    setOpenDropdown(null);
+                  } else {
+                    setOpenDropdown('media');
+                    setActiveTab('media');
+                  }
+                }}
+              >
+                Media Corner {openDropdown === 'media' ? '▴' : '▾'}
+              </button>
+              {openDropdown === 'media' && (
+                <ul className="submenu">
+                  {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+                    <li key={type}>
+                      <button
+                        className={currentMediaType === type ? 'active-sub' : ''}
+                        onClick={() => {
+                          setCurrentMediaType(type);
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
 
-{/* Our Team Dropdown */}
-<li className={activeTab === 'our-team' ? 'active' : ''}>
-  <button
-    onClick={() => {
-      if (openDropdown === 'our-team') {
-        setOpenDropdown(null);
-      } else {
-        setOpenDropdown('our-team');
-        setActiveTab('our-team');
-      }
-    }}
-  >
-    Our Team {openDropdown === 'our-team' ? '▴' : '▾'}
-  </button>
-  {openDropdown === 'our-team' && (
-    <ul className="submenu">
-      <li>
-        <button
-          className={currentTeamType === 'mentors' ? 'active-sub' : ''}
-          onClick={() => {
-            setCurrentTeamType('mentors');
-            setOpenDropdown(null); // Close dropdown after selection
-          }}
-        >
-          Mentors
-        </button>
-      </li>
-      <li>
-        <button
-          className={currentTeamType === 'management' ? 'active-sub' : ''}
-          onClick={() => {
-            setCurrentTeamType('management');
-            setOpenDropdown(null); // Close dropdown after selection
-          }}
-        >
-          Management Team
-        </button>
-      </li>
-      <li>
-        <button
-          className={currentTeamType === 'board-trustees' ? 'active-sub' : ''}
-          onClick={() => {
-            setCurrentTeamType('board-trustees');
-            setOpenDropdown(null); // Close dropdown after selection
-          }}
-        >
-          Board of Trustees
-        </button>
-      </li>
-    </ul>
-  )}
-</li>
-
-            <li className={activeTab === 'careers' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('careers')}>Career Page</button>
-            </li>
-
-            {/* Media dropdown */}
-<li className={activeTab === 'media' ? 'active' : ''}>
-  <button
-    onClick={() => {
-      if (openDropdown === 'media') {
-        setOpenDropdown(null);
-      } else {
-        setOpenDropdown('media');
-        setActiveTab('media');
-      }
-    }}
-  >
-    Media {openDropdown === 'media' ? '▴' : '▾'}
-  </button>
-  {openDropdown === 'media' && (
-    <ul className="submenu">
-      {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
-        <li key={type}>
-          <button
-            className={currentMediaType === type ? 'active-sub' : ''}
-            onClick={() => {
-              setCurrentMediaType(type);
-              setOpenDropdown(null); // Close dropdown after selection
-            }}
-          >
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </button>
-        </li>
-      ))}
-    </ul>
-  )}
-</li>
-
-            {/* Interventions dropdown */}
-{canManageContent && (
-  <li className={activeTab === 'ourWork' ? 'active' : ''}>
-    <button
-      onClick={() => {
-        if (openDropdown === 'ourWork') {
-          setOpenDropdown(null);
-        } else {
-          setOpenDropdown('ourWork');
-          setActiveTab('ourWork');
-        }
-      }}
-    >
-      Our Interventions {openDropdown === 'ourWork' ? '▴' : '▾'}
-    </button>
-    {openDropdown === 'ourWork' && (
-      <ul className="submenu">
-        {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-          <li key={category}>
-            <button
-              className={currentOurWorkCategory === category ? 'active-sub' : ''}
-              onClick={() => {
-                setCurrentOurWorkCategory(category);
-                setOpenDropdown(null); // Close dropdown after selection
-              }}
-            >
-              {getOurWorkCategoryLabel(category)}
-            </button>
-          </li>
-        ))}
-      </ul>
-    )}
-  </li>
-)}
-
-            {/* Impact Data Section */}
+            {/* 3) Impact Data */}
             {canManageContent && (
               <li className={activeTab === 'impact' ? 'active' : ''}>
                 <button onClick={() => selectTopLevelTab('impact')}>
@@ -1053,49 +1154,109 @@ const selectTopLevelTab = (tab) => {
               </li>
             )}
 
-{/* User management dropdown */}
-{canManageUsers && (
-  <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
-    <button
-      onClick={() => {
-        if (openDropdown === 'users') {
-          setOpenDropdown(null);
-        } else {
-          setOpenDropdown('users');
-          setActiveTab('users');
-        }
-      }}
-    >
-      User Management {openDropdown === 'users' ? '▴' : '▾'}
-    </button>
-    {openDropdown === 'users' && (
-      <ul className="submenu">
-        <li>
-          <button
-            className={activeTab === 'users' ? 'active-sub' : ''}
-            onClick={() => {
-              setActiveTab('users');
-              setOpenDropdown(null); // Close dropdown after selection
-            }}
-          >
-            Users
-          </button>
-        </li>
-        <li>
-          <button
-            className={activeTab === 'registrations' ? 'active-sub' : ''}
-            onClick={() => {
-              setActiveTab('registrations');
-              setOpenDropdown(null); // Close dropdown after selection
-            }}
-          >
-            Registration Requests
-          </button>
-        </li>
-      </ul>
-    )}
-  </li>
-)}
+            {/* 4) Our Team with dropdown in sidebar */}
+            <li className={activeTab === 'our-team' ? 'active' : ''}>
+              <button
+                onClick={() => {
+                  if (openDropdown === 'our-team') {
+                    setOpenDropdown(null);
+                  } else {
+                    setOpenDropdown('our-team');
+                    setActiveTab('our-team');
+                  }
+                }}
+              >
+                Team {openDropdown === 'our-team' ? '▴' : '▾'}
+              </button>
+              {openDropdown === 'our-team' && (
+                <ul className="submenu">
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleTeamAction('team');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Team
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleTeamAction('add');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Add User
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleTeamAction('update');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Update User
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
+
+            {/* 5) Career */}
+            <li className={activeTab === 'careers' ? 'active' : ''}>
+              <button onClick={() => selectTopLevelTab('careers')}>Career</button>
+            </li>
+
+            {/* 6) Report */}
+            <li className={activeTab === 'reports' ? 'active' : ''}>
+              <button onClick={() => selectTopLevelTab('reports')}>Legal Report</button>
+            </li>
+
+            {/* 7) User management */}
+            {canManageUsers && (
+              <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === 'users') {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown('users');
+                      setActiveTab('users');
+                    }
+                  }}
+                >
+                  User Management {openDropdown === 'users' ? '▴' : '▾'}
+                </button>
+                {openDropdown === 'users' && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        className={activeTab === 'users' ? 'active-sub' : ''}
+                        onClick={() => {
+                          setActiveTab('users');
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Users
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        className={activeTab === 'registrations' ? 'active-sub' : ''}
+                        onClick={() => {
+                          setActiveTab('registrations');
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Registration Requests
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            )}
           </ul>
         </nav>
         

@@ -193,16 +193,6 @@ const ImpactDataEditor = () => {
           </form>
         </div>
       </div>
-      
-      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#e9ecef', borderRadius: '8px' }}>
-        <h3 style={{ color: '#555' }}>Troubleshooting</h3>
-        <p>If you're getting a 404 error, please check:</p>
-        <ul>
-          <li>Your backend server is running on port 5000</li>
-          <li>The API endpoint is correctly set to <code>/api/impact-data</code></li>
-          <li>Your MySQL database has the <code>impact_data</code> table created</li>
-        </ul>
-      </div>
     </div>
   );
 };
