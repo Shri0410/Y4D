@@ -1,30 +1,46 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // import useNavigate
 import "./Popup.css";
 
 const Popup = () => {
   const [showPopup, setShowPopup] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Set timer for 3 minutes (180000 ms)
-    const timer = setTimeout(() => {
-      setShowPopup(true);
-    }, 180000);
+    // Check if popup was already shown
+    const hasShown = localStorage.getItem("popupShown");
 
-    // Cleanup if user leaves earlier
-    return () => clearTimeout(timer);
+    if (!hasShown) {
+      // Show popup after 2 minutes (120000 ms)
+      const timer = setTimeout(() => {
+        setShowPopup(true);
+        localStorage.setItem("popupShown", "true"); // Mark as shown
+      }, 120000);
+
+      return () => clearTimeout(timer);
+    }
   }, []);
+
+  const handleExplore = () => {
+    setShowPopup(false); // close popup
+    navigate("/corporate-partnership"); // navigate to the page
+  };
+
+  const handleClose = () => {
+    setShowPopup(false);
+  };
 
   return (
     <>
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup-box">
-            <h2>👋 Still with us?</h2>
+            <h2>Let’s Create Impact Together!</h2>
             <p>
-              Thanks for staying! Don’t miss out on our latest updates and
-              initiatives. 💡
+              Partner with Y4D to drive meaningful CSR initiatives or stay
+              connected with our latest updates.
             </p>
-            <button onClick={() => setShowPopup(false)}>Close</button>
+            <button onClick={handleExplore}>Explore Partnership</button>
           </div>
         </div>
       )}

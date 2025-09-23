@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Events.css"; // new CSS file
 
+const API_BASE = "http://localhost:5000";
+const UPLOADS_BASE = `${API_BASE}/uploads`;
+
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchEvents();
@@ -15,8 +16,9 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/media/published/events`);
-      // Sort by most recent
+      const response = await axios.get(
+        `${API_BASE}/api/media/published/events`
+      );
       const sortedEvents = response.data.sort(
         (a, b) => new Date(b.date) - new Date(a.date)
       );
@@ -62,6 +64,7 @@ const Events = () => {
             <h1 className="ev-title">
               Upcoming Events <span></span>
             </h1>
+
             <p className="ev-subtitle">
               Join us for workshops, seminars, and community gatherings
             </p>
@@ -78,7 +81,7 @@ const Events = () => {
                   {event.image && (
                     <div className="ev-card-image">
                       <img
-                        src={`${API_BASE}/uploads/media/events/${event.image}`}
+                        src={`${UPLOADS_BASE}/media/events/${event.image}`}
                         alt={event.title}
                         onError={(e) => {
                           e.target.src = "/placeholder-event.jpg";
@@ -140,7 +143,7 @@ const Events = () => {
               {selectedEvent.image && (
                 <div className="ev-modal-image">
                   <img
-                    src={`${API_BASE}/uploads/media/events/${selectedEvent.image}`}
+                    src={`${UPLOADS_BASE}/media/events/${selectedEvent.image}`}
                     alt={selectedEvent.title}
                   />
                 </div>

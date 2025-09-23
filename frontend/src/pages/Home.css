@@ -235,7 +235,7 @@
   font-size: 2.8rem;
   font-weight: 600;
   color: #333;
-  margin: 0px auto 30px auto;
+  margin: 30px auto 30px auto;
   padding: 0 70px;
 }
 
@@ -243,7 +243,7 @@
 .accreditations-title::before {
   content: "";
   position: absolute;
-  right: 530px;
+  right: 350px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -254,7 +254,7 @@
 .accreditations-title::after {
   content: "";
   position: absolute;
-  right: 510px;
+  right: 330px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;
@@ -265,7 +265,7 @@
 .accreditations-title span::before {
   content: "";
   position: absolute;
-  left: 530px;
+  left: 350px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -275,7 +275,7 @@
 .accreditations-title span::after {
   content: "";
   position: absolute;
-  left: 510px;
+  left: 330px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;
@@ -387,8 +387,8 @@
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  width: 100%;
 }
-
 .img1-btn {
   display: inline-flex;
   align-items: center;
@@ -532,8 +532,9 @@
 }
 
 .sdg-icon {
-  width: 150px;
-  height: 150px;
+  width: 100%;
+  max-width: 150px;
+  height: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
 }
@@ -568,9 +569,9 @@
 }
 
 .intervention-icon {
-  width: 150px; /* increase from current */
-  height: 150px; /* keep square */
-  object-fit: contain; /* makes sure image scales nicely */
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
   margin: 0 auto 1rem;
 }
 
@@ -747,6 +748,10 @@
   .accreditation-card {
     max-width: 240px;
   }
+  .accreditation-card img {
+    width: 200px;
+    height: 170px;
+  }
   .About-container {
     width: 86%;
   }
@@ -847,19 +852,22 @@
   .partner-title span::after {
     left: 320px;
   }
+  .accreditations-title {
+    margin-top: 00px;
+  }
   .accreditations-title::before {
-    right: 420px;
+    right: 290px;
   }
   /* Right bottom line */
   .accreditations-title::after {
-    right: 400px;
+    right: 270px;
   }
   /* Left side */
   .accreditations-title span::before {
-    left: 420px;
+    left: 290px;
   }
   .accreditations-title span::after {
-    left: 400px;
+    left: 270px;
   }
   .media-title::before {
     right: 150px;
@@ -884,9 +892,8 @@
   .section-title {
     font-size: 1.75rem;
   }
-
   .accreditation-card {
-    padding: 18px;
+    margin-bottom: 20px;
   }
 
   .accreditation-icon {
@@ -896,6 +903,121 @@
 
   .accreditation-card h3 {
     font-size: 0.95rem;
+  }
+  .accreditations-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .about-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .about-title::before {
+    right: 180px;
+  }
+  .about-title::after {
+    right: 160px;
+  }
+  .about-title span::before {
+    left: 180px;
+  }
+  .about-title span::after {
+    left: 160px;
+  }
+
+  .impact-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .impact-title::before {
+    right: 170px;
+  }
+  .impact-title::after {
+    right: 150px;
+  }
+  .impact-title span::before {
+    left: 170px;
+  }
+  .impact-title span::after {
+    left: 150px;
+  }
+
+  .Inter-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .Inter-title::before {
+    right: 140px;
+  }
+  .Inter-title::after {
+    right: 120px;
+  }
+  .Inter-title span::before {
+    left: 140px;
+  }
+  .Inter-title span::after {
+    left: 120px;
+  }
+
+  .sdg-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .sdg-title::before {
+    right: 100px;
+  }
+  .sdg-title::after {
+    right: 80px;
+  }
+  .sdg-title span::before {
+    left: 100px;
+  }
+  .sdg-title span::after {
+    left: 80px;
+  }
+
+  .accreditations-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+    margin-top: 0px;
+  }
+  .accreditations-title::before {
+    right: 0px;
+  }
+  .accreditations-title::after {
+    right: -20px;
+  }
+  .accreditations-title span::before {
+    left: 0px;
+  }
+  .accreditations-title span::after {
+    left: -20px;
+  }
+
+  .media-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .media-title::before {
+    right: 50px;
+  }
+  .media-title::after {
+    right: 30px;
+  }
+  .media-title span::before {
+    left: 50px;
+  }
+  .media-title span::after {
+    left: 30px;
   }
 }
 
@@ -916,41 +1038,132 @@
     margin-bottom: 30px;
   }
 
-  .accreditation-card {
-    padding: 16px;
-    margin: 8px;
-  }
-
   .accreditation-icon {
-    width: 65px;
-    height: 65px;
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    margin: 0 auto 10px;
   }
 
   .accreditation-card h3 {
     font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .section {
-    padding: 30px 10px;
+    text-align: center;
+    margin-top: 5px;
   }
 
-  .section-title {
-    font-size: 1.25rem;
-    margin-bottom: 20px;
+  .accreditations-container {
+    padding: 0px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: auto;
+  }
+  .about-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .about-title::before {
+    right: 0px;
+  }
+  .about-title::after {
+    right: -20px;
+  }
+  .about-title span::before {
+    left: 10px;
+  }
+  .about-title span::after {
+    left: -10px;
   }
 
-  .accreditation-card {
-    padding: 14px;
+  .impact-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .impact-title::before {
+    right: 0px;
+  }
+  .impact-title::after {
+    right: -20px;
+  }
+  .impact-title span::before {
+    left: 10px;
+  }
+  .impact-title span::after {
+    left: -10px;
   }
 
-  .accreditation-icon {
-    width: 60px;
-    height: 60px;
+  .Inter-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .Inter-title::before {
+    right: 0px;
+  }
+  .Inter-title::after {
+    right: -20px;
+  }
+  .Inter-title span::before {
+    left: 10px;
+  }
+  .Inter-title span::after {
+    left: -10px;
   }
 
-  .accreditation-card h3 {
-    font-size: 0.85rem;
+  .sdg-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .sdg-title::before {
+    right: 20px;
+  }
+  .sdg-title::after {
+    right: 0px;
+  }
+  .sdg-title span::before {
+    left: 20px;
+  }
+  .sdg-title span::after {
+    left: 0px;
+  }
+
+  .accreditations-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .accreditations-title::before {
+    right: 30px;
+  }
+  .accreditations-title::after {
+    right: 10px;
+  }
+  .accreditations-title span::before {
+    left: 30px;
+  }
+  .accreditations-title span::after {
+    left: 10px;
+  }
+
+  .media-title {
+    font-size: 1.8rem;
+    line-height: 30px;
+    margin-bottom: 2rem;
+  }
+  .media-title::before {
+    right: 0px;
+  }
+  .media-title::after {
+    right: -20px;
+  }
+  .media-title span::before {
+    left: 10px;
+  }
+  .media-title span::after {
+    left: -10px;
   }
 }

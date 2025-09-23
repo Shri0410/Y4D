@@ -1,4 +1,4 @@
-/* === General page container === */
+/* === General container === */
 .idp-detail-page {
   max-width: 1100px;
   margin: 80px auto 0 auto;
@@ -8,7 +8,7 @@
   line-height: 1.6;
 }
 
-/* === Loading / Error / Empty states === */
+/* Loading / Error / Empty */
 .idp-loading,
 .idp-error,
 .idp-empty {
@@ -18,7 +18,7 @@
   color: #666;
 }
 
-/* === Back link === */
+/* Back link */
 .idp-detail-back {
   margin-bottom: 20px;
 }
@@ -38,22 +38,7 @@
   background: #e3efff;
 }
 
-/* === Main image === */
-.idp-detail-image {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.idp-detail-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-/* === Content section === */
+/* Content section */
 .idp-detail-content {
   background: #fff;
   padding: 25px 30px;
@@ -61,25 +46,48 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
-/* Title */
-.idp-detail-title {
-  font-size: 2rem;
-  margin-bottom: 15px;
-  color: #222;
-  font-weight: 600;
-  text-align: center;
+/* Row layout: image left, text right */
+.idp-detail-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-/* Description */
-.idp-detail-description,
-.idp-detail-html {
+/* Image */
+.idp-detail-image {
+  flex: 1 1 40%;
+}
+
+.idp-detail-image img {
+  width: 100%;
+  max-width: 450px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* Text */
+.idp-detail-text {
+  flex: 1 1 55%;
+}
+
+.idp-detail-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.idp-detail-description {
   overflow-wrap: break-word;
   word-break: break-word;
   white-space: normal;
-  text-align: left;
 }
 
 /* HTML content */
+.idp-detail-html {
+  margin-top: 20px;
+}
+
 .idp-detail-html h2,
 .idp-detail-html h3,
 .idp-detail-html h4 {
@@ -91,7 +99,7 @@
   margin-bottom: 15px;
 }
 
-/* === Video section === */
+/* Video */
 .idp-detail-video {
   margin-top: 40px;
 }
@@ -102,10 +110,9 @@
   margin-bottom: 15px;
 }
 
-/* Responsive iframe / video wrapper */
 .idp-video-wrapper {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 ratio */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 12px;
@@ -124,8 +131,13 @@
 
 /* === Responsive adjustments === */
 @media (max-width: 768px) {
-  .idp-detail-content {
-    padding: 20px;
+  .idp-detail-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .idp-detail-text {
+    text-align: center;
   }
 
   .idp-detail-title {

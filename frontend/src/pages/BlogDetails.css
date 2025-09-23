@@ -67,6 +67,8 @@
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
+  word-break: break-word; /* ensures long words break */
+  overflow-wrap: break-word;
 }
 
 .blog-full-content p {

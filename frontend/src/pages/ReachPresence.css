@@ -1,5 +1,5 @@
 @import "./IndiaMapHover.css";
-/* --- India Map Section styles --- */
+
 .india-map-section {
   width: 100%;
   max-width: 1300px;
@@ -8,14 +8,10 @@
   text-align: center;
 }
 
-/* Use IndiaMapHover styles */
-
-/* --- Existing Reach & Presence styles below --- */
-
 :root {
   --line-padding-left: 4%;
   --line-padding-right: 4%;
-  --timeline-height: 380px; /* adjust to create more vertical spacing */
+  --timeline-height: 380px;
 }
 
 /* Page wrapper */
@@ -23,7 +19,7 @@
   font-family: "Poppins", "Segoe UI", Roboto, sans-serif;
   padding: 2rem;
   max-width: 1300px;
-  margin: 80px auto 40px; /* increased top margin so fixed nav won't overlap */
+  margin: 80px auto 40px;
   text-align: center;
 }
 
@@ -63,7 +59,7 @@
   align-items: stretch;
   height: var(--timeline-height);
   position: relative;
-  z-index: 2; /* above the center line */
+  z-index: 2;
 }
 
 /* Single column item */
@@ -96,7 +92,7 @@
 /* Top content sits above the center dot */
 .timeline-item.top .timeline-content {
   position: absolute;
-  bottom: calc(50% + 18px); /* 18px gap between dot and content */
+  bottom: calc(50% + 18px);
   left: 50%;
   transform: translateX(-50%);
   width: 180px;
@@ -106,7 +102,7 @@
 /* Bottom content sits below the center dot */
 .timeline-item.bottom .timeline-content {
   position: absolute;
-  top: calc(50% + 18px); /* 18px gap between dot and content */
+  top: calc(50% + 18px);
   left: 50%;
   transform: translateX(-50%);
   width: 180px;
@@ -171,71 +167,161 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* Small screens: switch to stacked vertical timeline */
-@media (max-width: 900px) {
-  :root {
-    --timeline-height: auto;
+/* -------- Responsive Styles -------- */
+
+/* Tablets (≤1024px) */
+@media (max-width: 1024px) {
+  .timeline-wrapper {
+    margin-top: 40px;
+    padding: 20px 10px;
   }
-  .page-container {
-    margin-top: 110px;
-    padding: 1rem;
-  }
+
   .timeline-items {
-    display: block;
+    flex-wrap: wrap; /* allow wrap */
     height: auto;
+    flex-direction: column; /* stack vertically */
+    gap: 60px; /* more space between items */
   }
-  .timeline-line {
-    display: none;
-  }
+
   .timeline-item {
-    display: flex;
+    width: 100%;
+    min-width: unset;
+    flex-direction: row;
+    justify-content: flex-start;
     align-items: flex-start;
-    padding: 18px 0;
-    position: relative;
-    border-bottom: 0;
+    padding: 0;
   }
+
+  /* Dot on the left vertically */
   .timeline-dot {
-    position: absolute;
-    left: 20px;
-    top: 28px;
-    transform: translate(0, -50%);
-  }
-  .timeline-item .timeline-content {
     position: relative;
-    left: 60px;
+    top: unset;
+    left: unset;
     transform: none;
-    width: calc(100% - 80px);
+    margin-right: 16px;
+    margin-top: 8px;
+  }
+
+  /* Top/Bottom differences no longer needed — unify content */
+  .timeline-item.top .timeline-content,
+  .timeline-item.bottom .timeline-content {
+    position: relative;
+    top: unset;
+    bottom: unset;
+    left: unset;
+    transform: none;
+    width: auto;
     text-align: left;
+    margin-left: 8px;
   }
-  .timeline-icon {
-    margin: 0 8px 6px 0;
-    width: 48px;
-    height: 48px;
-    font-size: 22px;
-  }
-  .timeline-year {
-    font-size: 1.05rem;
-  }
-  .timeline-title {
-    font-size: 0.98rem;
-  }
-  .timeline-description {
-    font-size: 0.9rem;
+
+  /* Vertical line */
+  .timeline-line {
+    position: absolute;
+    top: 0;
+    left: 20px;
+    right: unset;
+    transform: none;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      #e74c3c 0%,
+      #f39c12 25%,
+      #febd2c 55%,
+      #0f6741 85%
+    );
   }
 }
 
-/* Tiny screens: single column */
-@media (max-width: 480px) {
-  .timeline-item .timeline-content {
-    left: 56px;
-    width: calc(100% - 72px);
+/* Mobiles (≤768px) */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+    margin: 100px auto 0px auto;
   }
+
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  .timeline-wrapper {
+    padding: 0 10px;
+    margin-top: 40px;
+    position: relative;
+  }
+
+  .timeline-items {
+    display: flex;
+    flex-direction: column; /* stack items vertically */
+    align-items: flex-start;
+    position: relative;
+    gap: 60px; /* space between items */
+  }
+
+  .timeline-item {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    padding-left: 20px;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: none;
+    width: 20px;
+    height: 20px;
+    border: 4px solid #fff;
+    background-color: #f26622;
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 8px;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(
+      180deg,
+      #e74c3c 0%,
+      #f39c12 25%,
+      #febd2c 55%,
+      #0f6741 85%
+    );
+    border-radius: 4px;
+    z-index: 1;
+  }
+
+  .timeline-item .timeline-content {
+    position: relative;
+    top: unset;
+    left: unset;
+    transform: none;
+    width: 100%;
+    text-align: left;
+    margin-left: 16px;
+  }
+
   .timeline-icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     font-size: 20px;
   }
+
   .timeline-year {
     font-size: 1rem;
+  }
+
+  .timeline-title {
+    font-size: 0.9rem;
+  }
+
+  .timeline-description {
+    font-size: 0.85rem;
+    line-height: 1.35;
   }
 }

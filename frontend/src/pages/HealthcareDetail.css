@@ -38,22 +38,7 @@
   background: #e3efff;
 }
 
-/* === Main image === */
-.hc-detail-image {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.hc-detail-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-/* === Content section === */
+/* === Row container for image + title/description === */
 .hc-detail-content {
   background: #fff;
   padding: 25px 30px;
@@ -61,25 +46,53 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
-/* Title */
+.hc-detail-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+/* Image */
+.hc-detail-image {
+  flex: 1 1 40%;
+  text-align: center;
+}
+
+.hc-detail-image img {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* Text */
+.hc-detail-text {
+  flex: 1 1 55%;
+}
+
 .hc-detail-title {
   font-size: 2rem;
   margin-bottom: 15px;
   color: #222;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
 }
 
-/* Description */
-.hc-detail-description,
-.hc-detail-html {
+.hc-detail-description {
   overflow-wrap: break-word;
   word-break: break-word;
   white-space: normal;
   text-align: left;
 }
 
-/* HTML content */
+/* HTML content below row */
+.hc-detail-html {
+  margin-top: 20px;
+  text-align: left;
+}
+
 .hc-detail-html h2,
 .hc-detail-html h3,
 .hc-detail-html h4 {
@@ -96,16 +109,9 @@
   margin-top: 40px;
 }
 
-.hc-detail-video h3 {
-  text-align: center;
-  color: #1e88e5;
-  margin-bottom: 15px;
-}
-
-/* Responsive iframe wrapper */
 .hc-video-wrapper {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 ratio */
+  padding-bottom: 40%;
   height: 0;
   overflow: hidden;
   border-radius: 12px;
@@ -128,12 +134,29 @@
     padding: 20px;
   }
 
+  .hc-detail-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hc-detail-image,
+  .hc-detail-text {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+
   .hc-detail-title {
     font-size: 1.5rem;
+    text-align: center;
   }
 
   .hc-detail-description {
     font-size: 1rem;
+    text-align: center;
+  }
+
+  .hc-detail-html {
+    text-align: center;
   }
 }
 

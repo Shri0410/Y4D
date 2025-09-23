@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Stories.css"; // new CSS for Stories page
+import "./Stories.css"; // CSS for Stories page
+
+const SERVER_BASE = "http://localhost:5000";
 
 const Stories = () => {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStory, setSelectedStory] = useState(null);
-
-  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchStories();
@@ -15,7 +15,9 @@ const Stories = () => {
 
   const fetchStories = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/media/published/stories`);
+      const response = await axios.get(
+        `${SERVER_BASE}/api/media/published/stories`
+      );
       setStories(response.data);
     } catch (error) {
       console.error("Error fetching stories:", error);
@@ -24,20 +26,16 @@ const Stories = () => {
     }
   };
 
-  const openStoryModal = (story) => {
-    setSelectedStory(story);
-  };
+  const openStoryModal = (story) => setSelectedStory(story);
+  const closeStoryModal = () => setSelectedStory(null);
 
-  const closeStoryModal = () => {
-    setSelectedStory(null);
-  };
-
-  if (loading)
+  if (loading) {
     return (
       <div className="st-page">
         <div className="st-loading">Loading stories...</div>
       </div>
     );
+  }
 
   return (
     <div className="st-page">
@@ -45,7 +43,7 @@ const Stories = () => {
         <div className="st-container">
           <div className="st-header">
             <h1 className="st-title">
-              Stories of Empowerment <span></span>
+              Stories of Empowerment<span></span>
             </h1>
             <p className="st-subtitle">
               Inspiring success stories from our community
@@ -63,10 +61,10 @@ const Stories = () => {
                   {story.image && (
                     <div className="st-card-image">
                       <img
-                        src={`${API_BASE}/uploads/media/stories/${story.image}`}
+                        src={`${SERVER_BASE}/uploads/media/stories/${story.image}`}
                         alt={story.title}
                         onError={(e) => {
-                          e.target.src = "/placeholder-image.jpg"; // fallback
+                          e.target.src = "/placeholder-image.jpg";
                         }}
                       />
                     </div>
@@ -79,14 +77,6 @@ const Stories = () => {
                         ? `${story.content.substring(0, 150)}...`
                         : story.content}
                     </p>
-
-                    <div className="st-card-meta">
-                      <span>By {story.author}</span> |{" "}
-                      <span>
-                        Published:{" "}
-                        {new Date(story.published_date).toLocaleDateString()}
-                      </span>
-                    </div>
 
                     <div className="st-card-footer">
                       <button
@@ -121,7 +111,7 @@ const Stories = () => {
               {selectedStory.image && (
                 <div className="st-modal-image">
                   <img
-                    src={`${API_BASE}/uploads/media/stories/${selectedStory.image}`}
+                    src={`${SERVER_BASE}/uploads/media/stories/${selectedStory.image}`}
                     alt={selectedStory.title}
                   />
                 </div>

@@ -38,27 +38,40 @@
   background: #e3efff;
 }
 
-/* === Main image === */
-.qe-detail-image {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.qe-detail-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-/* === Content section === */
+/* === Main content container === */
 .qe-detail-content {
   background: #fff;
   padding: 25px 30px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* === Row container for image + title/description === */
+.qe-detail-row {
+  display: flex;
+  gap: 30px;
+  align-items: center; /* centers text vertically with image */
+  flex-wrap: wrap;
+  margin-bottom: 30px; /* space below the row before content */
+}
+
+/* === Image (left) === */
+.qe-detail-image {
+  flex: 1 1 40%;
+  text-align: center;
+}
+
+.qe-detail-image img {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* === Text (right) === */
+.qe-detail-text {
+  flex: 1 1 55%;
 }
 
 /* Title */
@@ -67,18 +80,22 @@
   margin-bottom: 15px;
   color: #222;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
 }
 
 /* Description */
-.qe-detail-description,
-.qe-detail-html {
-  overflow-wrap: break-word; /* modern way */
-  word-break: break-word; /* fallback */
-  white-space: normal; /* ensure wrapping */
-  text-align: left; /* better readability on long content */
+.qe-detail-description {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
 }
-/* HTML content */
+
+/* HTML content below the row */
+.qe-detail-html {
+  margin-top: 20px;
+  text-align: left;
+}
 
 .qe-detail-html h2,
 .qe-detail-html h3,
@@ -102,17 +119,18 @@
   margin-bottom: 15px;
 }
 
-/* Responsive iframe wrapper */
+/* Responsive iframe wrapper with smaller height */
 .qe-video-wrapper {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 ratio */
+  padding-bottom: 40%; /* reduced height */
   height: 0;
   overflow: hidden;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
-.qe-video-wrapper iframe {
+.qe-video-wrapper iframe,
+.qe-video-wrapper video {
   position: absolute;
   top: 0;
   left: 0;
@@ -127,12 +145,29 @@
     padding: 20px;
   }
 
+  .qe-detail-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .qe-detail-image,
+  .qe-detail-text {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+
   .qe-detail-title {
     font-size: 1.5rem;
+    text-align: center;
   }
 
   .qe-detail-description {
     font-size: 1rem;
+    text-align: center;
+  }
+
+  .qe-detail-html {
+    text-align: center;
   }
 }
 

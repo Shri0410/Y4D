@@ -1,4 +1,3 @@
-// src/pages/QualityEducationDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
@@ -104,18 +103,23 @@ const QualityEducationDetail = () => {
         <Link to="/quality-education">← Back to Programs</Link>
       </div>
 
-      {/* Main image */}
-      {item.image_url && (
-        <div className="qe-detail-image">
-          <img src={getFullUrl(item.image_url)} alt={item.title} />
-        </div>
-      )}
-
       {/* Content section */}
       <div className="qe-detail-content">
-        <h1 className="qe-detail-title">{item.title}</h1>
-        <p className="qe-detail-description">{item.description}</p>
+        {/* Row: image + title + description */}
+        <div className="qe-detail-row">
+          {item.image_url && (
+            <div className="qe-detail-image">
+              <img src={getFullUrl(item.image_url)} alt={item.title} />
+            </div>
+          )}
 
+          <div className="qe-detail-text">
+            <h1 className="qe-detail-title">{item.title}</h1>
+            <p className="qe-detail-description">{item.description}</p>
+          </div>
+        </div>
+
+        {/* Content section below the row */}
         {item.content && (
           <div
             className="qe-detail-html"
@@ -123,10 +127,9 @@ const QualityEducationDetail = () => {
           />
         )}
 
-        {/* Video section */}
+        {/* Video section below content */}
         {videoUrl && (
           <div className="qe-detail-video">
-            <h3>Watch Video</h3>
             <div className="qe-video-wrapper">
               {directVideo ? (
                 <video controls width="100%">
@@ -138,7 +141,7 @@ const QualityEducationDetail = () => {
                   src={embedUrl}
                   title={item.title}
                   width="100%"
-                  height="500"
+                  height="350"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

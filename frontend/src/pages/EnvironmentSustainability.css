@@ -232,6 +232,13 @@
 }
 
 @media (max-width: 768px) {
+  .es-page {
+    margin-top: 80px;
+    margin-bottom: 20px;
+  }
+  .es-container {
+    padding: 0 1rem;
+  }
   .es-title {
     font-size: 1.8rem;
     line-height: 34px;

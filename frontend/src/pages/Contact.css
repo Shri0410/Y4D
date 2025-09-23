@@ -141,7 +141,6 @@
   transform: rotate(180deg);
 }
 
-
 /* Office Address */
 .contactus-office a {
   display: inline-block;
@@ -202,5 +201,8 @@
 @media (max-width: 768px) {
   .contactus-help-buttons {
     flex-direction: column;
+  }
+  .contactus-page {
+    padding: 0;
   }
 }
