@@ -38,22 +38,7 @@
   background: #e3efff;
 }
 
-/* === Main image === */
-.lv-detail-image {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.lv-detail-image img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto 20px;
-  border-radius: 12px;
-  object-fit: cover;
-}
-
-/* === Content section === */
+/* === Row container for image + title/description === */
 .lv-detail-content {
   background: #fff;
   padding: 25px 30px;
@@ -61,25 +46,52 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
-/* Title */
+.lv-detail-row {
+  display: flex;
+  gap: 30px;
+  align-items: start;
+  margin-bottom: 30px;
+}
+
+/* Image */
+.lv-detail-image {
+  flex: 1 1 100%;
+  text-align: center;
+}
+
+.lv-detail-image img {
+  width: 500px;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* Text */
+.lv-detail-text {
+  flex: 1 1 55%;
+}
+
 .lv-detail-title {
   font-size: 2rem;
   margin-bottom: 15px;
   color: #222;
   font-weight: 600;
-  text-align: center;
+  text-align: left;
 }
 
-/* Description */
-.lv-detail-description,
+.lv-detail-description {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
+}
+
+/* HTML content below row */
 .lv-detail-html {
-  overflow-wrap: break-word; /* modern way */
-  word-break: break-word; /* fallback */
-  white-space: normal; /* ensure wrapping */
-  text-align: left; /* better readability on long content */
+  margin-top: 20px;
+  text-align: left;
 }
 
-/* HTML content */
 .lv-detail-html h2,
 .lv-detail-html h3,
 .lv-detail-html h4 {
@@ -96,16 +108,9 @@
   margin-top: 40px;
 }
 
-.lv-detail-video h3 {
-  text-align: center;
-  color: #1e88e5;
-  margin-bottom: 15px;
-}
-
-/* Responsive iframe wrapper */
 .lv-video-wrapper {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 ratio */
+  padding-bottom: 40%;
   height: 0;
   overflow: hidden;
   border-radius: 12px;
@@ -128,12 +133,29 @@
     padding: 20px;
   }
 
+  .lv-detail-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .lv-detail-image,
+  .lv-detail-text {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+
   .lv-detail-title {
     font-size: 1.5rem;
+    text-align: center;
   }
 
   .lv-detail-description {
     font-size: 1rem;
+    text-align: center;
+  }
+
+  .lv-detail-html {
+    text-align: center;
   }
 }
 

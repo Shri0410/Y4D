@@ -4,11 +4,12 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Blogs.css";
 
+const API_BASE = "http://localhost:5000/api";
+const UPLOADS_BASE = "http://localhost:5000/uploads"; // fixed image base
+
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE = "http://localhost:5000/api";
 
   useEffect(() => {
     fetchBlogs();
@@ -20,8 +21,9 @@ const Blogs = () => {
       setBlogs(response.data);
     } catch (error) {
       console.error("Error fetching blogs:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const renderTags = (tags) => {
@@ -37,18 +39,23 @@ const Blogs = () => {
           ))}
         </div>
       );
-    } catch (error) {
+    } catch {
       return null;
     }
   };
 
-  if (loading) return <div className="loading">Loading blogs...</div>;
+  if (loading)
+    return (
+      <div className="blogs-page">
+        <p className="loading">Loading blogs...</p>
+      </div>
+    );
 
   return (
     <div className="blogs-page">
       <div className="blog-header">
         <h1>
-          Blog Articles <span></span>
+          Blog Articles<span></span>
         </h1>
         <p>Insights, stories, and updates from our team and community</p>
       </div>
@@ -64,7 +71,7 @@ const Blogs = () => {
               {blog.image && (
                 <div className="blog-image">
                   <img
-                    src={`${API_BASE}/uploads/media/blogs/${blog.image}`}
+                    src={`${UPLOADS_BASE}/media/blogs/${blog.image}`}
                     alt={blog.title}
                     onError={(e) => {
                       e.target.src = "/placeholder-blog.jpg";
@@ -73,7 +80,7 @@ const Blogs = () => {
                 </div>
               )}
               <div className="blog-content">
-                <h3>{blog.title}</h3>
+                <h3 className="blog-title">{blog.title}</h3>
                 {renderTags(blog.tags)}
                 <p className="blog-excerpt">
                   {blog.content.length > 120
@@ -83,7 +90,12 @@ const Blogs = () => {
                 <div className="blog-meta">
                   <p className="blog-author">By {blog.author}</p>
                   <p className="blog-date">
-                    {new Date(blog.published_date).toLocaleDateString()}
+                    {new Date(blog.published_date).toLocaleDateString("en-US", {
+                      weekday: "short",
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
                 <Link to={`/blogs/${blog.id}`} className="btn-read-more">

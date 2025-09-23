@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import "./EnvironmentSustainabilityDetail.css"; // create CSS same as HealthcareDetail.css
+import "./EnvironmentSustainabilityDetail.css";
 
 const API_BASE = "http://localhost:5000/api";
 const SERVER_BASE = "http://localhost:5000";
@@ -14,7 +14,6 @@ const getFullUrl = (path) => {
   return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
 };
 
-// Convert YouTube / Vimeo watch URLs to embeddable URLs
 const getEmbedUrl = (url) => {
   if (!url) return "";
   if (url.includes("/embed/")) return url;
@@ -36,7 +35,6 @@ const getEmbedUrl = (url) => {
   return url;
 };
 
-// Detect if URL is a direct .mp4 or similar
 const isDirectVideoFile = (url) => {
   return url?.match(/\.(mp4|webm|ogg)$/i);
 };
@@ -59,7 +57,7 @@ const EnvironmentSustainabilityDetail = () => {
       setItem(response.data);
     } catch (err) {
       console.error("Error fetching environment sustainability details:", err);
-      setError("Failed to load environment sustainability initiative details");
+      setError("Failed to load initiative details");
     } finally {
       setLoading(false);
     }
@@ -91,7 +89,6 @@ const EnvironmentSustainabilityDetail = () => {
     );
   }
 
-  // --- Video handling ---
   const videoUrl = item.video_url ? getFullUrl(item.video_url) : "";
   const embedUrl = getEmbedUrl(videoUrl);
   const directVideo = isDirectVideoFile(videoUrl);
@@ -105,18 +102,23 @@ const EnvironmentSustainabilityDetail = () => {
         </Link>
       </div>
 
-      {/* Main image */}
-      {item.image_url && (
-        <div className="es-detail-image">
-          <img src={getFullUrl(item.image_url)} alt={item.title} />
-        </div>
-      )}
-
-      {/* Content section */}
+      {/* Content container */}
       <div className="es-detail-content">
-        <h1 className="es-detail-title">{item.title}</h1>
-        <p className="es-detail-description">{item.description}</p>
+        {/* Row: image + title/description */}
+        <div className="es-detail-row">
+          {item.image_url && (
+            <div className="es-detail-image">
+              <img src={getFullUrl(item.image_url)} alt={item.title} />
+            </div>
+          )}
 
+          <div className="es-detail-text">
+            <h1 className="es-detail-title">{item.title}</h1>
+            <p className="es-detail-description">{item.description}</p>
+          </div>
+        </div>
+
+        {/* HTML content below row */}
         {item.content && (
           <div
             className="es-detail-html"
@@ -127,10 +129,9 @@ const EnvironmentSustainabilityDetail = () => {
         {/* Video section */}
         {videoUrl && (
           <div className="es-detail-video">
-            <h3>Watch Video</h3>
             <div className="es-video-wrapper">
               {directVideo ? (
-                <video controls width="100%">
+                <video controls>
                   <source src={videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
@@ -139,7 +140,7 @@ const EnvironmentSustainabilityDetail = () => {
                   src={embedUrl}
                   title={item.title}
                   width="100%"
-                  height="500"
+                  height="350"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

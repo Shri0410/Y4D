@@ -243,9 +243,8 @@
   background: #fff;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px 20px 0px 20px;
-  flex: 1 1 calc(25% - 30px); /* 👈 4 per row */
-  /* max-width: calc(25% - 30px); */
+  padding: 50px 20px 50px 20px;
+  flex: 1 1 calc(25% - 30px);
   text-align: center;
 }
 
@@ -331,7 +330,7 @@
 
 /* Responsive */
 
-@media (min-width: 1260px) {
+@media (max-width: 1280px) {
   .FOT-section {
     padding-top: 45px;
   }
@@ -354,6 +353,93 @@
   .team-card {
     max-width: calc(25% - 30px);
   }
+
+  .trustee-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .trustee-title::before {
+    right: 420px;
+  }
+
+  /* Right bottom line */
+  .trustee-title::after {
+    right: 400px;
+  }
+
+  /* Left side */
+  .trustee-title span::before {
+    left: 420px;
+  }
+
+  .trustee-title span::after {
+    left: 400px;
+  }
+  .mentors-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .mentors-title::before {
+    right: 480px;
+  }
+
+  /* Right bottom line */
+  .mentors-title::after {
+    right: 460px;
+  }
+
+  /* Left side */
+  .mentors-title span::before {
+    left: 480px;
+  }
+
+  .mentors-title span::after {
+    left: 460px;
+  }
+
+  .management-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .management-title::before {
+    right: 430px;
+  }
+
+  /* Right bottom line */
+  .management-title::after {
+    right: 410px;
+  }
+
+  /* Left side */
+  .management-title span::before {
+    left: 430px;
+  }
+
+  .management-title span::after {
+    left: 410px;
+  }
+
+  .useful-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+  .useful-title::before {
+    right: 420px;
+  }
+
+  /* Right bottom line */
+  .useful-title::after {
+    right: 400px;
+  }
+
+  /* Left side */
+  .useful-title span::before {
+    left: 420px;
+  }
+
+  .useful-title span::after {
+    left: 400px;
+  }
 }
 @media (max-width: 1024px) {
   .banner {
@@ -370,19 +456,115 @@
 }
 
 @media (max-width: 768px) {
-  .team-card,
-  .useful-card {
-    flex: 1 1 100%;
+  .team-card {
+    flex: 1 1 100%; /* 1 per row */
     max-width: 100%;
   }
 
-  .section-title {
-    font-size: 1.5rem;
-    padding: 0 50px;
+  .team-card img {
+    max-width: 150px;
+    height: 150px;
   }
+
   .useful-container {
     flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .useful-card {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 30px 16px;
+  }
+
+  .trustee-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .trustee-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .trustee-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .trustee-title span::before {
+    left: 40px;
+  }
+
+  .trustee-title span::after {
+    left: 20px;
+  }
+  .mentors-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .mentors-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .mentors-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .mentors-title span::before {
+    left: 40px;
+  }
+
+  .mentors-title span::after {
+    left: 20px;
+  }
+
+  .management-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .management-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .management-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .management-title span::before {
+    left: 40px;
+  }
+
+  .management-title span::after {
+    left: 20px;
+  }
+
+  .useful-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .useful-title::before {
+    right: 40px;
+  }
+
+  /* Right bottom line */
+  .useful-title::after {
+    right: 20px;
+  }
+
+  /* Left side */
+  .useful-title span::before {
+    left: 40px;
+  }
+
+  .useful-title span::after {
+    left: 20px;
   }
 }
-
-

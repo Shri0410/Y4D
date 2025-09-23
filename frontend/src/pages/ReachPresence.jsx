@@ -1,7 +1,7 @@
 import React from "react";
 import "./ReachPresence.css";
-import IndiaMapHover from "./IndiaMapHover"; // import your IndiaMapHover component
-import map from "../assets/map.png"; // map image if needed
+import IndiaMapHover from "./IndiaMapHover";
+import map from "../assets/map.png";
 
 const ReachPresence = () => {
   const timelineData = [
@@ -69,7 +69,7 @@ const ReachPresence = () => {
       </section>
 
       {/* --- Existing Reach & Presence Timeline --- */}
-      <section className="section">
+      <section className="rp-section">
         <div className="container_RP">
           <h2 className="section-title">Reach and Presence</h2>
           <p className="timeline-subtitle">A decade of empowerment</p>

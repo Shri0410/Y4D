@@ -43,10 +43,12 @@ const OurTeam = () => {
     fetchManagement();
   }, []);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchTrustees = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/board-trustees");
+        const response = await fetch(
+          "http://localhost:5000/api/board-trustees"
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -83,25 +85,8 @@ useEffect(() => {
           <div className="team-container">
             {trustees.map((trustee) => (
               <div key={trustee.id} className="team-card">
-                {trustee.image ? (
-                  <img
-                    src={`http://localhost:5000/uploads/board-trustees/${trustee.image}`}
-                    alt={trustee.name}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'block';
-                    }}
-                  />
-                ) : (
-                  <div className="placeholder-image">
-                    <span>👤</span>
-                  </div>
-                )}
                 <h3>{trustee.name}</h3>
                 <p className="role">{trustee.position}</p>
-                {trustee.bio && (
-                  <p className="bio">{trustee.bio.substring(0, 100)}...</p>
-                )}
               </div>
             ))}
           </div>
@@ -132,7 +117,7 @@ useEffect(() => {
       </section>
 
       {/* Management Team */}
-      <section className="OT-section">
+      {/* <section className="OT-section">
         <h2 className="management-title">
           Management Team<span></span>
         </h2>
@@ -142,17 +127,13 @@ useEffect(() => {
           <div className="team-container">
             {management.map((member) => (
               <div key={member.id} className="team-card">
-                <img
-                  src={`http://localhost:5000/uploads/management/${member.image}`}
-                  alt={member.name}
-                />
                 <h3>{member.name}</h3>
                 <p className="role">{member.position}</p>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </section> */}
 
       {/* You May Find Useful */}
       <section className="OT-section">

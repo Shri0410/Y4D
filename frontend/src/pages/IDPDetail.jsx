@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import "./IDPDetail.css"; // copy the CSS from EnvironmentSustainabilityDetail.css and rename classes
+import "./IDPDetail.css";
 
 const API_BASE = "http://localhost:5000/api";
 const SERVER_BASE = "http://localhost:5000";
 
-// --- Helpers ---
 const getFullUrl = (path) => {
   if (!path) return "";
   if (path.startsWith("http")) return path;
@@ -36,7 +35,7 @@ const getEmbedUrl = (url) => {
   return url;
 };
 
-// Detect if URL is a direct .mp4 or similar
+// Detect if URL is a direct video file
 const isDirectVideoFile = (url) => {
   return url?.match(/\.(mp4|webm|ogg)$/i);
 };
@@ -49,17 +48,17 @@ const IDPDetail = () => {
 
   useEffect(() => {
     fetchItem();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/integrated-development/${id}`;
-      const response = await axios.get(url);
+      const response = await axios.get(
+        `${API_BASE}/integrated-development/${id}`
+      );
       setItem(response.data);
     } catch (err) {
       console.error("Error fetching IDP details:", err);
-      setError("Failed to load integrated development initiative details");
+      setError("Failed to load Integrated Development Initiative details");
     } finally {
       setLoading(false);
     }
@@ -68,9 +67,7 @@ const IDPDetail = () => {
   if (loading) {
     return (
       <div className="idp-detail-page">
-        <div className="idp-loading">
-          Loading Integrated Development Initiative...
-        </div>
+        <div className="idp-loading">Loading...</div>
       </div>
     );
   }
@@ -91,7 +88,6 @@ const IDPDetail = () => {
     );
   }
 
-  // --- Video handling ---
   const videoUrl = item.video_url ? getFullUrl(item.video_url) : "";
   const embedUrl = getEmbedUrl(videoUrl);
   const directVideo = isDirectVideoFile(videoUrl);
@@ -103,18 +99,22 @@ const IDPDetail = () => {
         <Link to="/idp">← Back to Integrated Development Programs</Link>
       </div>
 
-      {/* Main image */}
-      {item.image_url && (
-        <div className="idp-detail-image">
-          <img src={getFullUrl(item.image_url)} alt={item.title} />
-        </div>
-      )}
-
-      {/* Content section */}
+      {/* Content row */}
       <div className="idp-detail-content">
-        <h1 className="idp-detail-title">{item.title}</h1>
-        <p className="idp-detail-description">{item.description}</p>
+        <div className="idp-detail-row">
+          {item.image_url && (
+            <div className="idp-detail-image">
+              <img src={getFullUrl(item.image_url)} alt={item.title} />
+            </div>
+          )}
 
+          <div className="idp-detail-text">
+            <h1 className="idp-detail-title">{item.title}</h1>
+            <p className="idp-detail-description">{item.description}</p>
+          </div>
+        </div>
+
+        {/* HTML content */}
         {item.content && (
           <div
             className="idp-detail-html"
