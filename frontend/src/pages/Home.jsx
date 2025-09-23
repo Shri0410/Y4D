@@ -40,7 +40,9 @@ import accr2 from "../assets/Accredations/Bhamashah Award RJ.jpg";
 import accr3 from "../assets/Accredations/CAF International Certificate.jpg";
 import accr4 from "../assets/Accredations/NGO Grading Certificate_Y4D_June23_Design.jpg";
 
-import Partners from "./Partners";
+import Partners1 from "./Partners1";
+import Partners2 from "./Partners2";
+import Partners3 from "./Partners3";
 
 // ✅ Store your array here
 const sdgImages = [
@@ -100,6 +102,40 @@ const Home = () => {
     autoplaySpeed: 4000,
     arrows: false,
   };
+
+  const useIsMobile = (breakpoint = 768) => {
+    const [isMobile, setIsMobile] = useState(
+      typeof window !== "undefined" ? window.innerWidth <= breakpoint : false
+    );
+
+    useEffect(() => {
+      const handleResize = () => {
+        setIsMobile(window.innerWidth <= breakpoint);
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, [breakpoint]);
+
+    return isMobile;
+  };
+
+  const useIsTablet = (breakpoint = 1024) => {
+    const [isTablet, setIsTablet] = useState(
+      typeof window !== "undefined" ? window.innerWidth <= breakpoint : false
+    );
+    useEffect(() => {
+      const handleResize = () => {
+        setIsTablet(window.innerWidth <= breakpoint);
+      };
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }, [breakpoint]);
+
+    return isTablet;
+  };
+
+  const isTablet = useIsTablet();
+  const isMobile = useIsMobile();
 
   return (
     <div className="home">
@@ -263,9 +299,10 @@ const Home = () => {
             arrows={false}
             dots={false}
             responsive={[
-              { breakpoint: 1024, settings: { slidesToShow: 4 } },
-              { breakpoint: 768, settings: { slidesToShow: 3 } },
-              { breakpoint: 480, settings: { slidesToShow: 2 } },
+              { breakpoint: 1280, settings: { slidesToShow: 4 } },
+              { breakpoint: 1024, settings: { slidesToShow: 3 } },
+              { breakpoint: 768, settings: { slidesToShow: 2 } },
+              { breakpoint: 480, settings: { slidesToShow: 1 } }, // changed to 1 for mobile
             ]}
           >
             {sdgImages.map((img, index) => (
@@ -279,15 +316,63 @@ const Home = () => {
 
       {/* Partners Section */}
       <section className="Partners-section">
-        <Partners />
+        <Partners1 />
+        {/* <Partners2 />
+        <Partners3 /> */}
       </section>
 
       {/* Accreditations Section */}
-      <section className=" accreditations-section">
+      <div className="accreditations-container">
         <h2 className="accreditations-title">
           Accreditations<span></span>
         </h2>
-        <div className="accreditations-container">
+        {isMobile ? (
+          // MOBILE VIEW: one column list
+          <div className="accreditations-list" style={{ gap: "10px" }}>
+            {[
+              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+              { img: accr2, title: "Bhamashah Award" },
+              { img: accr3, title: "India Impact Summit – Socio Story" },
+              { img: accr4, title: "IRR NGO Grading - 3" },
+            ].map((item, index) => (
+              <div key={index} className="accreditation-card">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="accreditation-icon"
+                />
+                <h3>{item.title}</h3>
+              </div>
+            ))}
+          </div>
+        ) : isTablet ? (
+          // TABLET VIEW: maybe 2-column grid
+          <div
+            className="accreditations-list"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: "80px",
+            }}
+          >
+            {[
+              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+              { img: accr2, title: "Bhamashah Award" },
+              { img: accr3, title: "India Impact Summit – Socio Story" },
+              { img: accr4, title: "IRR NGO Grading - 3" },
+            ].map((item, index) => (
+              <div key={index} className="accreditation-card">
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="accreditation-icon"
+                />
+                <h3>{item.title}</h3>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // DESKTOP VIEW: slider
           <Slider
             slidesToShow={4}
             slidesToScroll={1}
@@ -319,8 +404,8 @@ const Home = () => {
               </div>
             ))}
           </Slider>
-        </div>
-      </section>
+        )}
+      </div>
 
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">

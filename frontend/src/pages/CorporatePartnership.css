@@ -18,19 +18,19 @@
   text-align: center;
   padding: 0 20px;
 }
-.about-section h2 {
+.cp-title {
   position: relative;
   text-align: center;
   font-family: "Poppins", sans-serif;
   font-size: 2.8rem;
   font-weight: 600;
   color: #333;
-  margin: 0px auto 30px auto;
+  margin: 100px auto 30px auto;
   padding: 0 70px;
 }
 
 /* Right top line */
-.about-section h2::before {
+.cp-title::before {
   content: "";
   position: absolute;
   right: 130px;
@@ -41,7 +41,7 @@
 }
 
 /* Right bottom line */
-.about-section h2::after {
+.cp-title::after {
   content: "";
   position: absolute;
   right: 110px;
@@ -52,7 +52,7 @@
 }
 
 /* Left side */
-.about-section h2 span::before {
+.cp-title span::before {
   content: "";
   position: absolute;
   left: 130px;
@@ -62,7 +62,7 @@
   background: #f15a29;
 }
 
-.about-section h2 span::after {
+.cp-title span::after {
   content: "";
   position: absolute;
   left: 110px;
@@ -123,7 +123,7 @@
 
 /* Responsive Design */
 @media (max-width: 1260px) {
-  .about-section h2 {
+  .about-title {
     font-size: 1.8rem;
   }
 }
@@ -139,7 +139,7 @@
   .about-section {
     padding: 0 10px;
   }
-  .about-section h2 {
+  .cp-title {
     font-size: 1.6rem;
     line-height: 30px;
   }
@@ -151,21 +151,21 @@
   .partnership-form textarea {
     font-size: 0.9rem;
   }
-  .about-section h2::before {
+  .cp-title::before {
     right: 290px;
   }
 
   /* Right bottom line */
-  .about-section h2::after {
+  .cp-title::after {
     right: 290px;
   }
 
   /* Left side */
-  .about-section h2 span::before {
+  .cp-title span::before {
     left: 290px;
   }
 
-  .about-section h2 span::after {
+  .cp-title span::after {
     left: 290px;
   }
   .form-section h3 {

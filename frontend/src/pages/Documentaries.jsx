@@ -1,3 +1,4 @@
+// src/pages/Documentaries.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Documentaries.css";
@@ -8,6 +9,7 @@ const Documentaries = () => {
   const [selectedDoc, setSelectedDoc] = useState(null);
 
   const API_BASE = "http://localhost:5000/api";
+  const UPLOADS_BASE = "http://localhost:5000/uploads"; // fixed base for images
 
   useEffect(() => {
     fetchDocumentaries();
@@ -21,31 +23,22 @@ const Documentaries = () => {
       setDocumentaries(response.data);
     } catch (error) {
       console.error("Error fetching documentaries:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const openDocModal = (doc) => {
-    setSelectedDoc(doc);
-  };
-
-  const closeDocModal = () => {
-    setSelectedDoc(null);
-  };
+  const openDocModal = (doc) => setSelectedDoc(doc);
+  const closeDocModal = () => setSelectedDoc(null);
 
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return "";
-
-    // Handle various YouTube URL formats
     const regex =
       /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = url.match(regex);
-
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
-    }
-
-    return url;
+    return match && match[1]
+      ? `https://www.youtube.com/embed/${match[1]}`
+      : url;
   };
 
   if (loading) return <div className="loading">Loading documentaries...</div>;
@@ -70,11 +63,9 @@ const Documentaries = () => {
               {doc.thumbnail && (
                 <div className="doc-thumbnail">
                   <img
-                    src={`${API_BASE}/uploads/media/documentaries/${doc.thumbnail}`}
+                    src={`${UPLOADS_BASE}/media/documentaries/${doc.thumbnail}`}
                     alt={doc.title}
-                    onError={(e) => {
-                      e.target.src = "/placeholder-video.jpg";
-                    }}
+                    onError={(e) => (e.target.src = "/placeholder-video.jpg")}
                   />
                   <div
                     className="play-overlay"
@@ -86,7 +77,11 @@ const Documentaries = () => {
               )}
               <div className="doc-content">
                 <h3>{doc.title}</h3>
-                <p className="doc-description">{doc.description}</p>
+                <p className="doc-description">
+                  {doc.description.length > 100
+                    ? doc.description.substring(0, 35) + "..."
+                    : doc.description}
+                </p>
                 <div className="doc-meta">
                   {doc.duration && (
                     <span className="doc-duration">
@@ -94,7 +89,7 @@ const Documentaries = () => {
                     </span>
                   )}
                   <span className="doc-date">
-                    {new Date(doc.published_date).toLocaleDateString()}
+                    {new Date(doc.published_date).toLocaleDateString("en-US")}
                   </span>
                 </div>
                 <button onClick={() => openDocModal(doc)} className="btn-watch">
@@ -120,15 +115,19 @@ const Documentaries = () => {
               </button>
             </div>
             <div className="modal-body">
-              <div className="video-container">
-                <iframe
-                  src={getYouTubeEmbedUrl(selectedDoc.video_url)}
-                  title={selectedDoc.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
-              </div>
+              {selectedDoc.video_url ? (
+                <div className="video-container">
+                  <iframe
+                    src={getYouTubeEmbedUrl(selectedDoc.video_url)}
+                    title={selectedDoc.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              ) : (
+                <p>Video not available</p>
+              )}
               <div className="doc-details">
                 <h3>Description</h3>
                 <p>{selectedDoc.description}</p>
@@ -140,7 +139,9 @@ const Documentaries = () => {
                   )}
                   <p>
                     <strong>Published:</strong>{" "}
-                    {new Date(selectedDoc.published_date).toLocaleDateString()}
+                    {new Date(selectedDoc.published_date).toLocaleDateString(
+                      "en-US"
+                    )}
                   </p>
                 </div>
               </div>

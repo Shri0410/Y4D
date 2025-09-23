@@ -12,7 +12,7 @@ const CorporatePartnership = () => {
 
       {/* About Section */}
       <section className="about-section">
-        <h2>
+        <h2 className="cp-title">
           Corporate Partnership <span></span>
         </h2>
         <p>

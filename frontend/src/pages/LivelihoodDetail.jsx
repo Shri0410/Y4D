@@ -5,7 +5,7 @@ import axios from "axios";
 import "./LivelihoodDetail.css";
 
 const API_BASE = "http://localhost:5000/api";
-const SERVER_BASE = "http://localhost:5000"; // for relative file paths
+const SERVER_BASE = "http://localhost:5000";
 
 // --- Helpers ---
 const getFullUrl = (path) => {
@@ -14,23 +14,19 @@ const getFullUrl = (path) => {
   return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
 };
 
-// Convert YouTube / Vimeo watch URLs to embeddable URLs
 const getEmbedUrl = (url) => {
   if (!url) return "";
   if (url.includes("/embed/")) return url;
 
-  // YouTube watch?v=
   if (url.includes("youtube.com/watch?v=")) {
     return url.replace("watch?v=", "embed/");
   }
 
-  // youtu.be short links
   if (url.includes("youtu.be/")) {
     const videoId = url.split("youtu.be/")[1];
     return `https://www.youtube.com/embed/${videoId}`;
   }
 
-  // Vimeo normal links
   if (url.includes("vimeo.com/") && !url.includes("player.vimeo.com")) {
     const videoId = url.split("vimeo.com/")[1];
     return `https://player.vimeo.com/video/${videoId}`;
@@ -39,7 +35,6 @@ const getEmbedUrl = (url) => {
   return url;
 };
 
-// Detect if URL is a direct .mp4 or something embeddable
 const isDirectVideoFile = (url) => {
   return url?.match(/\.(mp4|webm|ogg)$/i);
 };
@@ -92,7 +87,6 @@ const LivelihoodDetail = () => {
     );
   }
 
-  // --- Video handling ---
   const videoUrl = item.video_url ? getFullUrl(item.video_url) : "";
   const embedUrl = getEmbedUrl(videoUrl);
   const directVideo = isDirectVideoFile(videoUrl);
@@ -104,18 +98,23 @@ const LivelihoodDetail = () => {
         <Link to="/livelihood">← Back to Livelihood Programs</Link>
       </div>
 
-      {/* Main image */}
-      {item.image_url && (
-        <div className="lv-detail-image">
-          <img src={getFullUrl(item.image_url)} alt={item.title} />
-        </div>
-      )}
-
-      {/* Content section */}
+      {/* Content container */}
       <div className="lv-detail-content">
-        <h1 className="lv-detail-title">{item.title}</h1>
-        <p className="lv-detail-description">{item.description}</p>
+        {/* Row: image + title/description */}
+        <div className="lv-detail-row">
+          {item.image_url && (
+            <div className="lv-detail-image">
+              <img src={getFullUrl(item.image_url)} alt={item.title} />
+            </div>
+          )}
 
+          <div className="lv-detail-text">
+            <h1 className="lv-detail-title">{item.title}</h1>
+            <p className="lv-detail-description">{item.description}</p>
+          </div>
+        </div>
+
+        {/* HTML content below the row */}
         {item.content && (
           <div
             className="lv-detail-html"
@@ -126,7 +125,6 @@ const LivelihoodDetail = () => {
         {/* Video section */}
         {videoUrl && (
           <div className="lv-detail-video">
-            <h3>Watch Video</h3>
             <div className="lv-video-wrapper">
               {directVideo ? (
                 <video controls>
@@ -137,6 +135,8 @@ const LivelihoodDetail = () => {
                 <iframe
                   src={embedUrl}
                   title={item.title}
+                  width="100%"
+                  height="350"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen

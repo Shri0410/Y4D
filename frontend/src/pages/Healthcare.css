@@ -239,6 +239,13 @@
 }
 
 @media (max-width: 768px) {
+  .hc-page {
+    margin-top: 80px;
+    margin-bottom: 20px;
+  }
+  .hc-container {
+    padding: 0 1rem;
+  }
   .hc-title {
     font-size: 1.8rem;
     line-height: 34px;

@@ -249,6 +249,13 @@
 }
 
 @media (max-width: 768px) {
+  .lv-page {
+    margin-top: 80px;
+    margin-bottom: 20px;
+  }
+  .lv-container {
+    padding: 0 1rem;
+  }
   .lv-title {
     font-size: 1.8rem;
     line-height: 34px;
