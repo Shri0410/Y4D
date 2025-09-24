@@ -86,23 +86,38 @@ const Footer = () => {
         {/* Left side */}
         <div className="footer-left">
           <div className="footer-address">
-            <p
-              style={{
-                marginBottom: "8px",
-                fontWeight: "bolder",
-                fontSize: "18px",
-              }}
-            >
-              Address:
-            </p>
             <p style={{ fontWeight: "bold" }}>Head Office:</p>
-            <p>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Y4D+Foundation,+402,+The+Onyx,+Near+Euro+School,+Wakad,+Pune,+Maharashtra,+India+411057"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-address-link"
+            >
               Y4D Foundation, 402, The Onyx, Near Euro School,
               <br /> Wakad, Pune, Maharashtra, India - 411057
-            </p>
+            </a>
+
             <p style={{ fontWeight: "bold", marginTop: "10px" }}>
               Mumbai Office:
             </p>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=305+A,+Janmabhoomi+Chambers,+Ballard+Estate,+Mumbai+38"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-address-link"
+            >
+              305 A, Janmabhoomi Chambers, Ballard Estate, Mumbai-38
+            </a>
+
+            <p style={{ fontWeight: "bold", marginTop: "10px" }}>USA Office:</p>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=100+Bellis+Ct.,+Bridgewater,+New+Jersey,+08807"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer-address-link"
+            >
+              100 Bellis Ct., Bridgewater, New Jersey, 08807
+            </a>
           </div>
           <div className="footer-social">
             <p

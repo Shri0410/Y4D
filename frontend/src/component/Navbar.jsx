@@ -1,6 +1,6 @@
 // src/component/Navbar.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/Y4D LOGO NAVBAR.png";
 import "./Navbar.css";
 
@@ -9,7 +9,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  const goToDonate = () => {
+    navigate("/DonateNow");
+  };
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -245,7 +249,9 @@ const Navbar = () => {
               </Link>
             </li>
             <li>
-              <button className="D-btn">Donate Now</button>
+              <button className="D-btn" onClick={goToDonate}>
+                Donate Now
+              </button>
             </li>
           </ul>
         </div>

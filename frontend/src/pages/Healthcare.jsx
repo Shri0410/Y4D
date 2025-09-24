@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./Healthcare.css";
-import bannerImg from "../assets/BannerImages/s.jpeg";
+import bannerVideo from "../assets/OurWork/Healthcare.mp4";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
@@ -54,7 +54,14 @@ const Healthcare = () => {
     <div className="hc-page">
       {/* Banner Section */}
       <div className="hc-banner">
-        <img src={bannerImg} alt="Quality Education Banner" />
+        <video
+          src={bannerVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="hc-banner-video"
+        />
       </div>
       <section className="hc-section">
         <div className="hc-container">

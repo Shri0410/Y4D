@@ -47,7 +47,8 @@ const Contact = () => {
     },
     {
       question: "How can I apply for an internship?",
-      answer: "Interested candidates can apply via our Careers/Internship section.",
+      answer:
+        "Interested candidates can apply via our Careers/Internship section.",
       open: false,
     },
     {
@@ -87,7 +88,8 @@ const Contact = () => {
       open: false,
     },
     {
-      question: "Does Y4D provide growth and training opportunities for employees?",
+      question:
+        "Does Y4D provide growth and training opportunities for employees?",
       answer:
         "Yes, Y4D strongly believes in continuous learning. We provide capacity-building workshops, exposure visits, and skill development programs to support personal and professional growth.",
       open: false,
@@ -124,7 +126,8 @@ const Contact = () => {
     },
     {
       question: "Who can I contact for general queries?",
-      answer: "Please reach out to us at info@y4d.ngo for any general inquiries.",
+      answer:
+        "Please reach out to us at info@y4d.ngo for any general inquiries.",
       open: false,
     },
   ]);
@@ -146,27 +149,54 @@ const Contact = () => {
     <div className="contactus-page">
       {/* Enquiry Form */}
       <section className="contactus-section contactus-enquiry">
-        <h2>Enquiry Form</h2>
+        <div className="f-title">
+          <h2>
+            Enquiry Form<span></span>
+          </h2>
+        </div>
         <form>
-          <input type="text" placeholder="Your Name" required />
-          <input type="email" placeholder="Your Email" required />
+          {/* Row 1: First + Last Name */}
+          <div className="form-row">
+            <input type="text" placeholder="First Name" required />
+            <input type="text" placeholder="Last Name" required />
+          </div>
+
+          {/* Row 2: Email + Mobile */}
+          <div className="form-row">
+            <input type="email" placeholder="Your Email" required />
+            <input type="text" placeholder="Mobile Number" required />
+          </div>
+
+          {/* Message */}
           <textarea placeholder="Your Message" rows="5" required></textarea>
-          <button type="submit">Submit</button>
+
+          <button className="sbmt-btn" type="submit">
+            Submit
+          </button>
         </form>
       </section>
 
       {/* Help Desk */}
       <section className="contactus-section contactus-help">
-        <h2>Help Desk</h2>
+        <div className="b-title">
+          <h2>
+            Help Desk<span></span>
+          </h2>
+        </div>
         <div className="contactus-help-buttons">
-          <button className="primary-btn">Partnership Support</button>
-          <button className="secondary-btn">Volunteers & Partnership</button>
+          <button className="p-btn">Partnership Support</button>
+          <button className="vi-btn">Volunteers & Partnership</button>
         </div>
       </section>
 
       {/* FAQ Section */}
       <section className="contactus-section contactus-faq">
-        <h2>Frequently Asked Questions</h2>
+        <div className="faq-title">
+          <h2>
+            Frequently Asked Questions<span></span>
+          </h2>
+        </div>
+
         <div className="contactus-faq-list">
           {faqs.map((faq, index) => (
             <div
@@ -191,10 +221,14 @@ const Contact = () => {
         </div>
       </section>
 
-
       {/* Office Address */}
       <section className="contactus-section contactus-office">
-        <h2>Office Addresses</h2>
+        <div className="office-title">
+          <h2>
+            Office Addresses<span></span>
+          </h2>
+        </div>
+
         <div className="office-list">
           <a
             href="https://www.google.com/maps/search/3rd+Floor,+The+Onyx,+Near+Euro+School,+Wakad,+Pune+411057/@18.5966469,73.7434204,14z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI1MDkxNS4wIKXMDSoASAFQAw%3D%3D"
@@ -236,7 +270,6 @@ const Contact = () => {
           </a>
         </div>
       </section>
-
     </div>
   );
 };

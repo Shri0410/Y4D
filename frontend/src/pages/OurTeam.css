@@ -229,22 +229,17 @@
 }
 
 .team-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: start;
-  gap: 30px;
-  width: 84%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 15px;
-  text-align: center;
 }
-
 .team-card {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 50px 20px 50px 20px;
-  flex: 1 1 calc(25% - 30px);
+  padding: 50px 20px;
   text-align: center;
 }
 
@@ -452,6 +447,73 @@
   .useful-card {
     flex: 1 1 calc(50% - 20px);
     max-width: calc(50% - 20px);
+  }
+  .trustee-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .trustee-title::before {
+    right: 180px;
+  }
+
+  /* Right bottom line */
+  .trustee-title::after {
+    right: 160px;
+  }
+
+  /* Left side */
+  .trustee-title span::before {
+    left: 180px;
+  }
+
+  .trustee-title span::after {
+    left: 160px;
+  }
+  .mentors-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .mentors-title::before {
+    right: 240px;
+  }
+
+  /* Right bottom line */
+  .mentors-title::after {
+    right: 220px;
+  }
+
+  /* Left side */
+  .mentors-title span::before {
+    left: 240px;
+  }
+
+  .mentors-title span::after {
+    left: 220px;
+  }
+
+  .useful-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .useful-title::before {
+    right: 180px;
+  }
+
+  /* Right bottom line */
+  .useful-title::after {
+    right: 160px;
+  }
+
+  /* Left side */
+  .useful-title span::before {
+    left: 180px;
+  }
+
+  .useful-title span::after {
+    left: 160px;
   }
 }
 

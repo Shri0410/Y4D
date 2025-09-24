@@ -46,6 +46,8 @@ import HealthcareDetail from "./pages/HealthcareDetail";
 import EnvironmentSustainabilityDetail from "./pages/EnvironmentSustainabilityDetail";
 import IDPDetail from "./pages/IDPDetail";
 
+import DonateNow from "./pages/DonateNow";
+
 import "./App.css";
 
 function AppContent({
@@ -136,6 +138,7 @@ function AppContent({
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/legalreports" element={<LegalReports />} />
                   <Route path="/india-map" element={<IndiaMapHover />} />
+                  <Route path="/DonateNow" element={<DonateNow />} />
                 </Routes>
               </main>
               <Footer />

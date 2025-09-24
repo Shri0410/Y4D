@@ -15,15 +15,229 @@
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
-
-.contactus-section h2 {
-  margin-bottom: 1.5rem;
-  color: #222;
-  font-size: 1.6rem;
-  border-left: 4px solid #ff6b6b;
-  padding-left: 0.6rem;
+.f-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
 }
 
+/* Right top line */
+.f-title::before {
+  content: "";
+  position: absolute;
+  right: 260px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.f-title::after {
+  content: "";
+  position: absolute;
+  right: 240px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.f-title span::before {
+  content: "";
+  position: absolute;
+  left: 260px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.f-title span::after {
+  content: "";
+  position: absolute;
+  left: 240px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.b-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.b-title::before {
+  content: "";
+  position: absolute;
+  right: 260px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.b-title::after {
+  content: "";
+  position: absolute;
+  right: 240px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.b-title span::before {
+  content: "";
+  position: absolute;
+  left: 260px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.b-title span::after {
+  content: "";
+  position: absolute;
+  left: 240px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.faq-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.faq-title::before {
+  content: "";
+  position: absolute;
+  right: 140px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.faq-title::after {
+  content: "";
+  position: absolute;
+  right: 120px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.faq-title span::before {
+  content: "";
+  position: absolute;
+  left: 140px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.faq-title span::after {
+  content: "";
+  position: absolute;
+  left: 120px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.office-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.office-title::before {
+  content: "";
+  position: absolute;
+  right: 240px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Right bottom line */
+.office-title::after {
+  content: "";
+  position: absolute;
+  right: 220px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+/* Left side */
+.office-title span::before {
+  content: "";
+  position: absolute;
+  left: 240px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.office-title span::after {
+  content: "";
+  position: absolute;
+  left: 220px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f15a29;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+.form-row input {
+  flex: 1;
+}
 /* Enquiry Form */
 .contactus-enquiry form {
   display: flex;
@@ -39,20 +253,22 @@
   font-size: 1rem;
 }
 
-.contactus-enquiry button {
-  padding: 0.9rem;
-  background: #ff6b6b;
-  color: white;
-  border: none;
+.sbmt-btn {
+  margin: auto;
+  padding: 0.9rem 8rem;
+  background: transparent;
+  color: #222;
+  border: 1px solid #222;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
   transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.contactus-enquiry button:hover {
-  background: #ff5252;
+.sbmt-btn:hover {
+  background: #fd6500;
   transform: translateY(-2px);
+  color: #fff;
 }
 
 /* Help Desk */
@@ -64,7 +280,6 @@
 .contactus-help-buttons button {
   flex: 1;
   padding: 1rem;
-  border: none;
   border-radius: 10px;
   cursor: pointer;
   font-size: 1rem;
@@ -72,22 +287,24 @@
   transition: all 0.3s ease;
 }
 
-.primary-btn {
-  background: #ff6b6b;
+.p-btn {
+  background: transparent;
+  color: #222;
+}
+
+.p-btn:hover {
+  background: #fd6500;
   color: #fff;
 }
 
-.primary-btn:hover {
-  background: #ff5252;
+.vi-btn {
+  background: transparent;
+  color: #222;
 }
 
-.secondary-btn {
-  background: #ff6b6b;
+.vi-btn:hover {
+  background: #fd6500;
   color: #fff;
-}
-
-.secondary-btn:hover {
-  background: #ff5252;
 }
 
 /* FAQ Section */
@@ -198,11 +415,170 @@
 }
 
 /* Responsive */
+
+@media (max-width: 1024px) {
+  .f-title {
+    font-size: 1.5rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+    margin-top: 2.5rem;
+  }
+  .f-title::before {
+    right: 120px;
+  }
+  .f-title::after {
+    right: 100px;
+  }
+  .f-title span::before {
+    left: 120px;
+  }
+  .f-title span::after {
+    left: 100px;
+  }
+
+  .b-title {
+    font-size: 1.5rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+    margin-top: 2.5rem;
+  }
+  .b-title::before {
+    right: 120px;
+  }
+  .b-title::after {
+    right: 100px;
+  }
+  .b-title span::before {
+    left: 120px;
+  }
+  .b-title span::after {
+    left: 100px;
+  }
+  .faq-title {
+    font-size: 1.5rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+    margin-top: 2.5rem;
+  }
+  .faq-title::before {
+    right: 30px;
+  }
+  .faq-title::after {
+    right: 10px;
+  }
+  .faq-title span::before {
+    left: 30px;
+  }
+  .faq-title span::after {
+    left: 10px;
+  }
+  .office-title {
+    font-size: 1.5rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+    margin-top: 2.5rem;
+  }
+  .office-title::before {
+    right: 120px;
+  }
+  .office-title::after {
+    right: 100px;
+  }
+  .office-title span::before {
+    left: 120px;
+  }
+  .office-title span::after {
+    left: 100px;
+  }
+}
+
 @media (max-width: 768px) {
   .contactus-help-buttons {
     flex-direction: column;
   }
+  .form-row {
+    flex-direction: column;
+  }
   .contactus-page {
     padding: 0;
+  }
+
+  .f-title {
+    font-size: 1.4rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .f-title::before {
+    right: 40px;
+  }
+  .f-title::after {
+    right: 20px;
+  }
+  .f-title span::before {
+    left: 40px;
+  }
+  .f-title span::after {
+    left: 20px;
+  }
+
+  .b-title {
+    font-size: 1.4rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .b-title::before {
+    right: 40px;
+  }
+  .b-title::after {
+    right: 20px;
+  }
+  .b-title span::before {
+    left: 40px;
+  }
+  .b-title span::after {
+    left: 20px;
+  }
+
+  .faq-title {
+    font-size: 1.4rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .faq-title::before {
+    right: 40px;
+  }
+  .faq-title::after {
+    right: 20px;
+  }
+  .faq-title span::before {
+    left: 40px;
+  }
+  .faq-title span::after {
+    left: 20px;
+  }
+
+  .office-title {
+    font-size: 1.4rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .office-title::before {
+    right: 40px;
+  }
+  .office-title::after {
+    right: 20px;
+  }
+  .office-title span::before {
+    left: 40px;
+  }
+  .office-title span::after {
+    left: 20px;
+  }
+
+  .contactus-section {
+    margin-top: 0px;
+  }
+  .contactus-enquiry {
+    margin-top: 80px;
   }
 }
