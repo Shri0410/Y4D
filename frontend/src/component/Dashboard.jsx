@@ -8,7 +8,7 @@ import ImpactDataEditor from './ImpactDataEditor';
 import './Dashboard.css';
 
 const Dashboard = ({ currentUser: propCurrentUser }) => {
-  const [activeTab, setActiveTab] = useState('reports');
+  const [activeTab, setActiveTab] = useState('ourWork');
   const [reports, setReports] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
@@ -24,7 +24,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [teamAction, setTeamAction] = useState('view'); // 'view', 'add', 'update'
   
   // Career dropdown state
-  const [careerOpeningType, setCareerOpeningType] = useState('current'); // 'current', 'new'
+  const [careerAction, setCareerAction] = useState('current'); // 'current', 'add', 'update'
   
   // Legal Report action state
   const [legalReportAction, setLegalReportAction] = useState('view'); // 'view', 'add', 'update'
@@ -36,9 +36,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
   const [mentorForm, setMentorForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
   const [managementForm, setManagementForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-  const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
-  const [trusteeForm, setTrusteeForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-  const [editingId, setEditingId] = useState(null);
+  const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });  const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
   const canManageContent = currentUser && ['super_admin', 'admin', 'editor'].includes(currentUser.role);
@@ -51,10 +49,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setCurrentOurWorkCategory(null);
     setCurrentTeamType(null);
     setTeamAction('view');
-    setCareerOpeningType('current');
+    setCareerAction('current');
     setLegalReportAction('view');
   }, [activeTab]);
-
+useEffect(() => {
+  console.log('Careers data updated:', careers);
+}, [careers]);
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (openDropdown && !event.target.closest('.dashboard-sidebar')) {
@@ -76,13 +76,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       }
     }
     
+    // Fetch data based on active tab
     if (activeTab === 'our-team' && teamAction === 'view') {
       fetchAllTeamData();
-    }
-    
-    if (activeTab !== 'media' && !currentMediaType && 
+    } else if (activeTab === 'careers') {
+      fetchData('careers');
+    } else if (activeTab === 'reports') {
+      fetchData('reports');
+    } else if (activeTab !== 'media' && !currentMediaType && 
         activeTab !== 'ourWork' && !currentOurWorkCategory && 
-        activeTab !== 'impact' && activeTab !== 'our-team') {
+        activeTab !== 'impact' && activeTab !== 'users' && activeTab !== 'registrations') {
       fetchData(activeTab);
     }
   }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory, teamAction]);
@@ -126,6 +129,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         case 'careers':
           response = await axios.get(`${API_BASE}/careers`);
           setCareers(response.data);
+          console.log('Fetched careers:', response.data); // Debug log
           break;
         case 'board-trustees': 
           response = await axios.get(`${API_BASE}/board-trustees`);
@@ -151,7 +155,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     };
     if (file) reader.readAsDataURL(file);
   };
-
+const handlePdfChange = (e, setFormFunction) => {
+  const file = e.target.files[0];
+  setFormFunction(prev => ({ ...prev, pdf: file }));
+};
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
@@ -161,19 +168,45 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       let endpoint = '';
 
       switch (type) {
-        case 'reports':
-          Object.keys(reportForm).forEach(key => {
-            if (key === 'image' && reportForm.image) {
-              formData.append('image', reportForm.image);
-            } else {
-              formData.append(key, reportForm[key]);
-            }
-          });
-          endpoint = editingId ? `${API_BASE}/reports/${editingId}` : `${API_BASE}/reports`;
-          await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
-          setReportForm({ title: '', description: '', content: '', image: null });
-          setLegalReportAction('view');
-          break;
+case 'reports':
+  const reportFormData = new FormData();
+  
+  // Append all form fields
+  reportFormData.append('title', reportForm.title);
+  reportFormData.append('description', reportForm.description);
+  reportFormData.append('content', reportForm.content);
+  
+  // Append files if they exist
+  if (reportForm.image) {
+    reportFormData.append('image', reportForm.image);
+  }
+  if (reportForm.pdf) {
+    reportFormData.append('pdf', reportForm.pdf);
+  }
+  
+  endpoint = editingId ? `${API_BASE}/reports/${editingId}` : `${API_BASE}/reports`;
+  
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    };
+    
+    await (editingId ? axios.put(endpoint, reportFormData, config) : axios.post(endpoint, reportFormData, config));
+    
+    setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
+    setLegalReportAction('view');
+    setImagePreview(null);
+    
+    // Refresh the reports list
+    fetchData('reports');
+    alert(`Report ${editingId ? 'updated' : 'created'} successfully!`);
+  } catch (error) {
+    console.error('Error saving report:', error);
+    alert(`Error saving report: ${error.response?.data?.error || error.message}`);
+  }
+  break;
         
         case 'mentors':
           Object.keys(mentorForm).forEach(key => {
@@ -205,7 +238,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           endpoint = editingId ? `${API_BASE}/careers/${editingId}` : `${API_BASE}/careers`;
           await (editingId ? axios.put(endpoint, careerForm) : axios.post(endpoint, careerForm));
           setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
-          setCareerOpeningType('current');
+          setCareerAction('current');
           break;
         
         case 'board-trustees': 
@@ -244,7 +277,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     if (type === 'reports') {
       setLegalReportAction('update');
     } else if (type === 'careers') {
-      setCareerOpeningType('new');
+      setCareerAction('update');
     } else {
       setTeamAction('update');
       setCurrentTeamType(type);
@@ -252,14 +285,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     
     switch (type) {
       case 'reports':
-        setReportForm({
-          title: item.title,
-          description: item.description,
-          content: item.content,
-          image: null
-        });
-        if (item.image) setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
-        break;
+  setLegalReportAction('update');
+  setReportForm({
+    title: item.title,
+    description: item.description,
+    content: item.content,
+    image: null,
+    pdf: null
+  });
+  if (item.image) setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
+  break;
       case 'careers':
         setCareerForm({
           title: item.title,
@@ -267,7 +302,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           requirements: item.requirements,
           location: item.location,
           type: item.type,
-          status: item.status
+          is_active: item.is_active
         });
         break;
       case 'mentors':
@@ -304,7 +339,24 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         break;
     }
   };
-
+const handleStatusToggle = async (id, newStatus) => {
+  if (!window.confirm(`Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this career opening?`)) return;
+  
+  setLoading(true);
+  try {
+    await axios.put(`${API_BASE}/careers/${id}`, {
+      ...careers.find(c => c.id === id),
+      is_active: newStatus
+    });
+    
+    alert(`Career opening ${newStatus ? 'activated' : 'deactivated'} successfully!`);
+    fetchData('careers'); // Refresh the careers data
+  } catch (error) {
+    console.error('Error toggling career status:', error);
+    alert(`Error updating career status: ${error.message}`);
+  }
+  setLoading(false);
+};
   const handleDelete = async (id, type) => {
     if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
     
@@ -347,18 +399,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   };
 
   const cancelEdit = () => {
-    setEditingId(null);
-    setTeamAction('view');
-    setCurrentTeamType(null);
-    setCareerOpeningType('current');
-    setLegalReportAction('view');
-    setReportForm({ title: '', description: '', content: '', image: null });
-    setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
-    setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setImagePreview(null);
-  };
+  setEditingId(null);
+  setTeamAction('view');
+  setCurrentTeamType(null);
+  setCareerAction('all'); // Changed from 'current' to 'all'
+  setLegalReportAction('view');
+  setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
+  setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+  setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+  setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
+  setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+  setImagePreview(null);
+};
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -733,9 +785,25 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   };
 
   const renderCareerForm = () => {
-    return (
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <button 
+            className="btn-back"
+            onClick={() => {
+              setCareerAction('all');
+              setEditingId(null);
+              cancelEdit();
+            }}
+          >
+            ← Back to Openings
+          </button>
+          <h3>{editingId ? 'Edit Career Opening' : 'Add New Career Opening'}</h3>
+        </div>
+      </div>
+      
       <form onSubmit={(e) => handleSubmit(e, 'careers')} className="dashboard-form">
-        <h3>{editingId ? 'Edit' : 'Add New'} Career Opening</h3>
         <div className="form-group">
           <label>Title:</label>
           <input
@@ -787,27 +855,47 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <div className="form-group">
           <label>Status:</label>
           <select
-            value={careerForm.status}
-            onChange={(e) => setCareerForm({...careerForm, status: e.target.value})}
+            value={careerForm.is_active}
+            onChange={(e) => setCareerForm({...careerForm, is_active: e.target.value === 'true'})}
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value={true}>Active</option>
+            <option value={false}>Inactive</option>
           </select>
         </div>
         <div className="form-actions">
           <button type="submit" disabled={loading}>
             {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Opening
           </button>
-          <button type="button" onClick={cancelEdit}>Cancel</button>
+          <button type="button" onClick={() => {
+            setCareerAction('all');
+            cancelEdit();
+          }}>Cancel</button>
         </div>
       </form>
-    );
-  };
+    </div>
+  );
+};
 
   const renderLegalReportForm = () => {
-    return (
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <button 
+            className="btn-back"
+            onClick={() => {
+              setLegalReportAction('view');
+              setEditingId(null);
+              cancelEdit();
+            }}
+          >
+            ← Back to Reports
+          </button>
+          <h3>{editingId ? 'Edit Legal Report' : 'Add New Legal Report'}</h3>
+        </div>
+      </div>
+      
       <form onSubmit={(e) => handleSubmit(e, 'reports')} className="dashboard-form">
-        <h3>{editingId ? 'Edit' : 'Add New'} Legal Report</h3>
         <div className="form-group">
           <label>Title:</label>
           <input
@@ -817,14 +905,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Description:</label>
           <textarea
             value={reportForm.description}
             onChange={(e) => setReportForm({...reportForm, description: e.target.value})}
             required
+            rows="3"
           />
         </div>
+        
         <div className="form-group">
           <label>Content:</label>
           <textarea
@@ -834,8 +925,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             rows="5"
           />
         </div>
+        
         <div className="form-group">
-          <label>Image:</label>
+          <label>Featured Image:</label>
           <input
             type="file"
             accept="image/*"
@@ -847,15 +939,35 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           )}
         </div>
+        
+<div className="form-group">
+  <label>PDF Document:</label>
+  <input
+    type="file"
+    accept=".pdf"
+    onChange={(e) => handlePdfChange(e, setReportForm)}
+  />
+  <small>Upload PDF document (optional)</small>
+  {reportForm.pdf && (
+    <div className="file-preview">
+      <span>📄 {reportForm.pdf.name}</span>
+    </div>
+  )}
+</div>
+        
         <div className="form-actions">
           <button type="submit" disabled={loading}>
             {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Report
           </button>
-          <button type="button" onClick={cancelEdit}>Cancel</button>
+          <button type="button" onClick={() => {
+            setLegalReportAction('view');
+            cancelEdit();
+          }}>Cancel</button>
         </div>
       </form>
-    );
-  };
+    </div>
+  );
+};
 
   const renderForm = () => {
     if (activeTab === 'our-team') {
@@ -867,9 +979,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
 
     if (activeTab === 'careers') {
-      if (careerOpeningType === 'new') {
-        return renderCareerForm();
-      }
+      return null;
     }
 
     if (activeTab === 'reports') {
@@ -929,111 +1039,237 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     
     switch (activeTab) {
       case 'reports':
-        return (
-          <div className="content-list">
-            <div className="content-header">
-              <h3>Legal Reports</h3>
-              <div className="content-actions">
-                <button 
-                  className="btn-primary"
-                  onClick={() => {
-                    setLegalReportAction('add');
-                    setEditingId(null);
-                    setReportForm({ title: '', description: '', content: '', image: null });
-                    setImagePreview(null);
-                  }}
-                >
-                  + Add Report
-                </button>
-              </div>
-            </div>
-            {reports.length === 0 ? (
-              <p>No reports found</p>
-            ) : (
-              <div className="items-grid">
-                {reports.map(report => (
-                  <div key={report.id} className="item-card">
-                    {report.image && (
-                      <div className="item-image">
-                        <img 
-                          src={`${API_BASE}/uploads/reports/${report.image}`} 
-                          alt={report.title} 
-                        />
-                      </div>
-                    )}
-                    <div className="item-content">
-                      <h4>{report.title}</h4>
-                      <p>{report.description}</p>
-                      <div className="item-actions">
-                        <button onClick={() => handleEdit(report, 'reports')}>Edit</button>
-                        <button onClick={() => handleDelete(report.id, 'reports')}>Delete</button>
-                      </div>
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <h3>Legal Reports</h3>
+          <button 
+            className="btn-primary"
+            onClick={() => {
+              setLegalReportAction('add');
+              setEditingId(null);
+              setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
+              setImagePreview(null);
+            }}
+          >
+            + Add Report
+          </button>
+        </div>
+      </div>
+      
+      {legalReportAction === 'add' || legalReportAction === 'update' ? (
+        renderLegalReportForm()
+      ) : (
+        <>
+          {reports.length === 0 ? (
+            <p>No reports found</p>
+          ) : (
+            <div className="items-grid">
+              {reports.map(report => (
+                <div key={report.id} className="item-card">
+                  {/* Display Image if exists */}
+                  {report.image && (
+                    <div className="item-image">
+                      <img 
+                        src={`${API_BASE}/uploads/reports/${report.image}`} 
+                        alt={report.title}
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Display PDF icon if PDF exists */}
+                  {report.pdf && (
+                    <div className="pdf-indicator">
+                      <span className="pdf-icon">📄</span>
+                      <span>PDF Available</span>
+                    </div>
+                  )}
+                  
+                  <div className="item-content">
+                    <h4>{report.title}</h4>
+                    <p>{report.description}</p>
+                    
+                    {/* Action Buttons */}
+                    <div className="item-actions">
+                      {/* View PDF Button if PDF exists */}
+                      {report.pdf && (
+                        <button 
+                          className="btn-pdf"
+                          onClick={() => window.open(`${API_BASE}/uploads/reports/${report.pdf}`, '_blank')}
+                        >
+                          View PDF
+                        </button>
+                      )}
+                      
+                      <button 
+                        className="btn-edit"
+                        onClick={() => {
+                          setLegalReportAction('update');
+                          handleEdit(report, 'reports');
+                        }}
+                      >
+                        Edit
+                      </button>
+                      
+                      <button 
+                        className="btn-delete"
+                        onClick={() => handleDelete(report.id, 'reports')}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      
-      case 'careers':
-        const currentOpenings = careers.filter(career => career.status === 'active');
-        
-        return (
-          <div className="content-list">
-            <div className="content-header">
-              <h3>Career Openings</h3>
-              <div className="content-actions">
-                <select 
-                  value={careerOpeningType} 
-                  onChange={(e) => setCareerOpeningType(e.target.value)}
-                  className="dropdown-select"
-                >
-                  <option value="current">Current Openings</option>
-                  <option value="new">New Opening</option>
-                </select>
-                {careerOpeningType === 'current' && (
-                  <button 
-                    className="btn-primary"
-                    onClick={() => {
-                      setCareerOpeningType('new');
-                      setEditingId(null);
-                      setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
-                    }}
-                  >
-                    + Add Opening
-                  </button>
-                )}
-              </div>
+                </div>
+              ))}
             </div>
-            
-            {careerOpeningType === 'current' && (
-              <>
-                {currentOpenings.length === 0 ? (
-                  <p>No current openings found</p>
-                ) : (
-                  <div className="items-list">
-                    {currentOpenings.map(career => (
-                      <div key={career.id} className="item-card">
-                        <div className="item-content">
-                          <h4>{career.title}</h4>
-                          <p><strong>Location:</strong> {career.location}</p>
-                          <p><strong>Type:</strong> {career.type}</p>
-                          <p><strong>Status:</strong> {career.status}</p>
-                          <div className="item-actions">
-                            <button onClick={() => handleEdit(career, 'careers')}>Edit</button>
-                            <button onClick={() => handleDelete(career.id, 'careers')}>Delete</button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        );
+          )}
+        </>
+      )}
+    </div>
+  );
       
+case 'careers':
+  // Filter careers based on selected filter
+  const getFilteredCareers = () => {
+    switch (careerAction) {
+      case 'active':
+        return careers.filter(career => {
+          return career.is_active === true || career.is_active === 1 || career.is_active === 'true' ||
+                 career.status === 'active' || career.status === true || career.status === 1;
+        });
+      case 'inactive':
+        return careers.filter(career => {
+          return career.is_active === false || career.is_active === 0 || career.is_active === 'false' ||
+                 career.status === 'inactive' || career.status === false || career.status === 0 ||
+                 career.is_active === null || career.is_active === undefined;
+        });
+      case 'all':
+      default:
+        return careers;
+    }
+  };
+
+  const filteredCareers = getFilteredCareers();
+  
+  // FIX: Only show form when explicitly in add/update mode
+  if (careerAction === 'add' || careerAction === 'update') {
+    return renderCareerForm();
+  }
+
+  // Show the careers list for view modes (all, active, inactive)
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <h3>Career Openings</h3>
+          <button 
+            className="btn-primary"
+            onClick={() => {
+              setCareerAction('add');
+              setEditingId(null);
+              setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
+            }}
+          >
+            + Add Opening
+          </button>
+        </div>
+        
+        <div className="filter-options">
+          <select 
+            value={careerAction} 
+            onChange={(e) => {
+              const selectedValue = e.target.value;
+              setCareerAction(selectedValue);
+              setEditingId(null);
+            }}
+            className="dropdown-select"
+          >
+            <option value="all">All Openings ({careers.length})</option>
+            <option value="active">Active Openings ({careers.filter(c => {
+              return c.is_active === true || c.is_active === 1 || c.is_active === 'true' ||
+                     c.status === 'active' || c.status === true || c.status === 1;
+            }).length})</option>
+            <option value="inactive">Inactive Openings ({careers.filter(c => {
+              return c.is_active === false || c.is_active === 0 || c.is_active === 'false' ||
+                     c.status === 'inactive' || c.status === false || c.status === 0 ||
+                     c.is_active === null || c.is_active === undefined;
+            }).length})</option>
+          </select>
+        </div>
+      </div>
+      
+      {filteredCareers.length === 0 ? (
+        <div className="no-data-message">
+          <p>No career openings found for "{careerAction}" filter</p>
+        </div>
+      ) : (
+        <div className="items-list">
+          {filteredCareers.map(career => {
+            const isActive = career.is_active === true || career.is_active === 1 || career.is_active === 'true' ||
+                            career.status === 'active' || career.status === true || career.status === 1;
+            
+            return (
+              <div key={career.id} className="item-card" style={{
+                borderLeft: `4px solid ${isActive ? '#4CAF50' : '#ff9800'}`
+              }}>
+                <div className="item-content">
+                  <div className="career-header">
+                    <h4>{career.title}</h4>
+                    <span className={`status-badge ${isActive ? 'active' : 'inactive'}`}>
+                      {isActive ? 'ACTIVE' : 'INACTIVE'}
+                    </span>
+                  </div>
+                  <p><strong>Location:</strong> {career.location}</p>
+                  <p><strong>Type:</strong> {career.type}</p>
+                  <p><strong>Created:</strong> {career.created_at ? new Date(career.created_at).toLocaleDateString() : 'N/A'}</p>
+                  
+                  <div className="career-description">
+                    <strong>Description:</strong>
+                    <div dangerouslySetInnerHTML={{ __html: 
+                      career.description ? career.description.substring(0, 150) + '...' : 'No description available'
+                    }} />
+                  </div>
+                  
+                  <div className="item-actions">
+                    {/* Status Toggle Buttons */}
+                    <button 
+                      className={`status-toggle-btn ${isActive ? 'btn-inactive' : 'btn-active'}`}
+                      onClick={() => handleStatusToggle(career.id, !isActive)}
+                    >
+                      {isActive ? 'Deactivate' : 'Activate'}
+                    </button>
+                    
+                    {/* Edit Button */}
+                    <button 
+                      className="btn-edit"
+                      onClick={() => {
+                        setCareerAction('update');
+                        handleEdit(career, 'careers');
+                      }}
+                    >
+                      Edit
+                    </button>
+                    
+                    {/* Delete Button */}
+                    <button 
+                      className="btn-delete"
+                      onClick={() => handleDelete(career.id, 'careers')}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
       default:
         return null;
     }
@@ -1046,7 +1282,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setCurrentMediaType(null); 
     setCurrentOurWorkCategory(null); 
     setTeamAction('view');
-    setCareerOpeningType('current');
+    setCareerAction('current');
     setLegalReportAction('view');
   };
 
@@ -1204,14 +1440,104 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               )}
             </li>
 
-            {/* 5) Career */}
+            {/* 5) Career with dropdown in sidebar */}
             <li className={activeTab === 'careers' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('careers')}>Career</button>
+              <button
+                onClick={() => {
+                  if (openDropdown === 'careers') {
+                    setOpenDropdown(null);
+                  } else {
+                    setOpenDropdown('careers');
+                    setActiveTab('careers');
+                  }
+                }}
+              >
+                Career {openDropdown === 'careers' ? '▴' : '▾'}
+              </button>
+              {openDropdown === 'careers' && (
+                <ul className="submenu">
+                  <li>
+                    <button
+                      onClick={() => {
+                        setCareerAction('current');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Career
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setCareerAction('add');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Add Opening
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setCareerAction('update');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Update Opening
+                    </button>
+                  </li>
+                </ul>
+              )}
             </li>
 
-            {/* 6) Report */}
+            {/* 6) Report with dropdown in sidebar */}
             <li className={activeTab === 'reports' ? 'active' : ''}>
-              <button onClick={() => selectTopLevelTab('reports')}>Legal Report</button>
+              <button
+                onClick={() => {
+                  if (openDropdown === 'reports') {
+                    setOpenDropdown(null);
+                  } else {
+                    setOpenDropdown('reports');
+                    setActiveTab('reports');
+                  }
+                }}
+              >
+                Legal Report {openDropdown === 'reports' ? '▴' : '▾'}
+              </button>
+              {openDropdown === 'reports' && (
+                <ul className="submenu">
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLegalReportAction('view');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Show Legal Reports
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLegalReportAction('add');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Add Report
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        setLegalReportAction('update');
+                        setOpenDropdown(null);
+                      }}
+                    >
+                      Update Report
+                    </button>
+                  </li>
+                </ul>
+              )}
             </li>
 
             {/* 7) User management */}
@@ -1261,29 +1587,30 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         </nav>
         
         <main className="dashboard-content">
-          {currentMediaType ? (
-            <MediaManager 
-              mediaType={currentMediaType} 
-              onClose={() => setCurrentMediaType(null)}
-            />
-          ) : currentOurWorkCategory ? (
-            <OurWorkManagement 
-              category={currentOurWorkCategory}
-              onClose={() => setCurrentOurWorkCategory(null)}
-            />
-          ) : activeTab === 'users' && canManageUsers ? (
-            <UserManagement />
-          ) : activeTab === 'registrations' && canManageUsers ? (
-            <RegistrationRequests />
-          ) : activeTab === 'impact' && canManageContent ? (
-            <ImpactDataEditor />
-          ) : (
-            <>
-              {renderForm()}
-              {renderContent()}
-            </>
-          )}
-        </main>
+  {currentMediaType ? (
+    <MediaManager 
+      mediaType={currentMediaType} 
+      onClose={() => setCurrentMediaType(null)}
+    />
+  ) : currentOurWorkCategory ? (
+    <OurWorkManagement 
+      category={currentOurWorkCategory}
+      onClose={() => setCurrentOurWorkCategory(null)}
+    />
+  ) : activeTab === 'users' && canManageUsers ? (
+    <UserManagement />
+  ) : activeTab === 'registrations' && canManageUsers ? (
+    <RegistrationRequests />
+  ) : activeTab === 'impact' && canManageContent ? (
+    <ImpactDataEditor />
+  ) : (
+    <>
+      {/* FIX: renderForm() now returns null for careers, so no duplicate form */}
+      {renderForm()}
+      {renderContent()}
+    </>
+  )}
+</main>
       </div>
     </div>
   );
