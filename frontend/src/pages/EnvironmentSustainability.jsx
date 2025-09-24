@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./EnvironmentSustainability.css";
-import bannerImg from "../assets/BannerImages/fo.jpeg";
+import bannerVideo from "../assets/OurWork/Environment.mp4";
 
 const API_BASE = "http://localhost:5000/api";
 const SERVER_BASE = "http://localhost:5000";
@@ -56,7 +56,14 @@ const EnvironmentSustainability = () => {
     <div className="es-page">
       {/* Banner Section */}
       <div className="es-banner">
-        <img src={bannerImg} alt="Environment Sustainability Banner" />
+        <video
+          src={bannerVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="es-banner-video"
+        />
       </div>
 
       <section className="es-section">

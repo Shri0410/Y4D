@@ -102,8 +102,7 @@
 
 .tooltip-box {
   position: absolute;
-  /* transform: translate(-50%, -110%);  remove old transform */
-  transform: translate(0, -50%); /* keep vertical centering */
+  transform: translate(0, -50%);
   min-width: 160px;
   max-width: 240px;
   background: #fff;
@@ -153,26 +152,29 @@
   color: #666;
 }
 
-/* responsive tweaks */
-@media (max-width: 900px) {
+/* Tablet view (around 1024px) */
+@media (max-width: 1024px) {
   .map-container {
-    padding-bottom: 72%;
+    padding-bottom: 80%;
   }
-  .hotspot {
-    width: 24px;
-    height: 24px;
-  }
-  .hotspot-dot {
-    width: 10px;
-    height: 10px;
-  }
+
   .tooltip-box {
-    min-width: 140px;
-    font-size: 13px;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -120%);
+  }
+  .timeline-icon {
+    margin-left: 0px;
+  }
+  .timeline-item {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-left: 20px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .map-container {
     padding-bottom: 80%;
   }
@@ -188,5 +190,8 @@
     right: 6px;
     left: auto;
     transform: translate(0, -120%);
+  }
+  .timeline-icon {
+    margin-left: 0px;
   }
 }

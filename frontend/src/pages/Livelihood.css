@@ -3,17 +3,25 @@
   margin: 80px auto;
 }
 .lv-banner {
-  position: relative;
   width: 100%;
   height: auto;
   overflow: hidden;
-  margin-bottom: 2rem;
+  position: relative;
 }
 
-.lv-banner img {
+.lv-banner-video {
   width: 100%;
-  height: 100%;
+  height: auto;
+  display: block;
   object-fit: cover;
+  border-radius: 0;
+}
+
+.lv-banner {
+  aspect-ratio: 16 / 9;
+}
+.lv-banner-video {
+  height: 100%;
 }
 
 .lv-banner-overlay {
@@ -228,6 +236,7 @@
     font-size: 2rem;
     line-height: 34px;
     margin-bottom: 3rem;
+    margin-top: 2.5rem;
   }
   .lv-title::before {
     right: 140px;
@@ -245,6 +254,9 @@
 
   .lv-title span::after {
     left: 120px;
+  }
+  .lv-grid {
+    margin: auto 30px;
   }
 }
 

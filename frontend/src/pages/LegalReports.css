@@ -251,9 +251,16 @@ table td {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
+  .legal-page {
+    padding-bottom: 0px;
+  }
   .reports-container {
-    grid-template-columns: repeat(2, 1fr); /* 2 per row */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0px;
+  }
+  .report-card {
+    margin-bottom: 20px;
   }
 }
 

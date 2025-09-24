@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Livelihood.css";
-import bannerImg from "../assets/BannerImages/fo.jpeg";
+import bannerVideo from "../assets/OurWork/Livelihood.mp4";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
@@ -54,7 +54,14 @@ const Livelihood = () => {
     <div className="lv-page">
       {/* Banner Section */}
       <div className="lv-banner">
-        <img src={bannerImg} alt="Quality Education Banner" />
+        <video
+          src={bannerVideo} // adjust path to your video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="lv-banner-video"
+        />
       </div>
       <section className="lv-section">
         <div className="lv-container">
