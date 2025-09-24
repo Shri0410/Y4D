@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { getCareers, applyForJob } from "../services/api";
 import "./Careers.css";
+import bannerImg from "../assets/BannerImages/f.jpeg";
 
 const Careers = () => {
   const [careers, setCareers] = useState([]);
@@ -107,6 +108,9 @@ const Careers = () => {
 
   return (
     <div className="careers-page">
+      <div className="careers-banner">
+        <img src={bannerImg} alt="Careers Banner" />
+      </div>
       <section className="careers-section">
         <div className="careers-container">
           <h2 className="careers-title">

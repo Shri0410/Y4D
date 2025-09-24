@@ -150,19 +150,11 @@ const Home = () => {
           </div>
           <div className="slide-content">
             <img src={Third} alt="Slide 3" className="slide-img" />
-            <div className="overlay1">
-              <Link to="/about" className="img1-btn">
-                Know More
-              </Link>
-            </div>
+            <div className="overlay1"></div>
           </div>
           <div className="slide-content">
             <img src={Fourth} alt="Slide 4" className="slide-img" />
-            <div className="overlay2">
-              <Link to="/our-work" className="img2-btn">
-                Know More
-              </Link>
-            </div>
+            <div className="overlay2"></div>
           </div>
         </Slider>
       </section>
