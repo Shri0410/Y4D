@@ -1,9 +1,16 @@
 /* Careers Page Styles */
 .careers-page {
-  padding: 40px 20px;
+  padding: 40px 0px;
   font-family: "Poppins", sans-serif;
   background: #f9f9f9;
-  margin-top: 80px;
+  margin-top: 40px;
+}
+
+.careers-banner img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
 }
 
 .careers-section {
@@ -18,8 +25,8 @@
   font-size: 2.8rem;
   font-weight: 600;
   color: #333;
-  margin: 0px auto 30px auto;
-  padding: 0 70px; /* gives space for the side lines */
+  margin: 20px auto 30px auto;
+  padding: 0 70px;
 }
 
 /* Right top line */
@@ -173,7 +180,7 @@
 /* For laptops/desktops below 1260px */
 @media (max-width: 1260px) {
   .careers-page {
-    padding: 30px 15px;
+    padding: 30px 0px;
   }
 
   .careers-title {
@@ -342,6 +349,9 @@
   .careers-form {
     padding: 20px;
   }
+  .careers-list {
+    margin: auto 20px;
+  }
 
   .careers-title {
     font-size: 1.8rem;
@@ -367,13 +377,19 @@
 
 /* For mobile/tablets below 768px */
 @media (max-width: 768px) {
+  .careers-page {
+    padding: 40px 0px;
+  }
   .careers-title {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     line-height: 30px;
   }
 
   .careers-card h4 {
     font-size: 1.1rem;
+  }
+  .careers-list {
+    margin: auto 20px;
   }
 
   .careers-list h3 {

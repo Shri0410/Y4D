@@ -1,0 +1,143 @@
+.donate-page {
+  font-family: "Poppins", sans-serif;
+  color: #333;
+  margin-top: 80px;
+}
+
+/* Banner Section */
+.donate-banner {
+  position: relative;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.donate-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Animated Counter Section */
+
+/* Content Section */
+.donate-content {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto 50px;
+  padding: 20px;
+  gap: 40px;
+}
+
+.donate-left,
+.donate-right {
+  flex: 1;
+  min-width: 300px;
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.donate-left h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.donate-left p {
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.donate-left ul {
+  list-style: disc;
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
+/* Suggested Amount Buttons */
+.suggested-amounts {
+  margin-bottom: 20px;
+}
+
+.suggest-btn {
+  background: #f1f1f1;
+  border: none;
+  border-radius: 8px;
+  margin-right: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.suggest-btn:hover {
+  background: #007bff;
+  color: #fff;
+}
+
+/* Form */
+.donation-form label {
+  display: block;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.donation-form input,
+.donation-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.donation-form input:focus,
+.donation-form textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.submit-btn {
+  display: inline-block;
+  width: 250px;
+  padding: 12px 25px;
+  margin: 0 auto;
+  background: transparent;
+  color: #222;
+  border: 2px solid #222;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+  background: #fd6500;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .donate-content {
+    flex-direction: column;
+  }
+
+  .banner-overlay h1 {
+    font-size: 2.2rem;
+  }
+
+  .banner-overlay p {
+    font-size: 1rem;
+  }
+
+  .counter-section {
+    flex-direction: column;
+    gap: 20px;
+    margin: -30px auto 30px;
+  }
+}

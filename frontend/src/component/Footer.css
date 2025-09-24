@@ -79,6 +79,14 @@
   margin-bottom: 10px;
 }
 
+.footer-address-link {
+  text-decoration: none;
+  color: #fff;
+}
+.footer-address-link:hover {
+  text-decoration: underline;
+}
+
 /* Responsive */
 @media (min-width: 1260px) {
   .footer-links {

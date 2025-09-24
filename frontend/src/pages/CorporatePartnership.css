@@ -133,6 +133,26 @@
     margin: 30px auto;
     padding: 15px;
   }
+  .cp-title {
+    font-size: 2.2rem;
+    line-height: 34px;
+    margin-bottom: 3rem;
+    margin-top: 0px;
+  }
+  .cp-title::before {
+    right: 90px;
+  }
+  /* Right bottom line */
+  .cp-title::after {
+    right: 70px;
+  }
+  /* Left side */
+  .cp-title span::before {
+    left: 90px;
+  }
+  .cp-title span::after {
+    left: 70px;
+  }
 }
 
 @media (max-width: 768px) {
