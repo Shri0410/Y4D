@@ -3,17 +3,25 @@
   margin: 80px auto;
 }
 .hc-banner {
-  position: relative;
   width: 100%;
   height: auto;
   overflow: hidden;
-  margin-bottom: 2rem;
+  position: relative;
 }
 
-.hc-banner img {
+.hc-banner-video {
   width: 100%;
-  height: 100%;
+  height: auto;
+  display: block;
   object-fit: cover;
+  border-radius: 0;
+}
+
+.hc-banner {
+  aspect-ratio: 16 / 9;
+}
+.hc-banner-video {
+  height: 100%;
 }
 
 .hc-banner-overlay {
@@ -223,6 +231,7 @@
     font-size: 2rem;
     line-height: 34px;
     margin-bottom: 3rem;
+    margin-top: 2.5rem;
   }
   .hc-title::before {
     right: 140px;
@@ -235,6 +244,9 @@
   }
   .hc-title span::after {
     left: 120px;
+  }
+  .hc-grid {
+    margin: auto 30px;
   }
 }
 

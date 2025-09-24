@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./IDP.css";
-import bannerImg from "../assets/BannerImages/fo.jpeg";
+import bannerVideo from "../assets/OurWork/IDP.mp4";
 
 const IDP = () => {
   const [items, setItems] = useState([]);
@@ -55,8 +55,15 @@ const IDP = () => {
   return (
     <div className="idp-page-container">
       {/* Banner Section */}
-      <div className="hc-banner">
-        <img src={bannerImg} alt="Quality Education Banner" />
+      <div className="idp-banner">
+        <video
+          src={bannerVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="idp-banner-video"
+        />
       </div>
       <section className="idp-section">
         <div className="idp-container">

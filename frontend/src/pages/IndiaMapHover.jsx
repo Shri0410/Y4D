@@ -98,16 +98,6 @@ export default function IndiaMapHover({ mapUrl = map, statesData }) {
           </div>
         )}
       </div>
-
-      {/* <div className="legend">
-        <strong>Legend</strong>
-        <div className="legend-row">
-          <span className="legend-dot" /> Hotspot
-        </div>
-        <div className="hint">
-          Tip: adjust positions (top/left) in percent to fine tune placement.
-        </div>
-      </div> */}
     </div>
   );
 }

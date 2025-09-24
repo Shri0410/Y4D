@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./QualityEducation.css";
-import bannerImg from "../assets/BannerImages/f.jpeg";
+import bannerVideo from "../assets/OurWork/Education.mp4";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
@@ -10,7 +10,7 @@ const QualityEducation = () => {
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
-  const SERVER_BASE = "http://localhost:5000"; // or from env
+  const SERVER_BASE = "http://localhost:5000";
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -53,7 +53,14 @@ const QualityEducation = () => {
     <div className="qe-page">
       {/* Banner Section */}
       <div className="qe-banner">
-        <img src={bannerImg} alt="Quality Education Banner" />
+        <video
+          src={bannerVideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="qe-banner-video"
+        />
       </div>
       <section className="qe-section">
         <div className="qe-container">

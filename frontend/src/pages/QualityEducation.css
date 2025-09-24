@@ -3,17 +3,25 @@
   margin: 80px auto;
 }
 .qe-banner {
-  position: relative;
   width: 100%;
   height: auto;
   overflow: hidden;
-  margin-bottom: 2rem;
+  position: relative;
 }
 
-.qe-banner img {
+.qe-banner-video {
   width: 100%;
-  height: 100%;
+  height: auto;
+  display: block;
   object-fit: cover;
+  border-radius: 0;
+}
+
+.qe-banner {
+  aspect-ratio: 16 / 9;
+}
+.qe-banner-video {
+  height: 100%;
 }
 
 .qe-banner-overlay {
@@ -215,6 +223,7 @@
     font-size: 2rem;
     line-height: 34px;
     margin-bottom: 3rem;
+    margin-top: 2.5rem;
   }
   .qe-title::before {
     right: 90px;
@@ -232,6 +241,9 @@
 
   .qe-title span::after {
     left: 70px;
+  }
+  .qe-grid {
+    margin: auto 30px;
   }
 }
 
