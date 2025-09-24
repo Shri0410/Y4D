@@ -2,28 +2,41 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const db = require("../config/database");
+const fs = require("fs");
 
 const router = express.Router();
 
-// Configure multer for file uploads
+// Configure multer for file uploads (both image and PDF)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/reports/");
+    const uploadDir = "uploads/reports/";
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     cb(
       null,
-      Date.now() +
-        "-" +
-        Math.round(Math.random() * 1e9) +
-        path.extname(file.originalname)
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
     );
   },
 });
 
+const fileFilter = (req, file, cb) => {
+  // Allow images and PDFs
+  if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only images and PDF files are allowed'), false);
+  }
+};
+
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
 // Get all reports
@@ -52,58 +65,120 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Create report
-router.post("/", upload.single("image"), async (req, res) => {
+// Create report - UPDATED: Handle multiple files
+router.post("/", upload.fields([{ name: 'image' }, { name: 'pdf' }]), async (req, res) => {
   try {
     const { title, description, content } = req.body;
-    const image = req.file ? req.file.filename : null;
+    
+    // Handle uploaded files
+    const image = req.files && req.files['image'] ? req.files['image'][0].filename : null;
+    const pdf = req.files && req.files['pdf'] ? req.files['pdf'][0].filename : null;
+
     const [result] = await db.query(
-      "INSERT INTO reports (title, description, content, image) VALUES (?, ?, ?, ?)",
-      [title, description, content, image]
+      "INSERT INTO reports (title, description, content, image, pdf) VALUES (?, ?, ?, ?, ?)",
+      [title, description, content, image, pdf]
     );
+    
     res.json({
       id: result.insertId,
       message: "Report created successfully",
-      report: { id: result.insertId, title, description, content, image },
+      report: { 
+        id: result.insertId, 
+        title, 
+        description, 
+        content, 
+        image, 
+        pdf 
+      },
     });
   } catch (err) {
+    console.error("Error creating report:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Update report
-router.put("/:id", upload.single("image"), async (req, res) => {
+// Update report - UPDATED: Handle multiple files
+router.put("/:id", upload.fields([{ name: 'image' }, { name: 'pdf' }]), async (req, res) => {
   try {
     const { id } = req.params;
     const { title, description, content } = req.body;
 
+    // Get current report data
     const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [id]);
     if (rows.length === 0)
       return res.status(404).json({ error: "Report not found" });
 
-    let image = rows[0].image;
-    if (req.file) image = req.file.filename;
+    const currentReport = rows[0];
+    
+    // Handle uploaded files
+    let image = currentReport.image;
+    let pdf = currentReport.pdf;
+
+    if (req.files && req.files['image']) {
+      // Delete old image if exists
+      if (currentReport.image) {
+        const oldImagePath = path.join('uploads/reports/', currentReport.image);
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      image = req.files['image'][0].filename;
+    }
+
+    if (req.files && req.files['pdf']) {
+      // Delete old PDF if exists
+      if (currentReport.pdf) {
+        const oldPdfPath = path.join('uploads/reports/', currentReport.pdf);
+        if (fs.existsSync(oldPdfPath)) {
+          fs.unlinkSync(oldPdfPath);
+        }
+      }
+      pdf = req.files['pdf'][0].filename;
+    }
 
     await db.query(
-      "UPDATE reports SET title = ?, description = ?, content = ?, image = ? WHERE id = ?",
-      [title, description, content, image, id]
+      "UPDATE reports SET title = ?, description = ?, content = ?, image = ?, pdf = ? WHERE id = ?",
+      [title, description, content, image, pdf, id]
     );
+    
     res.json({ message: "Report updated successfully" });
   } catch (err) {
+    console.error("Error updating report:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Delete report
+// Delete report - UPDATED: Delete associated files
 router.delete("/:id", async (req, res) => {
   try {
-    const [result] = await db.query("DELETE FROM reports WHERE id = ?", [
-      req.params.id,
-    ]);
-    if (result.affectedRows === 0)
+    // First get the report to delete associated files
+    const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [req.params.id]);
+    if (rows.length === 0)
       return res.status(404).json({ error: "Report not found" });
+
+    const report = rows[0];
+
+    // Delete associated files
+    if (report.image) {
+      const imagePath = path.join('uploads/reports/', report.image);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    if (report.pdf) {
+      const pdfPath = path.join('uploads/reports/', report.pdf);
+      if (fs.existsSync(pdfPath)) {
+        fs.unlinkSync(pdfPath);
+      }
+    }
+
+    // Delete from database
+    const [result] = await db.query("DELETE FROM reports WHERE id = ?", [req.params.id]);
+    
     res.json({ message: "Report deleted successfully" });
   } catch (err) {
+    console.error("Error deleting report:", err);
     res.status(500).json({ error: err.message });
   }
 });
