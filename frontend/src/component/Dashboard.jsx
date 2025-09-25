@@ -983,9 +983,7 @@ const handleStatusToggle = async (id, newStatus) => {
     }
 
     if (activeTab === 'reports') {
-      if (legalReportAction === 'add' || legalReportAction === 'update') {
-        return renderLegalReportForm();
-      }
+      return null;
     }
 
     switch (activeTab) {

@@ -86,21 +86,21 @@ const LegalReports = () => {
                 <div className="report-image">
                   {report.image ? (
                     <img
-                      src={`${BACKEND_URL}/uploads/reports/${report.image}`}
+                      src={`${BACKEND_URL}/api/uploads/reports/${report.image}`}
                       alt={report.title}
                     />
                   ) : (
                     <div className="no-image">No Image</div>
                   )}
                 </div>
-                <div className="report-content">
+                <div className="report-content-LR">
                   <h3>{report.title}</h3>
                   <p>{report.description}</p>
                 </div>
                 <div className="report-actions">
                   {report.image && (
                     <a
-                      href={`${BACKEND_URL}/uploads/reports/${report.image}`}
+                      href={`${BACKEND_URL}/api/uploads/reports/${report.image}`}
                       download
                       className="download-btn"
                     >

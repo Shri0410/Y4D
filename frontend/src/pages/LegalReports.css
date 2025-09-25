@@ -186,12 +186,12 @@ table td {
 
 /* ---- Content ---- */
 
-.report-content h3 {
+.report-content-LR h3 {
   margin: 10px 0 6px 0;
   font-size: 18px;
 }
 
-.report-content p {
+.report-content-LR p {
   font-size: 14px;
   color: #555;
 }
