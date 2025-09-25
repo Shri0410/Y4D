@@ -24,27 +24,6 @@ const Newsletters = () => {
     setLoading(false);
   };
 
-  const handleDownload = async (newsletter) => {
-    try {
-      // Create a direct download link
-      const fileUrl = `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`;
-
-      // Create a temporary anchor element to trigger download
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = newsletter.file_path;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Optional: Open in new tab instead of downloading
-      // window.open(fileUrl, '_blank');
-    } catch (error) {
-      console.error("Error downloading newsletter:", error);
-      alert("Failed to download newsletter. Please try again.");
-    }
-  };
-
   const handleView = (newsletter) => {
     // Open PDF in new tab
     window.open(
@@ -78,12 +57,14 @@ const Newsletters = () => {
                   {newsletter.description}
                 </p>
                 <div className="newsletter-actions">
-                  <button
-                    onClick={() => handleDownload(newsletter)}
+                  <a
+                    href={`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="download-btn"
                   >
                     <i className="fas fa-download"></i> Download
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

@@ -88,9 +88,6 @@ const Documentaries = () => {
                       Duration: {doc.duration}
                     </span>
                   )}
-                  <span className="doc-date">
-                    {new Date(doc.published_date).toLocaleDateString("en-US")}
-                  </span>
                 </div>
                 <button onClick={() => openDocModal(doc)} className="btn-watch">
                   Watch Documentary

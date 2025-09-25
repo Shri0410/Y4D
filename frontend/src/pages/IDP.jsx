@@ -12,12 +12,17 @@ const IDP = () => {
   const API_BASE = "http://localhost:5000/api";
   const SERVER_BASE = "http://localhost:5000";
 
-  const getFullUrl = (path) => {
+  const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
-  };
 
+    // Remove any leading slashes just in case
+    const cleanPath = path.replace(
+      /^\/?uploads\/our-work\/integrated_development\//,
+      ""
+    );
+    return `${SERVER_BASE}/api/uploads/our-work/integrated_development/${cleanPath}`;
+  };
   useEffect(() => {
     fetchItems();
   }, []);
@@ -83,7 +88,7 @@ const IDP = () => {
                     {item.image_url && (
                       <div className="idp-card-image">
                         <img
-                          src={getFullUrl(item.image_url)}
+                          src={getImageUrl(item.image_url)}
                           alt={item.title}
                         />
 

@@ -3,7 +3,7 @@
 .india-map-section {
   width: 100%;
   max-width: 1300px;
-  margin: 0 auto 60px;
+  margin: 0 auto;
   padding: 0 15px;
   text-align: center;
 }
@@ -28,6 +28,60 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 15px;
+}
+
+.rp-section {
+  background: white;
+  padding: 0px 20px;
+  text-align: center;
+}
+
+.rpi-title {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 2.8rem;
+  color: #2c3e50;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.rpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.rpi-item {
+  text-align: center;
+}
+
+.rpi-number {
+  display: flex;
+  justify-content: center;
+  font-size: 60px;
+  font-weight: 700;
+  color: #f26622;
+}
+
+.rpi-subtitle {
+  font-family: "Poppins", Sans-serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.rpi-text {
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000;
+  line-height: 18px;
+  max-width: 250px;
+  margin: 0 auto;
 }
 
 /* Titles */
@@ -167,20 +221,185 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
 }
 
+.rp-impact-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 30px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.rp-impact-title::before {
+  content: "";
+  position: absolute;
+  right: 390px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Right bottom line */
+.rp-impact-title::after {
+  content: "";
+  position: absolute;
+  right: 370px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Left side */
+.rp-impact-title span::before {
+  content: "";
+  position: absolute;
+  left: 390px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+.rp-impact-title span::after {
+  content: "";
+  position: absolute;
+  left: 370px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+.rp-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 20px auto 0px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.rp-title::before {
+  content: "";
+  position: absolute;
+  right: 290px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Right bottom line */
+.rp-title::after {
+  content: "";
+  position: absolute;
+  right: 270px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Left side */
+.rp-title span::before {
+  content: "";
+  position: absolute;
+  left: 290px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+.rp-title span::after {
+  content: "";
+  position: absolute;
+  left: 270px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+.rpt-title {
+  position: relative;
+  text-align: center;
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0px auto 0px auto;
+  padding: 0 70px;
+}
+
+/* Right top line */
+.rpt-title::before {
+  content: "";
+  position: absolute;
+  right: 290px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Right bottom line */
+.rpt-title::after {
+  content: "";
+  position: absolute;
+  right: 270px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Left side */
+.rpt-title span::before {
+  content: "";
+  position: absolute;
+  left: 290px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+.rpt-title span::after {
+  content: "";
+  position: absolute;
+  left: 270px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
 /* -------- Responsive Styles -------- */
 
-/* Tablets (≤1024px) */
 @media (max-width: 1024px) {
+  .rpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
   .timeline-wrapper {
     margin-top: 40px;
     padding: 20px 10px;
   }
 
   .timeline-items {
-    flex-wrap: wrap; /* allow wrap */
+    flex-wrap: wrap;
     height: auto;
-    flex-direction: column; /* stack vertically */
-    gap: 60px; /* more space between items */
+    flex-direction: column;
+    gap: 60px;
   }
 
   .timeline-item {
@@ -192,7 +411,6 @@
     padding: 0;
   }
 
-  /* Dot on the left vertically */
   .timeline-dot {
     position: relative;
     top: unset;
@@ -202,7 +420,6 @@
     margin-top: 8px;
   }
 
-  /* Top/Bottom differences no longer needed — unify content */
   .timeline-item.top .timeline-content,
   .timeline-item.bottom .timeline-content {
     position: relative;
@@ -215,7 +432,6 @@
     margin-left: 8px;
   }
 
-  /* Vertical line */
   .timeline-line {
     position: absolute;
     top: 0;
@@ -231,6 +447,54 @@
       #febd2c 55%,
       #0f6741 85%
     );
+  }
+
+  .rp-impact-title {
+    font-size: 2rem;
+  }
+  .rp-impact-title::before {
+    right: 200px;
+  }
+  .rp-impact-title::after {
+    right: 180px;
+  }
+  .rp-impact-title span::before {
+    left: 200px;
+  }
+  .rp-impact-title span::after {
+    left: 180px;
+  }
+
+  .rp-title {
+    font-size: 2rem;
+  }
+  .rp-title::before {
+    right: 120px;
+  }
+  .rp-title::after {
+    right: 100px;
+  }
+  .rp-title span::before {
+    left: 120px;
+  }
+  .rp-title span::after {
+    left: 100px;
+  }
+
+  .rpt-title {
+    font-size: 2rem;
+  }
+  .rpt-title::before {
+    right: 120px;
+  }
+  .rpt-title::after {
+    right: 100px;
+  }
+  .rpt-title span::before {
+    left: 120px;
+  }
+  .rpt-title span::after {
+    left: 100px;
   }
 }
 
@@ -253,10 +517,10 @@
 
   .timeline-items {
     display: flex;
-    flex-direction: column; /* stack items vertically */
+    flex-direction: column;
     align-items: flex-start;
     position: relative;
-    gap: 60px; /* space between items */
+    gap: 60px;
   }
 
   .timeline-item {
@@ -323,5 +587,67 @@
   .timeline-description {
     font-size: 0.85rem;
     line-height: 1.35;
+  }
+
+  .rpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rpi-number {
+    font-size: 48px;
+  }
+
+  .rp-impact-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .rp-impact-title::before {
+    right: 40px;
+  }
+  .rp-impact-title::after {
+    right: 20px;
+  }
+  .rp-impact-title span::before {
+    left: 40px;
+  }
+  .rp-impact-title span::after {
+    left: 20px;
+  }
+
+  .rp-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .rp-title::before {
+    right: 40px;
+  }
+  .rp-title::after {
+    right: 20px;
+  }
+  .rp-title span::before {
+    left: 40px;
+  }
+  .rp-title span::after {
+    left: 20px;
+  }
+
+  .rpt-title {
+    font-size: 1.8rem;
+    line-height: 34px;
+    margin-bottom: 2rem;
+  }
+  .rpt-title::before {
+    right: 40px;
+  }
+  .rpt-title::after {
+    right: 20px;
+  }
+  .rpt-title span::before {
+    left: 40px;
+  }
+  .rpt-title span::after {
+    left: 20px;
   }
 }

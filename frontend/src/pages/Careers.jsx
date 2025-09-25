@@ -88,7 +88,7 @@ const Careers = () => {
       console.error("Error applying for job:", error);
       alert("Something went wrong. Please try again later.");
     } finally {
-      setIsSubmitting(false); // remove loading
+      setIsSubmitting(false);
     }
   };
 
@@ -175,7 +175,6 @@ const Careers = () => {
             </div>
           ) : (
             <div className="careers-list">
-              <h3>Current Openings</h3>
               {careers.map((career) => (
                 <div key={career.id} className="careers-card">
                   <h4>{career.title}</h4>
