@@ -61,7 +61,7 @@ const Stories = () => {
                   {story.image && (
                     <div className="st-card-image">
                       <img
-                        src={`${SERVER_BASE}/uploads/media/stories/${story.image}`}
+                        src={`${SERVER_BASE}/api/uploads/media/stories/${story.image}`}
                         alt={story.title}
                         onError={(e) => {
                           e.target.src = "/placeholder-image.jpg";
@@ -111,7 +111,7 @@ const Stories = () => {
               {selectedStory.image && (
                 <div className="st-modal-image">
                   <img
-                    src={`${SERVER_BASE}/uploads/media/stories/${selectedStory.image}`}
+                    src={`${SERVER_BASE}/api/uploads/media/stories/${selectedStory.image}`}
                     alt={selectedStory.title}
                   />
                 </div>
