@@ -116,13 +116,7 @@ const Stories = () => {
                   />
                 </div>
               )}
-              <div className="st-modal-meta">
-                <span>By {selectedStory.author}</span> |{" "}
-                <span>
-                  Published:{" "}
-                  {new Date(selectedStory.published_date).toLocaleDateString()}
-                </span>
-              </div>
+
               <div className="st-full-content">
                 {selectedStory.content.split("\n").map((paragraph, index) => (
                   <p key={index}>{paragraph}</p>

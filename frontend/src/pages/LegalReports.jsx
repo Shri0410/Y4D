@@ -98,14 +98,17 @@ const LegalReports = () => {
                   <p>{report.description}</p>
                 </div>
                 <div className="report-actions">
-                  {report.image && (
+                  {report.pdf ? (
                     <a
-                      href={`${BACKEND_URL}/api/uploads/reports/${report.image}`}
-                      download
+                      href={`${BACKEND_URL}/api/uploads/reports/${report.pdf}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="download-btn"
                     >
                       Download
                     </a>
+                  ) : (
+                    <span className="no-pdf">No PDF</span>
                   )}
                 </div>
               </div>

@@ -148,18 +148,19 @@ const OurTeam = () => {
               Read More
             </Link>
           </div>
-          <div className="useful-card">
-            <h3>Career</h3>
-            <p>Explore exciting opportunities to grow with us.</p>
-            <Link to="/career" className="use-btn">
-              Apply Now
-            </Link>
-          </div>
+
           <div className="useful-card">
             <h3>Legal Status</h3>
             <p>Know our compliance, certifications, and registrations.</p>
             <Link to="/legalstatus" className="use-btn">
               View Details
+            </Link>
+          </div>
+          <div className="useful-card">
+            <h3>Career</h3>
+            <p>Explore exciting opportunities to grow with us.</p>
+            <Link to="/career" className="use-btn">
+              Apply Now
             </Link>
           </div>
         </div>

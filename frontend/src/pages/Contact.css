@@ -2,7 +2,7 @@
   font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
-  margin: auto;
+  margin: 40px auto auto auto;
   color: #333;
 }
 
@@ -10,8 +10,7 @@
 .contactus-section {
   background: #fff;
   padding: 2rem;
-  margin-top: 80px;
-  margin-bottom: 2rem;
+
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
@@ -414,6 +413,50 @@
   color: #555;
 }
 
+/* Office Container */
+.office-container {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* Left side - office list */
+.new-office-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.new-office-list .office-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.new-office-list .office-item:hover,
+.new-office-list .office-item.active {
+  background: #f9fcff;
+  border-color: #0077cc;
+}
+
+/* Right side - Map */
+.office-map {
+  flex: 2;
+  height: 350px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.office-map:hover {
+  transform: scale(1.01);
+}
+
 /* Responsive */
 
 @media (max-width: 1024px) {
@@ -580,5 +623,12 @@
   }
   .contactus-enquiry {
     margin-top: 80px;
+  }
+
+  .office-container {
+    flex-direction: column;
+  }
+  .office-map {
+    height: 250px;
   }
 }

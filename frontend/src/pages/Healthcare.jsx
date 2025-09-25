@@ -15,7 +15,10 @@ const Healthcare = () => {
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+    // Remove any leading slashes just in case
+    const cleanPath = path.replace(/^\/?uploads\/our-work\/healthcare\//, "");
+    return `${SERVER_BASE}/api/uploads/our-work/healthcare/${cleanPath}`;
   };
 
   useEffect(() => {

@@ -15,7 +15,10 @@ const Livelihood = () => {
   const getImageUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http")) return path;
-    return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+    // Remove any leading slashes just in case
+    const cleanPath = path.replace(/^\/?uploads\/our-work\/livelihood\//, "");
+    return `${SERVER_BASE}/api/uploads/our-work/livelihood/${cleanPath}`;
   };
 
   useEffect(() => {
@@ -55,7 +58,7 @@ const Livelihood = () => {
       {/* Banner Section */}
       <div className="lv-banner">
         <video
-          src={bannerVideo} // adjust path to your video
+          src={bannerVideo}
           autoPlay
           muted
           loop
