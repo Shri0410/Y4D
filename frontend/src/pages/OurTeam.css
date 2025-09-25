@@ -341,13 +341,6 @@
   .banner {
     height: auto;
   }
-  .team-card img {
-    width: 200px;
-    height: 200px;
-  }
-  .team-card {
-    max-width: calc(25% - 30px);
-  }
 
   .trustee-title {
     font-size: 1.8rem;

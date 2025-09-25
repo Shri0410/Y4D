@@ -179,6 +179,130 @@
   color: #222;
 }
 
+.education-extra-text-full {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
+  background: #f0f7ff;
+  border: 2px solid #38b6e9;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.education-extra-text-full h4 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #222;
+}
+
+.education-extra-text-full p,
+.education-extra-text-full li {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.education-extra-text-full ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.livelihood-extra-text-full {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
+  background: #febb2c13;
+  border: 2px solid #febd2c;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.livelihood-extra-text-full h4 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #222;
+}
+
+.livelihood-extra-text-full p,
+.livelihood-extra-text-full li {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.livelihood-extra-text-full ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.healthcare-extra-text-full {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
+  background: #e7373413;
+  border: 2px solid #e73834;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.healthcare-extra-text-full h4 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #222;
+}
+
+.healthcare-extra-text-full p,
+.healthcare-extra-text-full li {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.healthcare-extra-text-full ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.environment-extra-text-full {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
+  background: #3fb34916;
+  border: 2px solid #3fb349;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.environment-extra-text-full h4 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #222;
+}
+
+.environment-extra-text-full p,
+.environment-extra-text-full li {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.environment-extra-text-full ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
 /* Tablet view */
 @media (max-width: 1024px) {
   .work-banner img {
@@ -240,5 +364,55 @@
   .work-text p {
     font-size: 14px;
     line-height: 1.6;
+  }
+
+  .education-extra-text-full {
+    padding: 15px;
+  }
+
+  .education-extra-text-full h4 {
+    font-size: 18px;
+  }
+
+  .education-extra-text-full p,
+  .education-extra-text-full li {
+    font-size: 14px;
+  }
+  .livelihood-extra-text-full {
+    padding: 15px;
+  }
+
+  .livelihood-extra-text-full h4 {
+    font-size: 18px;
+  }
+
+  .livelihood-extra-text-full p,
+  .livelihood-extra-text-full li {
+    font-size: 14px;
+  }
+
+  .healthcare-extra-text-full {
+    padding: 15px;
+  }
+
+  .healthcare-extra-text-full h4 {
+    font-size: 18px;
+  }
+
+  .healthcare-extra-text-full p,
+  .healthcare-extra-text-full li {
+    font-size: 14px;
+  }
+  .environment-extra-text-full {
+    padding: 15px;
+  }
+
+  .environment-extra-text-full h4 {
+    font-size: 18px;
+  }
+
+  .environment-extra-text-full p,
+  .environment-extra-text-full li {
+    font-size: 14px;
   }
 }
