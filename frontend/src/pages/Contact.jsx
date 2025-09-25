@@ -145,6 +145,35 @@ const Contact = () => {
     );
   };
 
+  const offices = [
+    {
+      name: "Pune Office",
+      address: "3rd Floor, The Onyx, Near Euro School, Wakad, Pune 411057",
+      mapsUrl:
+        "https://www.google.com/maps/search/3rd+Floor,+The+Onyx,+Near+Euro+School,+Wakad,+Pune+411057/@18.5966469,73.7434204,14z",
+      iframeSrc:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3783.8386706901415!2d73.7434204!3d18.5966469!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2bf5f3f70b3bb%3A0x64cb7880da85d163!2sThe%20Onyx!5e0!3m2!1sen!2sin!4v1695822312345!5m2!1sen!2sin",
+    },
+    {
+      name: "Mumbai Office",
+      address: "305 A, Janmabhoomi Chambers, Ballard Estate, Mumbai-38",
+      mapsUrl:
+        "https://www.google.com/maps/place/Janmabhoomi+Chambers,+Ballard+Estate,+Mumbai+400038",
+      iframeSrc:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3772.848695864146!2d72.840918!3d18.940747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ce1fdd4c85db%3A0x64f3cf123456abcd!2sJanmabhoomi%20Chambers!5e0!3m2!1sen!2sin!4v1695822312346!5m2!1sen!2sin",
+    },
+    {
+      name: "USA Office",
+      address: "100 Bellis Ct., Bridgewater, New Jersey, 08807",
+      mapsUrl:
+        "https://www.google.com/maps/place/100+Bellis+Ct,+Bridgewater,+New+Jersey+08807,+USA",
+      iframeSrc:
+        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3046.161286207768!2d-74.611813!3d40.593017!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3dcb3f45f9bbf%3A0x64f3cf123456abcd!2s100%20Bellis%20Ct%2C%20Bridgewater%2C%20NJ%2008807%2C%20USA!5e0!3m2!1sen!2sin!4v1695822312347!5m2!1sen!2sin",
+    },
+  ];
+
+  const [selectedOffice, setSelectedOffice] = useState(offices[0]);
+
   return (
     <div className="contactus-page">
       {/* Enquiry Form */}
@@ -229,45 +258,40 @@ const Contact = () => {
           </h2>
         </div>
 
-        <div className="office-list">
-          <a
-            href="https://www.google.com/maps/search/3rd+Floor,+The+Onyx,+Near+Euro+School,+Wakad,+Pune+411057/@18.5966469,73.7434204,14z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI1MDkxNS4wIKXMDSoASAFQAw%3D%3D"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="office-item"
-          >
-            {/* <span className="office-icon">📍</span> */}
-            <div>
-              <h4>Pune Office</h4>
-              <p>3rd Floor, The Onyx, Near Euro School, Wakad, Pune 411057</p>
-            </div>
-          </a>
+        <div className="office-container">
+          {/* Left side - addresses */}
+          <div className="office-list new-office-list">
+            {offices.map((office, index) => (
+              <div
+                key={index}
+                className={`office-item ${
+                  selectedOffice.name === office.name ? "active" : ""
+                }`}
+                onClick={() => setSelectedOffice(office)}
+              >
+                <div>
+                  <h4>{office.name}</h4>
+                  <p>{office.address}</p>
+                </div>
+              </div>
+            ))}
+          </div>
 
-          <a
-            href="https://www.google.com/maps/place/Janmabhoomi+Chambers,+Ballard+Estate,+Mumbai+400038"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="office-item"
+          {/* Right side - Map */}
+          <div
+            className="office-map"
+            onClick={() => window.open(selectedOffice.mapsUrl, "_blank")}
           >
-            {/* <span className="office-icon">🏢</span> */}
-            <div>
-              <h4>Mumbai Office</h4>
-              <p>305 A, Janmabhoomi Chambers, Ballard Estate, Mumbai-38</p>
-            </div>
-          </a>
-
-          <a
-            href="https://www.google.com/maps/place/100+Bellis+Ct,+Bridgewater,+New+Jersey+08807,+USA"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="office-item"
-          >
-            {/* <span className="office-icon">🌎</span> */}
-            <div>
-              <h4>USA Office</h4>
-              <p>100 Bellis Ct., Bridgewater, New Jersey, 08807</p>
-            </div>
-          </a>
+            <iframe
+              src={selectedOffice.iframeSrc}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen=""
+              loading="lazy"
+              title="office-map"
+            ></iframe>
+          </div>
         </div>
       </section>
     </div>

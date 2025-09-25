@@ -1,9 +1,51 @@
-import React from "react";
+// src/pages/ReachPresence.jsx
+import React, { useState, useEffect } from "react";
 import "./ReachPresence.css";
 import IndiaMapHover from "./IndiaMapHover";
 import map from "../assets/map.png";
 
+import Counter from "../component/Counter";
+import {
+  getMentors,
+  getManagement,
+  getReports,
+  getImpactData,
+} from "../services/api";
+
 const ReachPresence = () => {
+  const [teamCount, setTeamCount] = useState(0);
+  const [reportsCount, setReportsCount] = useState(0);
+  const [impact, setImpact] = useState({
+    beneficiaries: 0,
+    states: 0,
+    projects: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchHomeData = async () => {
+      try {
+        const [mentorsData, managementData, reportsData, impactData] =
+          await Promise.all([
+            getMentors(),
+            getManagement(),
+            getReports(),
+            getImpactData(),
+          ]);
+
+        setTeamCount(mentorsData.length + managementData.length);
+        setReportsCount(reportsData.length);
+        setImpact(impactData);
+      } catch (err) {
+        console.error("Error fetching home data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomeData();
+  }, []);
+
   const timelineData = [
     {
       year: "2015",
@@ -57,30 +99,77 @@ const ReachPresence = () => {
     },
   ];
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="page-container">
-      {/* --- Added India Map Section at top --- */}
+      {/* Our Impact Section */}
+      <section className="rp-section">
+        <div className="rp-container">
+          <h2 className="rp-impact-title">
+            Our Impact<span></span>
+          </h2>
+          <div className="rpi-grid">
+            <div className="rpi-item">
+              <h3 className="rpi-number">
+                <Counter end={impact.beneficiaries} />
+                L+
+              </h3>
+              <p className="rpi-subtitle">Beneficiaries</p>
+              <p className="rpi-text">
+                Children and their families are impacted every year
+              </p>
+            </div>
+            <div className="rpi-item">
+              <h3 className="rpi-number">
+                <Counter end={impact.states} />+
+              </h3>
+              <p className="rpi-subtitle">States</p>
+              <p className="rpi-text">
+                Active presence across more than 20 states and underserved
+                communities
+              </p>
+            </div>
+            <div className="rpi-item">
+              <h3 className="rpi-number">
+                <Counter end={impact.projects} />+
+              </h3>
+              <p className="rpi-subtitle">Projects</p>
+              <p className="rpi-text">
+                Projects in education, healthcare, and women empowerment
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* India Map Section */}
       <section className="india-map-section">
-        <h2 className="section-title">Our Reach Across India</h2>
+        <h2 className="rp-title">
+          Our Reach Across India<span></span>
+        </h2>
         <IndiaMapHover mapUrl={map} />
       </section>
 
-      {/* --- Existing Reach & Presence Timeline --- */}
+      {/* Reach & Presence Timeline */}
       <section className="rp-section">
         <div className="container_RP">
-          <h2 className="section-title">Reach and Presence</h2>
+          <h2 className="rpt-title">
+            Reach and Presence<span></span>
+          </h2>
           <p className="timeline-subtitle">A decade of empowerment</p>
 
           <div className="timeline-wrapper">
             <div className="timeline-items">
               {timelineData.map((item, index) => {
-                const isTop = index % 2 === 0; // alternate: even => top, odd => bottom
+                const isTop = index % 2 === 0;
                 return (
                   <div
                     key={index}
                     className={`timeline-item ${isTop ? "top" : "bottom"}`}
                   >
-                    {/* For top items: content above the center dot */}
                     {isTop ? (
                       <>
                         <div className="timeline-content">
@@ -94,7 +183,6 @@ const ReachPresence = () => {
                         <div className="timeline-dot" aria-hidden="true" />
                       </>
                     ) : (
-                      /* For bottom items: dot first, content below the center dot */
                       <>
                         <div className="timeline-dot" aria-hidden="true" />
                         <div className="timeline-content">
@@ -111,8 +199,6 @@ const ReachPresence = () => {
                 );
               })}
             </div>
-
-            {/* center line (stretches across) */}
             <div className="timeline-line" aria-hidden="true" />
           </div>
         </div>

@@ -7,10 +7,16 @@ import bannerVideo from "../assets/OurWork/Environment.mp4";
 const API_BASE = "http://localhost:5000/api";
 const SERVER_BASE = "http://localhost:5000";
 
-const getFullUrl = (path) => {
+const getImageUrl = (path) => {
   if (!path) return "";
   if (path.startsWith("http")) return path;
-  return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  // Remove any leading slashes just in case
+  const cleanPath = path.replace(
+    /^\/?uploads\/our-work\/environment_sustainability\//,
+    ""
+  );
+  return `${SERVER_BASE}/api/uploads/our-work/environment_sustainability/${cleanPath}`;
 };
 
 const EnvironmentSustainability = () => {
@@ -84,7 +90,7 @@ const EnvironmentSustainability = () => {
                 <div key={item.id} className="es-card">
                   {item.image_url && (
                     <div className="es-card-image">
-                      <img src={getFullUrl(item.image_url)} alt={item.title} />
+                      <img src={getImageUrl(item.image_url)} alt={item.title} />
                       {item.organization && (
                         <div className="es-org-badge">{item.organization}</div>
                       )}
