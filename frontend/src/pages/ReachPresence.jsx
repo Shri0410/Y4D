@@ -62,9 +62,6 @@ const ReachPresence = () => {
       {/* --- Added India Map Section at top --- */}
       <section className="india-map-section">
         <h2 className="section-title">Our Reach Across India</h2>
-        <p className="timeline-subtitle">
-          Hover over the states to see projects completed
-        </p>
         <IndiaMapHover mapUrl={map} />
       </section>
 
