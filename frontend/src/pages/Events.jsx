@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Events.css"; // new CSS file
 
 const API_BASE = "http://localhost:5000";
-const UPLOADS_BASE = `${API_BASE}/uploads`;
+const UPLOADS_BASE = `${API_BASE}/api/uploads`;
 
 const Events = () => {
   const [events, setEvents] = useState([]);

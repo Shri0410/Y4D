@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import "./Blogs.css";
 
 const API_BASE = "http://localhost:5000/api";
-const UPLOADS_BASE = "http://localhost:5000/uploads"; // fixed image base
+const UPLOADS_BASE = "http://localhost:5000/api/uploads";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);

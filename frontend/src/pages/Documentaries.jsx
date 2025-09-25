@@ -9,7 +9,7 @@ const Documentaries = () => {
   const [selectedDoc, setSelectedDoc] = useState(null);
 
   const API_BASE = "http://localhost:5000/api";
-  const UPLOADS_BASE = "http://localhost:5000/uploads"; // fixed base for images
+  const UPLOADS_BASE = "http://localhost:5000/api/uploads";
 
   useEffect(() => {
     fetchDocumentaries();
