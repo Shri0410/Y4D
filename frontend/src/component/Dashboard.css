@@ -16,7 +16,7 @@
 }
 
 .dashboard-sidebar {
-  width: 250px;
+  width: 270px;
   background-color: #34495e;
   padding: 1rem 0;
 }
@@ -47,8 +47,8 @@
 }
 
 .dashboard-sidebar li.active button {
+  font-size: 14px;
   background-color: #2c3e50;
-  font-weight: bold;
 }
 
 .dashboard-content {
@@ -330,9 +330,9 @@
   cursor: pointer;
   color: #666;
 }
-
 .close-btn:hover {
-  color: #333;
+  background-color: #f4f6fa;
+  color: black;
 }
 
 /* Registration Requests Styles */
@@ -846,7 +846,7 @@
   align-self: start;
   height: 100vh;
   overflow-y: auto;
-  background: #1f2533;          /* dark sidebar */
+  background: #1f2533;          
   padding: 12px;
 }
 
@@ -1214,7 +1214,7 @@
 .dashboard-sidebar .submenu button {
   width: 100%;
   text-align: left;
-  padding: 12px 20px;
+  padding: 10px 20px;
   background: transparent;
   border: none;
   color: #ecf0f1;
@@ -2035,8 +2035,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  background-color: #f9f9f9;
-  border-left: 3px solid #007bff;
 }
 
 .media-submenu li {
@@ -2134,9 +2132,8 @@
 }
 
 .dashboard-sidebar .submenu button {
-  padding: 12px 20px;
+  padding: 10px 20px;
   border: none;
-  background: transparent;
   color: #ecf0f1;
   width: 100%;
   text-align: left;
@@ -2361,6 +2358,7 @@
 
 .media-type-label,
 .interventions-type-label {
+  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2371,8 +2369,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  background-color: #f9f9f9;
-  border-left: 3px solid #007bff;
 }
 
 .media-submenu li,
@@ -2407,7 +2403,6 @@
 
 .media-submenu button.active-sub,
 .interventions-submenu button.active-sub {
-  background-color: #007bff;
   color: white;
 }
 

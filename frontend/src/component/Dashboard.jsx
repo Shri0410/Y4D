@@ -496,13 +496,13 @@ const renderOurWorkManagement = () => {
 
   const getOurWorkCategoryIcon = (category) => {
     const icons = {
-      quality_education: '🎓',
-      livelihood: '💼',
-      healthcare: '🏥',
-      environment_sustainability: '🌱',
-      integrated_development: '🤝'
+      quality_education: '',
+      livelihood: '',
+      healthcare: '',
+      environment_sustainability: '',
+      integrated_development: ''
     };
-    return icons[category] || '📁';
+    return icons[category] || '';
   };
 
   const getOurWorkCategoryLabel = (category) => {
