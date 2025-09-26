@@ -104,11 +104,13 @@
 
 .lv-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
+  justify-items: center;
 }
 
 .lv-card {
+  width: 380px;
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
@@ -117,6 +119,7 @@
   flex-direction: column;
   transition: transform 0.2s ease-in-out;
 }
+
 .lv-card:hover {
   transform: translateY(-5px);
 }

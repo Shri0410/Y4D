@@ -71,18 +71,21 @@
 
 .st-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 2rem;
+  justify-items: center; /
 }
 
+
 .st-card {
+  width: 362px; 
   background: #fff;
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-in-out;
 }
 
 .st-card:hover {
@@ -91,7 +94,7 @@
 
 .st-card-image {
   position: relative;
-  height: 220px;
+  height: auto;
   overflow: hidden;
 }
 

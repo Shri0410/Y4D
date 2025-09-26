@@ -10,7 +10,13 @@ const SERVER_BASE = "http://localhost:5000";
 const getFullUrl = (path) => {
   if (!path) return "";
   if (path.startsWith("http")) return path;
-  return `${SERVER_BASE}${path.startsWith("/") ? "" : "/"}${path}`;
+
+  // Remove any leading slashes just in case
+  const cleanPath = path.replace(
+    /^\/?uploads\/our-work\/quality_education\//,
+    ""
+  );
+  return `${SERVER_BASE}/api/uploads/our-work/quality_education/${cleanPath}`;
 };
 
 // Convert YouTube / Vimeo watch URLs to embeddable URLs

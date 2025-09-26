@@ -111,11 +111,13 @@
 
 .hc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  justify-items: center;
 }
 
 .hc-card {
+  width: 380px;
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
