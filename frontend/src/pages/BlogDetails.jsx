@@ -11,7 +11,7 @@ const BlogDetails = () => {
 
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
   const UPLOADS_BASE =
-    import.meta.env.VITE_UPLOADS_BASE || "http://localhost:5000/uploads";
+    import.meta.env.VITE_UPLOADS_BASE || "http://localhost:5000/api/uploads";
 
   useEffect(() => {
     const fetchBlog = async () => {
