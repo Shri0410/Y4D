@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./OurTeam.css";
-import bannerImg from "../assets/BannerImages/s.jpeg"; // replace with your banner image path
+import bannerImg from "../assets/BannerImages/s.jpeg";
 
 const OurTeam = () => {
   const [mentors, setMentors] = useState([]);
@@ -105,7 +105,7 @@ const OurTeam = () => {
             {mentors.map((mentor) => (
               <div key={mentor.id} className="team-card">
                 <img
-                  src={`http://localhost:5000/uploads/mentors/${mentor.image}`}
+                  src={`http://localhost:5000/api/uploads/mentors/${mentor.image}`}
                   alt={mentor.name}
                 />
                 <h3>{mentor.name}</h3>
@@ -152,14 +152,14 @@ const OurTeam = () => {
           <div className="useful-card">
             <h3>Legal Status</h3>
             <p>Know our compliance, certifications, and registrations.</p>
-            <Link to="/legalstatus" className="use-btn">
+            <Link to="/legalreports" className="use-btn">
               View Details
             </Link>
           </div>
           <div className="useful-card">
             <h3>Career</h3>
             <p>Explore exciting opportunities to grow with us.</p>
-            <Link to="/career" className="use-btn">
+            <Link to="/careers" className="use-btn">
               Apply Now
             </Link>
           </div>

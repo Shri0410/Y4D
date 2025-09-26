@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import UserManagement from './UserManagement';
-import RegistrationRequests from './RegistrationRequests';
-import MediaManager from './MediaManager';
-import OurWorkManagement from './OurWorkManagement'; 
-import ImpactDataEditor from './ImpactDataEditor';
-import './Dashboard.css';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import UserManagement from "./UserManagement";
+import RegistrationRequests from "./RegistrationRequests";
+import MediaManager from "./MediaManager";
+import OurWorkManagement from "./OurWorkManagement";
+import ImpactDataEditor from "./ImpactDataEditor";
+import "./Dashboard.css";
 
 const Dashboard = ({ currentUser: propCurrentUser }) => {
-  const [activeTab, setActiveTab] = useState('ourWork');
+  const [activeTab, setActiveTab] = useState("ourWork");
   const [reports, setReports] = useState([]);
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
@@ -16,104 +16,155 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [careers, setCareers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
-  const [mediaAction, setMediaAction] = useState('view');
+  const [mediaAction, setMediaAction] = useState("view");
   const [editingMediaId, setEditingMediaId] = useState(null);
   const [mediaForm, setMediaForm] = useState({
-    title: '',
-    description: '',
-    content: '',
+    title: "",
+    description: "",
+    content: "",
     image: null,
     pdf: null,
-    is_active: true
+    is_active: true,
   });
   const [currentMediaType, setCurrentMediaType] = useState(null);
-  const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null); 
+  const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null);
   const [currentTeamType, setCurrentTeamType] = useState(null);
-  const [teamAction, setTeamAction] = useState('view');
-  const [careerAction, setCareerAction] = useState('current');
-  const [legalReportAction, setLegalReportAction] = useState('view');
+  const [teamAction, setTeamAction] = useState("view");
+  const [careerAction, setCareerAction] = useState("current");
+  const [legalReportAction, setLegalReportAction] = useState("view");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mediaSubDropdown, setMediaSubDropdown] = useState(null);
-  const [interventionsSubDropdown, setInterventionsSubDropdown] = useState(null);
-  const [interventionsAction, setInterventionsAction] = useState('view'); // 'view', 'add', 'update'
+  const [interventionsSubDropdown, setInterventionsSubDropdown] =
+    useState(null);
+  const [interventionsAction, setInterventionsAction] = useState("view"); // 'view', 'add', 'update'
 
   // Form states
-  const [reportForm, setReportForm] = useState({ title: '', description: '', content: '', image: null });
-  const [mentorForm, setMentorForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-  const [managementForm, setManagementForm] = useState({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-  const [careerForm, setCareerForm] = useState({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
+  const [reportForm, setReportForm] = useState({
+    title: "",
+    description: "",
+    content: "",
+    image: null,
+  });
+  const [mentorForm, setMentorForm] = useState({
+    name: "",
+    position: "",
+    bio: "",
+    image: null,
+    social_links: "{}",
+  });
+  const [managementForm, setManagementForm] = useState({
+    name: "",
+    position: "",
+    bio: "",
+    image: null,
+    social_links: "{}",
+  });
+  const [careerForm, setCareerForm] = useState({
+    title: "",
+    description: "",
+    requirements: "",
+    location: "",
+    type: "full-time",
+    is_active: true,
+  });
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  const canManageContent = currentUser && ['super_admin', 'admin', 'editor'].includes(currentUser.role);
-  const canManageUsers = currentUser && ['super_admin', 'admin'].includes(currentUser.role);
-  const API_BASE = 'http://localhost:5000/api';
+  const canManageContent =
+    currentUser &&
+    ["super_admin", "admin", "editor"].includes(currentUser.role);
+  const canManageUsers =
+    currentUser && ["super_admin", "admin"].includes(currentUser.role);
+  const API_BASE = "http://localhost:5000/api";
+
+  const [trusteeForm, setTrusteeForm] = useState({
+    name: "",
+    position: "",
+    bio: "",
+    image: null,
+    social_links: "{}",
+  });
 
   // Clear sub-sections when switching tabs
   useEffect(() => {
     setCurrentMediaType(null);
     setCurrentOurWorkCategory(null);
     setCurrentTeamType(null);
-    setTeamAction('view');
-    setCareerAction('current');
-    setLegalReportAction('view');
+    setTeamAction("view");
+    setCareerAction("current");
+    setLegalReportAction("view");
     setMediaSubDropdown(null);
     setInterventionsSubDropdown(null);
-    setInterventionsAction('view');
+    setInterventionsAction("view");
   }, [activeTab]);
 
   useEffect(() => {
-    console.log('Careers data updated:', careers);
+    console.log("Careers data updated:", careers);
   }, [careers]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openDropdown && !event.target.closest('.dashboard-sidebar')) {
+      if (openDropdown && !event.target.closest(".dashboard-sidebar")) {
         setOpenDropdown(null);
       }
-      if (mediaSubDropdown && !event.target.closest('.media-dropdown-item')) {
+      if (mediaSubDropdown && !event.target.closest(".media-dropdown-item")) {
         setMediaSubDropdown(null);
       }
-      if (interventionsSubDropdown && !event.target.closest('.interventions-dropdown-item')) {
+      if (
+        interventionsSubDropdown &&
+        !event.target.closest(".interventions-dropdown-item")
+      ) {
         setInterventionsSubDropdown(null);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [openDropdown, mediaSubDropdown, interventionsSubDropdown]);
 
   useEffect(() => {
     if (!currentUser) {
-      const userData = localStorage.getItem('user');
+      const userData = localStorage.getItem("user");
       if (userData) {
         setCurrentUser(JSON.parse(userData));
       }
     }
-    
-    if (activeTab === 'our-team' && teamAction === 'view') {
+
+    if (activeTab === "our-team" && teamAction === "view") {
       fetchAllTeamData();
-    } else if (activeTab === 'careers') {
-      fetchData('careers');
-    } else if (activeTab === 'reports') {
-      fetchData('reports');
-    } else if (activeTab !== 'media' && !currentMediaType && 
-        activeTab !== 'ourWork' && !currentOurWorkCategory && 
-        activeTab !== 'impact' && activeTab !== 'users' && activeTab !== 'registrations') {
+    } else if (activeTab === "careers") {
+      fetchData("careers");
+    } else if (activeTab === "reports") {
+      fetchData("reports");
+    } else if (
+      activeTab !== "media" &&
+      !currentMediaType &&
+      activeTab !== "ourWork" &&
+      !currentOurWorkCategory &&
+      activeTab !== "impact" &&
+      activeTab !== "users" &&
+      activeTab !== "registrations"
+    ) {
       fetchData(activeTab);
     }
-  }, [activeTab, currentUser, currentMediaType, currentOurWorkCategory, teamAction]);
-const renderOurWorkManagement = () => {
+  }, [
+    activeTab,
+    currentUser,
+    currentMediaType,
+    currentOurWorkCategory,
+    teamAction,
+  ]);
+  const renderOurWorkManagement = () => {
     if (currentOurWorkCategory) {
       return (
-        <OurWorkManagement 
+        <OurWorkManagement
           category={currentOurWorkCategory}
           action={interventionsAction}
           onClose={() => {
             setCurrentOurWorkCategory(null);
-            setInterventionsAction('view');
+            setInterventionsAction("view");
           }}
           onActionChange={(action) => setInterventionsAction(action)}
         />
@@ -127,14 +178,14 @@ const renderOurWorkManagement = () => {
       const [mentorsRes, managementRes, trusteesRes] = await Promise.all([
         axios.get(`${API_BASE}/mentors`),
         axios.get(`${API_BASE}/management`),
-        axios.get(`${API_BASE}/board-trustees`)
+        axios.get(`${API_BASE}/board-trustees`),
       ]);
-      
+
       setMentors(mentorsRes.data);
       setManagement(managementRes.data);
       setBoardTrustees(trusteesRes.data);
     } catch (error) {
-      console.error('Error fetching team data:', error);
+      console.error("Error fetching team data:", error);
       alert(`Error fetching team data: ${error.message}`);
     }
     setLoading(false);
@@ -145,24 +196,24 @@ const renderOurWorkManagement = () => {
     try {
       let response;
       switch (type) {
-        case 'reports':
+        case "reports":
           response = await axios.get(`${API_BASE}/reports`);
           setReports(response.data);
           break;
-        case 'mentors':
+        case "mentors":
           response = await axios.get(`${API_BASE}/mentors`);
           setMentors(response.data);
           break;
-        case 'management':
+        case "management":
           response = await axios.get(`${API_BASE}/management`);
           setManagement(response.data);
           break;
-        case 'careers':
+        case "careers":
           response = await axios.get(`${API_BASE}/careers`);
           setCareers(response.data);
-          console.log('Fetched careers:', response.data);
+          console.log("Fetched careers:", response.data);
           break;
-        case 'board-trustees': 
+        case "board-trustees":
           response = await axios.get(`${API_BASE}/board-trustees`);
           setBoardTrustees(response.data);
           break;
@@ -178,8 +229,8 @@ const renderOurWorkManagement = () => {
 
   const handleImageChange = (e, setFormFunction) => {
     const file = e.target.files[0];
-    setFormFunction(prev => ({ ...prev, image: file }));
-    
+    setFormFunction((prev) => ({ ...prev, image: file }));
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
@@ -189,97 +240,152 @@ const renderOurWorkManagement = () => {
 
   const handlePdfChange = (e, setFormFunction) => {
     const file = e.target.files[0];
-    setFormFunction(prev => ({ ...prev, pdf: file }));
+    setFormFunction((prev) => ({ ...prev, pdf: file }));
   };
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       let formData = new FormData();
-      let endpoint = '';
+      let endpoint = "";
 
       switch (type) {
-        case 'reports':
+        case "reports":
           const reportFormData = new FormData();
-          reportFormData.append('title', reportForm.title);
-          reportFormData.append('description', reportForm.description);
-          reportFormData.append('content', reportForm.content);
-          
+          reportFormData.append("title", reportForm.title);
+          reportFormData.append("description", reportForm.description);
+          reportFormData.append("content", reportForm.content);
+
           if (reportForm.image) {
-            reportFormData.append('image', reportForm.image);
+            reportFormData.append("image", reportForm.image);
           }
           if (reportForm.pdf) {
-            reportFormData.append('pdf', reportForm.pdf);
+            reportFormData.append("pdf", reportForm.pdf);
           }
-          
-          endpoint = editingId ? `${API_BASE}/reports/${editingId}` : `${API_BASE}/reports`;
-          
+
+          endpoint = editingId
+            ? `${API_BASE}/reports/${editingId}`
+            : `${API_BASE}/reports`;
+
           try {
             const config = {
               headers: {
-                'Content-Type': 'multipart/form-data'
-              }
+                "Content-Type": "multipart/form-data",
+              },
             };
-            
-            await (editingId ? axios.put(endpoint, reportFormData, config) : axios.post(endpoint, reportFormData, config));
-            
-            setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
-            setLegalReportAction('view');
+
+            await (editingId
+              ? axios.put(endpoint, reportFormData, config)
+              : axios.post(endpoint, reportFormData, config));
+
+            setReportForm({
+              title: "",
+              description: "",
+              content: "",
+              image: null,
+              pdf: null,
+            });
+            setLegalReportAction("view");
             setImagePreview(null);
-            fetchData('reports');
-            alert(`Report ${editingId ? 'updated' : 'created'} successfully!`);
+            fetchData("reports");
+            alert(`Report ${editingId ? "updated" : "created"} successfully!`);
           } catch (error) {
-            console.error('Error saving report:', error);
-            alert(`Error saving report: ${error.response?.data?.error || error.message}`);
+            console.error("Error saving report:", error);
+            alert(
+              `Error saving report: ${
+                error.response?.data?.error || error.message
+              }`
+            );
           }
           break;
-        
-        case 'mentors':
-          Object.keys(mentorForm).forEach(key => {
-            if (key === 'image' && mentorForm.image) {
-              formData.append('image', mentorForm.image);
+
+        case "mentors":
+          Object.keys(mentorForm).forEach((key) => {
+            if (key === "image" && mentorForm.image) {
+              formData.append("image", mentorForm.image);
             } else {
               formData.append(key, mentorForm[key]);
             }
           });
-          endpoint = editingId ? `${API_BASE}/mentors/${editingId}` : `${API_BASE}/mentors`;
-          await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
-          setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+          endpoint = editingId
+            ? `${API_BASE}/mentors/${editingId}`
+            : `${API_BASE}/mentors`;
+          await (editingId
+            ? axios.put(endpoint, formData)
+            : axios.post(endpoint, formData));
+          setMentorForm({
+            name: "",
+            position: "",
+            bio: "",
+            image: null,
+            social_links: "{}",
+          });
           break;
-        
-        case 'management':
-          Object.keys(managementForm).forEach(key => {
-            if (key === 'image' && managementForm.image) {
-              formData.append('image', managementForm.image);
+
+        case "management":
+          Object.keys(managementForm).forEach((key) => {
+            if (key === "image" && managementForm.image) {
+              formData.append("image", managementForm.image);
             } else {
               formData.append(key, managementForm[key]);
             }
           });
-          endpoint = editingId ? `${API_BASE}/management/${editingId}` : `${API_BASE}/management`;
-          await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
-          setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+          endpoint = editingId
+            ? `${API_BASE}/management/${editingId}`
+            : `${API_BASE}/management`;
+          await (editingId
+            ? axios.put(endpoint, formData)
+            : axios.post(endpoint, formData));
+          setManagementForm({
+            name: "",
+            position: "",
+            bio: "",
+            image: null,
+            social_links: "{}",
+          });
           break;
-        
-        case 'careers':
-          endpoint = editingId ? `${API_BASE}/careers/${editingId}` : `${API_BASE}/careers`;
-          await (editingId ? axios.put(endpoint, careerForm) : axios.post(endpoint, careerForm));
-          setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', status: 'active' });
-          setCareerAction('current');
+
+        case "careers":
+          endpoint = editingId
+            ? `${API_BASE}/careers/${editingId}`
+            : `${API_BASE}/careers`;
+          await (editingId
+            ? axios.put(endpoint, careerForm)
+            : axios.post(endpoint, careerForm));
+          setCareerForm({
+            title: "",
+            description: "",
+            requirements: "",
+            location: "",
+            type: "full-time",
+            status: "active",
+          });
+          setCareerAction("current");
           break;
-        
-        case 'board-trustees': 
-          Object.keys(trusteeForm).forEach(key => {
-            if (key === 'image' && trusteeForm.image) {
-              formData.append('image', trusteeForm.image);
+
+        case "board-trustees":
+          Object.keys(trusteeForm).forEach((key) => {
+            if (key === "image" && trusteeForm.image) {
+              formData.append("image", trusteeForm.image);
             } else {
               formData.append(key, trusteeForm[key]);
             }
           });
-          endpoint = editingId ? `${API_BASE}/board-trustees/${editingId}` : `${API_BASE}/board-trustees`;
-          await (editingId ? axios.put(endpoint, formData) : axios.post(endpoint, formData));
-          setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+          endpoint = editingId
+            ? `${API_BASE}/board-trustees/${editingId}`
+            : `${API_BASE}/board-trustees`;
+          await (editingId
+            ? axios.put(endpoint, formData)
+            : axios.post(endpoint, formData));
+          setTrusteeForm({
+            name: "",
+            position: "",
+            bio: "",
+            image: null,
+            social_links: "{}",
+          });
           break;
 
         default:
@@ -288,10 +394,14 @@ const renderOurWorkManagement = () => {
 
       setEditingId(null);
       setImagePreview(null);
-      setTeamAction('view');
+      setTeamAction("view");
       fetchAllTeamData();
       fetchData(type);
-      alert(`${type.slice(0, -1)} ${editingId ? 'updated' : 'created'} successfully!`);
+      alert(
+        `${type.slice(0, -1)} ${
+          editingId ? "updated" : "created"
+        } successfully!`
+      );
     } catch (error) {
       console.error(`Error saving ${type}:`, error);
       alert(`Error saving ${type}: ${error.message}`);
@@ -301,67 +411,71 @@ const renderOurWorkManagement = () => {
 
   const handleEdit = (item, type) => {
     setEditingId(item.id);
-    
-    if (type === 'reports') {
-      setLegalReportAction('update');
-    } else if (type === 'careers') {
-      setCareerAction('update');
+
+    if (type === "reports") {
+      setLegalReportAction("update");
+    } else if (type === "careers") {
+      setCareerAction("update");
     } else {
-      setTeamAction('update');
+      setTeamAction("update");
       setCurrentTeamType(type);
     }
-    
+
     switch (type) {
-      case 'reports':
-        setLegalReportAction('update');
+      case "reports":
+        setLegalReportAction("update");
         setReportForm({
           title: item.title,
           description: item.description,
           content: item.content,
           image: null,
-          pdf: null
+          pdf: null,
         });
-        if (item.image) setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
+        if (item.image)
+          setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
         break;
-      case 'careers':
+      case "careers":
         setCareerForm({
           title: item.title,
           description: item.description,
           requirements: item.requirements,
           location: item.location,
           type: item.type,
-          is_active: item.is_active
+          is_active: item.is_active,
         });
         break;
-      case 'mentors':
+      case "mentors":
         setMentorForm({
           name: item.name,
           position: item.position,
           bio: item.bio,
           image: null,
-          social_links: JSON.stringify(item.social_links || {})
+          social_links: JSON.stringify(item.social_links || {}),
         });
-        if (item.image) setImagePreview(`${API_BASE}/uploads/mentors/${item.image}`);
+        if (item.image)
+          setImagePreview(`${API_BASE}/uploads/mentors/${item.image}`);
         break;
-      case 'management':
+      case "management":
         setManagementForm({
           name: item.name,
           position: item.position,
           bio: item.bio,
           image: null,
-          social_links: JSON.stringify(item.social_links || {})
+          social_links: JSON.stringify(item.social_links || {}),
         });
-        if (item.image) setImagePreview(`${API_BASE}/uploads/management/${item.image}`);
+        if (item.image)
+          setImagePreview(`${API_BASE}/uploads/management/${item.image}`);
         break;
-      case 'board-trustees': 
+      case "board-trustees":
         setTrusteeForm({
           name: item.name,
           position: item.position,
           bio: item.bio,
           image: null,
-          social_links: JSON.stringify(item.social_links || {})
+          social_links: JSON.stringify(item.social_links || {}),
         });
-        if (item.image) setImagePreview(`${API_BASE}/uploads/board-trustees/${item.image}`);
+        if (item.image)
+          setImagePreview(`${API_BASE}/uploads/board-trustees/${item.image}`);
         break;
       default:
         break;
@@ -369,59 +483,79 @@ const renderOurWorkManagement = () => {
   };
 
   const handleStatusToggle = async (id, newStatus) => {
-    if (!window.confirm(`Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this career opening?`)) return;
-    
+    if (
+      !window.confirm(
+        `Are you sure you want to ${
+          newStatus ? "activate" : "deactivate"
+        } this career opening?`
+      )
+    )
+      return;
+
     setLoading(true);
     try {
       await axios.put(`${API_BASE}/careers/${id}`, {
-        ...careers.find(c => c.id === id),
-        is_active: newStatus
+        ...careers.find((c) => c.id === id),
+        is_active: newStatus,
       });
-      
-      alert(`Career opening ${newStatus ? 'activated' : 'deactivated'} successfully!`);
-      fetchData('careers');
+
+      alert(
+        `Career opening ${
+          newStatus ? "activated" : "deactivated"
+        } successfully!`
+      );
+      fetchData("careers");
     } catch (error) {
-      console.error('Error toggling career status:', error);
+      console.error("Error toggling career status:", error);
       alert(`Error updating career status: ${error.message}`);
     }
     setLoading(false);
   };
 
   const handleDelete = async (id, type) => {
-    if (!window.confirm(`Are you sure you want to delete this ${type.slice(0, -1)}?`)) return;
-    
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this ${type.slice(0, -1)}?`
+      )
+    )
+      return;
+
     setLoading(true);
     try {
       let endpoint = `${API_BASE}/${type}`;
-      
-      if (type === 'board-trustees') {
+
+      if (type === "board-trustees") {
         endpoint = `${API_BASE}/board-trustees`;
       }
-      
+
       const response = await axios.delete(`${endpoint}/${id}`);
-      
+
       if (response.data) {
-        console.log('Delete successful:', response.data);
+        console.log("Delete successful:", response.data);
         alert(`${type.slice(0, -1)} deleted successfully!`);
       } else {
-        console.log('Delete successful (no content returned)');
+        console.log("Delete successful (no content returned)");
         alert(`${type.slice(0, -1)} deleted successfully!`);
       }
-      
+
       fetchAllTeamData();
       fetchData(type);
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
-      
+
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-        alert(`Error deleting ${type}: ${error.response.data?.error || error.message}`);
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        alert(
+          `Error deleting ${type}: ${
+            error.response.data?.error || error.message
+          }`
+        );
       } else if (error.request) {
-        console.error('Error request:', error.request);
+        console.error("Error request:", error.request);
         alert(`Error deleting ${type}: No response from server`);
       } else {
-        console.error('Error message:', error.message);
+        console.error("Error message:", error.message);
         alert(`Error deleting ${type}: ${error.message}`);
       }
     }
@@ -430,22 +564,53 @@ const renderOurWorkManagement = () => {
 
   const cancelEdit = () => {
     setEditingId(null);
-    setTeamAction('view');
+    setTeamAction("view");
     setCurrentTeamType(null);
-    setCareerAction('all');
-    setLegalReportAction('view');
-    setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
-    setMentorForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setManagementForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
-    setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
-    setTrusteeForm({ name: '', position: '', bio: '', image: null, social_links: '{}' });
+    setCareerAction("all");
+    setLegalReportAction("view");
+    setReportForm({
+      title: "",
+      description: "",
+      content: "",
+      image: null,
+      pdf: null,
+    });
+    setMentorForm({
+      name: "",
+      position: "",
+      bio: "",
+      image: null,
+      social_links: "{}",
+    });
+    setManagementForm({
+      name: "",
+      position: "",
+      bio: "",
+      image: null,
+      social_links: "{}",
+    });
+    setCareerForm({
+      title: "",
+      description: "",
+      requirements: "",
+      location: "",
+      type: "full-time",
+      is_active: true,
+    });
+    setTrusteeForm({
+      name: "",
+      position: "",
+      bio: "",
+      image: null,
+      social_links: "{}",
+    });
     setImagePreview(null);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/admin';
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "/admin";
   };
 
   // Media Corner dropdown handlers
@@ -458,16 +623,25 @@ const renderOurWorkManagement = () => {
     setMediaAction(action);
     setMediaSubDropdown(null);
     setOpenDropdown(null);
-    
-    if (action === 'add') {
+
+    if (action === "add") {
       setEditingMediaId(null);
-      setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
+      setMediaForm({
+        title: "",
+        description: "",
+        content: "",
+        image: null,
+        pdf: null,
+        is_active: true,
+      });
     }
   };
 
   // Interventions dropdown handlers
   const handleInterventionsSubDropdown = (category) => {
-    setInterventionsSubDropdown(interventionsSubDropdown === category ? null : category);
+    setInterventionsSubDropdown(
+      interventionsSubDropdown === category ? null : category
+    );
   };
 
   const handleInterventionsAction = (category, action) => {
@@ -479,165 +653,210 @@ const renderOurWorkManagement = () => {
 
   // Helper functions
   const getMediaTypeIcon = (type) => {
-    const icons = { newsletters: '📰', stories: '📖', events: '🎉', blogs: '✍️', documentaries: '🎬' };
-    return icons[type] || '📁';
+    const icons = {
+      newsletters: "📰",
+      stories: "📖",
+      events: "🎉",
+      blogs: "✍️",
+      documentaries: "🎬",
+    };
+    return icons[type] || "📁";
   };
 
   const getMediaTypeDescription = (type) => {
     const descriptions = {
-      newsletters: 'Manage monthly newsletters and publications',
-      stories: 'Share inspiring success stories',
-      events: 'Manage upcoming events and workshops',
-      blogs: 'Create and manage blog posts',
-      documentaries: 'Upload and manage video content'
+      newsletters: "Manage monthly newsletters and publications",
+      stories: "Share inspiring success stories",
+      events: "Manage upcoming events and workshops",
+      blogs: "Create and manage blog posts",
+      documentaries: "Upload and manage video content",
     };
-    return descriptions[type] || 'Manage content';
+    return descriptions[type] || "Manage content";
   };
 
   const getOurWorkCategoryIcon = (category) => {
     const icons = {
-      quality_education: '',
-      livelihood: '',
-      healthcare: '',
-      environment_sustainability: '',
-      integrated_development: ''
+      quality_education: "",
+      livelihood: "",
+      healthcare: "",
+      environment_sustainability: "",
+      integrated_development: "",
     };
-    return icons[category] || '';
+    return icons[category] || "";
   };
 
   const getOurWorkCategoryLabel = (category) => {
     const labels = {
-      quality_education: 'Quality Education',
-      livelihood: 'Livelihood',
-      healthcare: 'Healthcare',
-      environment_sustainability: 'Environment Sustainability',
-      integrated_development: 'Integrated Development (IDP)'
+      quality_education: "Quality Education",
+      livelihood: "Livelihood",
+      healthcare: "Healthcare",
+      environment_sustainability: "Environment Sustainability",
+      integrated_development: "Integrated Development (IDP)",
     };
     return labels[category] || category;
   };
 
   const getOurWorkCategoryDescription = (category) => {
     const descriptions = {
-      quality_education: 'Manage quality education programs and initiatives',
-      livelihood: 'Manage livelihood and employment programs',
-      healthcare: 'Manage healthcare services and initiatives',
-      environment_sustainability: 'Manage environmental sustainability programs',
-      integrated_development: 'Manage integrated development programs'
+      quality_education: "Manage quality education programs and initiatives",
+      livelihood: "Manage livelihood and employment programs",
+      healthcare: "Manage healthcare services and initiatives",
+      environment_sustainability:
+        "Manage environmental sustainability programs",
+      integrated_development: "Manage integrated development programs",
     };
-    return descriptions[category] || 'Manage content';
+    return descriptions[category] || "Manage content";
   };
-const renderMediaForm = () => {
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <button 
-            className="btn-back"
-            onClick={() => {
-              setMediaAction('view');
-              setEditingMediaId(null);
-              setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
-            }}
-          >
-            ← Back to {currentMediaType ? currentMediaType.charAt(0).toUpperCase() + currentMediaType.slice(1) : 'Media'}
-          </button>
-          <h3>
-            {editingMediaId ? 'Edit' : 'Add New'} 
-            {currentMediaType ? ' ' + currentMediaType.slice(0, -1).charAt(0).toUpperCase() + currentMediaType.slice(0, -1).slice(1) : ' Media'}
-          </h3>
+  const renderMediaForm = () => {
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <button
+              className="btn-back"
+              onClick={() => {
+                setMediaAction("view");
+                setEditingMediaId(null);
+                setMediaForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                  is_active: true,
+                });
+              }}
+            >
+              ← Back to{" "}
+              {currentMediaType
+                ? currentMediaType.charAt(0).toUpperCase() +
+                  currentMediaType.slice(1)
+                : "Media"}
+            </button>
+            <h3>
+              {editingMediaId ? "Edit" : "Add New"}
+              {currentMediaType
+                ? " " +
+                  currentMediaType.slice(0, -1).charAt(0).toUpperCase() +
+                  currentMediaType.slice(0, -1).slice(1)
+                : " Media"}
+            </h3>
+          </div>
         </div>
+
+        <form onSubmit={(e) => handleMediaSubmit(e)} className="dashboard-form">
+          <div className="form-group">
+            <label>Title:</label>
+            <input
+              type="text"
+              value={mediaForm.title}
+              onChange={(e) =>
+                setMediaForm({ ...mediaForm, title: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Description:</label>
+            <textarea
+              value={mediaForm.description}
+              onChange={(e) =>
+                setMediaForm({ ...mediaForm, description: e.target.value })
+              }
+              required
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Content:</label>
+            <textarea
+              value={mediaForm.content}
+              onChange={(e) =>
+                setMediaForm({ ...mediaForm, content: e.target.value })
+              }
+              rows="5"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Featured Image:</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, setMediaForm)}
+            />
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>PDF Document (optional):</label>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setMediaForm((prev) => ({ ...prev, pdf: file }));
+              }}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Status:</label>
+            <select
+              value={mediaForm.is_active}
+              onChange={(e) =>
+                setMediaForm({
+                  ...mediaForm,
+                  is_active: e.target.value === "true",
+                })
+              }
+            >
+              <option value={true}>Active</option>
+              <option value={false}>Inactive</option>
+            </select>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" disabled={loading}>
+              {loading ? "Processing..." : editingMediaId ? "Update" : "Create"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMediaAction("view");
+                setEditingMediaId(null);
+                setMediaForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                  is_active: true,
+                });
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <form onSubmit={(e) => handleMediaSubmit(e)} className="dashboard-form">
-        <div className="form-group">
-          <label>Title:</label>
-          <input
-            type="text"
-            value={mediaForm.title}
-            onChange={(e) => setMediaForm({...mediaForm, title: e.target.value})}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Description:</label>
-          <textarea
-            value={mediaForm.description}
-            onChange={(e) => setMediaForm({...mediaForm, description: e.target.value})}
-            required
-            rows="3"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Content:</label>
-          <textarea
-            value={mediaForm.content}
-            onChange={(e) => setMediaForm({...mediaForm, content: e.target.value})}
-            rows="5"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Featured Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, setMediaForm)}
-          />
-          {imagePreview && (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" />
-            </div>
-          )}
-        </div>
-        
-        <div className="form-group">
-          <label>PDF Document (optional):</label>
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={(e) => {
-              const file = e.target.files[0];
-              setMediaForm(prev => ({ ...prev, pdf: file }));
-            }}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Status:</label>
-          <select
-            value={mediaForm.is_active}
-            onChange={(e) => setMediaForm({...mediaForm, is_active: e.target.value === 'true'})}
-          >
-            <option value={true}>Active</option>
-            <option value={false}>Inactive</option>
-          </select>
-        </div>
-        
-        <div className="form-actions">
-          <button type="submit" disabled={loading}>
-            {loading ? 'Processing...' : (editingMediaId ? 'Update' : 'Create')}
-          </button>
-          <button type="button" onClick={() => {
-            setMediaAction('view');
-            setEditingMediaId(null);
-            setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
-          }}>Cancel</button>
-        </div>
-      </form>
-    </div>
-  );
-};
+    );
+  };
   const renderTeamForm = () => {
     if (!currentTeamType) {
       return (
         <div className="team-type-selection">
           <h3>Select Team Type</h3>
           <div className="team-type-options">
-            <button 
+            <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType('mentors')}
+              onClick={() => setCurrentTeamType("mentors")}
             >
               <span>👥</span>
               <div>
@@ -645,9 +864,9 @@ const renderMediaForm = () => {
                 <p>Add new mentor to the team</p>
               </div>
             </button>
-            <button 
+            <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType('management')}
+              onClick={() => setCurrentTeamType("management")}
             >
               <span>💼</span>
               <div>
@@ -655,9 +874,9 @@ const renderMediaForm = () => {
                 <p>Add new management team member</p>
               </div>
             </button>
-            <button 
+            <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType('board-trustees')}
+              onClick={() => setCurrentTeamType("board-trustees")}
             >
               <span>🏛️</span>
               <div>
@@ -671,16 +890,21 @@ const renderMediaForm = () => {
     }
 
     switch (currentTeamType) {
-      case 'mentors':
+      case "mentors":
         return (
-          <form onSubmit={(e) => handleSubmit(e, 'mentors')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Mentor</h3>
+          <form
+            onSubmit={(e) => handleSubmit(e, "mentors")}
+            className="dashboard-form"
+          >
+            <h3>{editingId ? "Edit" : "Add New"} Mentor</h3>
             <div className="form-group">
               <label>Name:</label>
               <input
                 type="text"
                 value={mentorForm.name}
-                onChange={(e) => setMentorForm({...mentorForm, name: e.target.value})}
+                onChange={(e) =>
+                  setMentorForm({ ...mentorForm, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -689,7 +913,9 @@ const renderMediaForm = () => {
               <input
                 type="text"
                 value={mentorForm.position}
-                onChange={(e) => setMentorForm({...mentorForm, position: e.target.value})}
+                onChange={(e) =>
+                  setMentorForm({ ...mentorForm, position: e.target.value })
+                }
               />
             </div>
             <div className="form-group">
@@ -707,23 +933,31 @@ const renderMediaForm = () => {
             </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Mentor
+                {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+                Mentor
               </button>
-              <button type="button" onClick={cancelEdit}>Cancel</button>
+              <button type="button" onClick={cancelEdit}>
+                Cancel
+              </button>
             </div>
           </form>
         );
-      
-      case 'management':
+
+      case "management":
         return (
-          <form onSubmit={(e) => handleSubmit(e, 'management')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Management Member</h3>
+          <form
+            onSubmit={(e) => handleSubmit(e, "management")}
+            className="dashboard-form"
+          >
+            <h3>{editingId ? "Edit" : "Add New"} Management Member</h3>
             <div className="form-group">
               <label>Name:</label>
               <input
                 type="text"
                 value={managementForm.name}
-                onChange={(e) => setManagementForm({...managementForm, name: e.target.value})}
+                onChange={(e) =>
+                  setManagementForm({ ...managementForm, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -732,29 +966,42 @@ const renderMediaForm = () => {
               <input
                 type="text"
                 value={managementForm.position}
-                onChange={(e) => setManagementForm({...managementForm, position: e.target.value})}
+                onChange={(e) =>
+                  setManagementForm({
+                    ...managementForm,
+                    position: e.target.value,
+                  })
+                }
                 required
               />
             </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Member
+                {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+                Member
               </button>
-              <button type="button" onClick={cancelEdit}>Cancel</button>
+              <button type="button" onClick={cancelEdit}>
+                Cancel
+              </button>
             </div>
           </form>
         );
-      
-      case 'board-trustees':
+
+      case "board-trustees":
         return (
-          <form onSubmit={(e) => handleSubmit(e, 'board-trustees')} className="dashboard-form">
-            <h3>{editingId ? 'Edit' : 'Add New'} Board Trustee</h3>
+          <form
+            onSubmit={(e) => handleSubmit(e, "board-trustees")}
+            className="dashboard-form"
+          >
+            <h3>{editingId ? "Edit" : "Add New"} Board Trustee</h3>
             <div className="form-group">
               <label>Name:</label>
               <input
                 type="text"
                 value={trusteeForm.name}
-                onChange={(e) => setTrusteeForm({...trusteeForm, name: e.target.value})}
+                onChange={(e) =>
+                  setTrusteeForm({ ...trusteeForm, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -763,18 +1010,23 @@ const renderMediaForm = () => {
               <input
                 type="text"
                 value={trusteeForm.position}
-                onChange={(e) => setTrusteeForm({...trusteeForm, position: e.target.value})}
+                onChange={(e) =>
+                  setTrusteeForm({ ...trusteeForm, position: e.target.value })
+                }
               />
             </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
-                {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Trustee
+                {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+                Trustee
               </button>
-              <button type="button" onClick={cancelEdit}>Cancel</button>
+              <button type="button" onClick={cancelEdit}>
+                Cancel
+              </button>
             </div>
           </form>
         );
-      
+
       default:
         return null;
     }
@@ -787,10 +1039,10 @@ const renderMediaForm = () => {
       <div className="team-dashboard">
         <div className="team-header">
           <h3>Team</h3>
-          <button 
+          <button
             className="btn-primary"
             onClick={() => {
-              setTeamAction('add');
+              setTeamAction("add");
               setCurrentTeamType(null);
             }}
           >
@@ -815,12 +1067,12 @@ const renderMediaForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {mentors.map(mentor => (
+                  {mentors.map((mentor) => (
                     <tr key={mentor.id}>
                       <td>
                         {mentor.image ? (
-                          <img 
-                            src={`${API_BASE}/uploads/mentors/${mentor.image}`} 
+                          <img
+                            src={`${API_BASE}/uploads/mentors/${mentor.image}`}
                             alt={mentor.name}
                             className="team-avatar"
                           />
@@ -832,15 +1084,15 @@ const renderMediaForm = () => {
                       <td>{mentor.position}</td>
                       <td>
                         <div className="action-buttons">
-                          <button 
+                          <button
                             className="btn-edit"
-                            onClick={() => handleEdit(mentor, 'mentors')}
+                            onClick={() => handleEdit(mentor, "mentors")}
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             className="btn-delete"
-                            onClick={() => handleDelete(mentor.id, 'mentors')}
+                            onClick={() => handleDelete(mentor.id, "mentors")}
                           >
                             Delete
                           </button>
@@ -870,21 +1122,23 @@ const renderMediaForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {management.map(member => (
+                  {management.map((member) => (
                     <tr key={member.id}>
                       <td>{member.name}</td>
                       <td>{member.position}</td>
                       <td>
                         <div className="action-buttons">
-                          <button 
+                          <button
                             className="btn-edit"
-                            onClick={() => handleEdit(member, 'management')}
+                            onClick={() => handleEdit(member, "management")}
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             className="btn-delete"
-                            onClick={() => handleDelete(member.id, 'management')}
+                            onClick={() =>
+                              handleDelete(member.id, "management")
+                            }
                           >
                             Delete
                           </button>
@@ -914,21 +1168,25 @@ const renderMediaForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {boardTrustees.map(trustee => (
+                  {boardTrustees.map((trustee) => (
                     <tr key={trustee.id}>
                       <td>{trustee.name}</td>
                       <td>{trustee.position}</td>
                       <td>
                         <div className="action-buttons">
-                          <button 
+                          <button
                             className="btn-edit"
-                            onClick={() => handleEdit(trustee, 'board-trustees')}
+                            onClick={() =>
+                              handleEdit(trustee, "board-trustees")
+                            }
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             className="btn-delete"
-                            onClick={() => handleDelete(trustee.id, 'board-trustees')}
+                            onClick={() =>
+                              handleDelete(trustee.id, "board-trustees")
+                            }
                           >
                             Delete
                           </button>
@@ -944,383 +1202,486 @@ const renderMediaForm = () => {
       </div>
     );
   };
-const renderMediaList = () => {
-  // This would fetch actual data from your API - for now using mock data structure
-  const mediaItems = []; // You'll populate this with actual data from your API
+  const renderMediaList = () => {
+    // This would fetch actual data from your API - for now using mock data structure
+    const mediaItems = []; // You'll populate this with actual data from your API
 
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>
-            {currentMediaType ? 
-              currentMediaType.charAt(0).toUpperCase() + currentMediaType.slice(1) + ' Management' : 
-              'Media Corner'
-            }
-          </h3>
-          <button 
-            className="btn-primary"
-            onClick={() => {
-              setMediaAction('add');
-              setEditingMediaId(null);
-              setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
-            }}
-          >
-            + Add {currentMediaType ? currentMediaType.slice(0, -1) : 'Media'}
-          </button>
-        </div>
-        
-        <div className="filter-options">
-          <select 
-            value={mediaAction} 
-            onChange={(e) => {
-              const action = e.target.value;
-              setMediaAction(action);
-              if (action === 'view') {
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <h3>
+              {currentMediaType
+                ? currentMediaType.charAt(0).toUpperCase() +
+                  currentMediaType.slice(1) +
+                  " Management"
+                : "Media Corner"}
+            </h3>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setMediaAction("add");
                 setEditingMediaId(null);
-              }
-            }}
-            className="dropdown-select"
-          >
-            <option value="view">View All</option>
-            <option value="add">Add New</option>
-            <option value="update">Update Existing</option>
-          </select>
-        </div>
-      </div>
+                setMediaForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                  is_active: true,
+                });
+              }}
+            >
+              + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
+            </button>
+          </div>
 
-      {mediaItems.length === 0 ? (
-        <div className="no-data-message">
-          <p>No {currentMediaType || 'media items'} found</p>
-          <p><small>Total items: {mediaItems.length}</small></p>
+          <div className="filter-options">
+            <select
+              value={mediaAction}
+              onChange={(e) => {
+                const action = e.target.value;
+                setMediaAction(action);
+                if (action === "view") {
+                  setEditingMediaId(null);
+                }
+              }}
+              className="dropdown-select"
+            >
+              <option value="view">View All</option>
+              <option value="add">Add New</option>
+              <option value="update">Update Existing</option>
+            </select>
+          </div>
         </div>
-      ) : (
-        <div className="items-list">
-          {mediaItems.map(item => (
-            <div key={item.id} className="item-card" style={{
-              borderLeft: `4px solid ${item.is_active ? '#4CAF50' : '#ff9800'}`
-            }}>
-              <div className="item-content">
-                <div className="media-header">
-                  <h4>{item.title}</h4>
-                  <span className={`status-badge ${item.is_active ? 'active' : 'inactive'}`}>
-                    {item.is_active ? 'ACTIVE' : 'INACTIVE'}
-                  </span>
-                </div>
-                <p><strong>Type:</strong> {currentMediaType}</p>
-                <p><strong>Created:</strong> {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}</p>
-                
-                <div className="media-description">
-                  <p>{item.description}</p>
-                </div>
-                
-                <div className="item-actions">
-                  <button 
-                    className={`status-toggle-btn ${item.is_active ? 'btn-inactive' : 'btn-active'}`}
-                    onClick={() => handleMediaStatusToggle(item.id, !item.is_active)}
-                  >
-                    {item.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                  
-                  <button 
-                    className="btn-edit"
-                    onClick={() => {
-                      setMediaAction('update');
-                      handleMediaEdit(item);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  
-                  <button 
-                    className="btn-delete"
-                    onClick={() => handleMediaDelete(item.id)}
-                  >
-                    Delete
-                  </button>
+
+        {mediaItems.length === 0 ? (
+          <div className="no-data-message">
+            <p>No {currentMediaType || "media items"} found</p>
+            <p>
+              <small>Total items: {mediaItems.length}</small>
+            </p>
+          </div>
+        ) : (
+          <div className="items-list">
+            {mediaItems.map((item) => (
+              <div
+                key={item.id}
+                className="item-card"
+                style={{
+                  borderLeft: `4px solid ${
+                    item.is_active ? "#4CAF50" : "#ff9800"
+                  }`,
+                }}
+              >
+                <div className="item-content">
+                  <div className="media-header">
+                    <h4>{item.title}</h4>
+                    <span
+                      className={`status-badge ${
+                        item.is_active ? "active" : "inactive"
+                      }`}
+                    >
+                      {item.is_active ? "ACTIVE" : "INACTIVE"}
+                    </span>
+                  </div>
+                  <p>
+                    <strong>Type:</strong> {currentMediaType}
+                  </p>
+                  <p>
+                    <strong>Created:</strong>{" "}
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+
+                  <div className="media-description">
+                    <p>{item.description}</p>
+                  </div>
+
+                  <div className="item-actions">
+                    <button
+                      className={`status-toggle-btn ${
+                        item.is_active ? "btn-inactive" : "btn-active"
+                      }`}
+                      onClick={() =>
+                        handleMediaStatusToggle(item.id, !item.is_active)
+                      }
+                    >
+                      {item.is_active ? "Deactivate" : "Activate"}
+                    </button>
+
+                    <button
+                      className="btn-edit"
+                      onClick={() => {
+                        setMediaAction("update");
+                        handleMediaEdit(item);
+                      }}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleMediaDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderCareerForm = () => {
-    
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <button 
-            className="btn-back"
-            onClick={() => {
-              setCareerAction('all');
-              setEditingId(null);
-              cancelEdit();
-            }}
-          >
-            ← Back to Openings
-          </button>
-          <h3>{editingId ? 'Edit Career Opening' : 'Add New Career Opening'}</h3>
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <button
+              className="btn-back"
+              onClick={() => {
+                setCareerAction("all");
+                setEditingId(null);
+                cancelEdit();
+              }}
+            >
+              ← Back to Openings
+            </button>
+            <h3>
+              {editingId ? "Edit Career Opening" : "Add New Career Opening"}
+            </h3>
+          </div>
         </div>
+
+        <form
+          onSubmit={(e) => handleSubmit(e, "careers")}
+          className="dashboard-form"
+        >
+          <div className="form-group">
+            <label>Title:</label>
+            <input
+              type="text"
+              value={careerForm.title}
+              onChange={(e) =>
+                setCareerForm({ ...careerForm, title: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Description:</label>
+            <textarea
+              value={careerForm.description}
+              onChange={(e) =>
+                setCareerForm({ ...careerForm, description: e.target.value })
+              }
+              required
+              rows="4"
+            />
+          </div>
+          <div className="form-group">
+            <label>Requirements:</label>
+            <textarea
+              value={careerForm.requirements}
+              onChange={(e) =>
+                setCareerForm({ ...careerForm, requirements: e.target.value })
+              }
+              required
+              rows="3"
+            />
+          </div>
+          <div className="form-group">
+            <label>Location:</label>
+            <input
+              type="text"
+              value={careerForm.location}
+              onChange={(e) =>
+                setCareerForm({ ...careerForm, location: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Type:</label>
+            <select
+              value={careerForm.type}
+              onChange={(e) =>
+                setCareerForm({ ...careerForm, type: e.target.value })
+              }
+            >
+              <option value="full-time">Full Time</option>
+              <option value="part-time">Part Time</option>
+              <option value="contract">Contract</option>
+              <option value="internship">Internship</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Status:</label>
+            <select
+              value={careerForm.is_active}
+              onChange={(e) =>
+                setCareerForm({
+                  ...careerForm,
+                  is_active: e.target.value === "true",
+                })
+              }
+            >
+              <option value={true}>Active</option>
+              <option value={false}>Inactive</option>
+            </select>
+          </div>
+          <div className="form-actions">
+            <button type="submit" disabled={loading}>
+              {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+              Opening
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCareerAction("all");
+                cancelEdit();
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <form onSubmit={(e) => handleSubmit(e, 'careers')} className="dashboard-form">
-        <div className="form-group">
-          <label>Title:</label>
-          <input
-            type="text"
-            value={careerForm.title}
-            onChange={(e) => setCareerForm({...careerForm, title: e.target.value})}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Description:</label>
-          <textarea
-            value={careerForm.description}
-            onChange={(e) => setCareerForm({...careerForm, description: e.target.value})}
-            required
-            rows="4"
-          />
-        </div>
-        <div className="form-group">
-          <label>Requirements:</label>
-          <textarea
-            value={careerForm.requirements}
-            onChange={(e) => setCareerForm({...careerForm, requirements: e.target.value})}
-            required
-            rows="3"
-          />
-        </div>
-        <div className="form-group">
-          <label>Location:</label>
-          <input
-            type="text"
-            value={careerForm.location}
-            onChange={(e) => setCareerForm({...careerForm, location: e.target.value})}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Type:</label>
-          <select
-            value={careerForm.type}
-            onChange={(e) => setCareerForm({...careerForm, type: e.target.value})}
-          >
-            <option value="full-time">Full Time</option>
-            <option value="part-time">Part Time</option>
-            <option value="contract">Contract</option>
-            <option value="internship">Internship</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Status:</label>
-          <select
-            value={careerForm.is_active}
-            onChange={(e) => setCareerForm({...careerForm, is_active: e.target.value === 'true'})}
-          >
-            <option value={true}>Active</option>
-            <option value={false}>Inactive</option>
-          </select>
-        </div>
-        <div className="form-actions">
-          <button type="submit" disabled={loading}>
-            {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Opening
-          </button>
-          <button type="button" onClick={() => {
-            setCareerAction('all');
-            cancelEdit();
-          }}>Cancel</button>
-        </div>
-      </form>
-    </div>
-  );
-};
-const handleMediaSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  
-  try {
-    const formData = new FormData();
-    Object.keys(mediaForm).forEach(key => {
-      if ((key === 'image' && mediaForm.image) || (key === 'pdf' && mediaForm.pdf)) {
-        formData.append(key, mediaForm[key]);
-      } else {
-        formData.append(key, mediaForm[key]);
-      }
-    });
+    );
+  };
+  const handleMediaSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-    const endpoint = editingMediaId ? 
-      `${API_BASE}/media/${currentMediaType}/${editingMediaId}` : 
-      `${API_BASE}/media/${currentMediaType}`;
+    try {
+      const formData = new FormData();
+      Object.keys(mediaForm).forEach((key) => {
+        if (
+          (key === "image" && mediaForm.image) ||
+          (key === "pdf" && mediaForm.pdf)
+        ) {
+          formData.append(key, mediaForm[key]);
+        } else {
+          formData.append(key, mediaForm[key]);
+        }
+      });
 
-    const config = { headers: { 'Content-Type': 'multipart/form-data' } };
-    
-    await (editingMediaId ? 
-      axios.put(endpoint, formData, config) : 
-      axios.post(endpoint, formData, config));
+      const endpoint = editingMediaId
+        ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
+        : `${API_BASE}/media/${currentMediaType}`;
 
-    alert(`${currentMediaType.slice(0, -1)} ${editingMediaId ? 'updated' : 'created'} successfully!`);
-    setMediaAction('view');
-    setEditingMediaId(null);
-    setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
-    setImagePreview(null);
-  } catch (error) {
-    console.error('Error saving media:', error);
-    alert(`Error saving media: ${error.message}`);
-  }
-  setLoading(false);
-};
+      const config = { headers: { "Content-Type": "multipart/form-data" } };
 
-const handleMediaEdit = (item) => {
-  setEditingMediaId(item.id);
-  setMediaForm({
-    title: item.title,
-    description: item.description,
-    content: item.content,
-    image: null,
-    pdf: null,
-    is_active: item.is_active
-  });
-  if (item.image) setImagePreview(`${API_BASE}/uploads/media/${item.image}`);
-};
+      await (editingMediaId
+        ? axios.put(endpoint, formData, config)
+        : axios.post(endpoint, formData, config));
 
-const handleMediaStatusToggle = async (id, newStatus) => {
-  // Implement status toggle logic
-};
-
-const handleMediaDelete = async (id) => {
-  // Implement delete logic
-};
-  const renderLegalReportForm = () => {
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <button 
-            className="btn-back"
-            onClick={() => {
-              setLegalReportAction('view');
-              setEditingId(null);
-              cancelEdit();
-            }}
-          >
-            ← Back to Reports
-          </button>
-          <h3>{editingId ? 'Edit Legal Report' : 'Add New Legal Report'}</h3>
-        </div>
-      </div>
-      
-      <form onSubmit={(e) => handleSubmit(e, 'reports')} className="dashboard-form">
-        <div className="form-group">
-          <label>Title:</label>
-          <input
-            type="text"
-            value={reportForm.title}
-            onChange={(e) => setReportForm({...reportForm, title: e.target.value})}
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Description:</label>
-          <textarea
-            value={reportForm.description}
-            onChange={(e) => setReportForm({...reportForm, description: e.target.value})}
-            required
-            rows="3"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Content:</label>
-          <textarea
-            value={reportForm.content}
-            onChange={(e) => setReportForm({...reportForm, content: e.target.value})}
-            required
-            rows="5"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Featured Image:</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => handleImageChange(e, setReportForm)}
-          />
-          {imagePreview && (
-            <div className="image-preview">
-              <img src={imagePreview} alt="Preview" />
-            </div>
-          )}
-        </div>
-        
-<div className="form-group">
-  <label>PDF Document:</label>
-  <input
-    type="file"
-    accept=".pdf"
-    onChange={(e) => handlePdfChange(e, setReportForm)}
-  />
-  <small>Upload PDF document (optional)</small>
-  {reportForm.pdf && (
-    <div className="file-preview">
-      <span>📄 {reportForm.pdf.name}</span>
-    </div>
-  )}
-</div>
-        
-        <div className="form-actions">
-          <button type="submit" disabled={loading}>
-            {loading ? 'Processing...' : (editingId ? 'Update' : 'Create')} Report
-          </button>
-          <button type="button" onClick={() => {
-            setLegalReportAction('view');
-            cancelEdit();
-          }}>Cancel</button>
-        </div>
-      </form>
-    </div>
-  );
-};
-
-const renderForm = () => {
-  if (activeTab === 'our-team') {
-    if (teamAction === 'view') {
-      return renderTeamView();
-    } else if (teamAction === 'add' || teamAction === 'update') {
-      return renderTeamForm();
+      alert(
+        `${currentMediaType.slice(0, -1)} ${
+          editingMediaId ? "updated" : "created"
+        } successfully!`
+      );
+      setMediaAction("view");
+      setEditingMediaId(null);
+      setMediaForm({
+        title: "",
+        description: "",
+        content: "",
+        image: null,
+        pdf: null,
+        is_active: true,
+      });
+      setImagePreview(null);
+    } catch (error) {
+      console.error("Error saving media:", error);
+      alert(`Error saving media: ${error.message}`);
     }
-  }
-  
-  // Only show media form when we're in add/update mode for a specific media type
-  if (activeTab === 'media' && currentMediaType && (mediaAction === 'add' || mediaAction === 'update')) {
-    return renderMediaForm();
-  }
+    setLoading(false);
+  };
 
-  if (activeTab === 'careers') {
-    return null;
-  }
+  const handleMediaEdit = (item) => {
+    setEditingMediaId(item.id);
+    setMediaForm({
+      title: item.title,
+      description: item.description,
+      content: item.content,
+      image: null,
+      pdf: null,
+      is_active: item.is_active,
+    });
+    if (item.image) setImagePreview(`${API_BASE}/uploads/media/${item.image}`);
+  };
 
-  if (activeTab === 'reports') {
-    return null;
-  }
+  const handleMediaStatusToggle = async (id, newStatus) => {
+    // Implement status toggle logic
+  };
+
+  const handleMediaDelete = async (id) => {
+    // Implement delete logic
+  };
+  const renderLegalReportForm = () => {
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <button
+              className="btn-back"
+              onClick={() => {
+                setLegalReportAction("view");
+                setEditingId(null);
+                cancelEdit();
+              }}
+            >
+              ← Back to Reports
+            </button>
+            <h3>{editingId ? "Edit Legal Report" : "Add New Legal Report"}</h3>
+          </div>
+        </div>
+
+        <form
+          onSubmit={(e) => handleSubmit(e, "reports")}
+          className="dashboard-form"
+        >
+          <div className="form-group">
+            <label>Title:</label>
+            <input
+              type="text"
+              value={reportForm.title}
+              onChange={(e) =>
+                setReportForm({ ...reportForm, title: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Description:</label>
+            <textarea
+              value={reportForm.description}
+              onChange={(e) =>
+                setReportForm({ ...reportForm, description: e.target.value })
+              }
+              required
+              rows="3"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Content:</label>
+            <textarea
+              value={reportForm.content}
+              onChange={(e) =>
+                setReportForm({ ...reportForm, content: e.target.value })
+              }
+              required
+              rows="5"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Featured Image:</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleImageChange(e, setReportForm)}
+            />
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>PDF Document:</label>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={(e) => handlePdfChange(e, setReportForm)}
+            />
+            <small>Upload PDF document (optional)</small>
+            {reportForm.pdf && (
+              <div className="file-preview">
+                <span>📄 {reportForm.pdf.name}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" disabled={loading}>
+              {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+              Report
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLegalReportAction("view");
+                cancelEdit();
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  };
+
+  const renderForm = () => {
+    if (activeTab === "our-team") {
+      if (teamAction === "view") {
+        return renderTeamView();
+      } else if (teamAction === "add" || teamAction === "update") {
+        return renderTeamForm();
+      }
+    }
+
+    // Only show media form when we're in add/update mode for a specific media type
+    if (
+      activeTab === "media" &&
+      currentMediaType &&
+      (mediaAction === "add" || mediaAction === "update")
+    ) {
+      return renderMediaForm();
+    }
+
+    if (activeTab === "careers") {
+      return null;
+    }
+
+    if (activeTab === "reports") {
+      return null;
+    }
 
     switch (activeTab) {
-      case 'media':
+      case "media":
         if (!currentMediaType) {
           return (
             <div className="media-dashboard">
               <h3>Media Corner</h3>
               <div className="media-types-grid">
-                {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
-                  <div key={type} className="media-type-card" onClick={() => setCurrentMediaType(type)}>
-                    <h4>{getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}</h4>
+                {[
+                  "newsletters",
+                  "stories",
+                  "events",
+                  "blogs",
+                  "documentaries",
+                ].map((type) => (
+                  <div
+                    key={type}
+                    className="media-type-card"
+                    onClick={() => setCurrentMediaType(type)}
+                  >
+                    <h4>
+                      {getMediaTypeIcon(type)}{" "}
+                      {type.charAt(0).toUpperCase() +
+                        type.slice(1).replace("_", " ")}
+                    </h4>
                     <p>{getMediaTypeDescription(type)}</p>
                   </div>
                 ))}
@@ -1330,15 +1691,28 @@ const renderForm = () => {
         }
         return null;
 
-      case 'ourWork':
+      case "ourWork":
         if (!currentOurWorkCategory) {
           return (
             <div className="media-dashboard">
               <h3>Our Interventions</h3>
               <div className="media-types-grid">
-                {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-                  <div key={category} className="media-type-card" onClick={() => setCurrentOurWorkCategory(category)}>
-                    <h4>{getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}</h4>
+                {[
+                  "quality_education",
+                  "livelihood",
+                  "healthcare",
+                  "environment_sustainability",
+                  "integrated_development",
+                ].map((category) => (
+                  <div
+                    key={category}
+                    className="media-type-card"
+                    onClick={() => setCurrentOurWorkCategory(category)}
+                  >
+                    <h4>
+                      {getOurWorkCategoryIcon(category)}{" "}
+                      {getOurWorkCategoryLabel(category)}
+                    </h4>
                     <p>{getOurWorkCategoryDescription(category)}</p>
                   </div>
                 ))}
@@ -1347,428 +1721,572 @@ const renderForm = () => {
           );
         }
         return null;
-      
+
       default:
         return null;
     }
   };
 
   const renderContent = () => {
-    if (activeTab === 'our-team') {
+    if (activeTab === "our-team") {
       return null;
     }
 
     if (loading) return <div className="loading">Loading...</div>;
-      if (activeTab === 'media' && currentMediaType && mediaAction === 'view') {
-    return renderMediaList();
-  }
+    if (activeTab === "media" && currentMediaType && mediaAction === "view") {
+      return renderMediaList();
+    }
 
     switch (activeTab) {
-      case 'reports':
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>Legal Reports</h3>
-          <button 
-            className="btn-primary"
-            onClick={() => {
-              setLegalReportAction('add');
-              setEditingId(null);
-              setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
-              setImagePreview(null);
-            }}
-          >
-            + Add Report
-          </button>
-        </div>
-      </div>
-      
-      {legalReportAction === 'add' || legalReportAction === 'update' ? (
-        renderLegalReportForm()
-      ) : (
-        <>
-          {reports.length === 0 ? (
-            <p>No reports found</p>
-          ) : (
-            <div className="items-grid">
-              {reports.map(report => (
-                <div key={report.id} className="item-card">
-                  {/* Display Image if exists */}
-                  {report.image && (
-                    <div className="item-image">
-                      <img 
-                        src={`${API_BASE}/uploads/reports/${report.image}`} 
-                        alt={report.title}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Display PDF icon if PDF exists */}
-                  {report.pdf && (
-                    <div className="pdf-indicator">
-                      <span className="pdf-icon">📄</span>
-                      <span>PDF Available</span>
-                    </div>
-                  )}
-                  
-                  <div className="item-content">
-                    <h4>{report.title}</h4>
-                    <p>{report.description}</p>
-                    
-                    {/* Action Buttons */}
-                    <div className="item-actions">
-                      {/* View PDF Button if PDF exists */}
-                      {report.pdf && (
-                        <button 
-                          className="btn-pdf"
-                          onClick={() => window.open(`${API_BASE}/uploads/reports/${report.pdf}`, '_blank')}
-                        >
-                          View PDF
-                        </button>
-                      )}
-                      
-                      <button 
-                        className="btn-edit"
-                        onClick={() => {
-                          setLegalReportAction('update');
-                          handleEdit(report, 'reports');
-                        }}
-                      >
-                        Edit
-                      </button>
-                      
-                      <button 
-                        className="btn-delete"
-                        onClick={() => handleDelete(report.id, 'reports')}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+      case "reports":
+        return (
+          <div className="content-list">
+            <div className="content-header">
+              <div className="header-row">
+                <h3>Legal Reports</h3>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    setLegalReportAction("add");
+                    setEditingId(null);
+                    setReportForm({
+                      title: "",
+                      description: "",
+                      content: "",
+                      image: null,
+                      pdf: null,
+                    });
+                    setImagePreview(null);
+                  }}
+                >
+                  + Add Report
+                </button>
+              </div>
             </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-      
-case 'careers':
-  // Filter careers based on selected filter
-  const getFilteredCareers = () => {
-    switch (careerAction) {
-      case 'active':
-        return careers.filter(career => {
-          return career.is_active === true || career.is_active === 1 || career.is_active === 'true' ||
-                 career.status === 'active' || career.status === true || career.status === 1;
-        });
-      case 'inactive':
-        return careers.filter(career => {
-          return career.is_active === false || career.is_active === 0 || career.is_active === 'false' ||
-                 career.status === 'inactive' || career.status === false || career.status === 0 ||
-                 career.is_active === null || career.is_active === undefined;
-        });
-      case 'all':
-      default:
-        return careers;
-    }
-  };
 
-  const filteredCareers = getFilteredCareers();
-  
-  // FIX: Only show form when explicitly in add/update mode
-  if (careerAction === 'add' || careerAction === 'update') {
-    return renderCareerForm();
-  }
+            {legalReportAction === "add" || legalReportAction === "update" ? (
+              renderLegalReportForm()
+            ) : (
+              <>
+                {reports.length === 0 ? (
+                  <p>No reports found</p>
+                ) : (
+                  <div className="items-grid">
+                    {reports.map((report) => (
+                      <div key={report.id} className="item-card">
+                        {/* Display Image if exists */}
+                        {report.image && (
+                          <div className="item-image">
+                            <img
+                              src={`${API_BASE}/uploads/reports/${report.image}`}
+                              alt={report.title}
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                              }}
+                            />
+                          </div>
+                        )}
 
-  // Show the careers list for view modes (all, active, inactive)
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>Career Openings</h3>
-          <button 
-            className="btn-primary"
-            onClick={() => {
-              setCareerAction('add');
-              setEditingId(null);
-              setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
-            }}
-          >
-            + Add Opening
-          </button>
-        </div>
-        
-        <div className="filter-options">
-          <select 
-            value={careerAction} 
-            onChange={(e) => {
-              const selectedValue = e.target.value;
-              setCareerAction(selectedValue);
-              setEditingId(null);
-            }}
-            className="dropdown-select"
-          >
-            <option value="all">All Openings ({careers.length})</option>
-            <option value="active">Active Openings ({careers.filter(c => {
-              return c.is_active === true || c.is_active === 1 || c.is_active === 'true' ||
-                     c.status === 'active' || c.status === true || c.status === 1;
-            }).length})</option>
-            <option value="inactive">Inactive Openings ({careers.filter(c => {
-              return c.is_active === false || c.is_active === 0 || c.is_active === 'false' ||
-                     c.status === 'inactive' || c.status === false || c.status === 0 ||
-                     c.is_active === null || c.is_active === undefined;
-            }).length})</option>
-          </select>
-        </div>
-      </div>
-      
-      {filteredCareers.length === 0 ? (
-        <div className="no-data-message">
-          <p>No career openings found for "{careerAction}" filter</p>
-        </div>
-      ) : (
-        <div className="items-list">
-          {filteredCareers.map(career => {
-            const isActive = career.is_active === true || career.is_active === 1 || career.is_active === 'true' ||
-                            career.status === 'active' || career.status === true || career.status === 1;
-            
-            return (
-              <div key={career.id} className="item-card" style={{
-                borderLeft: `4px solid ${isActive ? '#4CAF50' : '#ff9800'}`
-              }}>
-                <div className="item-content">
-                  <div className="career-header">
-                    <h4>{career.title}</h4>
-                    <span className={`status-badge ${isActive ? 'active' : 'inactive'}`}>
-                      {isActive ? 'ACTIVE' : 'INACTIVE'}
-                    </span>
+                        {/* Display PDF icon if PDF exists */}
+                        {report.pdf && (
+                          <div className="pdf-indicator">
+                            <span className="pdf-icon">📄</span>
+                            <span>PDF Available</span>
+                          </div>
+                        )}
+
+                        <div className="item-content">
+                          <h4>{report.title}</h4>
+                          <p>{report.description}</p>
+
+                          {/* Action Buttons */}
+                          <div className="item-actions">
+                            {/* View PDF Button if PDF exists */}
+                            {report.pdf && (
+                              <button
+                                className="btn-pdf"
+                                onClick={() =>
+                                  window.open(
+                                    `${API_BASE}/uploads/reports/${report.pdf}`,
+                                    "_blank"
+                                  )
+                                }
+                              >
+                                View PDF
+                              </button>
+                            )}
+
+                            <button
+                              className="btn-edit"
+                              onClick={() => {
+                                setLegalReportAction("update");
+                                handleEdit(report, "reports");
+                              }}
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              className="btn-delete"
+                              onClick={() => handleDelete(report.id, "reports")}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <p><strong>Location:</strong> {career.location}</p>
-                  <p><strong>Type:</strong> {career.type}</p>
-                  <p><strong>Created:</strong> {career.created_at ? new Date(career.created_at).toLocaleDateString() : 'N/A'}</p>
-                  
-                  <div className="career-description">
-                    <strong>Description:</strong>
-                    <div dangerouslySetInnerHTML={{ __html: 
-                      career.description ? career.description.substring(0, 150) + '...' : 'No description available'
-                    }} />
-                  </div>
-                  
-                  <div className="item-actions">
-                    {/* Status Toggle Buttons */}
-                    <button 
-                      className={`status-toggle-btn ${isActive ? 'btn-inactive' : 'btn-active'}`}
-                      onClick={() => handleStatusToggle(career.id, !isActive)}
-                    >
-                      {isActive ? 'Deactivate' : 'Activate'}
-                    </button>
-                    
-                    {/* Edit Button */}
-                    <button 
-                      className="btn-edit"
-                      onClick={() => {
-                        setCareerAction('update');
-                        handleEdit(career, 'careers');
+                )}
+              </>
+            )}
+          </div>
+        );
+
+      case "careers":
+        // Filter careers based on selected filter
+        const getFilteredCareers = () => {
+          switch (careerAction) {
+            case "active":
+              return careers.filter((career) => {
+                return (
+                  career.is_active === true ||
+                  career.is_active === 1 ||
+                  career.is_active === "true" ||
+                  career.status === "active" ||
+                  career.status === true ||
+                  career.status === 1
+                );
+              });
+            case "inactive":
+              return careers.filter((career) => {
+                return (
+                  career.is_active === false ||
+                  career.is_active === 0 ||
+                  career.is_active === "false" ||
+                  career.status === "inactive" ||
+                  career.status === false ||
+                  career.status === 0 ||
+                  career.is_active === null ||
+                  career.is_active === undefined
+                );
+              });
+            case "all":
+            default:
+              return careers;
+          }
+        };
+
+        const filteredCareers = getFilteredCareers();
+
+        // FIX: Only show form when explicitly in add/update mode
+        if (careerAction === "add" || careerAction === "update") {
+          return renderCareerForm();
+        }
+
+        // Show the careers list for view modes (all, active, inactive)
+        return (
+          <div className="content-list">
+            <div className="content-header">
+              <div className="header-row">
+                <h3>Career Openings</h3>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    setCareerAction("add");
+                    setEditingId(null);
+                    setCareerForm({
+                      title: "",
+                      description: "",
+                      requirements: "",
+                      location: "",
+                      type: "full-time",
+                      is_active: true,
+                    });
+                  }}
+                >
+                  + Add Opening
+                </button>
+              </div>
+
+              <div className="filter-options">
+                <select
+                  value={careerAction}
+                  onChange={(e) => {
+                    const selectedValue = e.target.value;
+                    setCareerAction(selectedValue);
+                    setEditingId(null);
+                  }}
+                  className="dropdown-select"
+                >
+                  <option value="all">All Openings ({careers.length})</option>
+                  <option value="active">
+                    Active Openings (
+                    {
+                      careers.filter((c) => {
+                        return (
+                          c.is_active === true ||
+                          c.is_active === 1 ||
+                          c.is_active === "true" ||
+                          c.status === "active" ||
+                          c.status === true ||
+                          c.status === 1
+                        );
+                      }).length
+                    }
+                    )
+                  </option>
+                  <option value="inactive">
+                    Inactive Openings (
+                    {
+                      careers.filter((c) => {
+                        return (
+                          c.is_active === false ||
+                          c.is_active === 0 ||
+                          c.is_active === "false" ||
+                          c.status === "inactive" ||
+                          c.status === false ||
+                          c.status === 0 ||
+                          c.is_active === null ||
+                          c.is_active === undefined
+                        );
+                      }).length
+                    }
+                    )
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            {filteredCareers.length === 0 ? (
+              <div className="no-data-message">
+                <p>No career openings found for "{careerAction}" filter</p>
+              </div>
+            ) : (
+              <div className="items-list">
+                {filteredCareers.map((career) => {
+                  const isActive =
+                    career.is_active === true ||
+                    career.is_active === 1 ||
+                    career.is_active === "true" ||
+                    career.status === "active" ||
+                    career.status === true ||
+                    career.status === 1;
+
+                  return (
+                    <div
+                      key={career.id}
+                      className="item-card"
+                      style={{
+                        borderLeft: `4px solid ${
+                          isActive ? "#4CAF50" : "#ff9800"
+                        }`,
                       }}
                     >
-                      Edit
-                    </button>
-                    
-                    {/* Delete Button */}
-                    <button 
-                      className="btn-delete"
-                      onClick={() => handleDelete(career.id, 'careers')}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                      <div className="item-content">
+                        <div className="career-header">
+                          <h4>{career.title}</h4>
+                          <span
+                            className={`status-badge ${
+                              isActive ? "active" : "inactive"
+                            }`}
+                          >
+                            {isActive ? "ACTIVE" : "INACTIVE"}
+                          </span>
+                        </div>
+                        <p>
+                          <strong>Location:</strong> {career.location}
+                        </p>
+                        <p>
+                          <strong>Type:</strong> {career.type}
+                        </p>
+                        <p>
+                          <strong>Created:</strong>{" "}
+                          {career.created_at
+                            ? new Date(career.created_at).toLocaleDateString()
+                            : "N/A"}
+                        </p>
+
+                        <div className="career-description">
+                          <strong>Description:</strong>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: career.description
+                                ? career.description.substring(0, 150) + "..."
+                                : "No description available",
+                            }}
+                          />
+                        </div>
+
+                        <div className="item-actions">
+                          {/* Status Toggle Buttons */}
+                          <button
+                            className={`status-toggle-btn ${
+                              isActive ? "btn-inactive" : "btn-active"
+                            }`}
+                            onClick={() =>
+                              handleStatusToggle(career.id, !isActive)
+                            }
+                          >
+                            {isActive ? "Deactivate" : "Activate"}
+                          </button>
+
+                          {/* Edit Button */}
+                          <button
+                            className="btn-edit"
+                            onClick={() => {
+                              setCareerAction("update");
+                              handleEdit(career, "careers");
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          {/* Delete Button */}
+                          <button
+                            className="btn-delete"
+                            onClick={() => handleDelete(career.id, "careers")}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+            )}
+          </div>
+        );
       default:
         return null;
     }
   };
   const renderReportsContent = () => {
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>Legal Reports</h3>
-          <button 
-            className="btn-primary"
-            onClick={() => {
-              setLegalReportAction('add');
-              setEditingId(null);
-              setReportForm({ title: '', description: '', content: '', image: null, pdf: null });
-              setImagePreview(null);
-            }}
-          >
-            + Add Report
-          </button>
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <h3>Legal Reports</h3>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setLegalReportAction("add");
+                setEditingId(null);
+                setReportForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                });
+                setImagePreview(null);
+              }}
+            >
+              + Add Report
+            </button>
+          </div>
         </div>
-      </div>
-      
-      {legalReportAction === 'add' || legalReportAction === 'update' ? (
-        renderLegalReportForm()
-      ) : (
-        renderReportsList()
-      )}
-    </div>
-  );
-};
 
-const renderCareersContent = () => {
-  const filteredCareers = getFilteredCareers();
-  
-  if (careerAction === 'add' || careerAction === 'update') {
-    return renderCareerForm();
-  }
-
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>Career Openings</h3>
-          <button 
-            className="btn-primary"
-            onClick={() => {
-              setCareerAction('add');
-              setEditingId(null);
-              setCareerForm({ title: '', description: '', requirements: '', location: '', type: 'full-time', is_active: true });
-            }}
-          >
-            + Add Opening
-          </button>
-        </div>
-        
-        <div className="filter-options">
-          <select 
-            value={careerAction} 
-            onChange={(e) => {
-              const selectedValue = e.target.value;
-              setCareerAction(selectedValue);
-              setEditingId(null);
-            }}
-            className="dropdown-select"
-          >
-            <option value="all">All Openings ({careers.length})</option>
-            <option value="active">Active Openings ({careers.filter(c => c.is_active).length})</option>
-            <option value="inactive">Inactive Openings ({careers.filter(c => !c.is_active).length})</option>
-          </select>
-        </div>
+        {legalReportAction === "add" || legalReportAction === "update"
+          ? renderLegalReportForm()
+          : renderReportsList()}
       </div>
-      
-      {renderCareersList(filteredCareers)}
-    </div>
-  );
-};
+    );
+  };
+
+  const renderCareersContent = () => {
+    const filteredCareers = getFilteredCareers();
+
+    if (careerAction === "add" || careerAction === "update") {
+      return renderCareerForm();
+    }
+
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <h3>Career Openings</h3>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setCareerAction("add");
+                setEditingId(null);
+                setCareerForm({
+                  title: "",
+                  description: "",
+                  requirements: "",
+                  location: "",
+                  type: "full-time",
+                  is_active: true,
+                });
+              }}
+            >
+              + Add Opening
+            </button>
+          </div>
+
+          <div className="filter-options">
+            <select
+              value={careerAction}
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                setCareerAction(selectedValue);
+                setEditingId(null);
+              }}
+              className="dropdown-select"
+            >
+              <option value="all">All Openings ({careers.length})</option>
+              <option value="active">
+                Active Openings ({careers.filter((c) => c.is_active).length})
+              </option>
+              <option value="inactive">
+                Inactive Openings ({careers.filter((c) => !c.is_active).length})
+              </option>
+            </select>
+          </div>
+        </div>
+
+        {renderCareersList(filteredCareers)}
+      </div>
+    );
+  };
 
   const selectTopLevelTab = (tab) => {
     setActiveTab(tab);
-    setOpenDropdown(null); 
-    setCurrentTeamType(null); 
-    setCurrentMediaType(null); 
-    setCurrentOurWorkCategory(null); 
-    setTeamAction('view');
-    setCareerAction('current');
-    setLegalReportAction('view');
+    setOpenDropdown(null);
+    setCurrentTeamType(null);
+    setCurrentMediaType(null);
+    setCurrentOurWorkCategory(null);
+    setTeamAction("view");
+    setCareerAction("current");
+    setLegalReportAction("view");
   };
 
   const handleTeamAction = (action) => {
-    if (action === 'team') {
-      setTeamAction('view');
-    } else if (action === 'add') {
-      setTeamAction('add');
+    if (action === "team") {
+      setTeamAction("view");
+    } else if (action === "add") {
+      setTeamAction("add");
       setCurrentTeamType(null);
-    } else if (action === 'update') {
-      setTeamAction('update');
+    } else if (action === "update") {
+      setTeamAction("update");
       setCurrentTeamType(null);
     }
   };
 
-   return (
+  return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h2>Admin Dashboard</h2>
         {currentUser && (
           <div className="user-info">
-            <span>Welcome, {currentUser.username} ({currentUser.role})</span>
-            <button onClick={handleLogout} className="btn-logout">Logout</button>
+            <span>
+              Welcome, {currentUser.username} ({currentUser.role})
+            </span>
+            <button onClick={handleLogout} className="btn-logout">
+              Logout
+            </button>
           </div>
         )}
       </header>
-      
+
       <div className="dashboard-container">
         <nav className="dashboard-sidebar">
           <ul>
             {/* Interventions with Sub Dropdown */}
             {canManageContent && (
-              <li className={activeTab === 'ourWork' ? 'active' : ''}>
+              <li className={activeTab === "ourWork" ? "active" : ""}>
                 <button
                   onClick={() => {
-                    if (openDropdown === 'ourWork') {
+                    if (openDropdown === "ourWork") {
                       setOpenDropdown(null);
                       setInterventionsSubDropdown(null);
                     } else {
-                      setOpenDropdown('ourWork');
-                      setActiveTab('ourWork');
+                      setOpenDropdown("ourWork");
+                      setActiveTab("ourWork");
                       setCurrentOurWorkCategory(null);
-                      setInterventionsAction('view');
+                      setInterventionsAction("view");
                     }
                   }}
                 >
-                  Interventions {openDropdown === 'ourWork' ? '▴' : '▾'}
+                  Interventions {openDropdown === "ourWork" ? "▴" : "▾"}
                 </button>
-                {openDropdown === 'ourWork' && (
+                {openDropdown === "ourWork" && (
                   <ul className="submenu">
-                    {['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development'].map(category => (
-                      <li key={category} className="interventions-dropdown-item">
+                    {[
+                      "quality_education",
+                      "livelihood",
+                      "healthcare",
+                      "environment_sustainability",
+                      "integrated_development",
+                    ].map((category) => (
+                      <li
+                        key={category}
+                        className="interventions-dropdown-item"
+                      >
                         <div className="interventions-type-header">
                           <button
                             className="interventions-type-btn"
-                            onClick={() => handleInterventionsSubDropdown(category)}
+                            onClick={() =>
+                              handleInterventionsSubDropdown(category)
+                            }
                           >
                             <span className="interventions-type-label">
-                              {getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}
+                              {getOurWorkCategoryIcon(category)}{" "}
+                              {getOurWorkCategoryLabel(category)}
                             </span>
-                            <span>{interventionsSubDropdown === category ? '▴' : '▾'}</span>
+                            <span>
+                              {interventionsSubDropdown === category
+                                ? "▴"
+                                : "▾"}
+                            </span>
                           </button>
                         </div>
-                        
+
                         {interventionsSubDropdown === category && (
                           <ul className="interventions-submenu">
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, 'view')}
-                                className={currentOurWorkCategory === category && interventionsAction === 'view' ? 'active-sub' : ''}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "view")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "view"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 📋 View {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, 'add')}
-                                className={currentOurWorkCategory === category && interventionsAction === 'add' ? 'active-sub' : ''}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "add")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "add"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 ➕ Add {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, 'update')}
-                                className={currentOurWorkCategory === category && interventionsAction === 'update' ? 'active-sub' : ''}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "update")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "update"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 ✏️ Update {getOurWorkCategoryLabel(category)}
                               </button>
@@ -1782,27 +2300,32 @@ const renderCareersContent = () => {
               </li>
             )}
 
-
             {/* Media Corner with Sub Dropdown */}
-            <li className={activeTab === 'media' ? 'active' : ''}>
+            <li className={activeTab === "media" ? "active" : ""}>
               <button
                 onClick={() => {
-                  if (openDropdown === 'media') {
+                  if (openDropdown === "media") {
                     setOpenDropdown(null);
                     setMediaSubDropdown(null);
                   } else {
-                    setOpenDropdown('media');
-                    setActiveTab('media');
+                    setOpenDropdown("media");
+                    setActiveTab("media");
                     setCurrentMediaType(null);
-                    setMediaAction('view');
+                    setMediaAction("view");
                   }
                 }}
               >
-                Media Corner {openDropdown === 'media' ? '▴' : '▾'}
+                Media Corner {openDropdown === "media" ? "▴" : "▾"}
               </button>
-              {openDropdown === 'media' && (
+              {openDropdown === "media" && (
                 <ul className="submenu">
-                  {['newsletters', 'stories', 'events', 'blogs', 'documentaries'].map(type => (
+                  {[
+                    "newsletters",
+                    "stories",
+                    "events",
+                    "blogs",
+                    "documentaries",
+                  ].map((type) => (
                     <li key={type} className="media-dropdown-item">
                       <div className="media-type-header">
                         <button
@@ -1810,34 +2333,50 @@ const renderCareersContent = () => {
                           onClick={() => handleMediaSubDropdown(type)}
                         >
                           <span className="media-type-label">
-                            {getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
+                            {getMediaTypeIcon(type)}{" "}
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
                           </span>
-                          <span>{mediaSubDropdown === type ? '▴' : '▾'}</span>
+                          <span>{mediaSubDropdown === type ? "▴" : "▾"}</span>
                         </button>
                       </div>
-                      
+
                       {mediaSubDropdown === type && (
                         <ul className="media-submenu">
                           <li>
                             <button
-                              onClick={() => handleMediaAction(type, 'view')}
-                              className={currentMediaType === type && mediaAction === 'view' ? 'active-sub' : ''}
+                              onClick={() => handleMediaAction(type, "view")}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "view"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               📋 View {type}
                             </button>
                           </li>
                           <li>
                             <button
-                              onClick={() => handleMediaAction(type, 'add')}
-                              className={currentMediaType === type && mediaAction === 'add' ? 'active-sub' : ''}
+                              onClick={() => handleMediaAction(type, "add")}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "add"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               ➕ Add {type.slice(0, -1)}
                             </button>
                           </li>
                           <li>
                             <button
-                              onClick={() => handleMediaAction(type, 'update')}
-                              className={currentMediaType === type && mediaAction === 'update' ? 'active-sub' : ''}
+                              onClick={() => handleMediaAction(type, "update")}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "update"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               ✏️ Update {type.slice(0, -1)}
                             </button>
@@ -1852,36 +2391,38 @@ const renderCareersContent = () => {
 
             {/* Impact Data */}
             {canManageContent && (
-              <li className={activeTab === 'impact' ? 'active' : ''}>
-                <button onClick={() => {
-                  setActiveTab('impact');
-                  setOpenDropdown(null);
-                }}>
+              <li className={activeTab === "impact" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    setActiveTab("impact");
+                    setOpenDropdown(null);
+                  }}
+                >
                   Impact Data
                 </button>
               </li>
             )}
 
             {/* Team */}
-            <li className={activeTab === 'our-team' ? 'active' : ''}>
+            <li className={activeTab === "our-team" ? "active" : ""}>
               <button
                 onClick={() => {
-                  if (openDropdown === 'our-team') {
+                  if (openDropdown === "our-team") {
                     setOpenDropdown(null);
                   } else {
-                    setOpenDropdown('our-team');
-                    setActiveTab('our-team');
+                    setOpenDropdown("our-team");
+                    setActiveTab("our-team");
                   }
                 }}
               >
-                Team {openDropdown === 'our-team' ? '▴' : '▾'}
+                Team {openDropdown === "our-team" ? "▴" : "▾"}
               </button>
-              {openDropdown === 'our-team' && (
+              {openDropdown === "our-team" && (
                 <ul className="submenu">
                   <li>
                     <button
                       onClick={() => {
-                        handleTeamAction('team');
+                        handleTeamAction("team");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1891,7 +2432,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        handleTeamAction('add');
+                        handleTeamAction("add");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1901,7 +2442,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        handleTeamAction('update');
+                        handleTeamAction("update");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1913,25 +2454,25 @@ const renderCareersContent = () => {
             </li>
 
             {/* Career */}
-            <li className={activeTab === 'careers' ? 'active' : ''}>
+            <li className={activeTab === "careers" ? "active" : ""}>
               <button
                 onClick={() => {
-                  if (openDropdown === 'careers') {
+                  if (openDropdown === "careers") {
                     setOpenDropdown(null);
                   } else {
-                    setOpenDropdown('careers');
-                    setActiveTab('careers');
+                    setOpenDropdown("careers");
+                    setActiveTab("careers");
                   }
                 }}
               >
-                Career {openDropdown === 'careers' ? '▴' : '▾'}
+                Career {openDropdown === "careers" ? "▴" : "▾"}
               </button>
-              {openDropdown === 'careers' && (
+              {openDropdown === "careers" && (
                 <ul className="submenu">
                   <li>
                     <button
                       onClick={() => {
-                        setCareerAction('current');
+                        setCareerAction("current");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1941,7 +2482,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        setCareerAction('add');
+                        setCareerAction("add");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1951,7 +2492,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        setCareerAction('update');
+                        setCareerAction("update");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1963,25 +2504,25 @@ const renderCareersContent = () => {
             </li>
 
             {/* Legal Report */}
-            <li className={activeTab === 'reports' ? 'active' : ''}>
+            <li className={activeTab === "reports" ? "active" : ""}>
               <button
                 onClick={() => {
-                  if (openDropdown === 'reports') {
+                  if (openDropdown === "reports") {
                     setOpenDropdown(null);
                   } else {
-                    setOpenDropdown('reports');
-                    setActiveTab('reports');
+                    setOpenDropdown("reports");
+                    setActiveTab("reports");
                   }
                 }}
               >
-                Legal Report {openDropdown === 'reports' ? '▴' : '▾'}
+                Legal Report {openDropdown === "reports" ? "▴" : "▾"}
               </button>
-              {openDropdown === 'reports' && (
+              {openDropdown === "reports" && (
                 <ul className="submenu">
                   <li>
                     <button
                       onClick={() => {
-                        setLegalReportAction('view');
+                        setLegalReportAction("view");
                         setOpenDropdown(null);
                       }}
                     >
@@ -1991,7 +2532,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        setLegalReportAction('add');
+                        setLegalReportAction("add");
                         setOpenDropdown(null);
                       }}
                     >
@@ -2001,7 +2542,7 @@ const renderCareersContent = () => {
                   <li>
                     <button
                       onClick={() => {
-                        setLegalReportAction('update');
+                        setLegalReportAction("update");
                         setOpenDropdown(null);
                       }}
                     >
@@ -2014,26 +2555,32 @@ const renderCareersContent = () => {
 
             {/* User Management */}
             {canManageUsers && (
-              <li className={(activeTab === 'users' || activeTab === 'registrations') ? 'active' : ''}>
+              <li
+                className={
+                  activeTab === "users" || activeTab === "registrations"
+                    ? "active"
+                    : ""
+                }
+              >
                 <button
                   onClick={() => {
-                    if (openDropdown === 'users') {
+                    if (openDropdown === "users") {
                       setOpenDropdown(null);
                     } else {
-                      setOpenDropdown('users');
-                      setActiveTab('users');
+                      setOpenDropdown("users");
+                      setActiveTab("users");
                     }
                   }}
                 >
-                  User Management {openDropdown === 'users' ? '▴' : '▾'}
+                  User Management {openDropdown === "users" ? "▴" : "▾"}
                 </button>
-                {openDropdown === 'users' && (
+                {openDropdown === "users" && (
                   <ul className="submenu">
                     <li>
                       <button
-                        className={activeTab === 'users' ? 'active-sub' : ''}
+                        className={activeTab === "users" ? "active-sub" : ""}
                         onClick={() => {
-                          setActiveTab('users');
+                          setActiveTab("users");
                           setOpenDropdown(null);
                         }}
                       >
@@ -2042,9 +2589,11 @@ const renderCareersContent = () => {
                     </li>
                     <li>
                       <button
-                        className={activeTab === 'registrations' ? 'active-sub' : ''}
+                        className={
+                          activeTab === "registrations" ? "active-sub" : ""
+                        }
                         onClick={() => {
-                          setActiveTab('registrations');
+                          setActiveTab("registrations");
                           setOpenDropdown(null);
                         }}
                       >
@@ -2057,39 +2606,56 @@ const renderCareersContent = () => {
             )}
           </ul>
         </nav>
-        
+
         <main className="dashboard-content">
           {/* Your existing content rendering logic remains the same */}
           {currentMediaType ? (
             <div className="media-content-section">
               <div className="media-content-header">
                 <h3>
-                  {currentMediaType.charAt(0).toUpperCase() + currentMediaType.slice(1)} Management
-                  {mediaAction === 'add' && ' - Add New'}
-                  {mediaAction === 'update' && ' - Edit'}
+                  {currentMediaType.charAt(0).toUpperCase() +
+                    currentMediaType.slice(1)}{" "}
+                  Management
+                  {mediaAction === "add" && " - Add New"}
+                  {mediaAction === "update" && " - Edit"}
                 </h3>
                 <div className="media-action-controls">
-                  <button 
+                  <button
                     className="btn-back"
                     onClick={() => {
-                      if (mediaAction !== 'view') {
-                        setMediaAction('view');
+                      if (mediaAction !== "view") {
+                        setMediaAction("view");
                         setEditingMediaId(null);
                       } else {
                         setCurrentMediaType(null);
                       }
-                      setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
+                      setMediaForm({
+                        title: "",
+                        description: "",
+                        content: "",
+                        image: null,
+                        pdf: null,
+                        is_active: true,
+                      });
                     }}
                   >
-                    ← Back to {mediaAction !== 'view' ? currentMediaType : 'Media Corner'}
+                    ← Back to{" "}
+                    {mediaAction !== "view" ? currentMediaType : "Media Corner"}
                   </button>
-                  {mediaAction === 'view' && (
-                    <button 
+                  {mediaAction === "view" && (
+                    <button
                       className="btn-primary"
                       onClick={() => {
-                        setMediaAction('add');
+                        setMediaAction("add");
                         setEditingMediaId(null);
-                        setMediaForm({ title: '', description: '', content: '', image: null, pdf: null, is_active: true });
+                        setMediaForm({
+                          title: "",
+                          description: "",
+                          content: "",
+                          image: null,
+                          pdf: null,
+                          is_active: true,
+                        });
                       }}
                     >
                       + Add {currentMediaType.slice(0, -1)}
@@ -2097,16 +2663,16 @@ const renderCareersContent = () => {
                   )}
                 </div>
               </div>
-              
-              {mediaAction === 'view' ? renderMediaList() : renderMediaForm()}
+
+              {mediaAction === "view" ? renderMediaList() : renderMediaForm()}
             </div>
           ) : currentOurWorkCategory ? (
             renderOurWorkManagement()
-          ) : activeTab === 'users' && canManageUsers ? (
+          ) : activeTab === "users" && canManageUsers ? (
             <UserManagement />
-          ) : activeTab === 'registrations' && canManageUsers ? (
+          ) : activeTab === "registrations" && canManageUsers ? (
             <RegistrationRequests />
-          ) : activeTab === 'impact' && canManageContent ? (
+          ) : activeTab === "impact" && canManageContent ? (
             <ImpactDataEditor />
           ) : (
             <>
