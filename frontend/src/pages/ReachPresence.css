@@ -598,8 +598,8 @@
   }
 
   .rp-impact-title {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 1.7rem;
+    line-height: 28px;
     margin-bottom: 2rem;
   }
   .rp-impact-title::before {
@@ -616,9 +616,8 @@
   }
 
   .rp-title {
-    font-size: 1.8rem;
-    line-height: 34px;
-    margin-bottom: 2rem;
+    font-size: 1.6rem;
+    line-height: 28px;
   }
   .rp-title::before {
     right: 40px;
@@ -634,9 +633,8 @@
   }
 
   .rpt-title {
-    font-size: 1.8rem;
-    line-height: 34px;
-    margin-bottom: 2rem;
+    font-size: 1.6rem;
+    line-height: 28px;
   }
   .rpt-title::before {
     right: 40px;

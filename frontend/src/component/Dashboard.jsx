@@ -77,14 +77,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     currentUser && ["super_admin", "admin"].includes(currentUser.role);
   const API_BASE = "http://localhost:5000/api";
 
-  const [trusteeForm, setTrusteeForm] = useState({
-    name: "",
-    position: "",
-    bio: "",
-    image: null,
-    social_links: "{}",
-  });
-
   // Clear sub-sections when switching tabs
   useEffect(() => {
     setCurrentMediaType(null);

@@ -165,13 +165,13 @@
   border-radius: 5px;
   overflow: hidden;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .item-image {
@@ -270,20 +270,19 @@
   .dashboard-container {
     flex-direction: column;
   }
-  
+
   .dashboard-sidebar {
     width: 100%;
   }
-  
+
   .items-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .media-types {
     flex-direction: column;
   }
 }
-
 
 /* Password Reset Modal Styles */
 .modal-overlay {
@@ -349,7 +348,7 @@
 
 .refresh-btn {
   padding: 0.5rem 1rem;
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
@@ -519,7 +518,7 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: #4caf50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
@@ -539,7 +538,7 @@
 }
 
 .modal-actions button[type="submit"] {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -562,7 +561,7 @@
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid #4caf50;
 }
 
 .user-info p {
@@ -605,7 +604,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .item-image img {
@@ -696,7 +695,7 @@
 
 .media-type-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-color: #007bff;
 }
 
@@ -709,7 +708,6 @@
   color: #666;
   margin: 0;
 }
-
 
 /* Publish Options Styles */
 .publish-options {
@@ -846,7 +844,7 @@
   align-self: start;
   height: 100vh;
   overflow-y: auto;
-  background: #1f2533;          
+  background: #1f2533;
   padding: 12px;
 }
 
@@ -884,7 +882,7 @@
 .submenu {
   margin: 6px 0 8px 12px;
   padding-left: 8px;
-  border-left: 2px solid rgba(255,255,255,0.1);
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .submenu li {
@@ -923,19 +921,17 @@
 
 /* Optional: keep your existing styles for forms, lists, cards, etc. */
 
-
-
 /* Responsive Improvements */
 @media (max-width: 768px) {
   .publish-radio-group {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .media-form {
     padding: 1rem;
   }
-  
+
   .form-group {
     margin-bottom: 1rem;
   }
@@ -981,7 +977,6 @@
   font-size: 14px;
 }
 
-
 /* Form Styles */
 .career-form {
   background: #f8f9fa;
@@ -1025,7 +1020,7 @@
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid #e9ecef;
 }
 
@@ -1120,7 +1115,6 @@
   margin: 20px 0;
 }
 
-
 /* Impact management */
 .dashboard-form-container {
   padding: 20px;
@@ -1201,7 +1195,7 @@
   background: #2c3e50;
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   position: absolute;
   z-index: 1000;
   min-width: 200px;
@@ -1268,13 +1262,11 @@
     box-shadow: none;
     margin-top: 5px;
   }
-  
+
   .dashboard-sidebar .submenu button {
     padding: 10px 15px 10px 30px;
   }
 }
-
-
 
 /* Team Dashboard Styles */
 .team-dashboard {
@@ -1336,7 +1328,7 @@
   background: white;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .team-table th,
@@ -1446,7 +1438,7 @@
 .team-type-btn:hover {
   border-color: #007bff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .team-type-btn span {
@@ -1647,7 +1639,7 @@
 }
 
 .status-badge.active {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -1774,7 +1766,7 @@
 }
 
 .status-badge.active {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -1807,7 +1799,7 @@
 }
 
 .btn-active {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -1842,7 +1834,7 @@
 }
 
 .btn-edit {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
 }
 
@@ -1905,7 +1897,7 @@
   border-radius: 8px;
   padding: 15px;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .item-image {
@@ -1990,9 +1982,6 @@
   border-radius: 3px;
   font-size: 12px;
 }
-
-
-
 
 /* Add these styles to your existing Dashboard.css */
 
@@ -2157,7 +2146,7 @@
   background: white;
   border-radius: 8px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .media-content-header {
@@ -2218,7 +2207,7 @@
 
 .media-item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .media-item-header {
@@ -2305,17 +2294,17 @@
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .media-action-icons {
     align-self: flex-end;
   }
-  
+
   .media-content-header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
   }
-  
+
   .media-action-controls {
     width: 100%;
     justify-content: space-between;

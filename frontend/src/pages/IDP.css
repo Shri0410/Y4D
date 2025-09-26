@@ -246,7 +246,12 @@
     margin-top: 2.5rem;
   }
   .idp-grid {
-    margin: auto 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0px;
+  }
+
+  .idp-card {
+    width: 320px;
   }
 }
 
@@ -278,5 +283,14 @@
   }
   .idp-section-title span::after {
     left: 10px;
+  }
+
+  .idp-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .idp-card {
+    width: 100%;
+    max-width: 380px;
   }
 }

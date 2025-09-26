@@ -245,7 +245,12 @@
     left: 70px;
   }
   .qe-grid {
-    margin: auto 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0px;
+  }
+
+  .qe-card {
+    width: 320px;
   }
 }
 
@@ -278,5 +283,14 @@
 
   .qe-title span::after {
     left: 20px;
+  }
+
+  .qe-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qe-card {
+    width: 100%;
+    max-width: 380px;
   }
 }
