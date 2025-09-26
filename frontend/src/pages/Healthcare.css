@@ -248,7 +248,12 @@
     left: 120px;
   }
   .hc-grid {
-    margin: auto 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0px;
+  }
+
+  .hc-card {
+    width: 320px;
   }
 }
 
@@ -276,5 +281,14 @@
   }
   .hc-title span::after {
     left: 20px;
+  }
+
+  .hc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hc-card {
+    width: 100%;
+    max-width: 380px;
   }
 }

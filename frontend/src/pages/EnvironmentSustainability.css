@@ -241,7 +241,12 @@
     left: 70px;
   }
   .es-grid {
-    margin: auto 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0px;
+  }
+
+  .es-card {
+    width: 320px;
   }
 }
 
@@ -269,5 +274,14 @@
   }
   .es-title span::after {
     left: 0px;
+  }
+
+  .es-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .es-card {
+    width: 100%;
+    max-width: 380px;
   }
 }

@@ -259,7 +259,12 @@
     left: 120px;
   }
   .lv-grid {
-    margin: auto 30px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0px;
+  }
+
+  .lv-card {
+    width: 320px;
   }
 }
 
@@ -292,5 +297,14 @@
 
   .lv-title span::after {
     left: 20px;
+  }
+
+  .lv-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lv-card {
+    width: 100%;
+    max-width: 380px;
   }
 }

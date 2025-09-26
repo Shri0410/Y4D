@@ -1096,8 +1096,8 @@
   }
 
   .Inter-title {
-    font-size: 1.8rem;
-    line-height: 30px;
+    font-size: 1.6rem;
+    line-height: 25px;
     margin-bottom: 2rem;
   }
   .Inter-title::before {
@@ -1132,15 +1132,14 @@
   }
 
   .accreditations-title {
-    font-size: 1.8rem;
-    line-height: 30px;
+    font-size: 1.6rem;
     margin-bottom: 2rem;
   }
   .accreditations-title::before {
-    right: 30px;
+    right: 35px;
   }
   .accreditations-title::after {
-    right: 10px;
+    right: 15px;
   }
   .accreditations-title span::before {
     left: 30px;

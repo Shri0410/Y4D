@@ -82,8 +82,8 @@ const LegalReports = () => {
             <p>No reports available</p>
           ) : (
             reports.map((report) => (
-              <div className="report-card" key={report.id}>
-                <div className="report-image">
+              <div className="lr-card" key={report.id}>
+                <div className="lr-image">
                   {report.image ? (
                     <img
                       src={`${BACKEND_URL}/api/uploads/reports/${report.image}`}

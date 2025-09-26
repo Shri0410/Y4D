@@ -435,10 +435,8 @@
   .FOT-section {
     padding-top: 40px;
   }
-  .team-card,
-  .useful-card {
-    flex: 1 1 calc(50% - 20px);
-    max-width: calc(50% - 20px);
+  .team-container {
+    grid-template-columns: repeat(2, 1fr);
   }
   .trustee-title {
     font-size: 1.8rem;
@@ -620,5 +618,13 @@
 
   .useful-title span::after {
     left: 20px;
+  }
+
+  .team-container {
+    grid-template-columns: 1fr;
+  }
+
+  .team-card {
+    padding: 20px 15px;
   }
 }
