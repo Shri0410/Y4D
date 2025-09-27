@@ -257,14 +257,14 @@
 }
 
 .team-card h3 {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 10px 0 10px;
   line-height: 4px;
 }
 
 .team-card .role {
   color: #222;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 /* Useful Section */
@@ -282,7 +282,7 @@
   background: #fff;
   border-radius: 10px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 50px 16px;
+  padding: 30px 16px;
   text-align: center;
   transition: transform 0.3s;
 }
@@ -304,17 +304,25 @@
 .use-btn {
   display: flex;
   justify-content: center;
-  margin-top: 5px;
-  gap: 8px;
+  background: none;
+  border: none;
   text-decoration: none;
-  color: black;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.use-btn:hover {
+  color: #000;
 }
 .use-btn::after {
   content: "›";
   font-size: 1.1rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 

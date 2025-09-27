@@ -450,19 +450,29 @@
 }
 
 .about-btn {
+  background: none;
+  border: none;
+  text-decoration: none;
   display: flex;
   justify-content: end;
-  gap: 8px;
-  text-decoration: none;
-  color: black;
-  font-size: 1.1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  align-items: center;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.about-btn:hover {
+  color: #000;
 }
 
 .about-btn::after {
   content: "›";
   font-size: 1.2rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 .about-btn:hover::after {
@@ -558,7 +568,6 @@
   padding: 20px;
   border-radius: 10px;
   background: #fff;
-  align-content: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -578,20 +587,25 @@
 .inter-btn {
   display: flex;
   justify-content: center;
-  margin-top: 5px;
-  gap: 8px;
+  background: none;
+  border: none;
   text-decoration: none;
-  color: black;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
 }
+
 .inter-btn:hover {
-  font-weight: bold;
+  color: #000;
 }
 .inter-btn::after {
   content: "›";
   font-size: 1.1rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 .inter-btn:hover::after {
@@ -601,18 +615,26 @@
 .MC-btn {
   display: flex;
   justify-content: center;
-  margin-top: 5px;
-  gap: 8px;
+  background: none;
+  border: none;
   text-decoration: none;
-  color: black;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.MC-btn:hover {
+  color: #000;
 }
 
 .MC-btn::after {
   content: "›";
   font-size: 1.1rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 .MC-btn:hover::after {
@@ -636,52 +658,45 @@
   text-align: center;
 }
 .accreditations-container {
-  background: #fff;
+  background: #f7f7f7;
   max-width: 1200px;
   margin: 0px auto;
   padding: 60px 20px;
   transition: all 0.5s ease;
 }
-.accreditations-container:hover {
-  transform: scale(1.02);
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
-}
 
 .accreditation-card {
-  max-width: 260px;
+  max-width: 270px; /* fixed width */
+  height: 280px; /* fixed height */
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  border: 1px solid black;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  height: 100%;
+  justify-content: flex-start;
+  align-items: center;
 }
-
 .accreditation-card:hover {
-  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
 }
 
 .accreditation-icon {
-  width: 225px;
-  height: 190px;
+  width: 200px;
+  height: 160px;
   object-fit: contain;
   margin: 0 auto 15px;
   transition: transform 0.3s ease;
-}
-
-.accreditation-card:hover .accreditation-icon {
-  transform: scale(1.1);
 }
 
 .accreditation-card h3 {
   font-size: 1rem;
   font-weight: 600;
   color: #333;
-  margin-top: 10px;
+  margin-top: auto; /* pushes text down for alignment */
+  text-align: center;
 }
 
 .Media-section {
@@ -738,6 +753,10 @@
 }
 .Media-card:hover {
   transform: translateY(-5px);
+}
+
+.grid title {
+  font-size: 10px;
 }
 
 /* Responsive */

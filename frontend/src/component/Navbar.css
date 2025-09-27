@@ -75,8 +75,8 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 3px;
-  background: linear-gradient(to right, #f26722, #0f6741);
+  height: 1.8px;
+  background: #fb6401;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease;
@@ -93,6 +93,11 @@
 .nav-list a.active::after,
 .nav-list .dropdown > button.active::after {
   transform: scaleX(1);
+  font-weight: normal;
+}
+.nav-list a.active,
+.nav-list .dropdown > button.active {
+  font-weight: normal;
 }
 .dropdown {
   position: relative;

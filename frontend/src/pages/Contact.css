@@ -287,7 +287,8 @@
 }
 
 .p-btn {
-  background: transparent;
+  background: #c2c1c0;
+  border: none;
   color: #222;
 }
 
@@ -297,7 +298,8 @@
 }
 
 .vi-btn {
-  background: transparent;
+  background: #c2c1c0;
+  border: none;
   color: #222;
 }
 

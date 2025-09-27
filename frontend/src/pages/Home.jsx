@@ -42,7 +42,6 @@ import accr4 from "../assets/Accredations/NGO Grading Certificate_Y4D_June23_Des
 
 import Partners1 from "./Partners1";
 import Partners2 from "./Partners2";
-import Partners3 from "./Partners3";
 
 // ✅ Store your array here
 const sdgImages = [
@@ -309,94 +308,96 @@ const Home = () => {
       {/* Partners Section */}
       <section className="Partners-section">
         <Partners1 />
-        {/* <Partners2 />
-        <Partners3 /> */}
+        <Partners2 />
+        {/* <Partners3 /> */}
       </section>
 
       {/* Accreditations Section */}
-      <div className="accreditations-container">
-        <h2 className="accreditations-title">
-          Accreditations<span></span>
-        </h2>
-        {isMobile ? (
-          // MOBILE VIEW: one column list
-          <div className="accreditations-list" style={{ gap: "10px" }}>
-            {[
-              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-              { img: accr2, title: "Bhamashah Award" },
-              { img: accr3, title: "India Impact Summit – Socio Story" },
-              { img: accr4, title: "IRR NGO Grading - 3" },
-            ].map((item, index) => (
-              <div key={index} className="accreditation-card">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="accreditation-icon"
-                />
-                <h3>{item.title}</h3>
-              </div>
-            ))}
-          </div>
-        ) : isTablet ? (
-          // TABLET VIEW: maybe 2-column grid
-          <div
-            className="accreditations-list"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: "80px",
-            }}
-          >
-            {[
-              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-              { img: accr2, title: "Bhamashah Award" },
-              { img: accr3, title: "India Impact Summit – Socio Story" },
-              { img: accr4, title: "IRR NGO Grading - 3" },
-            ].map((item, index) => (
-              <div key={index} className="accreditation-card">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="accreditation-icon"
-                />
-                <h3>{item.title}</h3>
-              </div>
-            ))}
-          </div>
-        ) : (
-          // DESKTOP VIEW: slider
-          <Slider
-            slidesToShow={4}
-            slidesToScroll={1}
-            infinite={true}
-            autoplay={true}
-            autoplaySpeed={2000}
-            speed={800}
-            arrows={false}
-            dots={false}
-            responsive={[
-              { breakpoint: 1024, settings: { slidesToShow: 3 } },
-              { breakpoint: 768, settings: { slidesToShow: 2 } },
-              { breakpoint: 480, settings: { slidesToShow: 1 } },
-            ]}
-          >
-            {[
-              { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-              { img: accr2, title: "Bhamashah Award" },
-              { img: accr3, title: "India Impact Summit – Socio Story" },
-              { img: accr4, title: "IRR NGO Grading - 3" },
-            ].map((item, index) => (
-              <div key={index} className="accreditation-card">
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="accreditation-icon"
-                />
-                <h3>{item.title}</h3>
-              </div>
-            ))}
-          </Slider>
-        )}
+      <div className="accreditations-section">
+        <div className="accreditations-container">
+          <h2 className="accreditations-title">
+            Accreditations<span></span>
+          </h2>
+          {isMobile ? (
+            // MOBILE VIEW: one column list
+            <div className="accreditations-list" style={{ gap: "10px" }}>
+              {[
+                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+                { img: accr2, title: "Bhamashah Award" },
+                { img: accr3, title: "India Impact Summit – Socio Story" },
+                { img: accr4, title: "IRR NGO Grading - 3" },
+              ].map((item, index) => (
+                <div key={index} className="accreditation-card">
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="accreditation-icon"
+                  />
+                  <h3>{item.title}</h3>
+                </div>
+              ))}
+            </div>
+          ) : isTablet ? (
+            // TABLET VIEW: maybe 2-column grid
+            <div
+              className="accreditations-list"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "80px",
+              }}
+            >
+              {[
+                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+                { img: accr2, title: "Bhamashah Award" },
+                { img: accr3, title: "India Impact Summit – Socio Story" },
+                { img: accr4, title: "IRR NGO Grading - 3" },
+              ].map((item, index) => (
+                <div key={index} className="accreditation-card">
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="accreditation-icon"
+                  />
+                  <h3>{item.title}</h3>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // DESKTOP VIEW: slider
+            <Slider
+              slidesToShow={4}
+              slidesToScroll={1}
+              infinite={true}
+              autoplay={true}
+              autoplaySpeed={2000}
+              speed={800}
+              arrows={false}
+              dots={false}
+              responsive={[
+                { breakpoint: 1024, settings: { slidesToShow: 3 } },
+                { breakpoint: 768, settings: { slidesToShow: 2 } },
+                { breakpoint: 480, settings: { slidesToShow: 1 } },
+              ]}
+            >
+              {[
+                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
+                { img: accr2, title: "Bhamashah Award" },
+                { img: accr3, title: "India Impact Summit – Socio Story" },
+                { img: accr4, title: "IRR NGO Grading - 3" },
+              ].map((item, index) => (
+                <div key={index} className="accreditation-card">
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="accreditation-icon"
+                  />
+                  <h3>{item.title}</h3>
+                </div>
+              ))}
+            </Slider>
+          )}
+        </div>
       </div>
 
       {/* Media Highlights Section */}
