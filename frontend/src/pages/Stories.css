@@ -141,21 +141,26 @@
 .st-read-more {
   display: flex;
   justify-content: start;
-  margin-top: 10px;
-  gap: 8px;
-  text-decoration: none;
-  color: black;
-  font-size: 1rem;
-  font-weight: 600;
   background: none;
   border: none;
+  text-decoration: none;
+  color: #666;
+  font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.st-read-more:hover {
+  color: #000;
 }
 
 .st-read-more::after {
   content: "›";
   font-size: 1.1rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 

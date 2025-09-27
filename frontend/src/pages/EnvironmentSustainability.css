@@ -195,18 +195,26 @@
 .es-read-more {
   display: flex;
   justify-content: start;
-  margin-top: 10px;
-  gap: 8px;
+  background: none;
+  border: none;
   text-decoration: none;
-  color: black;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 10px;
+  font-family: inherit;
+  transition: color 0.3s ease;
+}
+
+.es-read-more:hover {
+  color: #000;
 }
 
 .es-read-more::after {
   content: "›";
   font-size: 1.1rem;
+  margin-left: 5px;
   transition: transform 0.3s ease;
 }
 

@@ -3,8 +3,8 @@ import Slider from "react-slick";
 import "./Partners.css";
 
 const Partners1 = () => {
-  // first 19 images
-  const partnerLogos = Array.from({ length: 55 }, (_, i) => {
+  // logos 1–27
+  const partnerLogos = Array.from({ length: 27 }, (_, i) => {
     const num = (i + 1).toString().padStart(2, "0");
     return `/partners/Partners-${num}.png`;
   });
