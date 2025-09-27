@@ -761,16 +761,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Content:</label>
-            <textarea
-              value={mediaForm.content}
-              onChange={(e) =>
-                setMediaForm({ ...mediaForm, content: e.target.value })
-              }
-              rows="5"
-            />
-          </div>
+          {['stories', 'blogs'].includes(currentMediaType) && (
+            <div className="form-group">
+              <label>Content:</label>
+              <textarea
+                value={mediaForm.content}
+                onChange={(e) =>
+                  setMediaForm({ ...mediaForm, content: e.target.value })
+                }
+                rows="5"
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Featured Image:</label>
@@ -786,17 +788,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             )}
           </div>
 
-          <div className="form-group">
-            <label>PDF Document (optional):</label>
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                setMediaForm((prev) => ({ ...prev, pdf: file }));
-              }}
-            />
-          </div>
+          {currentMediaType === 'newsletters' && (
+            <div className="form-group">
+              <label>PDF Document:</label>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setMediaForm((prev) => ({ ...prev, pdf: file }));
+                }}
+              />
+            </div>
+          )}
 
           <div className="form-group">
             <label>Status:</label>
@@ -1194,140 +1198,145 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
-  const renderMediaList = () => {
-    // This would fetch actual data from your API - for now using mock data structure
-    const mediaItems = []; // You'll populate this with actual data from your API
+const [mediaItems, setMediaItems] = useState([]);
 
-    return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <h3>
-              {currentMediaType
-                ? currentMediaType.charAt(0).toUpperCase() +
-                  currentMediaType.slice(1) +
-                  " Management"
-                : "Media Corner"}
-            </h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setMediaAction("add");
-                setEditingMediaId(null);
-                setMediaForm({
-                  title: "",
-                  description: "",
-                  content: "",
-                  image: null,
-                  pdf: null,
-                  is_active: true,
-                });
-              }}
-            >
-              + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
-            </button>
-          </div>
+// Add this useEffect to fetch media data
+useEffect(() => {
+  if (activeTab === "media" && currentMediaType && mediaAction === "view") {
+    fetchMediaData();
+  }
+}, [activeTab, currentMediaType, mediaAction]);
 
-          <div className="filter-options">
-            <select
-              value={mediaAction}
-              onChange={(e) => {
-                const action = e.target.value;
-                setMediaAction(action);
-                if (action === "view") {
-                  setEditingMediaId(null);
-                }
-              }}
-              className="dropdown-select"
-            >
-              <option value="view">View All</option>
-              <option value="add">Add New</option>
-              <option value="update">Update Existing</option>
-            </select>
-          </div>
+const fetchMediaData = async () => {
+  if (!currentMediaType) return;
+  
+  setLoading(true);
+  try {
+    const response = await axios.get(`${API_BASE}/media/${currentMediaType}`);
+    setMediaItems(response.data);
+  } catch (error) {
+    console.error(`Error fetching ${currentMediaType}:`, error);
+    alert(`Error fetching ${currentMediaType}: ${error.message}`);
+  }
+  setLoading(false);
+};
+
+const renderMediaList = () => {
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <h3>
+            {currentMediaType
+              ? currentMediaType.charAt(0).toUpperCase() +
+                currentMediaType.slice(1) +
+                " Management"
+              : "Media Corner"}
+          </h3>
+          <button
+            className="btn-primary"
+            onClick={() => {
+              setMediaAction("add");
+              setEditingMediaId(null);
+              setMediaForm({
+                title: "",
+                description: "",
+                content: "",
+                image: null,
+                pdf: null,
+                is_active: true,
+              });
+            }}
+          >
+            + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
+          </button>
         </div>
+      </div>
 
-        {mediaItems.length === 0 ? (
-          <div className="no-data-message">
-            <p>No {currentMediaType || "media items"} found</p>
-            <p>
-              <small>Total items: {mediaItems.length}</small>
-            </p>
-          </div>
-        ) : (
-          <div className="items-list">
-            {mediaItems.map((item) => (
-              <div
-                key={item.id}
-                className="item-card"
-                style={{
-                  borderLeft: `4px solid ${
-                    item.is_active ? "#4CAF50" : "#ff9800"
-                  }`,
-                }}
-              >
-                <div className="item-content">
-                  <div className="media-header">
-                    <h4>{item.title}</h4>
-                    <span
-                      className={`status-badge ${
-                        item.is_active ? "active" : "inactive"
-                      }`}
-                    >
-                      {item.is_active ? "ACTIVE" : "INACTIVE"}
-                    </span>
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : mediaItems.length === 0 ? (
+        <div className="no-data-message">
+          <p>No {currentMediaType || "media items"} found</p>
+          <p>
+            <small>Total items: {mediaItems.length}</small>
+          </p>
+        </div>
+      ) : (
+        <div className="items-list">
+          {mediaItems.map((item) => (
+            <div
+              key={item.id}
+              className="item-card"
+              style={{
+                borderLeft: `4px solid ${
+                  item.is_published ? "#4CAF50" : "#ff9800"
+                }`,
+              }}
+            >
+              <div className="item-content">
+                <div className="media-header">
+                  <h4>{item.title}</h4>
+                  <span
+                    className={`status-badge ${
+                      item.is_published ? "active" : "inactive"
+                    }`}
+                  >
+                    {item.is_published ? "PUBLISHED" : "DRAFT"}
+                  </span>
+                </div>
+                
+                {item.image && (
+                  <div className="media-image-preview">
+                    <img 
+                      src={`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`} 
+                      alt={item.title}
+                    />
                   </div>
-                  <p>
-                    <strong>Type:</strong> {currentMediaType}
-                  </p>
-                  <p>
-                    <strong>Created:</strong>{" "}
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString()
-                      : "N/A"}
-                  </p>
+                )}
+                
+                <p>
+                  <strong>Description:</strong> {item.description}
+                </p>
+                <p>
+                  <strong>Created:</strong>{" "}
+                  {item.created_at
+                    ? new Date(item.created_at).toLocaleDateString()
+                    : "N/A"}
+                </p>
 
-                  <div className="media-description">
-                    <p>{item.description}</p>
-                  </div>
+                <div className="item-actions">
+                  <button
+                    className={`status-toggle-btn ${
+                      item.is_published ? "btn-inactive" : "btn-active"
+                    }`}
+                    onClick={() => handleMediaStatusToggle(item.id, !item.is_published)}
+                  >
+                    {item.is_published ? "Unpublish" : "Publish"}
+                  </button>
 
-                  <div className="item-actions">
-                    <button
-                      className={`status-toggle-btn ${
-                        item.is_active ? "btn-inactive" : "btn-active"
-                      }`}
-                      onClick={() =>
-                        handleMediaStatusToggle(item.id, !item.is_active)
-                      }
-                    >
-                      {item.is_active ? "Deactivate" : "Activate"}
-                    </button>
+                  <button
+                    className="btn-edit"
+                    onClick={() => handleMediaEdit(item)}
+                  >
+                    Edit
+                  </button>
 
-                    <button
-                      className="btn-edit"
-                      onClick={() => {
-                        setMediaAction("update");
-                        handleMediaEdit(item);
-                      }}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleMediaDelete(item.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleMediaDelete(item.id)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
   const renderCareerForm = () => {
     return (
@@ -1446,76 +1455,141 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
-  const handleMediaSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleMediaSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const formData = new FormData();
-      Object.keys(mediaForm).forEach((key) => {
-        if (
-          (key === "image" && mediaForm.image) ||
-          (key === "pdf" && mediaForm.pdf)
-        ) {
-          formData.append(key, mediaForm[key]);
-        } else {
-          formData.append(key, mediaForm[key]);
-        }
-      });
-
-      const endpoint = editingMediaId
-        ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
-        : `${API_BASE}/media/${currentMediaType}`;
-
-      const config = { headers: { "Content-Type": "multipart/form-data" } };
-
-      await (editingMediaId
-        ? axios.put(endpoint, formData, config)
-        : axios.post(endpoint, formData, config));
-
-      alert(
-        `${currentMediaType.slice(0, -1)} ${
-          editingMediaId ? "updated" : "created"
-        } successfully!`
-      );
-      setMediaAction("view");
-      setEditingMediaId(null);
-      setMediaForm({
-        title: "",
-        description: "",
-        content: "",
-        image: null,
-        pdf: null,
-        is_active: true,
-      });
-      setImagePreview(null);
-    } catch (error) {
-      console.error("Error saving media:", error);
-      alert(`Error saving media: ${error.message}`);
+  try {
+    const formData = new FormData();
+    
+    // Append form data based on media type requirements
+    formData.append('title', mediaForm.title);
+    formData.append('description', mediaForm.description);
+    
+    // Add content for types that need it
+    if (['stories', 'blogs'].includes(currentMediaType)) {
+      formData.append('content', mediaForm.content);
     }
-    setLoading(false);
-  };
+    
+    // Add specific fields for different media types
+    switch(currentMediaType) {
+      case 'events':
+        formData.append('date', new Date().toISOString().split('T')[0]);
+        formData.append('time', '12:00');
+        formData.append('location', 'TBD');
+        break;
+      case 'blogs':
+        formData.append('author', 'Admin');
+        formData.append('tags', JSON.stringify([]));
+        break;
+      case 'documentaries':
+        formData.append('video_url', '');
+        formData.append('duration', '0:00');
+        break;
+    }
+    
+    // Handle file uploads
+    if (mediaForm.image) {
+      formData.append('image', mediaForm.image);
+    }
+    if (mediaForm.pdf) {
+      formData.append('file', mediaForm.pdf); // Note: backend expects 'file' for newsletters
+    }
+    
+    formData.append('published_date', new Date().toISOString().split('T')[0]);
+    formData.append('is_published', mediaForm.is_active);
 
-  const handleMediaEdit = (item) => {
-    setEditingMediaId(item.id);
+    const endpoint = editingMediaId
+      ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
+      : `${API_BASE}/media/${currentMediaType}`;
+
+    const config = { 
+      headers: { 
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      } 
+    };
+
+    const response = editingMediaId
+      ? await axios.put(endpoint, formData, config)
+      : await axios.post(endpoint, formData, config);
+
+    alert(
+      `${currentMediaType.slice(0, -1)} ${
+        editingMediaId ? "updated" : "created"
+      } successfully!`
+    );
+    
+    // Refresh the data
+    setMediaAction("view");
+    setEditingMediaId(null);
     setMediaForm({
-      title: item.title,
-      description: item.description,
-      content: item.content,
+      title: "",
+      description: "",
+      content: "",
       image: null,
       pdf: null,
-      is_active: item.is_active,
+      is_active: true,
     });
-    if (item.image) setImagePreview(`${API_BASE}/uploads/media/${item.image}`);
-  };
+    setImagePreview(null);
+    
+    // Refresh the media list
+    fetchMediaData();
+    
+  } catch (error) {
+    console.error("Error saving media:", error);
+    alert(`Error saving media: ${error.response?.data?.error || error.message}`);
+  }
+  setLoading(false);
+};
+
+ const handleMediaEdit = (item) => {
+  setEditingMediaId(item.id);
+  setMediaAction("update");
+  setMediaForm({
+    title: item.title || "",
+    description: item.description || "",
+    content: item.content || "",
+    image: null,
+    pdf: null,
+    is_active: item.is_published || true,
+  });
+  if (item.image) {
+    setImagePreview(`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`);
+  }
+};
 
   const handleMediaStatusToggle = async (id, newStatus) => {
-    // Implement status toggle logic
-  };
+  if (!window.confirm(`Are you sure you want to ${newStatus ? 'publish' : 'unpublish'} this item?`)) return;
+
+  setLoading(true);
+  try {
+    await axios.patch(`${API_BASE}/media/${currentMediaType}/${id}/publish`, {
+      is_published: newStatus
+    });
+    alert(`Item ${newStatus ? 'published' : 'unpublished'} successfully!`);
+    fetchMediaData();
+  } catch (error) {
+    console.error("Error toggling media status:", error);
+    alert(`Error updating status: ${error.message}`);
+  }
+  setLoading(false);
+};
 
   const handleMediaDelete = async (id) => {
-    // Implement delete logic
-  };
+  if (!window.confirm(`Are you sure you want to delete this ${currentMediaType.slice(0, -1)}?`)) return;
+
+  setLoading(true);
+  try {
+    await axios.delete(`${API_BASE}/media/${currentMediaType}/${id}`);
+    alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
+    fetchMediaData();
+  } catch (error) {
+    console.error("Error deleting media:", error);
+    alert(`Error deleting item: ${error.message}`);
+  }
+  setLoading(false);
+};
   const renderLegalReportForm = () => {
     return (
       <div className="content-list">
