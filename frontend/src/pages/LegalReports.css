@@ -166,9 +166,9 @@ table td {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 350px;
+  width: 280px;
   height: auto;
-  padding: 20px;
+  padding: 5px 0px 10px 0px;
   box-sizing: border-box;
 }
 
@@ -181,13 +181,13 @@ table td {
   object-fit: cover;
   background: #f0f0f0;
   display: block;
-  margin: 0px auto 15px auto;
+  margin: 0px auto 5px auto;
 }
 
 /* ---- Content ---- */
 
 .report-content-LR h3 {
-  margin: 10px 0 6px 0;
+  margin: 2px 0 2px 0;
   font-size: 18px;
 }
 
