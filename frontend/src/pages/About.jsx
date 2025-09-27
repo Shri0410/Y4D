@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../pages/About.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
@@ -9,7 +9,7 @@ const About = () => {
   const handleReadMore = () => {
     navigate("/legalreports");
   };
-  // Refs for each section
+
   const sectionRefs = {
     mission: useRef(null),
     vision: useRef(null),
@@ -23,42 +23,34 @@ const About = () => {
   const tabs = [
     { id: "mission", label: "MISSION" },
     { id: "vision", label: "VISION" },
-    { id: "value", label: "value" },
+    { id: "value", label: "VALUE" },
     { id: "philosophy", label: "PHILOSOPHY OF CHANGE" },
-    { id: "Pyramid", label: "Pyramid of empowerment" },
+    { id: "Pyramid", label: "PYRAMID OF EMPOWERMENT" },
     { id: "work", label: "HOW WE WORK" },
     { id: "trust", label: "WHY TRUST US?" },
   ];
 
-  const [activeTab, setActiveTab] = useState("story");
-
-  // Scroll to section on tab click
-  const handleScroll = (id) => {
+  const scrollTo = (id) => {
     sectionRefs[id].current.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
   };
 
-  // Observe section visibility to update active tab
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.6 } // 60% of section in view
-    );
-
-    Object.values(sectionRefs).forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  // Each section will render its own tab bar, and the active tab is always its own id
+  const renderTabs = (activeId) => (
+    <div className="story-tabs">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          className={`story-tab ${activeId === tab.id ? "active" : ""}`}
+          onClick={() => scrollTo(tab.id)}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
 
   return (
     <div className="our-story-page">
@@ -67,18 +59,8 @@ const About = () => {
         <img src={bannerImg} alt="Our Story Banner" />
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Mission Section */}
+      {renderTabs("mission")}
       <div ref={sectionRefs.mission} id="mission" className="story-section">
         <div className="story-content-container">
           <p>
@@ -90,18 +72,8 @@ const About = () => {
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Vision Section */}
+      {renderTabs("vision")}
       <div ref={sectionRefs.vision} id="vision" className="story-section">
         <div className="story-content-container">
           <p>
@@ -112,18 +84,8 @@ const About = () => {
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Value Section */}
+      {renderTabs("value")}
       <div ref={sectionRefs.value} id="value" className="story-section">
         <div className="story-content-container">
           <p>
@@ -133,18 +95,8 @@ const About = () => {
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Philosophy Section */}
+      {renderTabs("philosophy")}
       <div
         ref={sectionRefs.philosophy}
         id="philosophy"
@@ -184,30 +136,17 @@ const About = () => {
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Pyramid Section */}
+      {renderTabs("Pyramid")}
       <div
         ref={sectionRefs.Pyramid}
         id="Pyramid"
         className="story-section pyramid-section"
       >
         <div className="pyramid-container">
-          {/* Left Side Image */}
           <div className="pyramid-image">
             <img src={pyramidImg} alt="Pyramid of Empowerment" />
           </div>
-
-          {/* Right Side Intro + Education */}
           <div className="pyramid-text">
             <p>
               The pyramid presents a thoughtful hierarchy for human development
@@ -216,7 +155,7 @@ const About = () => {
             </p>
             <ul>
               <li>
-                <h4>ENVIRNMENT SUSTAINABILITY</h4>
+                <h4>ENVIRONMENT SUSTAINABILITY</h4>
                 <p>
                   crowns the pyramid as the ultimate objective, emphasizing the
                   preservation of our planet for current and future generations.
@@ -229,7 +168,6 @@ const About = () => {
           </div>
         </div>
 
-        {/* Remaining Content Below */}
         <div className="pyramid-lower-content">
           <ul>
             <li>
@@ -272,39 +210,25 @@ const About = () => {
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Work Section */}
+      {renderTabs("work")}
       <div ref={sectionRefs.work} id="work" className="story-section">
         <div className="story-content-container">
           <p>Our Methodology: The 3E Framework in Action:</p>
-          <p>ENCOURAGEMENT - Building confidence and hope</p>
-          <p>EDUCATION - Providing knowledge and skills</p>
-          <p>EMPLOYMENT - Creating sustainable opportunities</p>
+          <p style={{ fontWeight: "bold" }}>
+            ENCOURAGEMENT - Building confidence and hope
+          </p>
+          <p style={{ fontWeight: "bold" }}>
+            EDUCATION - Providing knowledge and skills
+          </p>
+          <p style={{ fontWeight: "bold" }}>
+            EMPLOYMENT - Creating sustainable opportunities
+          </p>
         </div>
       </div>
 
-      <div className="story-tabs">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            className={`story-tab ${activeTab === tab.id ? "active" : ""}`}
-            onClick={() => handleScroll(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Trust Section */}
+      {renderTabs("trust")}
       <div ref={sectionRefs.trust} id="trust" className="story-section">
         <div className="story-content-container">
           <p>

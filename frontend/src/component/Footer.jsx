@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        {/* Left side links (4 columns) */}
+        {/* Left side links (4 columns) - unchanged */}
         <div className="footer-links">
           <div className="footer-column">
             <h4>About Us</h4>
@@ -83,7 +83,6 @@ const Footer = () => {
 
       {/* Bottom Row with Address + Social + LinkedIn */}
       <div className="footer-bottom">
-        {/* Left side */}
         <div className="footer-left">
           <div className="footer-address">
             <p style={{ fontWeight: "bold" }}>Head Office:</p>
@@ -142,7 +141,15 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <i className="fab fa-twitter"></i>
+                {/* X Logo SVG */}
+                <svg
+                  width="25"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
               </a>
               <a
                 href="https://www.instagram.com/y4dteam/"
@@ -169,7 +176,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Right side - LinkedIn Embed */}
         <div className="footer-linkedin">
           <h4>LinkedIn</h4>
           <iframe

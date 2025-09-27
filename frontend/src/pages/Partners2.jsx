@@ -3,9 +3,9 @@ import Slider from "react-slick";
 import "./Partners.css";
 
 const Partners2 = () => {
-  // next 18 images (20–37)
-  const partnerLogos = Array.from({ length: 18 }, (_, i) => {
-    const num = (i + 20).toString().padStart(2, "0");
+  // logos 28–55
+  const partnerLogos = Array.from({ length: 28 }, (_, i) => {
+    const num = (i + 28).toString().padStart(2, "0");
     return `/partners/Partners-${num}.png`;
   });
 
@@ -37,7 +37,7 @@ const Partners2 = () => {
             <div key={index} className="partner-item">
               <img
                 src={logo}
-                alt={`Partner ${index + 20}`}
+                alt={`Partner ${index + 28}`}
                 loading="lazy"
                 decoding="async"
               />
