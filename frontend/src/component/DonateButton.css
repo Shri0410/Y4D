@@ -39,6 +39,7 @@
 /* Hide on desktop */
 @media (max-width: 1024px) {
   .donate-btn {
+    display: block;
     padding: 10px 15px;
     font-size: 16px;
   }
@@ -47,6 +48,7 @@
 /* Optional: smaller on very small screens */
 @media (max-width: 480px) {
   .donate-btn {
+    display: block;
     padding: 10px 10px;
     font-size: 16px;
   }

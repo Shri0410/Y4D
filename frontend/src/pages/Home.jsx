@@ -435,6 +435,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       <DonateButton />
     </div>
   );

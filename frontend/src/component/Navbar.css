@@ -210,9 +210,8 @@
 @media (max-width: 1024px) {
   .dropdown-icon {
     display: inline-block;
-    margin-left: auto;
+    margin: 0 20px;
     font-size: 20px;
-    font-weight: bold;
   }
   /* hide desktop chevron on mobile/tablet */
   .desktop-chevron {
