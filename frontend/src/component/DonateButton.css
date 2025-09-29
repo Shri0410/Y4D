@@ -1,0 +1,53 @@
+.donate-btn {
+  position: fixed;
+  top: 50%;
+  right: -10px;
+  transform: translateY(-50%);
+  z-index: 9999;
+
+  display: none;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #ff4e50, #f9d423);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  /* 🔹 Make text vertical */
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+/* Hover */
+.donate-btn:hover {
+  background: linear-gradient(135deg, #f9d423, #ff4e50);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.donate-btn:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+/* Hide on desktop */
+@media (max-width: 1024px) {
+  .donate-btn {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+}
+
+/* Optional: smaller on very small screens */
+@media (max-width: 480px) {
+  .donate-btn {
+    padding: 10px 10px;
+    font-size: 16px;
+  }
+}
