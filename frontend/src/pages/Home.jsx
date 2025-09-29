@@ -43,6 +43,8 @@ import accr4 from "../assets/Accredations/NGO Grading Certificate_Y4D_June23_Des
 import Partners1 from "./Partners1";
 import Partners2 from "./Partners2";
 
+import DonateButton from "../component/DonateButton";
+
 // ✅ Store your array here
 const sdgImages = [
   sdg1,
@@ -433,6 +435,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+      <DonateButton />
     </div>
   );
 };

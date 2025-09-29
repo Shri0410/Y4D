@@ -98,8 +98,12 @@ const Navbar = () => {
               } ${
                 isDropdownItemActive(dropdownItems.about) ? "has-active" : ""
               }`}
-              onMouseEnter={() => setActiveDropdown("about")}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() =>
+                window.innerWidth > 1024 && setActiveDropdown("about")
+              }
+              onMouseLeave={() =>
+                window.innerWidth > 1024 && setActiveDropdown(null)
+              }
             >
               <button
                 onClick={() => toggleDropdown("about")}
@@ -108,10 +112,15 @@ const Navbar = () => {
                 }
               >
                 About Us
+                {/* Mobile/Tablet plus-minus */}
+                <span className="dropdown-icon">
+                  {activeDropdown === "about" ? "−" : "+"}
+                </span>
+                {/* Desktop chevron */}
                 <i
                   className={`fas fa-chevron-${
                     activeDropdown === "about" ? "up" : "down"
-                  }`}
+                  } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -128,15 +137,19 @@ const Navbar = () => {
               </div>
             </li>
 
-            {/* Our Work Dropdown */}
+            {/* Work Dropdown */}
             <li
               className={`dropdown ${
                 activeDropdown === "work" ? "active" : ""
               } ${
                 isDropdownItemActive(dropdownItems.work) ? "has-active" : ""
               }`}
-              onMouseEnter={() => setActiveDropdown("work")}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() =>
+                window.innerWidth > 1024 && setActiveDropdown("work")
+              }
+              onMouseLeave={() =>
+                window.innerWidth > 1024 && setActiveDropdown(null)
+              }
             >
               <button
                 onClick={() => toggleDropdown("work")}
@@ -145,10 +158,13 @@ const Navbar = () => {
                 }
               >
                 Our Work
+                <span className="dropdown-icon">
+                  {activeDropdown === "work" ? "−" : "+"}
+                </span>
                 <i
                   className={`fas fa-chevron-${
                     activeDropdown === "work" ? "up" : "down"
-                  }`}
+                  } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -172,8 +188,12 @@ const Navbar = () => {
               } ${
                 isDropdownItemActive(dropdownItems.involved) ? "has-active" : ""
               }`}
-              onMouseEnter={() => setActiveDropdown("involved")}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() =>
+                window.innerWidth > 1024 && setActiveDropdown("involved")
+              }
+              onMouseLeave={() =>
+                window.innerWidth > 1024 && setActiveDropdown(null)
+              }
             >
               <button
                 onClick={() => toggleDropdown("involved")}
@@ -182,10 +202,13 @@ const Navbar = () => {
                 }
               >
                 Get Involved
+                <span className="dropdown-icon">
+                  {activeDropdown === "involved" ? "−" : "+"}
+                </span>
                 <i
                   className={`fas fa-chevron-${
                     activeDropdown === "involved" ? "up" : "down"
-                  }`}
+                  } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -209,8 +232,12 @@ const Navbar = () => {
               } ${
                 isDropdownItemActive(dropdownItems.media) ? "has-active" : ""
               }`}
-              onMouseEnter={() => setActiveDropdown("media")}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() =>
+                window.innerWidth > 1024 && setActiveDropdown("media")
+              }
+              onMouseLeave={() =>
+                window.innerWidth > 1024 && setActiveDropdown(null)
+              }
             >
               <button
                 onClick={() => toggleDropdown("media")}
@@ -219,10 +246,13 @@ const Navbar = () => {
                 }
               >
                 Media Corner
+                <span className="dropdown-icon">
+                  {activeDropdown === "media" ? "−" : "+"}
+                </span>
                 <i
                   className={`fas fa-chevron-${
                     activeDropdown === "media" ? "up" : "down"
-                  }`}
+                  } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
