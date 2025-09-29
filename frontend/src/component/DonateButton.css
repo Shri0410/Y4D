@@ -7,10 +7,10 @@
 
   display: none;
   padding: 14px 28px;
-  background: linear-gradient(135deg, #ff4e50, #f9d423);
+  background: #ff4e51b8;
   color: #fff;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 300;
   text-transform: uppercase;
   text-decoration: none;
 
@@ -27,7 +27,7 @@
 
 /* Hover */
 .donate-btn:hover {
-  background: linear-gradient(135deg, #f9d423, #ff4e50);
+  background: #ff4e50;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   transform: translateY(-50%) scale(1.05);
 }
