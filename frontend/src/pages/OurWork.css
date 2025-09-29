@@ -16,12 +16,11 @@
 .work-tabs {
   display: flex;
   margin: 30px auto;
-  background: #fff;
+  background: #c2c1c0;
   position: relative;
   justify-content: center;
   width: 97%;
   border-radius: 20px;
-  border: 1.5px solid #222;
 }
 
 .work-tab {
