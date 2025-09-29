@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "./IDP.css";
 import bannerVideo from "../assets/OurWork/IDP.mp4";
+import DonateButton from "../component/DonateButton";
 
 const IDP = () => {
   const [items, setItems] = useState([]);
@@ -120,6 +121,7 @@ const IDP = () => {
           </div>
         </div>
       </section>
+      <DonateButton />
     </div>
   );
 };
