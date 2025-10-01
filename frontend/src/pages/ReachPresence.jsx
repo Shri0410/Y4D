@@ -1,18 +1,9 @@
-// src/pages/ReachPresence.jsx
 import React, { useState, useEffect } from "react";
 import "./ReachPresence.css";
 import IndiaMapHover from "./IndiaMapHover";
-import map from "../assets/map.png";
+import map from "../assets/Imap.png";
 
-import Counter from "../component/Counter";
-import {
-  getMentors,
-  getManagement,
-  getReports,
-  getImpactData,
-} from "../services/api";
-
-const ReachPresence = () => {
+export default function ReachPresence() {
   const [teamCount, setTeamCount] = useState(0);
   const [reportsCount, setReportsCount] = useState(0);
   const [impact, setImpact] = useState({
@@ -21,6 +12,15 @@ const ReachPresence = () => {
     projects: 0,
   });
   const [loading, setLoading] = useState(true);
+
+  const getMentors = async () => [];
+  const getManagement = async () => [];
+  const getReports = async () => [];
+  const getImpactData = async () => ({
+    beneficiaries: 15,
+    states: 20,
+    projects: 50,
+  });
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -46,65 +46,8 @@ const ReachPresence = () => {
     fetchHomeData();
   }, []);
 
-  const timelineData = [
-    {
-      year: "2015",
-      title: "Establishment of Y4D Foundation",
-      icon: "🏛️",
-      description: "Founded with a vision to empower communities across India",
-    },
-    {
-      year: "2017",
-      title: "First CSR project in skill development",
-      icon: "👨‍🎓",
-      description:
-        "Launched our first corporate social responsibility initiative",
-    },
-    {
-      year: "2018",
-      title:
-        "New India Conclave in presence of Hon. Prime Minister Narendra Modi",
-      icon: "🎤",
-      description: "Hosted a national-level event with esteemed guests",
-    },
-    {
-      year: "2019",
-      title: "International Purviz Shroff award for social contribution",
-      icon: "🏆",
-      description: "Recognized internationally for our social impact work",
-    },
-    {
-      year: "2020",
-      title: "Embraced 3E's - Encourage, Educate and Employ",
-      icon: "🎯",
-      description: "Adopted our core principles to guide all initiatives",
-    },
-    {
-      year: "2021",
-      title: "Empowered communities on-field even in 2021 pandemic",
-      icon: "♡",
-      description: "Continued our work despite global challenges",
-    },
-    {
-      year: "2023",
-      title: "Marking the journey of empowering 1.5 million lives",
-      icon: "👥",
-      description: "Reached a significant milestone in our impact journey",
-    },
-    {
-      year: "2024",
-      title: "A decade of our journey towards transformative change",
-      icon: "➉",
-      description: "Celebrating 10 years of service and impact",
-    },
-  ];
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div className="page-container">
+    <div>
       {/* Our Impact Section */}
       <section className="rp-section">
         <div className="rp-container">
@@ -153,58 +96,94 @@ const ReachPresence = () => {
         <IndiaMapHover mapUrl={map} />
       </section>
 
-      {/* Reach & Presence Timeline */}
-      <section className="rp-section">
-        <div className="container_RP">
+      {/* Timeline Section */}
+      <div className="timeline-container">
+        <div className="rpt-heading">
           <h2 className="rpt-title">
-            Reach and Presence<span></span>
+            Our Journey<span></span>
           </h2>
-          <p className="timeline-subtitle">A decade of empowerment</p>
+          <p className="t-subtitle">A decade of empowerment</p>
+        </div>
+        {/* First Row (REVERSED order) */}
+        {/* First Row (arrows right-to-left) */}
+        <div className="timeline-row">
+          <div className="timeline-item green">
+            <div className="circle">2024</div>
+            <p>A decade of our journey towards transformative change</p>
+          </div>
 
-          <div className="timeline-wrapper">
-            <div className="timeline-items">
-              {timelineData.map((item, index) => {
-                const isTop = index % 2 === 0;
-                return (
-                  <div
-                    key={index}
-                    className={`timeline-item ${isTop ? "top" : "bottom"}`}
-                  >
-                    {isTop ? (
-                      <>
-                        <div className="timeline-content">
-                          <div className="timeline-icon">{item.icon}</div>
-                          <div className="timeline-year">{item.year}</div>
-                          <div className="timeline-title">{item.title}</div>
-                          <div className="timeline-description">
-                            {item.description}
-                          </div>
-                        </div>
-                        <div className="timeline-dot" aria-hidden="true" />
-                      </>
-                    ) : (
-                      <>
-                        <div className="timeline-dot" aria-hidden="true" />
-                        <div className="timeline-content">
-                          <div className="timeline-icon">{item.icon}</div>
-                          <div className="timeline-year">{item.year}</div>
-                          <div className="timeline-title">{item.title}</div>
-                          <div className="timeline-description">
-                            {item.description}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="timeline-line" aria-hidden="true" />
+          <div className="connector">
+            <span className="arrow reverse">➤</span>
+          </div>
+
+          <div className="timeline-item orange">
+            <div className="circle">2023</div>
+            <p>Marking the journey of empowering 1.5 million lives</p>
+          </div>
+
+          <div className="connector">
+            <span className="arrow reverse">➤</span>
+          </div>
+
+          <div className="timeline-item green">
+            <div className="circle">2021</div>
+            <p>Empowered communities on-field even in 2021 pandemic.</p>
+          </div>
+
+          <div className="connector">
+            <span className="arrow reverse">➤</span>
+          </div>
+
+          <div className="timeline-item orange">
+            <div className="circle">2020</div>
+            <p>Embraced 3E’s – Encourage, Educate and Employ</p>
           </div>
         </div>
-      </section>
+
+        {/* Second Row (NORMAL order) */}
+
+        <div className="timeline-row bottom">
+          <div className="timeline-item orange">
+            <div className="circle">2015</div>
+            <p>Establishment of Y4D Foundation</p>
+          </div>
+
+          <div className="connector">
+            <span className="arrow">➤</span>
+          </div>
+
+          <div className="timeline-item green">
+            <div className="circle">2017</div>
+            <p>First CSR project in skill development</p>
+          </div>
+
+          <div className="connector">
+            <span className="arrow">➤</span>
+          </div>
+
+          <div className="timeline-item orange">
+            <div className="circle">2018</div>
+            <p>
+              New India Conclave in presence of Hon. Prime Minister Narendra
+              Modi
+            </p>
+          </div>
+
+          <div className="connector">
+            <span className="arrow">➤</span>
+          </div>
+
+          <div className="timeline-item green">
+            <div className="circle">2019</div>
+            <p>International Purviz Shroff award for social contribution</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
-export default ReachPresence;
+// Dummy Counter component (replace with your actual one)
+function Counter({ end }) {
+  return <span>{end}</span>;
+}

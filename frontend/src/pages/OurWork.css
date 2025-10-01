@@ -302,6 +302,37 @@
   margin-top: 10px;
 }
 
+.idp-extra-text-full {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 25px;
+  background: #803a962b;
+  border: 2px solid #803a96;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.idp-extra-text-full h4 {
+  margin-bottom: 10px;
+  font-size: 22px;
+  color: #222;
+}
+
+.idp-extra-text-full p,
+.idp-extra-text-full li {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.idp-extra-text-full ul {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
 /* Tablet view */
 @media (max-width: 1024px) {
   .work-banner img {

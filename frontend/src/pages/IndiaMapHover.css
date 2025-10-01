@@ -13,12 +13,14 @@
 .map-container {
   width: 100%;
   position: relative;
-  padding-bottom: 64%; /* adjust to match your map image aspect ratio */
+  padding-bottom: 64%;
   background-size: contain;
   background-position: center top;
   background-repeat: no-repeat;
   border-radius: 8px;
   overflow: visible;
+  margin-top: -50px;
+  margin-bottom: -50px;
 }
 
 .hotspot {
@@ -35,7 +37,6 @@
   cursor: pointer;
 }
 
-/* Add dots for new states with different colors */
 .rajasthan-dot,
 .madhya-pradesh-dot,
 .andhra-pradesh-dot,
@@ -62,14 +63,14 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #000;
-  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.12);
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  background: transparent;
+  box-shadow: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
-/* Hover effect still works */
 .hotspot:hover span,
 .hotspot:focus span {
+  background: currentColor;
   transform: scale(1.25);
   box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.18);
 }

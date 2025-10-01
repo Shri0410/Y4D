@@ -13,7 +13,6 @@ import "./OurWork.css";
 const OurWork = () => {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState("education");
 
   // Refs for each section
   const sectionRefs = {
@@ -91,29 +90,6 @@ const OurWork = () => {
     });
   };
 
-  // IntersectionObserver for active tab
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        });
-      },
-      {
-        threshold: 0.3, // lower threshold so it triggers earlier
-        rootMargin: "-100px 0px -40% 0px", // offset from top
-      }
-    );
-
-    Object.values(sectionRefs).forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="our-work-page">
       {/* Banner */}
@@ -129,18 +105,19 @@ const OurWork = () => {
           id={intervention.id}
           className="work-section"
         >
-          {/* Tabs */}
-          {/* Tabs outside loop */}
+          {/* Tabs in each section */}
           <div className="work-tabs">
             {interventions.map((tab) => (
               <button
                 key={tab.id}
-                className={`work-tab ${activeTab === tab.id ? "active" : ""}`}
+                className={`work-tab ${
+                  tab.id === intervention.id ? "active" : ""
+                }`}
                 onClick={() => handleScroll(tab.id)}
                 style={{
                   backgroundColor:
-                    activeTab === tab.id ? tab.color : "transparent",
-                  color: activeTab === tab.id ? "#fff" : "#222",
+                    tab.id === intervention.id ? tab.color : "transparent",
+                  color: tab.id === intervention.id ? "#fff" : "#222",
                 }}
               >
                 {tab.title}
@@ -176,7 +153,6 @@ const OurWork = () => {
                     </li>
                   </>
                 )}
-
                 {intervention.id === "livelihood" && (
                   <>
                     <li>
@@ -184,7 +160,7 @@ const OurWork = () => {
                     </li>
                     <li>
                       <strong>
-                        Youth Trained under Skill Initiatives : 17,000 (75%
+                        Youth Trained under Skill Initiatives: 17,000 (75%
                         Female)
                       </strong>
                     </li>
@@ -196,7 +172,6 @@ const OurWork = () => {
                     </li>
                   </>
                 )}
-
                 {intervention.id === "healthcare" && (
                   <>
                     <li>
@@ -213,7 +188,6 @@ const OurWork = () => {
                     </li>
                   </>
                 )}
-
                 {intervention.id === "environment" && (
                   <>
                     <li>
@@ -230,7 +204,6 @@ const OurWork = () => {
                     </li>
                   </>
                 )}
-
                 {intervention.id === "idp" && (
                   <>
                     <li>
@@ -565,6 +538,35 @@ const OurWork = () => {
                 empowerment not only strengthens the professional capabilities
                 of youth but also contributes to economic self-reliance, career
                 growth, and community development.
+              </p>
+            </div>
+          )}
+          {intervention.id === "idp" && (
+            <div className="idp-extra-text-full">
+              {/* Replace this with your text later */}
+
+              <p>
+                The Integrated Village Development Project is a holistic
+                approach to rural development aimed at improving the overall
+                quality of life in villages through multi-sectoral
+                interventions. Instead of focusing on a single issue, IVDP
+                addresses key areas such as healthcare, education, sanitation,
+                drinking water, skill development, livelihood promotion, women
+                empowerment, and infrastructure development.
+              </p>
+
+              <p>
+                The goal is to create self-reliant and sustainable villages by
+                integrating social, economic, and environmental development.
+                This model ensures community participation, convergence with
+                government schemes, and long-term impact.
+              </p>
+
+              <p>
+                Through IVDP, villages transform into hubs of improved health
+                outcomes, enhanced educational facilities, increased livelihood
+                opportunities, and strengthened community institutions, leading
+                to inclusive growth and reduced migration to urban areas.
               </p>
             </div>
           )}

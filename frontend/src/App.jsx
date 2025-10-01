@@ -12,7 +12,6 @@ import Banner from "./component/Banner";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import OurTeam from "./pages/OurTeam";
-import ReachPresence from "./pages/ReachPresence";
 import LegalStatus from "./pages/LegalStatus";
 import OurWork from "./pages/OurWork";
 import QualityEducation from "./pages/QualityEducation";
@@ -47,6 +46,7 @@ import EnvironmentSustainabilityDetail from "./pages/EnvironmentSustainabilityDe
 import IDPDetail from "./pages/IDPDetail";
 
 import DonateNow from "./pages/DonateNow";
+import ReachPresence from "./pages/ReachPresence";
 
 import "./App.css";
 
@@ -86,7 +86,7 @@ function AppContent({
                   <Route path="/" element={<Home />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/our-team" element={<OurTeam />} />
-                  <Route path="/reach-presence" element={<ReachPresence />} />
+
                   <Route path="/legal-status" element={<LegalStatus />} />
                   <Route path="/our-work" element={<OurWork />} />
                   <Route
@@ -139,6 +139,7 @@ function AppContent({
                   <Route path="/legalreports" element={<LegalReports />} />
                   <Route path="/india-map" element={<IndiaMapHover />} />
                   <Route path="/DonateNow" element={<DonateNow />} />
+                  <Route path="/reach-presence" element={<ReachPresence />} />
                 </Routes>
               </main>
               <Footer />
