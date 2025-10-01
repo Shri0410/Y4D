@@ -157,6 +157,8 @@
 @media (max-width: 1024px) {
   .map-container {
     padding-bottom: 80%;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   .tooltip-box {

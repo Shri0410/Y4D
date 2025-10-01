@@ -160,7 +160,7 @@
   .footer-left {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
     gap: 15px;
   }
 
@@ -191,5 +191,15 @@
   .footer-linkedin iframe {
     width: 100%;
     height: 200px;
+  }
+  .footer-column {
+    text-align: start;
+  }
+  .footer-container {
+    align-items: start;
+    margin-left: 5px;
+  }
+  .footer-address {
+    text-align: start;
   }
 }

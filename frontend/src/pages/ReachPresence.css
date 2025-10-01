@@ -85,47 +85,6 @@
   transform: rotate(180deg);
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .timeline-row,
-  .timeline-row.reverse {
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 40px;
-  }
-
-  .timeline-item {
-    width: 100%;
-    max-width: 280px;
-    text-align: center;
-    padding-left: 0px;
-    margin-left: 0px;
-  }
-
-  .circle {
-    margin: 0 auto 15px;
-  }
-
-  .connector {
-    width: 2px;
-    height: 40px;
-    border-left: 2px dashed #f97316;
-    border-top: none;
-    margin: 0 auto;
-    position: relative;
-  }
-
-  .arrow,
-  .arrow.reverse {
-    position: absolute;
-    left: -1px;
-    transform: translateX(-50%) rotate(90deg);
-    top: auto;
-    bottom: -25px;
-  }
-}
-
 .india-map-section {
   width: 100%;
   max-width: 1300px;
@@ -513,5 +472,43 @@
   }
   .rpt-title span::after {
     left: 20px;
+  }
+
+  .timeline-row,
+  .timeline-row.reverse {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .timeline-item {
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+    padding-left: 0px;
+    margin-left: 0px;
+  }
+
+  .circle {
+    margin: 0 auto 15px;
+  }
+
+  .connector {
+    width: 2px;
+    height: 40px;
+    border-left: 2px dashed #f97316;
+    border-top: none;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .arrow,
+  .arrow.reverse {
+    position: absolute;
+    left: -1px;
+    transform: translateX(-50%) rotate(90deg);
+    top: auto;
+    bottom: -25px;
   }
 }
