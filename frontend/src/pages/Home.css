@@ -571,6 +571,13 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.intervention-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
 .intervention-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
@@ -580,7 +587,7 @@
   width: 150px;
   height: 150px;
   object-fit: contain;
-  margin: 0 auto 1rem;
+  margin: 0 auto;
 }
 
 .inter-btn {

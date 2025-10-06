@@ -39,6 +39,7 @@ const LegalReports = () => {
     { title: "6) Goods and Service Tax (GST)", value: "27AAATY4684J1ZU" },
     { title: "7) TAN", value: "88302012554372" },
     { title: "8) CSR Registration Number", value: "CSR00000374" },
+    { title: "9) MSME", value: "MH20D0001233" },
   ];
 
   return (

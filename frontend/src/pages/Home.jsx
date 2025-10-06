@@ -255,7 +255,7 @@ const Home = () => {
                 img: environment,
               },
               {
-                title: " Integrated Development Program",
+                title: "Integrated Development Program",
                 img: idp,
               },
             ].map((item, index) => (
