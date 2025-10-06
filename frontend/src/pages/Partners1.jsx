@@ -15,7 +15,7 @@ const Partners1 = () => {
     infinite: true,
     autoplay: true,
     autoplaySpeed: 0,
-    speed: 5000,
+    speed: 2000,
     cssEase: "linear",
     arrows: false,
     dots: false,
