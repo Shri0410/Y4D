@@ -194,36 +194,7 @@ const Navbar = () => {
               onMouseLeave={() =>
                 window.innerWidth > 1024 && setActiveDropdown(null)
               }
-            >
-              <button
-                onClick={() => toggleDropdown("involved")}
-                className={
-                  isDropdownItemActive(dropdownItems.involved) ? "active" : ""
-                }
-              >
-                Get Involved
-                <span className="dropdown-icon">
-                  {activeDropdown === "involved" ? "−" : "+"}
-                </span>
-                <i
-                  className={`fas fa-chevron-${
-                    activeDropdown === "involved" ? "up" : "down"
-                  } desktop-chevron`}
-                ></i>
-              </button>
-              <div className="dropdown-menu">
-                {dropdownItems.involved.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.id}
-                    onClick={closeAllDropdowns}
-                    className={location.pathname === item.id ? "active" : ""}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </li>
+            ></li>
 
             {/* Media Corner Dropdown */}
             <li

@@ -38,7 +38,7 @@
 
 .logo {
   height: 80px;
-  margin-right: 150px;
+  margin-right: 250px;
 }
 
 .nav-list {
@@ -188,22 +188,9 @@
 }
 
 @media (max-width: 1280px) {
-  /* .navbar .Nav-container {
-    display: flex;
-    justify-content: center;
-  }
-  .nav-list {
-    gap: 0px;
-  } */
   .logo {
-    margin-right: 50px;
+    margin-right: 250px;
   }
-  /* .footer-links {
-    gap: 140px;
-  }
-  .footer-bottom {
-    gap: 440px;
-  } */
 }
 
 /* Tablet view (up to 1024px) */
@@ -287,7 +274,6 @@
     padding-left: 30px;
   }
 
-  /* Reduce logo margin on tab */
   .logo {
     margin-right: 20px;
   }

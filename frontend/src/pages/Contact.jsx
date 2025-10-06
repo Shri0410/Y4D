@@ -162,93 +162,113 @@ const Contact = () => {
       iframeSrc:
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3772.848695864146!2d72.840918!3d18.940747!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ce1fdd4c85db%3A0x64f3cf123456abcd!2sJanmabhoomi%20Chambers!5e0!3m2!1sen!2sin!4v1695822312346!5m2!1sen!2sin",
     },
-    {
-      name: "USA Office",
-      address: "100 Bellis Ct., Bridgewater, New Jersey, 08807",
-      mapsUrl:
-        "https://www.google.com/maps/place/100+Bellis+Ct,+Bridgewater,+New+Jersey+08807,+USA",
-      iframeSrc:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3046.161286207768!2d-74.611813!3d40.593017!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3dcb3f45f9bbf%3A0x64f3cf123456abcd!2s100%20Bellis%20Ct%2C%20Bridgewater%2C%20NJ%2008807%2C%20USA!5e0!3m2!1sen!2sin!4v1695822312347!5m2!1sen!2sin",
-    },
   ];
 
   const [selectedOffice, setSelectedOffice] = useState(offices[0]);
 
+  const [popupType, setPopupType] = useState(null); // 'partnership', 'internship', 'volunteer', 'enquiry'
+
+  const closePopup = () => setPopupType(null);
+
+  const navigateCareer = () => {
+    window.location.href = "/careers";
+  };
+
   return (
     <div className="contactus-page">
-      {/* Enquiry Form */}
-      <section className="contactus-section contactus-enquiry">
-        <div className="f-title">
-          <h2>
-            Enquiry Form<span></span>
-          </h2>
-        </div>
-        <form>
-          {/* Row 1: First + Last Name */}
-          <div className="form-row">
-            <input type="text" placeholder="First Name" required />
-            <input type="text" placeholder="Last Name" required />
+      <div className="heading">
+        <h2>
+          Get Involve <span></span>
+        </h2>
+      </div>
+      {/* Top Buttons */}
+      <div className="contact-top-buttons">
+        <button onClick={() => setPopupType("partnership")}>
+          Corporate Partnership
+        </button>
+        <button onClick={() => setPopupType("internship")}>Internship</button>
+        <button onClick={() => setPopupType("volunteer")}>Volunteers</button>
+        <button onClick={() => setPopupType("enquiry")}>Enquiry Form</button>
+        <button onClick={navigateCareer}>Career</button>
+      </div>
+
+      {/* Popup Overlay */}
+      {popupType && (
+        <div className="popup-overlay" onClick={closePopup}>
+          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-btn" onClick={closePopup}>
+              ✕
+            </button>
+
+            {popupType === "partnership" && (
+              <>
+                <h2>Corporate Partnership Form</h2>
+                <form className="popup-form">
+                  <input type="text" placeholder="Company Name" required />
+                  <input type="email" placeholder="Official Email" required />
+                  <input type="text" placeholder="Contact Number" required />
+                  <textarea
+                    placeholder="Partnership Details"
+                    rows="4"
+                  ></textarea>
+                  <button type="submit">Submit</button>
+                </form>
+              </>
+            )}
+
+            {popupType === "internship" && (
+              <>
+                <h2>Internship Application</h2>
+                <form className="popup-form">
+                  <input type="text" placeholder="Full Name" required />
+                  <input type="email" placeholder="Email Address" required />
+                  <input type="text" placeholder="Phone Number" required />
+                  <input
+                    type="text"
+                    placeholder="e.g. Web Development, Marketing"
+                  />
+                  <input type="file" required />
+                  <textarea
+                    placeholder="Why do you want to intern with Y4D?"
+                    rows="4"
+                  ></textarea>
+                  <button type="submit">Apply</button>
+                </form>
+              </>
+            )}
+
+            {popupType === "volunteer" && (
+              <>
+                <h2>Volunteer Registration</h2>
+                <form className="popup-form">
+                  <input type="text" placeholder="Full Name" required />
+                  <input type="email" placeholder="Email Address" required />
+                  <input type="text" placeholder="Contact Number" required />
+                  <textarea
+                    placeholder="Why do you want to volunteer?"
+                    rows="4"
+                  ></textarea>
+                  <button type="submit">Submit</button>
+                </form>
+              </>
+            )}
+
+            {popupType === "enquiry" && (
+              <>
+                <h2>General Enquiry</h2>
+                <form className="popup-form">
+                  <input type="text" placeholder="First Name" required />
+                  <input type="text" placeholder="Last Name" required />
+                  <input type="email" placeholder="Email" required />
+                  <input type="text" placeholder="Mobile Number" required />
+                  <textarea placeholder="Your Message" rows="4"></textarea>
+                  <button type="submit">Submit</button>
+                </form>
+              </>
+            )}
           </div>
-
-          {/* Row 2: Email + Mobile */}
-          <div className="form-row">
-            <input type="email" placeholder="Your Email" required />
-            <input type="text" placeholder="Mobile Number" required />
-          </div>
-
-          {/* Message */}
-          <textarea placeholder="Your Message" rows="5" required></textarea>
-
-          <button className="sbmt-btn" type="submit">
-            Submit
-          </button>
-        </form>
-      </section>
-
-      {/* Help Desk */}
-      <section className="contactus-section contactus-help">
-        <div className="b-title">
-          <h2>
-            Help Desk<span></span>
-          </h2>
         </div>
-        <div className="contactus-help-buttons">
-          <button className="p-btn">Partnership Support</button>
-          <button className="vi-btn">Volunteers & Partnership</button>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="contactus-section contactus-faq">
-        <div className="faq-title">
-          <h2>
-            Frequently Asked Questions<span></span>
-          </h2>
-        </div>
-
-        <div className="contactus-faq-list">
-          {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className={`contactus-faq-item ${faq.open ? "open" : ""}`}
-              onClick={() => toggleFAQ(index)}
-            >
-              <div className="faq-question">
-                <span className="faq-icon">•</span>
-                <h3>{faq.question}</h3>
-                <span className={`arrow ${faq.open ? "up" : "down"}`}>⌄</span>
-              </div>
-              <div className="faq-answer">
-                {faq.open && (
-                  <p>
-                    <span className="faq-icon">{">"}</span> {faq.answer}
-                  </p>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      )}
 
       {/* Office Address */}
       <section className="contactus-section contactus-office">
@@ -292,6 +312,38 @@ const Contact = () => {
               title="office-map"
             ></iframe>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="contactus-section contactus-faq">
+        <div className="faq-title">
+          <h2>
+            Frequently Asked Questions<span></span>
+          </h2>
+        </div>
+
+        <div className="contactus-faq-list">
+          {faqs.map((faq, index) => (
+            <div
+              key={index}
+              className={`contactus-faq-item ${faq.open ? "open" : ""}`}
+              onClick={() => toggleFAQ(index)}
+            >
+              <div className="faq-question">
+                <span className="faq-icon">•</span>
+                <h3>{faq.question}</h3>
+                <span className={`arrow ${faq.open ? "up" : "down"}`}>⌄</span>
+              </div>
+              <div className="faq-answer">
+                {faq.open && (
+                  <p>
+                    <span className="faq-icon">{">"}</span> {faq.answer}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </section>
     </div>

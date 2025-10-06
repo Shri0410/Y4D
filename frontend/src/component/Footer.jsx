@@ -107,16 +107,6 @@ const Footer = () => {
             >
               305 A, Janmabhoomi Chambers, Ballard Estate, Mumbai-38
             </a>
-
-            <p style={{ fontWeight: "bold", marginTop: "10px" }}>USA Office:</p>
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=100+Bellis+Ct.,+Bridgewater,+New+Jersey,+08807"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-address-link"
-            >
-              100 Bellis Ct., Bridgewater, New Jersey, 08807
-            </a>
           </div>
           <div className="footer-social">
             <p
