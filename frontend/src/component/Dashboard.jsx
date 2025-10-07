@@ -35,11 +35,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [legalReportAction, setLegalReportAction] = useState("view");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mediaSubDropdown, setMediaSubDropdown] = useState(null);
-  const [interventionsSubDropdown, setInterventionsSubDropdown] = useState(null);
+  const [interventionsSubDropdown, setInterventionsSubDropdown] =
+    useState(null);
   const [interventionsAction, setInterventionsAction] = useState("view");
-  const [currentAccreditationType, setCurrentAccreditationType] = useState(null);
+  const [currentAccreditationType, setCurrentAccreditationType] =
+    useState(null);
   const [accreditationAction, setAccreditationAction] = useState("view");
-  
+
   // Form states
   const [reportForm, setReportForm] = useState({
     title: "",
@@ -61,7 +63,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     image: null,
     social_links: "{}",
   });
-  const [trusteeForm, setTrusteeForm] = useState({ // Added missing trusteeForm
+  const [trusteeForm, setTrusteeForm] = useState({
+    // Added missing trusteeForm
     name: "",
     position: "",
     bio: "",
@@ -86,8 +89,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setOpenDropdown(null);
   };
 
-  const canManageContent = currentUser && ["super_admin", "admin", "editor"].includes(currentUser.role);
-  const canManageUsers = currentUser && ["super_admin", "admin"].includes(currentUser.role);
+  const canManageContent =
+    currentUser &&
+    ["super_admin", "admin", "editor"].includes(currentUser.role);
+  const canManageUsers =
+    currentUser && ["super_admin", "admin"].includes(currentUser.role);
   const API_BASE = "http://localhost:5000/api";
 
   // Clear sub-sections when switching tabs
@@ -776,7 +782,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             />
           </div>
 
-          {['stories', 'blogs'].includes(currentMediaType) && (
+          {["stories", "blogs"].includes(currentMediaType) && (
             <div className="form-group">
               <label>Content:</label>
               <textarea
@@ -803,7 +809,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             )}
           </div>
 
-          {currentMediaType === 'newsletters' && (
+          {currentMediaType === "newsletters" && (
             <div className="form-group">
               <label>PDF Document:</label>
               <input
@@ -1026,6 +1032,20 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 }
               />
             </div>
+
+            <div className="form-group">
+              <label>Image:</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleImageChange(e, setTrusteeForm)}
+              />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                </div>
+              )}
+            </div>
             <div className="form-actions">
               <button type="submit" disabled={loading}>
                 {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
@@ -1042,7 +1062,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         return null;
     }
   };
-const renderAccreditationContent = () => {
+  const renderAccreditationContent = () => {
     return (
       <div className="accreditation-content-section">
         <AccreditationManagement
@@ -1186,6 +1206,7 @@ const renderAccreditationContent = () => {
               <table>
                 <thead>
                   <tr>
+                    <th>Image</th> {/* ADD THIS COLUMN */}
                     <th>Name</th>
                     <th>Designation</th>
                     <th>Actions</th>
@@ -1194,6 +1215,17 @@ const renderAccreditationContent = () => {
                 <tbody>
                   {boardTrustees.map((trustee) => (
                     <tr key={trustee.id}>
+                      <td>
+                        {trustee.image ? (
+                          <img
+                            src={`${API_BASE}/uploads/board-trustees/${trustee.image}`}
+                            alt={trustee.name}
+                            className="team-avatar"
+                          />
+                        ) : (
+                          <div className="avatar-placeholder">👤</div>
+                        )}
+                      </td>
                       <td>{trustee.name}</td>
                       <td>{trustee.position}</td>
                       <td>
@@ -1226,143 +1258,145 @@ const renderAccreditationContent = () => {
       </div>
     );
   };
-// Add this useEffect to fetch media data
-useEffect(() => {
-  if (activeTab === "media" && currentMediaType && mediaAction === "view") {
-    fetchMediaData();
-  }
-}, [activeTab, currentMediaType, mediaAction]);
+  // Add this useEffect to fetch media data
+  useEffect(() => {
+    if (activeTab === "media" && currentMediaType && mediaAction === "view") {
+      fetchMediaData();
+    }
+  }, [activeTab, currentMediaType, mediaAction]);
 
-const fetchMediaData = async () => {
-  if (!currentMediaType) return;
-  
-  setLoading(true);
-  try {
-    const response = await axios.get(`${API_BASE}/media/${currentMediaType}`);
-    setMediaItems(response.data);
-  } catch (error) {
-    console.error(`Error fetching ${currentMediaType}:`, error);
-    alert(`Error fetching ${currentMediaType}: ${error.message}`);
-  }
-  setLoading(false);
-};
+  const fetchMediaData = async () => {
+    if (!currentMediaType) return;
 
-const renderMediaList = () => {
-  return (
-    <div className="content-list">
-      <div className="content-header">
-        <div className="header-row">
-          <h3>
-            {currentMediaType
-              ? currentMediaType.charAt(0).toUpperCase() +
-                currentMediaType.slice(1) +
-                " Management"
-              : "Media Corner"}
-          </h3>
-          <button
-            className="btn-primary"
-            onClick={() => {
-              setMediaAction("add");
-              setEditingMediaId(null);
-              setMediaForm({
-                title: "",
-                description: "",
-                content: "",
-                image: null,
-                pdf: null,
-                is_active: true,
-              });
-            }}
-          >
-            + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
-          </button>
-        </div>
-      </div>
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/media/${currentMediaType}`);
+      setMediaItems(response.data);
+    } catch (error) {
+      console.error(`Error fetching ${currentMediaType}:`, error);
+      alert(`Error fetching ${currentMediaType}: ${error.message}`);
+    }
+    setLoading(false);
+  };
 
-      {loading ? (
-        <div className="loading">Loading...</div>
-      ) : mediaItems.length === 0 ? (
-        <div className="no-data-message">
-          <p>No {currentMediaType || "media items"} found</p>
-          <p>
-            <small>Total items: {mediaItems.length}</small>
-          </p>
-        </div>
-      ) : (
-        <div className="items-list">
-          {mediaItems.map((item) => (
-            <div
-              key={item.id}
-              className="item-card"
-              style={{
-                borderLeft: `4px solid ${
-                  item.is_published ? "#4CAF50" : "#ff9800"
-                }`,
+  const renderMediaList = () => {
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <h3>
+              {currentMediaType
+                ? currentMediaType.charAt(0).toUpperCase() +
+                  currentMediaType.slice(1) +
+                  " Management"
+                : "Media Corner"}
+            </h3>
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setMediaAction("add");
+                setEditingMediaId(null);
+                setMediaForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                  is_active: true,
+                });
               }}
             >
-              <div className="item-content">
-                <div className="media-header">
-                  <h4>{item.title}</h4>
-                  <span
-                    className={`status-badge ${
-                      item.is_published ? "active" : "inactive"
-                    }`}
-                  >
-                    {item.is_published ? "PUBLISHED" : "DRAFT"}
-                  </span>
-                </div>
-                
-                {item.image && (
-                  <div className="media-image-preview">
-                    <img 
-                      src={`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`} 
-                      alt={item.title}
-                    />
+              + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="loading">Loading...</div>
+        ) : mediaItems.length === 0 ? (
+          <div className="no-data-message">
+            <p>No {currentMediaType || "media items"} found</p>
+            <p>
+              <small>Total items: {mediaItems.length}</small>
+            </p>
+          </div>
+        ) : (
+          <div className="items-list">
+            {mediaItems.map((item) => (
+              <div
+                key={item.id}
+                className="item-card"
+                style={{
+                  borderLeft: `4px solid ${
+                    item.is_published ? "#4CAF50" : "#ff9800"
+                  }`,
+                }}
+              >
+                <div className="item-content">
+                  <div className="media-header">
+                    <h4>{item.title}</h4>
+                    <span
+                      className={`status-badge ${
+                        item.is_published ? "active" : "inactive"
+                      }`}
+                    >
+                      {item.is_published ? "PUBLISHED" : "DRAFT"}
+                    </span>
                   </div>
-                )}
-                
-                <p>
-                  <strong>Description:</strong> {item.description}
-                </p>
-                <p>
-                  <strong>Created:</strong>{" "}
-                  {item.created_at
-                    ? new Date(item.created_at).toLocaleDateString()
-                    : "N/A"}
-                </p>
 
-                <div className="item-actions">
-                  <button
-                    className={`status-toggle-btn ${
-                      item.is_published ? "btn-inactive" : "btn-active"
-                    }`}
-                    onClick={() => handleMediaStatusToggle(item.id, !item.is_published)}
-                  >
-                    {item.is_published ? "Unpublish" : "Publish"}
-                  </button>
+                  {item.image && (
+                    <div className="media-image-preview">
+                      <img
+                        src={`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`}
+                        alt={item.title}
+                      />
+                    </div>
+                  )}
 
-                  <button
-                    className="btn-edit"
-                    onClick={() => handleMediaEdit(item)}
-                  >
-                    Edit
-                  </button>
+                  <p>
+                    <strong>Description:</strong> {item.description}
+                  </p>
+                  <p>
+                    <strong>Created:</strong>{" "}
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleDateString()
+                      : "N/A"}
+                  </p>
 
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleMediaDelete(item.id)}
-                  >
-                    Delete
-                  </button>
+                  <div className="item-actions">
+                    <button
+                      className={`status-toggle-btn ${
+                        item.is_published ? "btn-inactive" : "btn-active"
+                      }`}
+                      onClick={() =>
+                        handleMediaStatusToggle(item.id, !item.is_published)
+                      }
+                    >
+                      {item.is_published ? "Unpublish" : "Publish"}
+                    </button>
+
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleMediaEdit(item)}
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleMediaDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const renderCareerForm = () => {
     return (
@@ -1481,141 +1515,156 @@ const renderMediaList = () => {
       </div>
     );
   };
-const handleMediaSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleMediaSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const formData = new FormData();
-    
-    // Append form data based on media type requirements
-    formData.append('title', mediaForm.title);
-    formData.append('description', mediaForm.description);
-    
-    // Add content for types that need it
-    if (['stories', 'blogs'].includes(currentMediaType)) {
-      formData.append('content', mediaForm.content);
+    try {
+      const formData = new FormData();
+
+      // Append form data based on media type requirements
+      formData.append("title", mediaForm.title);
+      formData.append("description", mediaForm.description);
+
+      // Add content for types that need it
+      if (["stories", "blogs"].includes(currentMediaType)) {
+        formData.append("content", mediaForm.content);
+      }
+
+      // Add specific fields for different media types
+      switch (currentMediaType) {
+        case "events":
+          formData.append("date", new Date().toISOString().split("T")[0]);
+          formData.append("time", "12:00");
+          formData.append("location", "TBD");
+          break;
+        case "blogs":
+          formData.append("author", "Admin");
+          formData.append("tags", JSON.stringify([]));
+          break;
+        case "documentaries":
+          formData.append("video_url", "");
+          formData.append("duration", "0:00");
+          break;
+      }
+
+      // Handle file uploads
+      if (mediaForm.image) {
+        formData.append("image", mediaForm.image);
+      }
+      if (mediaForm.pdf) {
+        formData.append("file", mediaForm.pdf); // Note: backend expects 'file' for newsletters
+      }
+
+      formData.append("published_date", new Date().toISOString().split("T")[0]);
+      formData.append("is_published", mediaForm.is_active);
+
+      const endpoint = editingMediaId
+        ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
+        : `${API_BASE}/media/${currentMediaType}`;
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      };
+
+      const response = editingMediaId
+        ? await axios.put(endpoint, formData, config)
+        : await axios.post(endpoint, formData, config);
+
+      alert(
+        `${currentMediaType.slice(0, -1)} ${
+          editingMediaId ? "updated" : "created"
+        } successfully!`
+      );
+
+      // Refresh the data
+      setMediaAction("view");
+      setEditingMediaId(null);
+      setMediaForm({
+        title: "",
+        description: "",
+        content: "",
+        image: null,
+        pdf: null,
+        is_active: true,
+      });
+      setImagePreview(null);
+
+      // Refresh the media list
+      fetchMediaData();
+    } catch (error) {
+      console.error("Error saving media:", error);
+      alert(
+        `Error saving media: ${error.response?.data?.error || error.message}`
+      );
     }
-    
-    // Add specific fields for different media types
-    switch(currentMediaType) {
-      case 'events':
-        formData.append('date', new Date().toISOString().split('T')[0]);
-        formData.append('time', '12:00');
-        formData.append('location', 'TBD');
-        break;
-      case 'blogs':
-        formData.append('author', 'Admin');
-        formData.append('tags', JSON.stringify([]));
-        break;
-      case 'documentaries':
-        formData.append('video_url', '');
-        formData.append('duration', '0:00');
-        break;
-    }
-    
-    // Handle file uploads
-    if (mediaForm.image) {
-      formData.append('image', mediaForm.image);
-    }
-    if (mediaForm.pdf) {
-      formData.append('file', mediaForm.pdf); // Note: backend expects 'file' for newsletters
-    }
-    
-    formData.append('published_date', new Date().toISOString().split('T')[0]);
-    formData.append('is_published', mediaForm.is_active);
+    setLoading(false);
+  };
 
-    const endpoint = editingMediaId
-      ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
-      : `${API_BASE}/media/${currentMediaType}`;
-
-    const config = { 
-      headers: { 
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      } 
-    };
-
-    const response = editingMediaId
-      ? await axios.put(endpoint, formData, config)
-      : await axios.post(endpoint, formData, config);
-
-    alert(
-      `${currentMediaType.slice(0, -1)} ${
-        editingMediaId ? "updated" : "created"
-      } successfully!`
-    );
-    
-    // Refresh the data
-    setMediaAction("view");
-    setEditingMediaId(null);
+  const handleMediaEdit = (item) => {
+    setEditingMediaId(item.id);
+    setMediaAction("update");
     setMediaForm({
-      title: "",
-      description: "",
-      content: "",
+      title: item.title || "",
+      description: item.description || "",
+      content: item.content || "",
       image: null,
       pdf: null,
-      is_active: true,
+      is_active: item.is_published || true,
     });
-    setImagePreview(null);
-    
-    // Refresh the media list
-    fetchMediaData();
-    
-  } catch (error) {
-    console.error("Error saving media:", error);
-    alert(`Error saving media: ${error.response?.data?.error || error.message}`);
-  }
-  setLoading(false);
-};
-
- const handleMediaEdit = (item) => {
-  setEditingMediaId(item.id);
-  setMediaAction("update");
-  setMediaForm({
-    title: item.title || "",
-    description: item.description || "",
-    content: item.content || "",
-    image: null,
-    pdf: null,
-    is_active: item.is_published || true,
-  });
-  if (item.image) {
-    setImagePreview(`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`);
-  }
-};
+    if (item.image) {
+      setImagePreview(
+        `${API_BASE}/uploads/media/${currentMediaType}/${item.image}`
+      );
+    }
+  };
 
   const handleMediaStatusToggle = async (id, newStatus) => {
-  if (!window.confirm(`Are you sure you want to ${newStatus ? 'publish' : 'unpublish'} this item?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to ${
+          newStatus ? "publish" : "unpublish"
+        } this item?`
+      )
+    )
+      return;
 
-  setLoading(true);
-  try {
-    await axios.patch(`${API_BASE}/media/${currentMediaType}/${id}/publish`, {
-      is_published: newStatus
-    });
-    alert(`Item ${newStatus ? 'published' : 'unpublished'} successfully!`);
-    fetchMediaData();
-  } catch (error) {
-    console.error("Error toggling media status:", error);
-    alert(`Error updating status: ${error.message}`);
-  }
-  setLoading(false);
-};
+    setLoading(true);
+    try {
+      await axios.patch(`${API_BASE}/media/${currentMediaType}/${id}/publish`, {
+        is_published: newStatus,
+      });
+      alert(`Item ${newStatus ? "published" : "unpublished"} successfully!`);
+      fetchMediaData();
+    } catch (error) {
+      console.error("Error toggling media status:", error);
+      alert(`Error updating status: ${error.message}`);
+    }
+    setLoading(false);
+  };
 
   const handleMediaDelete = async (id) => {
-  if (!window.confirm(`Are you sure you want to delete this ${currentMediaType.slice(0, -1)}?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this ${currentMediaType.slice(0, -1)}?`
+      )
+    )
+      return;
 
-  setLoading(true);
-  try {
-    await axios.delete(`${API_BASE}/media/${currentMediaType}/${id}`);
-    alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
-    fetchMediaData();
-  } catch (error) {
-    console.error("Error deleting media:", error);
-    alert(`Error deleting item: ${error.message}`);
-  }
-  setLoading(false);
-};
+    setLoading(true);
+    try {
+      await axios.delete(`${API_BASE}/media/${currentMediaType}/${id}`);
+      alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
+      fetchMediaData();
+    } catch (error) {
+      console.error("Error deleting media:", error);
+      alert(`Error deleting item: ${error.message}`);
+    }
+    setLoading(false);
+  };
   const renderLegalReportForm = () => {
     return (
       <div className="content-list">
@@ -2267,7 +2316,7 @@ const handleMediaSubmit = async (e) => {
     }
   };
 
-    return (
+  return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h2>Admin Dashboard</h2>
@@ -2313,17 +2362,25 @@ const handleMediaSubmit = async (e) => {
                       "environment_sustainability",
                       "integrated_development",
                     ].map((category) => (
-                      <li key={category} className="interventions-dropdown-item">
+                      <li
+                        key={category}
+                        className="interventions-dropdown-item"
+                      >
                         <div className="interventions-type-header">
                           <button
                             className="interventions-type-btn"
-                            onClick={() => handleInterventionsSubDropdown(category)}
+                            onClick={() =>
+                              handleInterventionsSubDropdown(category)
+                            }
                           >
                             <span className="interventions-type-label">
-                              {getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}
+                              {getOurWorkCategoryIcon(category)}{" "}
+                              {getOurWorkCategoryLabel(category)}
                             </span>
                             <span>
-                              {interventionsSubDropdown === category ? "▴" : "▾"}
+                              {interventionsSubDropdown === category
+                                ? "▴"
+                                : "▾"}
                             </span>
                           </button>
                         </div>
@@ -2332,24 +2389,45 @@ const handleMediaSubmit = async (e) => {
                           <ul className="interventions-submenu">
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, "view")}
-                                className={currentOurWorkCategory === category && interventionsAction === "view" ? "active-sub" : ""}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "view")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "view"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 📋 View {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, "add")}
-                                className={currentOurWorkCategory === category && interventionsAction === "add" ? "active-sub" : ""}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "add")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "add"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 ➕ Add {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() => handleInterventionsAction(category, "update")}
-                                className={currentOurWorkCategory === category && interventionsAction === "update" ? "active-sub" : ""}
+                                onClick={() =>
+                                  handleInterventionsAction(category, "update")
+                                }
+                                className={
+                                  currentOurWorkCategory === category &&
+                                  interventionsAction === "update"
+                                    ? "active-sub"
+                                    : ""
+                                }
                               >
                                 ✏️ Update {getOurWorkCategoryLabel(category)}
                               </button>
@@ -2382,7 +2460,13 @@ const handleMediaSubmit = async (e) => {
               </button>
               {openDropdown === "media" && (
                 <ul className="submenu">
-                  {["newsletters", "stories", "events", "blogs", "documentaries"].map((type) => (
+                  {[
+                    "newsletters",
+                    "stories",
+                    "events",
+                    "blogs",
+                    "documentaries",
+                  ].map((type) => (
                     <li key={type} className="media-dropdown-item">
                       <div className="media-type-header">
                         <button
@@ -2390,7 +2474,8 @@ const handleMediaSubmit = async (e) => {
                           onClick={() => handleMediaSubDropdown(type)}
                         >
                           <span className="media-type-label">
-                            {getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
+                            {getMediaTypeIcon(type)}{" "}
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
                           </span>
                           <span>{mediaSubDropdown === type ? "▴" : "▾"}</span>
                         </button>
@@ -2401,7 +2486,12 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "view")}
-                              className={currentMediaType === type && mediaAction === "view" ? "active-sub" : ""}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "view"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               📋 View {type}
                             </button>
@@ -2409,7 +2499,12 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "add")}
-                              className={currentMediaType === type && mediaAction === "add" ? "active-sub" : ""}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "add"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               ➕ Add {type.slice(0, -1)}
                             </button>
@@ -2417,7 +2512,12 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "update")}
-                              className={currentMediaType === type && mediaAction === "update" ? "active-sub" : ""}
+                              className={
+                                currentMediaType === type &&
+                                mediaAction === "update"
+                                  ? "active-sub"
+                                  : ""
+                              }
                             >
                               ✏️ Update {type.slice(0, -1)}
                             </button>
@@ -2643,7 +2743,13 @@ const handleMediaSubmit = async (e) => {
 
             {/* User Management */}
             {canManageUsers && (
-              <li className={activeTab === "users" || activeTab === "registrations" ? "active" : ""}>
+              <li
+                className={
+                  activeTab === "users" || activeTab === "registrations"
+                    ? "active"
+                    : ""
+                }
+              >
                 <button
                   onClick={() => {
                     if (openDropdown === "users") {
@@ -2671,7 +2777,9 @@ const handleMediaSubmit = async (e) => {
                     </li>
                     <li>
                       <button
-                        className={activeTab === "registrations" ? "active-sub" : ""}
+                        className={
+                          activeTab === "registrations" ? "active-sub" : ""
+                        }
                         onClick={() => {
                           setActiveTab("registrations");
                           setOpenDropdown(null);
@@ -2692,7 +2800,9 @@ const handleMediaSubmit = async (e) => {
             <div className="media-content-section">
               <div className="media-content-header">
                 <h3>
-                  {currentMediaType.charAt(0).toUpperCase() + currentMediaType.slice(1)} Management
+                  {currentMediaType.charAt(0).toUpperCase() +
+                    currentMediaType.slice(1)}{" "}
+                  Management
                   {mediaAction === "add" && " - Add New"}
                   {mediaAction === "update" && " - Edit"}
                 </h3>
@@ -2716,7 +2826,8 @@ const handleMediaSubmit = async (e) => {
                       });
                     }}
                   >
-                    ← Back to {mediaAction !== "view" ? currentMediaType : "Media Corner"}
+                    ← Back to{" "}
+                    {mediaAction !== "view" ? currentMediaType : "Media Corner"}
                   </button>
                   {mediaAction === "view" && (
                     <button
