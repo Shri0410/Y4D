@@ -70,7 +70,7 @@
 
 .hotspot:hover span,
 .hotspot:focus span {
-  background: currentColor;
+  background: #106641;
   transform: scale(1.25);
   box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.18);
 }
@@ -108,7 +108,7 @@
   max-width: 240px;
   background: #fff;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   font-size: 14px;
   line-height: 1.2;
@@ -153,6 +153,34 @@
   color: #666;
 }
 
+/* Tooltip positioning */
+.tooltip-box.tooltip-left {
+  transform: translate(-100%, -50%);
+}
+
+.tooltip-box.tooltip-right {
+  transform: translate(0, -50%);
+}
+
+/* Optional small arrow indicator */
+.tooltip-box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+}
+
+.tooltip-box.tooltip-left::after {
+  right: -12px;
+  border-left-color: #fff;
+}
+
+.tooltip-box.tooltip-right::after {
+  left: -12px;
+  border-right-color: #fff;
+}
+
 /* Tablet view (around 1024px) */
 @media (max-width: 1024px) {
   .map-container {
@@ -190,6 +218,8 @@
     height: 9px;
   }
   .tooltip-box {
+    min-width: 100px;
+    max-width: 200px;
     right: 6px;
     left: auto;
     transform: translate(0, -120%);

@@ -85,6 +85,13 @@ const OurTeam = () => {
           <div className="team-container">
             {trustees.map((trustee) => (
               <div key={trustee.id} className="team-card">
+                {trustee.image ? (
+                  <img
+                    src={`http://localhost:5000/api/uploads/board-trustees/${trustee.image}`}
+                    alt={trustee.name}
+                  />
+                ) : null}
+
                 <h3>{trustee.name}</h3>
                 <p className="role">{trustee.position}</p>
               </div>

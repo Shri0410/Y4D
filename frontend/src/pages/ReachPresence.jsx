@@ -129,11 +129,23 @@ export default function ReachPresence() {
             <div className="circle">2021</div>
             <p>Empowered communities on-field even in 2021 pandemic.</p>
           </div>
+        </div>
 
-          <div className="connector">
-            <span className="arrow reverse">➤</span>
+        {/* mid Row (NORMAL order) */}
+
+        <div className="timeline-row-mid bottom" style={{ marginTop: "65px" }}>
+          <div className="timeline-item green">
+            <div className="circle">2019</div>
+            <p>International Purviz Shroff award for social contribution</p>
           </div>
-
+          <div className="connector-mid">
+            <span className="arrow">➤</span>
+          </div>
+          <div>
+            <div className="connector-mid-up">
+              <span className="arrow">➤</span>
+            </div>
+          </div>
           <div className="timeline-item orange">
             <div className="circle">2020</div>
             <p>Embraced 3E’s – Encourage, Educate and Employ</p>
@@ -142,40 +154,34 @@ export default function ReachPresence() {
 
         {/* Second Row (NORMAL order) */}
 
-        <div className="timeline-row bottom">
-          <div className="timeline-item orange">
-            <div className="circle">2015</div>
-            <p>Establishment of Y4D Foundation</p>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <div>
+            <div className="connector-up">
+              <span className="arrow">➤</span>
+            </div>
           </div>
-
-          <div className="connector">
-            <span className="arrow">➤</span>
-          </div>
-
-          <div className="timeline-item green">
-            <div className="circle">2017</div>
-            <p>First CSR project in skill development</p>
-          </div>
-
-          <div className="connector">
-            <span className="arrow">➤</span>
-          </div>
-
-          <div className="timeline-item orange">
-            <div className="circle">2018</div>
-            <p>
-              New India Conclave in presence of Hon. Prime Minister Narendra
-              Modi
-            </p>
-          </div>
-
-          <div className="connector">
-            <span className="arrow">➤</span>
-          </div>
-
-          <div className="timeline-item green">
-            <div className="circle">2019</div>
-            <p>International Purviz Shroff award for social contribution</p>
+          <div className="timeline-row bottom">
+            <div className="timeline-item orange">
+              <div className="circle">2018</div>
+              <p>
+                New India Conclave in presence of Hon. Prime Minister Narendra
+                Modi
+              </p>
+            </div>
+            <div className="connector">
+              <span className="arrow">➤</span>
+            </div>
+            <div className="timeline-item green">
+              <div className="circle">2017</div>
+              <p>First CSR project in skill development</p>
+            </div>
+            <div className="connector">
+              <span className="arrow">➤</span>
+            </div>
+            <div className="timeline-item orange">
+              <div className="circle">2015</div>
+              <p>Establishment of Y4D Foundation</p>
+            </div>
           </div>
         </div>
       </div>

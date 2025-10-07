@@ -8,7 +8,8 @@ import {
   getManagement,
   getReports,
   getImpactData,
-} from "../services/api";
+  getAccreditations,
+} from "../services/api.jsx";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
@@ -67,24 +68,53 @@ const Home = () => {
     states: 0,
     projects: 0,
   });
+  const [accreditations, setAccreditations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [accreditationsError, setAccreditationsError] = useState(false); // New state to track API errors
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const [mentorsData, managementData, reportsData, impactData] =
+        setLoading(true);
+        setAccreditationsError(false); // Reset error state
+        console.log('🚀 Starting to fetch home data...');
+        
+        const [mentorsData, managementData, reportsData, impactData, accreditationsData] =
           await Promise.all([
-            getMentors(),
-            getManagement(),
-            getReports(),
-            getImpactData(),
+            getMentors().catch(err => {
+              console.error('❌ Error fetching mentors:', err);
+              return [];
+            }),
+            getManagement().catch(err => {
+              console.error('❌ Error fetching management:', err);
+              return [];
+            }),
+            getReports().catch(err => {
+              console.error('❌ Error fetching reports:', err);
+              return [];
+            }),
+            getImpactData().catch(err => {
+              console.error('❌ Error fetching impact data:', err);
+              return { beneficiaries: 0, states: 0, projects: 0 };
+            }),
+            getAccreditations().catch(err => {
+              console.error('❌ Error fetching accreditations:', err);
+              setAccreditationsError(true); // Set error state if API fails
+              return []; // Return empty array on error
+            }),
           ]);
 
+        console.log('📊 Accreditations data received:', accreditationsData);
+        console.log('📊 Is empty array:', accreditationsData.length === 0);
+        
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
         setImpact(impactData);
+        setAccreditations(accreditationsData || []);
+        
       } catch (err) {
-        console.error("Error fetching home data:", err);
+        console.error("💥 Error in fetchHomeData:", err);
+        setAccreditationsError(true); // Set error on general failure
       } finally {
         setLoading(false);
       }
@@ -137,6 +167,20 @@ const Home = () => {
 
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
+  
+  // Fixed: Removed optional chaining
+  const activeAccreditations = accreditations.filter(acc => 
+    acc.is_active === true || acc.is_active === 1 || acc.is_active === "true"
+  );
+
+  // Fixed: Helper function to handle image errors safely
+  const handleImageError = (e) => {
+    e.target.style.display = "none";
+    const nextSibling = e.target.nextSibling;
+    if (nextSibling && nextSibling.style) {
+      nextSibling.style.display = 'block';
+    }
+  };
 
   return (
     <div className="home">
@@ -295,7 +339,7 @@ const Home = () => {
               { breakpoint: 1280, settings: { slidesToShow: 4 } },
               { breakpoint: 1024, settings: { slidesToShow: 3 } },
               { breakpoint: 768, settings: { slidesToShow: 2 } },
-              { breakpoint: 480, settings: { slidesToShow: 1 } }, // changed to 1 for mobile
+              { breakpoint: 480, settings: { slidesToShow: 1 } },
             ]}
           >
             {sdgImages.map((img, index) => (
@@ -311,96 +355,122 @@ const Home = () => {
       <section className="Partners-section">
         <Partners1 />
         <Partners2 />
-        {/* <Partners3 /> */}
       </section>
 
-      {/* Accreditations Section */}
-      <div className="accreditations-section">
-        <div className="accreditations-container">
-          <h2 className="accreditations-title">
-            Accreditations<span></span>
-          </h2>
-          {isMobile ? (
-            // MOBILE VIEW: one column list
-            <div className="accreditations-list" style={{ gap: "10px" }}>
-              {[
-                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-                { img: accr2, title: "Bhamashah Award" },
-                { img: accr3, title: "India Impact Summit – Socio Story" },
-                { img: accr4, title: "IRR NGO Grading - 3" },
-              ].map((item, index) => (
-                <div key={index} className="accreditation-card">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="accreditation-icon"
-                  />
-                  <h3>{item.title}</h3>
-                </div>
-              ))}
+      {/* Accreditations Section - Fixed */}
+<div className="accreditations-section">
+  <div className="accreditations-container">
+    <h2 className="accreditations-title">
+      Accreditations<span></span>
+    </h2>
+    {isMobile ? (
+      // MOBILE VIEW
+      <div className="accreditations-list" style={{ gap: "10px" }}>
+        {activeAccreditations.length > 0 ? (
+          activeAccreditations.map((item) => (
+            <div key={item.id} className="accreditation-card">
+              <img
+                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                alt={item.title}
+                className="accreditation-icon"
+                onError={handleImageError}
+              />
+              <h3>{item.title}</h3>
+              {item.description && <p>{item.description}</p>}
             </div>
-          ) : isTablet ? (
-            // TABLET VIEW: maybe 2-column grid
-            <div
-              className="accreditations-list"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "80px",
-              }}
-            >
-              {[
-                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-                { img: accr2, title: "Bhamashah Award" },
-                { img: accr3, title: "India Impact Summit – Socio Story" },
-                { img: accr4, title: "IRR NGO Grading - 3" },
-              ].map((item, index) => (
-                <div key={index} className="accreditation-card">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="accreditation-icon"
-                  />
-                  <h3>{item.title}</h3>
-                </div>
-              ))}
-            </div>
-          ) : (
-            // DESKTOP VIEW: slider
-            <Slider
-              slidesToShow={4}
-              slidesToScroll={1}
-              infinite={true}
-              autoplay={true}
-              autoplaySpeed={2000}
-              speed={800}
-              arrows={false}
-              dots={false}
-              responsive={[
-                { breakpoint: 1024, settings: { slidesToShow: 3 } },
-                { breakpoint: 768, settings: { slidesToShow: 2 } },
-                { breakpoint: 480, settings: { slidesToShow: 1 } },
-              ]}
-            >
-              {[
-                { img: accr1, title: "Purviz Shroff Social Recognition Award" },
-                { img: accr2, title: "Bhamashah Award" },
-                { img: accr3, title: "India Impact Summit – Socio Story" },
-                { img: accr4, title: "IRR NGO Grading - 3" },
-              ].map((item, index) => (
-                <div key={index} className="accreditation-card">
-                  <img
-                    src={item.img}
-                    alt={item.title}
-                    className="accreditation-icon"
-                  />
-                  <h3>{item.title}</h3>
-                </div>
-              ))}
-            </Slider>
-          )}
-        </div>
+          ))
+        ) : (
+          // Show nothing or a message when no data
+          <div className="no-accreditations-message">
+            <p>No accreditations available at the moment.</p>
+          </div>
+        )}
       </div>
+    ) : isTablet ? (
+      // TABLET VIEW
+      <div
+        className="accreditations-list"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "80px",
+        }}
+      >
+        {activeAccreditations.length > 0 ? (
+          activeAccreditations.map((item) => (
+            <div key={item.id} className="accreditation-card">
+              <img
+                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                alt={item.title}
+                className="accreditation-icon"
+                onError={handleImageError}
+              />
+              <h3>{item.title}</h3>
+              {item.description && <p>{item.description}</p>}
+            </div>
+          ))
+        ) : (
+          // Show nothing or a message when no data
+          <div className="no-accreditations-message">
+            <p>No accreditations available at the moment.</p>
+          </div>
+        )}
+      </div>
+    ) : (
+      // DESKTOP VIEW - Slider
+      activeAccreditations.length > 0 ? (
+        <Slider
+          slidesToShow={Math.min(4, activeAccreditations.length)}
+          slidesToScroll={1}
+          infinite={activeAccreditations.length > 1}
+          autoplay={activeAccreditations.length > 1}
+          autoplaySpeed={2000}
+          speed={800}
+          arrows={false}
+          dots={false}
+          responsive={[
+            { 
+              breakpoint: 1024, 
+              settings: { 
+                slidesToShow: Math.min(3, activeAccreditations.length) 
+              } 
+            },
+            { 
+              breakpoint: 768, 
+              settings: { 
+                slidesToShow: Math.min(2, activeAccreditations.length) 
+              } 
+            },
+            { 
+              breakpoint: 480, 
+              settings: { 
+                slidesToShow: 1 
+              } 
+            },
+          ]}
+        >
+          {activeAccreditations.map((item) => (
+            <div key={item.id} className="accreditation-card">
+              <img
+                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                alt={item.title}
+                className="accreditation-icon"
+                onError={handleImageError}
+              />
+              <h3>{item.title}</h3>
+              {item.description && <p>{item.description}</p>}
+            </div>
+          ))}
+        </Slider>
+      ) : (
+        // Show nothing or a message when no data
+        <div className="no-accreditations-message">
+          <p>No accreditations available at the moment.</p>
+        </div>
+      )
+    )}
+  </div>
+</div>
 
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">

@@ -45,14 +45,19 @@ export default function IndiaMapHover({ mapUrl = map, statesData }) {
     const leftPct = ((e.clientX - rect.left) / rect.width) * 100;
     const topPct = ((e.clientY - rect.top) / rect.height) * 100;
 
-    const offsetX = 5;
-    const offsetY = -2;
+    // Check which side of the map the cursor is on
+    const isRightSide = leftPct > 50;
+
+    // Small, subtle offset so the tooltip hugs the dot closely
+    const offsetX = isRightSide ? 2 : -2;
+    const offsetY = -1;
 
     setTooltip({
       visible: true,
       state,
       left: `${leftPct + offsetX}%`,
       top: `${topPct + offsetY}%`,
+      position: isRightSide ? "right" : "left",
     });
   }
 
@@ -86,13 +91,12 @@ export default function IndiaMapHover({ mapUrl = map, statesData }) {
 
         {tooltip.visible && tooltip.state && (
           <div
-            className="tooltip-box"
+            className={`tooltip-box ${
+              tooltip.position === "right" ? "tooltip-right" : "tooltip-left"
+            }`}
             style={{ left: tooltip.left, top: tooltip.top }}
           >
             <div className="tooltip-title">{tooltip.state.id}</div>
-            <div className="tooltip-body">
-              Projects completed: <strong>{tooltip.state.projects}</strong>
-            </div>
           </div>
         )}
       </div>

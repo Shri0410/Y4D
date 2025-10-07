@@ -7,6 +7,7 @@ const DonateNow = () => {
     name: "",
     email: "",
     amount: "",
+    pan: "", // new field for PAN
     message: "",
   });
 
@@ -14,7 +15,13 @@ const DonateNow = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    // Automatically convert PAN input to uppercase
+    if (name === "pan") {
+      setFormData({ ...formData, [name]: value.toUpperCase() });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const loadRazorpay = (amount) => {
@@ -131,6 +138,21 @@ const DonateNow = () => {
                 onChange={handleChange}
                 required
                 min="1"
+              />
+            </label>
+
+            {/* New PAN Card Input */}
+            <label>
+              PAN Card Number
+              <input
+                type="text"
+                name="pan"
+                value={formData.pan}
+                onChange={handleChange}
+                  maxLength="10"
+                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
+                title="Enter valid PAN format: ABCDE1234F"
+                required
               />
             </label>
 

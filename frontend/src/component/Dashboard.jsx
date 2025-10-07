@@ -5,6 +5,7 @@ import RegistrationRequests from "./RegistrationRequests";
 import MediaManager from "./MediaManager";
 import OurWorkManagement from "./OurWorkManagement";
 import ImpactDataEditor from "./ImpactDataEditor";
+import AccreditationManagement from "./AccreditationManagement";
 import "./Dashboard.css";
 
 const Dashboard = ({ currentUser: propCurrentUser }) => {
@@ -34,10 +35,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [legalReportAction, setLegalReportAction] = useState("view");
   const [openDropdown, setOpenDropdown] = useState(null);
   const [mediaSubDropdown, setMediaSubDropdown] = useState(null);
-  const [interventionsSubDropdown, setInterventionsSubDropdown] =
-    useState(null);
-  const [interventionsAction, setInterventionsAction] = useState("view"); // 'view', 'add', 'update'
-
+  const [interventionsSubDropdown, setInterventionsSubDropdown] = useState(null);
+  const [interventionsAction, setInterventionsAction] = useState("view");
+  const [currentAccreditationType, setCurrentAccreditationType] = useState(null);
+  const [accreditationAction, setAccreditationAction] = useState("view");
+  
   // Form states
   const [reportForm, setReportForm] = useState({
     title: "",
@@ -59,6 +61,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     image: null,
     social_links: "{}",
   });
+  const [trusteeForm, setTrusteeForm] = useState({ // Added missing trusteeForm
+    name: "",
+    position: "",
+    bio: "",
+    image: null,
+    social_links: "{}",
+  });
   const [careerForm, setCareerForm] = useState({
     title: "",
     description: "",
@@ -69,12 +78,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   });
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [mediaItems, setMediaItems] = useState([]);
 
-  const canManageContent =
-    currentUser &&
-    ["super_admin", "admin", "editor"].includes(currentUser.role);
-  const canManageUsers =
-    currentUser && ["super_admin", "admin"].includes(currentUser.role);
+  const handleAccreditationAction = (action) => {
+    setCurrentAccreditationType("accreditations");
+    setAccreditationAction(action);
+    setOpenDropdown(null);
+  };
+
+  const canManageContent = currentUser && ["super_admin", "admin", "editor"].includes(currentUser.role);
+  const canManageUsers = currentUser && ["super_admin", "admin"].includes(currentUser.role);
   const API_BASE = "http://localhost:5000/api";
 
   // Clear sub-sections when switching tabs
@@ -82,12 +95,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setCurrentMediaType(null);
     setCurrentOurWorkCategory(null);
     setCurrentTeamType(null);
+    setCurrentAccreditationType(null);
     setTeamAction("view");
     setCareerAction("current");
     setLegalReportAction("view");
     setMediaSubDropdown(null);
     setInterventionsSubDropdown(null);
     setInterventionsAction("view");
+    setAccreditationAction("view");
   }, [activeTab]);
 
   useEffect(() => {
@@ -1027,7 +1042,20 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         return null;
     }
   };
-
+const renderAccreditationContent = () => {
+    return (
+      <div className="accreditation-content-section">
+        <AccreditationManagement
+          action={accreditationAction}
+          onClose={() => {
+            setCurrentAccreditationType(null);
+            setAccreditationAction("view");
+          }}
+          onActionChange={(action) => setAccreditationAction(action)}
+        />
+      </div>
+    );
+  };
   const renderTeamView = () => {
     if (loading) return <div className="loading">Loading...</div>;
 
@@ -1198,8 +1226,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
-const [mediaItems, setMediaItems] = useState([]);
-
 // Add this useEffect to fetch media data
 useEffect(() => {
   if (activeTab === "media" && currentMediaType && mediaAction === "view") {
@@ -2241,7 +2267,7 @@ const handleMediaSubmit = async (e) => {
     }
   };
 
-  return (
+    return (
     <div className="dashboard">
       <header className="dashboard-header">
         <h2>Admin Dashboard</h2>
@@ -2287,25 +2313,17 @@ const handleMediaSubmit = async (e) => {
                       "environment_sustainability",
                       "integrated_development",
                     ].map((category) => (
-                      <li
-                        key={category}
-                        className="interventions-dropdown-item"
-                      >
+                      <li key={category} className="interventions-dropdown-item">
                         <div className="interventions-type-header">
                           <button
                             className="interventions-type-btn"
-                            onClick={() =>
-                              handleInterventionsSubDropdown(category)
-                            }
+                            onClick={() => handleInterventionsSubDropdown(category)}
                           >
                             <span className="interventions-type-label">
-                              {getOurWorkCategoryIcon(category)}{" "}
-                              {getOurWorkCategoryLabel(category)}
+                              {getOurWorkCategoryIcon(category)} {getOurWorkCategoryLabel(category)}
                             </span>
                             <span>
-                              {interventionsSubDropdown === category
-                                ? "▴"
-                                : "▾"}
+                              {interventionsSubDropdown === category ? "▴" : "▾"}
                             </span>
                           </button>
                         </div>
@@ -2314,45 +2332,24 @@ const handleMediaSubmit = async (e) => {
                           <ul className="interventions-submenu">
                             <li>
                               <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "view")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "view"
-                                    ? "active-sub"
-                                    : ""
-                                }
+                                onClick={() => handleInterventionsAction(category, "view")}
+                                className={currentOurWorkCategory === category && interventionsAction === "view" ? "active-sub" : ""}
                               >
                                 📋 View {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "add")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "add"
-                                    ? "active-sub"
-                                    : ""
-                                }
+                                onClick={() => handleInterventionsAction(category, "add")}
+                                className={currentOurWorkCategory === category && interventionsAction === "add" ? "active-sub" : ""}
                               >
                                 ➕ Add {getOurWorkCategoryLabel(category)}
                               </button>
                             </li>
                             <li>
                               <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "update")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "update"
-                                    ? "active-sub"
-                                    : ""
-                                }
+                                onClick={() => handleInterventionsAction(category, "update")}
+                                className={currentOurWorkCategory === category && interventionsAction === "update" ? "active-sub" : ""}
                               >
                                 ✏️ Update {getOurWorkCategoryLabel(category)}
                               </button>
@@ -2385,13 +2382,7 @@ const handleMediaSubmit = async (e) => {
               </button>
               {openDropdown === "media" && (
                 <ul className="submenu">
-                  {[
-                    "newsletters",
-                    "stories",
-                    "events",
-                    "blogs",
-                    "documentaries",
-                  ].map((type) => (
+                  {["newsletters", "stories", "events", "blogs", "documentaries"].map((type) => (
                     <li key={type} className="media-dropdown-item">
                       <div className="media-type-header">
                         <button
@@ -2399,8 +2390,7 @@ const handleMediaSubmit = async (e) => {
                           onClick={() => handleMediaSubDropdown(type)}
                         >
                           <span className="media-type-label">
-                            {getMediaTypeIcon(type)}{" "}
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                            {getMediaTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
                           </span>
                           <span>{mediaSubDropdown === type ? "▴" : "▾"}</span>
                         </button>
@@ -2411,12 +2401,7 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "view")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "view"
-                                  ? "active-sub"
-                                  : ""
-                              }
+                              className={currentMediaType === type && mediaAction === "view" ? "active-sub" : ""}
                             >
                               📋 View {type}
                             </button>
@@ -2424,12 +2409,7 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "add")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "add"
-                                  ? "active-sub"
-                                  : ""
-                              }
+                              className={currentMediaType === type && mediaAction === "add" ? "active-sub" : ""}
                             >
                               ➕ Add {type.slice(0, -1)}
                             </button>
@@ -2437,12 +2417,7 @@ const handleMediaSubmit = async (e) => {
                           <li>
                             <button
                               onClick={() => handleMediaAction(type, "update")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "update"
-                                  ? "active-sub"
-                                  : ""
-                              }
+                              className={currentMediaType === type && mediaAction === "update" ? "active-sub" : ""}
                             >
                               ✏️ Update {type.slice(0, -1)}
                             </button>
@@ -2468,6 +2443,53 @@ const handleMediaSubmit = async (e) => {
                 </button>
               </li>
             )}
+
+            {/* Accreditations Section - FIXED */}
+            <li className={activeTab === "accreditations" ? "active" : ""}>
+              <button
+                onClick={() => {
+                  if (openDropdown === "accreditations") {
+                    setOpenDropdown(null);
+                  } else {
+                    setOpenDropdown("accreditations");
+                    setActiveTab("accreditations");
+                  }
+                }}
+              >
+                Accreditations {openDropdown === "accreditations" ? "▴" : "▾"}
+              </button>
+              {openDropdown === "accreditations" && (
+                <ul className="submenu">
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleAccreditationAction("view");
+                      }}
+                    >
+                      Show Accreditations
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleAccreditationAction("add");
+                      }}
+                    >
+                      Add Accreditation
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleAccreditationAction("update");
+                      }}
+                    >
+                      Update Accreditation
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </li>
 
             {/* Team */}
             <li className={activeTab === "our-team" ? "active" : ""}>
@@ -2621,13 +2643,7 @@ const handleMediaSubmit = async (e) => {
 
             {/* User Management */}
             {canManageUsers && (
-              <li
-                className={
-                  activeTab === "users" || activeTab === "registrations"
-                    ? "active"
-                    : ""
-                }
-              >
+              <li className={activeTab === "users" || activeTab === "registrations" ? "active" : ""}>
                 <button
                   onClick={() => {
                     if (openDropdown === "users") {
@@ -2655,9 +2671,7 @@ const handleMediaSubmit = async (e) => {
                     </li>
                     <li>
                       <button
-                        className={
-                          activeTab === "registrations" ? "active-sub" : ""
-                        }
+                        className={activeTab === "registrations" ? "active-sub" : ""}
                         onClick={() => {
                           setActiveTab("registrations");
                           setOpenDropdown(null);
@@ -2674,14 +2688,11 @@ const handleMediaSubmit = async (e) => {
         </nav>
 
         <main className="dashboard-content">
-          {/* Your existing content rendering logic remains the same */}
           {currentMediaType ? (
             <div className="media-content-section">
               <div className="media-content-header">
                 <h3>
-                  {currentMediaType.charAt(0).toUpperCase() +
-                    currentMediaType.slice(1)}{" "}
-                  Management
+                  {currentMediaType.charAt(0).toUpperCase() + currentMediaType.slice(1)} Management
                   {mediaAction === "add" && " - Add New"}
                   {mediaAction === "update" && " - Edit"}
                 </h3>
@@ -2705,8 +2716,7 @@ const handleMediaSubmit = async (e) => {
                       });
                     }}
                   >
-                    ← Back to{" "}
-                    {mediaAction !== "view" ? currentMediaType : "Media Corner"}
+                    ← Back to {mediaAction !== "view" ? currentMediaType : "Media Corner"}
                   </button>
                   {mediaAction === "view" && (
                     <button
@@ -2734,6 +2744,8 @@ const handleMediaSubmit = async (e) => {
             </div>
           ) : currentOurWorkCategory ? (
             renderOurWorkManagement()
+          ) : currentAccreditationType ? ( // ADDED: Render accreditation content
+            renderAccreditationContent()
           ) : activeTab === "users" && canManageUsers ? (
             <UserManagement />
           ) : activeTab === "registrations" && canManageUsers ? (

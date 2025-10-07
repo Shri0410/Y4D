@@ -108,6 +108,9 @@ const Footer = () => {
               305 A, Janmabhoomi Chambers, Ballard Estate, Mumbai-38
             </a>
           </div>
+          <br />
+          <br />
+
           <div className="footer-social">
             <p
               style={{
