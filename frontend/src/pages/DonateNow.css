@@ -141,3 +141,10 @@
     margin: -30px auto 30px;
   }
 }
+
+@media (max-width: 768px) {
+  .donate-left,
+  .donate-right {
+    padding: 0px 10px;
+  }
+}
