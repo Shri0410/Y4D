@@ -735,20 +735,20 @@
 
   .faq-title {
     font-size: 1.4rem;
-    line-height: 34px;
+    line-height: 38px;
     margin-bottom: 2rem;
   }
   .faq-title::before {
-    right: 40px;
+    right: 0px;
   }
   .faq-title::after {
-    right: 20px;
+    right: -20px;
   }
   .faq-title span::before {
-    left: 40px;
+    left: 0px;
   }
   .faq-title span::after {
-    left: 20px;
+    left: -20px;
   }
 
   .office-title {
@@ -757,16 +757,16 @@
     margin-bottom: 2rem;
   }
   .office-title::before {
-    right: 40px;
+    right: 0px;
   }
   .office-title::after {
-    right: 20px;
+    right: -20px;
   }
   .office-title span::before {
-    left: 40px;
+    left: 0px;
   }
   .office-title span::after {
-    left: 20px;
+    left: -20px;
   }
 
   .contactus-section {

@@ -1202,4 +1202,7 @@
   .media-title span::after {
     left: -10px;
   }
+  .SDGs-container {
+    width: 100%;
+  }
 }
