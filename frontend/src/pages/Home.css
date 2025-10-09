@@ -684,7 +684,7 @@
 
 .accreditation-card {
   max-width: 270px; /* fixed width */
-  height: 280px; /* fixed height */
+  height: auto; /* fixed height */
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
