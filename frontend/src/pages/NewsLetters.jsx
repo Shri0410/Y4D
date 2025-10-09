@@ -1,7 +1,7 @@
 // src/pages/Newsletters.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Newsletters.css";
+import "./NewsLetters.css";
 import { getBanners } from "../services/api.jsx";
 
 const Newsletters = () => {
