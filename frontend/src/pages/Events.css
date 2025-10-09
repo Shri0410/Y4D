@@ -122,6 +122,7 @@
   /* Truncate text to 3 lines */
   display: -webkit-box;
   -webkit-line-clamp: 3; /* show only 3 lines */
+  line-clamp: 3; /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
