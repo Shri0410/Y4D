@@ -33,6 +33,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/api/banners', require('./routes/banners'));
 
 // Routes
 app.use('/api/registration', require('./routes/registration'));
