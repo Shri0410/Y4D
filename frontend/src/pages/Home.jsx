@@ -9,15 +9,17 @@ import {
   getReports,
   getImpactData,
   getAccreditations,
+  getBanners,
 } from "../services/api.jsx";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
 
-import first from "../assets/BannerImages/f.jpeg";
-import Second from "../assets/BannerImages/s.jpeg";
-import Third from "../assets/BannerImages/t.jpeg";
-import Fourth from "../assets/BannerImages/fo.jpeg";
+// Remove static banner imports since we'll use dynamic ones
+// import first from "../assets/BannerImages/f.jpeg";
+// import Second from "../assets/BannerImages/s.jpeg";
+// import Third from "../assets/BannerImages/t.jpeg";
+// import Fourth from "../assets/BannerImages/fo.jpeg";
 
 import edu from "../assets/Interventions/Education.png";
 import livelihood from "../assets/Interventions/Livelihood.png";
@@ -69,54 +71,76 @@ const Home = () => {
     projects: 0,
   });
   const [accreditations, setAccreditations] = useState([]);
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [campaignBanners, setCampaignBanners] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [accreditationsError, setAccreditationsError] = useState(false); // New state to track API errors
+  const [accreditationsError, setAccreditationsError] = useState(false);
+  const [bannersLoading, setBannersLoading] = useState(true);
 
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
         setLoading(true);
-        setAccreditationsError(false); // Reset error state
+        setBannersLoading(true);
+        setAccreditationsError(false);
         console.log('🚀 Starting to fetch home data...');
         
-        const [mentorsData, managementData, reportsData, impactData, accreditationsData] =
-          await Promise.all([
-            getMentors().catch(err => {
-              console.error('❌ Error fetching mentors:', err);
-              return [];
-            }),
-            getManagement().catch(err => {
-              console.error('❌ Error fetching management:', err);
-              return [];
-            }),
-            getReports().catch(err => {
-              console.error('❌ Error fetching reports:', err);
-              return [];
-            }),
-            getImpactData().catch(err => {
-              console.error('❌ Error fetching impact data:', err);
-              return { beneficiaries: 0, states: 0, projects: 0 };
-            }),
-            getAccreditations().catch(err => {
-              console.error('❌ Error fetching accreditations:', err);
-              setAccreditationsError(true); // Set error state if API fails
-              return []; // Return empty array on error
-            }),
-          ]);
+        const [
+          mentorsData, 
+          managementData, 
+          reportsData, 
+          impactData, 
+          accreditationsData,
+          heroBannersData,
+          campaignBannersData
+        ] = await Promise.all([
+          getMentors().catch(err => {
+            console.error('❌ Error fetching mentors:', err);
+            return [];
+          }),
+          getManagement().catch(err => {
+            console.error('❌ Error fetching management:', err);
+            return [];
+          }),
+          getReports().catch(err => {
+            console.error('❌ Error fetching reports:', err);
+            return [];
+          }),
+          getImpactData().catch(err => {
+            console.error('❌ Error fetching impact data:', err);
+            return { beneficiaries: 0, states: 0, projects: 0 };
+          }),
+          getAccreditations().catch(err => {
+            console.error('❌ Error fetching accreditations:', err);
+            setAccreditationsError(true);
+            return [];
+          }),
+          getBanners('home', 'hero').catch(err => {
+            console.error('❌ Error fetching hero banners:', err);
+            return [];
+          }),
+          getBanners('home', 'campaigns').catch(err => {
+            console.error('❌ Error fetching campaign banners:', err);
+            return [];
+          })
+        ]);
 
-        console.log('📊 Accreditations data received:', accreditationsData);
-        console.log('📊 Is empty array:', accreditationsData.length === 0);
+        console.log('📊 Hero banners received:', heroBannersData);
+        console.log('📊 Campaign banners received:', campaignBannersData);
         
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
         setImpact(impactData);
         setAccreditations(accreditationsData || []);
+        setHeroBanners(heroBannersData);
+        setCampaignBanners(campaignBannersData);
         
       } catch (err) {
         console.error("💥 Error in fetchHomeData:", err);
-        setAccreditationsError(true); // Set error on general failure
+        setAccreditationsError(true);
       } finally {
         setLoading(false);
+        setBannersLoading(false);
       }
     };
 
@@ -168,12 +192,10 @@ const Home = () => {
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
   
-  // Fixed: Removed optional chaining
   const activeAccreditations = accreditations.filter(acc => 
     acc.is_active === true || acc.is_active === 1 || acc.is_active === "true"
   );
 
-  // Fixed: Helper function to handle image errors safely
   const handleImageError = (e) => {
     e.target.style.display = "none";
     const nextSibling = e.target.nextSibling;
@@ -182,27 +204,119 @@ const Home = () => {
     }
   };
 
-  return (
-    <div className="home">
-      {/* ✅ Hero Slider Section */}
+  // Render dynamic hero slider
+  const renderHeroSlider = () => {
+    if (bannersLoading) {
+      return (
+        <section className="hero-slider">
+          <div className="loading-slider">Loading banners...</div>
+        </section>
+      );
+    }
+
+    if (heroBanners.length === 0) {
+      // Fallback to static banners if no dynamic banners
+      return (
+        <section className="hero-slider">
+          <div className="no-banners-message">
+            <p>Hero banners will appear here once added from dashboard</p>
+          </div>
+        </section>
+      );
+    }
+
+    return (
       <section className="hero-slider">
         <Slider {...sliderSettings}>
-          <div>
-            <img src={first} alt="Slide 1" className="slide-img" />
-          </div>
-          <div>
-            <img src={Second} alt="Slide 2" className="slide-img" />
-          </div>
-          <div className="slide-content">
-            <img src={Third} alt="Slide 3" className="slide-img" />
-            <div className="overlay1"></div>
-          </div>
-          <div className="slide-content">
-            <img src={Fourth} alt="Slide 4" className="slide-img" />
-            <div className="overlay2"></div>
-          </div>
+          {heroBanners.map((banner) => (
+            <div key={banner.id} className="slide-content">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                  alt={banner.title}
+                  className="slide-img"
+                  onError={handleImageError}
+                />
+              ) : (
+                <video
+                  src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                  className="slide-img"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              )}
+              {(banner.title || banner.description || banner.button_text) && (
+                <div className="slide-overlay">
+                  <div className="slide-text">
+                    {banner.title && <h2>{banner.title}</h2>}
+                    {banner.description && <p>{banner.description}</p>}
+                    {banner.button_text && banner.button_link && (
+                      <Link to={banner.button_link} className="slide-btn">
+                        {banner.button_text}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </Slider>
       </section>
+    );
+  };
+
+  // Render campaign banners grid
+  const renderCampaignBanners = () => {
+    if (campaignBanners.length === 0) return null;
+
+    return (
+      <section className="campaign-banners-section">
+        <div className="campaign-banners-container">
+          <h2 className="section-title">Featured Campaigns</h2>
+          <div className="campaign-banners-grid">
+            {campaignBanners.map((banner) => (
+              <div key={banner.id} className="campaign-banner-card">
+                <div className="campaign-banner-media">
+                  {banner.media_type === 'image' ? (
+                    <img
+                      src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                      alt={banner.title}
+                      className="campaign-banner-img"
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <video
+                      src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                      className="campaign-banner-video"
+                      muted
+                      loop
+                      playsInline
+                    />
+                  )}
+                </div>
+                <div className="campaign-banner-content">
+                  <h3>{banner.title}</h3>
+                  {banner.description && <p>{banner.description}</p>}
+                  {banner.button_text && banner.button_link && (
+                    <Link to={banner.button_link} className="campaign-banner-btn">
+                      {banner.button_text}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  };
+
+  return (
+    <div className="home">
+      {/* ✅ Dynamic Hero Slider Section */}
+      {renderHeroSlider()}
 
       {/* About Y4D Section */}
       <section className="About-section">
@@ -231,6 +345,9 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Campaign Banners Section */}
+      {renderCampaignBanners()}
 
       {/* Our Reach Section */}
       <section className="our-reach-section">
@@ -357,120 +474,114 @@ const Home = () => {
         <Partners2 />
       </section>
 
-      {/* Accreditations Section - Fixed */}
-<div className="accreditations-section">
-  <div className="accreditations-container">
-    <h2 className="accreditations-title">
-      Accreditations<span></span>
-    </h2>
-    {isMobile ? (
-      // MOBILE VIEW
-      <div className="accreditations-list" style={{ gap: "10px" }}>
-        {activeAccreditations.length > 0 ? (
-          activeAccreditations.map((item) => (
-            <div key={item.id} className="accreditation-card">
-              <img
-                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
-                alt={item.title}
-                className="accreditation-icon"
-                onError={handleImageError}
-              />
-              <h3>{item.title}</h3>
-              {item.description && <p>{item.description}</p>}
+      {/* Accreditations Section */}
+      <div className="accreditations-section">
+        <div className="accreditations-container">
+          <h2 className="accreditations-title">
+            Accreditations<span></span>
+          </h2>
+          {isMobile ? (
+            <div className="accreditations-list" style={{ gap: "10px" }}>
+              {activeAccreditations.length > 0 ? (
+                activeAccreditations.map((item) => (
+                  <div key={item.id} className="accreditation-card">
+                    <img
+                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                      alt={item.title}
+                      className="accreditation-icon"
+                      onError={handleImageError}
+                    />
+                    <h3>{item.title}</h3>
+                    {item.description && <p>{item.description}</p>}
+                  </div>
+                ))
+              ) : (
+                <div className="no-accreditations-message">
+                  <p>No accreditations available at the moment.</p>
+                </div>
+              )}
             </div>
-          ))
-        ) : (
-          // Show nothing or a message when no data
-          <div className="no-accreditations-message">
-            <p>No accreditations available at the moment.</p>
-          </div>
-        )}
-      </div>
-    ) : isTablet ? (
-      // TABLET VIEW
-      <div
-        className="accreditations-list"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "80px",
-        }}
-      >
-        {activeAccreditations.length > 0 ? (
-          activeAccreditations.map((item) => (
-            <div key={item.id} className="accreditation-card">
-              <img
-                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
-                alt={item.title}
-                className="accreditation-icon"
-                onError={handleImageError}
-              />
-              <h3>{item.title}</h3>
-              {item.description && <p>{item.description}</p>}
+          ) : isTablet ? (
+            <div
+              className="accreditations-list"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "80px",
+              }}
+            >
+              {activeAccreditations.length > 0 ? (
+                activeAccreditations.map((item) => (
+                  <div key={item.id} className="accreditation-card">
+                    <img
+                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                      alt={item.title}
+                      className="accreditation-icon"
+                      onError={handleImageError}
+                    />
+                    <h3>{item.title}</h3>
+                    {item.description && <p>{item.description}</p>}
+                  </div>
+                ))
+              ) : (
+                <div className="no-accreditations-message">
+                  <p>No accreditations available at the moment.</p>
+                </div>
+              )}
             </div>
-          ))
-        ) : (
-          // Show nothing or a message when no data
-          <div className="no-accreditations-message">
-            <p>No accreditations available at the moment.</p>
-          </div>
-        )}
-      </div>
-    ) : (
-      // DESKTOP VIEW - Slider
-      activeAccreditations.length > 0 ? (
-        <Slider
-          slidesToShow={Math.min(4, activeAccreditations.length)}
-          slidesToScroll={1}
-          infinite={activeAccreditations.length > 1}
-          autoplay={activeAccreditations.length > 1}
-          autoplaySpeed={2000}
-          speed={800}
-          arrows={false}
-          dots={false}
-          responsive={[
-            { 
-              breakpoint: 1024, 
-              settings: { 
-                slidesToShow: Math.min(3, activeAccreditations.length) 
-              } 
-            },
-            { 
-              breakpoint: 768, 
-              settings: { 
-                slidesToShow: Math.min(2, activeAccreditations.length) 
-              } 
-            },
-            { 
-              breakpoint: 480, 
-              settings: { 
-                slidesToShow: 1 
-              } 
-            },
-          ]}
-        >
-          {activeAccreditations.map((item) => (
-            <div key={item.id} className="accreditation-card">
-              <img
-                src={`http://localhost:5000/uploads/accreditations/${item.image}`}
-                alt={item.title}
-                className="accreditation-icon"
-                onError={handleImageError}
-              />
-              <h3>{item.title}</h3>
-              {item.description && <p>{item.description}</p>}
-            </div>
-          ))}
-        </Slider>
-      ) : (
-        // Show nothing or a message when no data
-        <div className="no-accreditations-message">
-          <p>No accreditations available at the moment.</p>
+          ) : (
+            activeAccreditations.length > 0 ? (
+              <Slider
+                slidesToShow={Math.min(4, activeAccreditations.length)}
+                slidesToScroll={1}
+                infinite={activeAccreditations.length > 1}
+                autoplay={activeAccreditations.length > 1}
+                autoplaySpeed={2000}
+                speed={800}
+                arrows={false}
+                dots={false}
+                responsive={[
+                  { 
+                    breakpoint: 1024, 
+                    settings: { 
+                      slidesToShow: Math.min(3, activeAccreditations.length) 
+                    } 
+                  },
+                  { 
+                    breakpoint: 768, 
+                    settings: { 
+                      slidesToShow: Math.min(2, activeAccreditations.length) 
+                    } 
+                  },
+                  { 
+                    breakpoint: 480, 
+                    settings: { 
+                      slidesToShow: 1 
+                    } 
+                  },
+                ]}
+              >
+                {activeAccreditations.map((item) => (
+                  <div key={item.id} className="accreditation-card">
+                    <img
+                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                      alt={item.title}
+                      className="accreditation-icon"
+                      onError={handleImageError}
+                    />
+                    <h3>{item.title}</h3>
+                    {item.description && <p>{item.description}</p>}
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <div className="no-accreditations-message">
+                <p>No accreditations available at the moment.</p>
+              </div>
+            )
+          )}
         </div>
-      )
-    )}
-  </div>
-</div>
+      </div>
 
       {/* Media Highlights Section */}
       <section className="Media-section bg-light">

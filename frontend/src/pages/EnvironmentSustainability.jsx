@@ -1,8 +1,9 @@
+// src/pages/EnvironmentSustainability.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./EnvironmentSustainability.css";
-import bannerVideo from "../assets/OurWork/Environment.mp4";
+import { getBanners } from "../services/api.jsx";
 
 const API_BASE = "http://localhost:5000/api";
 const SERVER_BASE = "http://localhost:5000";
@@ -21,8 +22,30 @@ const getImageUrl = (path) => {
 
 const EnvironmentSustainability = () => {
   const [items, setItems] = useState([]);
+  const [environmentBanners, setEnvironmentBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Fetch environment sustainability page banners
+  useEffect(() => {
+    const fetchEnvironmentBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching environment sustainability page banners...');
+        const bannersData = await getBanners('our-work', 'environmental-sustainability');
+        console.log('✅ Environment sustainability banners received:', bannersData);
+        setEnvironmentBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching environment sustainability banners:', error);
+        setEnvironmentBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchEnvironmentBanners();
+  }, []);
 
   useEffect(() => {
     fetchItems();
@@ -40,6 +63,52 @@ const EnvironmentSustainability = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="es-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (environmentBanners.length === 0) {
+      return (
+        <div className="es-banner">
+          <div className="no-banner-message">
+            <p>Environment sustainability banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="es-banner">
+        {environmentBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Environment Sustainability Banner - ${banner.page}`}
+                className="es-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="es-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   if (loading)
@@ -60,17 +129,8 @@ const EnvironmentSustainability = () => {
 
   return (
     <div className="es-page">
-      {/* Banner Section */}
-      <div className="es-banner">
-        <video
-          src={bannerVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="es-banner-video"
-        />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
 
       <section className="es-section">
         <div className="es-container">

@@ -1,11 +1,36 @@
-import React, { useRef } from "react";
+// src/pages/About.jsx
+import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../pages/About.css";
-import bannerImg from "../assets/BannerImages/f.jpeg";
+// Remove static banner import
+// import bannerImg from "../assets/BannerImages/f.jpeg";
 import pyramidImg from "../assets/Pyramid.png";
+import { getBanners } from "../services/api.jsx";
 
 const About = () => {
   const navigate = useNavigate();
+  const [aboutBanners, setAboutBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAboutBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching about page banners...');
+        const bannersData = await getBanners('about', 'hero');
+        console.log('✅ About banners received:', bannersData);
+        setAboutBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching about banners:', error);
+        setAboutBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchAboutBanners();
+  }, []);
+
   const handleReadMore = () => {
     navigate("/legalreports");
   };
@@ -37,7 +62,68 @@ const About = () => {
     });
   };
 
-  // Each section will render its own tab bar, and the active tab is always its own id
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="story-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (aboutBanners.length === 0) {
+      return (
+        <div className="story-banner">
+          <div className="no-banner-message">
+            <p>About page banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="story-banner">
+        {aboutBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={banner.title}
+                className="banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+            {(banner.title || banner.description) && (
+              <div className="banner-overlay">
+                <div className="banner-content">
+                  {banner.title && <h1>{banner.title}</h1>}
+                  {banner.description && <p>{banner.description}</p>}
+                  {banner.button_text && banner.button_link && (
+                    <button 
+                      className="banner-btn"
+                      onClick={() => navigate(banner.button_link)}
+                    >
+                      {banner.button_text}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const renderTabs = (activeId) => (
     <div className="story-tabs">
       {tabs.map((tab) => (
@@ -54,10 +140,8 @@ const About = () => {
 
   return (
     <div className="our-story-page">
-      {/* Banner */}
-      <div className="story-banner">
-        <img src={bannerImg} alt="Our Story Banner" />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
 
       {/* Mission Section */}
       {renderTabs("mission")}
@@ -184,7 +268,7 @@ const About = () => {
               <h4>LIVELIHOOD</h4>
               <p>
                 emerges from education, providing economic stability and the
-                resources needed to sustain oneself and one’s family. This
+                resources needed to sustain oneself and one's family. This
                 includes access to employment, entrepreneurial ventures, or
                 other income sources, fostering financial independence and
                 resilience.

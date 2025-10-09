@@ -1,15 +1,38 @@
+// src/pages/OurTeam.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./OurTeam.css";
-import bannerImg from "../assets/BannerImages/s.jpeg";
+import { getBanners } from "../services/api.jsx";
 
 const OurTeam = () => {
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
   const [trustees, setTrustees] = useState([]);
+  const [teamBanners, setTeamBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loadingMentors, setLoadingMentors] = useState(true);
   const [loadingManagement, setLoadingManagement] = useState(true);
   const [loadingTrustees, setLoadingTrustees] = useState(true);
+
+  // Fetch team page banners
+  useEffect(() => {
+    const fetchTeamBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching team page banners...');
+        const bannersData = await getBanners('our-team', 'hero');
+        console.log('✅ Team banners received:', bannersData);
+        setTeamBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching team banners:', error);
+        setTeamBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchTeamBanners();
+  }, []);
 
   // Fetch mentors
   useEffect(() => {
@@ -63,12 +86,56 @@ const OurTeam = () => {
     fetchTrustees();
   }, []);
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (teamBanners.length === 0) {
+      return (
+        <div className="banner">
+          <div className="no-banner-message">
+            <p>Team page banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="banner">
+        {teamBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Our Team Banner - ${banner.page}`}
+                className="banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="advisory-page">
-      {/* Banner */}
-      <div className="banner">
-        <img src={bannerImg} alt="Banner" />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
 
       {/* Board of Trustee */}
       <section className="FOT-section">
@@ -122,25 +189,6 @@ const OurTeam = () => {
           </div>
         )}
       </section>
-
-      {/* Management Team */}
-      {/* <section className="OT-section">
-        <h2 className="management-title">
-          Management Team<span></span>
-        </h2>
-        {loadingManagement ? (
-          <p>Loading management team...</p>
-        ) : (
-          <div className="team-container">
-            {management.map((member) => (
-              <div key={member.id} className="team-card">
-                <h3>{member.name}</h3>
-                <p className="role">{member.position}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section> */}
 
       {/* You May Find Useful */}
       <section className="OT-section">

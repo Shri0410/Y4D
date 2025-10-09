@@ -2,14 +2,37 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Documentaries.css";
+import { getBanners } from "../services/api.jsx";
 
 const Documentaries = () => {
   const [documentaries, setDocumentaries] = useState([]);
+  const [docsBanners, setDocsBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(null);
 
   const API_BASE = "http://localhost:5000/api";
   const UPLOADS_BASE = "http://localhost:5000/api/uploads";
+
+  // Fetch documentaries page banners
+  useEffect(() => {
+    const fetchDocsBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching documentaries page banners...');
+        const bannersData = await getBanners('media-corner', 'documentaries');
+        console.log('✅ Documentaries banners received:', bannersData);
+        setDocsBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching documentaries banners:', error);
+        setDocsBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchDocsBanners();
+  }, []);
 
   useEffect(() => {
     fetchDocumentaries();
@@ -26,6 +49,52 @@ const Documentaries = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="documentaries-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (docsBanners.length === 0) {
+      return (
+        <div className="documentaries-banner">
+          <div className="no-banner-message">
+            <p>Documentaries banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="documentaries-banner">
+        {docsBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Documentaries Banner - ${banner.page}`}
+                className="documentaries-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="documentaries-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const openDocModal = (doc) => setSelectedDoc(doc);
@@ -45,6 +114,9 @@ const Documentaries = () => {
 
   return (
     <div className="documentaries-page">
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <div className="page-header">
         <h1>
           Documentaries<span></span>

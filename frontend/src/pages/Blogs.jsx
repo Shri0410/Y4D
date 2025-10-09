@@ -1,15 +1,38 @@
-// pages/Blogs.jsx
+// src/pages/Blogs.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Blogs.css";
+import { getBanners } from "../services/api.jsx";
 
 const API_BASE = "http://localhost:5000/api";
 const UPLOADS_BASE = "http://localhost:5000/api/uploads";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
+  const [blogsBanners, setBlogsBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+
+  // Fetch blogs page banners
+  useEffect(() => {
+    const fetchBlogsBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching blogs page banners...');
+        const bannersData = await getBanners('media-corner', 'blogs');
+        console.log('✅ Blogs banners received:', bannersData);
+        setBlogsBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching blogs banners:', error);
+        setBlogsBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchBlogsBanners();
+  }, []);
 
   useEffect(() => {
     fetchBlogs();
@@ -24,6 +47,52 @@ const Blogs = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="blogs-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (blogsBanners.length === 0) {
+      return (
+        <div className="blogs-banner">
+          <div className="no-banner-message">
+            <p>Blogs banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="blogs-banner">
+        {blogsBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Blogs Banner - ${banner.page}`}
+                className="blogs-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="blogs-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const renderTags = (tags) => {
@@ -53,6 +122,9 @@ const Blogs = () => {
 
   return (
     <div className="blogs-page">
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <div className="blog-header">
         <h1>
           Blog Articles<span></span>

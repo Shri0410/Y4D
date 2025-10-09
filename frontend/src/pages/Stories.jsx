@@ -1,13 +1,37 @@
+// src/pages/Stories.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Stories.css"; // CSS for Stories page
+import "./Stories.css";
+import { getBanners } from "../services/api.jsx";
 
 const SERVER_BASE = "http://localhost:5000";
 
 const Stories = () => {
   const [stories, setStories] = useState([]);
+  const [storiesBanners, setStoriesBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedStory, setSelectedStory] = useState(null);
+
+  // Fetch stories page banners
+  useEffect(() => {
+    const fetchStoriesBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching stories page banners...');
+        const bannersData = await getBanners('media-corner', 'stories');
+        console.log('✅ Stories banners received:', bannersData);
+        setStoriesBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching stories banners:', error);
+        setStoriesBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchStoriesBanners();
+  }, []);
 
   useEffect(() => {
     fetchStories();
@@ -26,6 +50,52 @@ const Stories = () => {
     }
   };
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="stories-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (storiesBanners.length === 0) {
+      return (
+        <div className="stories-banner">
+          <div className="no-banner-message">
+            <p>Stories banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="stories-banner">
+        {storiesBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Stories Banner - ${banner.page}`}
+                className="stories-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="stories-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const openStoryModal = (story) => setSelectedStory(story);
   const closeStoryModal = () => setSelectedStory(null);
 
@@ -39,6 +109,9 @@ const Stories = () => {
 
   return (
     <div className="st-page">
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="st-section">
         <div className="st-container">
           <div className="st-header">

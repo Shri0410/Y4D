@@ -1,16 +1,39 @@
+// src/pages/Healthcare.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./Healthcare.css";
-import bannerVideo from "../assets/OurWork/Healthcare.mp4";
+import { getBanners } from "../services/api.jsx";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
+  const [healthcareBanners, setHealthcareBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
   const SERVER_BASE = "http://localhost:5000";
+
+  // Fetch healthcare page banners
+  useEffect(() => {
+    const fetchHealthcareBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching healthcare page banners...');
+        const bannersData = await getBanners('our-work', 'healthcare');
+        console.log('✅ Healthcare banners received:', bannersData);
+        setHealthcareBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching healthcare banners:', error);
+        setHealthcareBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchHealthcareBanners();
+  }, []);
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -39,6 +62,52 @@ const Healthcare = () => {
     }
   };
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="hc-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (healthcareBanners.length === 0) {
+      return (
+        <div className="hc-banner">
+          <div className="no-banner-message">
+            <p>Healthcare banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="hc-banner">
+        {healthcareBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Healthcare Banner - ${banner.page}`}
+                className="hc-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="hc-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading)
     return (
       <div className="hc-page">
@@ -55,17 +124,9 @@ const Healthcare = () => {
 
   return (
     <div className="hc-page">
-      {/* Banner Section */}
-      <div className="hc-banner">
-        <video
-          src={bannerVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="hc-banner-video"
-        />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="hc-section">
         <div className="hc-container">
           <div className="hc-header">

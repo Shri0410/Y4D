@@ -1,17 +1,40 @@
+// src/pages/IDP.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import "./IDP.css";
-import bannerVideo from "../assets/OurWork/IDP.mp4";
+import { getBanners } from "../services/api.jsx";
 import DonateButton from "../component/DonateButton";
 
 const IDP = () => {
   const [items, setItems] = useState([]);
+  const [idpBanners, setIdpBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
   const SERVER_BASE = "http://localhost:5000";
+
+  // Fetch IDP page banners
+  useEffect(() => {
+    const fetchIdpBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching IDP page banners...');
+        const bannersData = await getBanners('our-work', 'idp');
+        console.log('✅ IDP banners received:', bannersData);
+        setIdpBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching IDP banners:', error);
+        setIdpBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchIdpBanners();
+  }, []);
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -24,6 +47,7 @@ const IDP = () => {
     );
     return `${SERVER_BASE}/api/uploads/our-work/integrated_development/${cleanPath}`;
   };
+
   useEffect(() => {
     fetchItems();
   }, []);
@@ -40,6 +64,52 @@ const IDP = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="idp-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (idpBanners.length === 0) {
+      return (
+        <div className="idp-banner">
+          <div className="no-banner-message">
+            <p>IDP banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="idp-banner">
+        {idpBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`IDP Banner - ${banner.page}`}
+                className="idp-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="idp-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   if (loading)
@@ -60,17 +130,9 @@ const IDP = () => {
 
   return (
     <div className="idp-page-container">
-      {/* Banner Section */}
-      <div className="idp-banner">
-        <video
-          src={bannerVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="idp-banner-video"
-        />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="idp-section">
         <div className="idp-container">
           <div className="idp-section-header">

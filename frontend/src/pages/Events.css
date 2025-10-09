@@ -258,7 +258,58 @@
 .ev-connect-btn:hover {
   background-color: #218838;
 }
+/* Events Banner - Same as About Page */
+.events-banner {
+  width: 100%;
+  height: auto;
+}
 
+.events-banner img,
+.events-banner video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.loading-banner,
+.no-banner-message {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 18px;
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+  .events-banner img,
+  .events-banner video {
+    height: 300px;
+  }
+  
+  .loading-banner,
+  .no-banner-message {
+    height: 300px;
+  }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+  .events-banner img,
+  .events-banner video {
+    height: 200px;
+  }
+  
+  .loading-banner,
+  .no-banner-message {
+    height: 200px;
+    font-size: 16px;
+  }
+}
 /* Animations */
 @keyframes fadeIn {
   from {

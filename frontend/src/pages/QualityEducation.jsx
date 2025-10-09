@@ -1,16 +1,39 @@
+// src/pages/QualityEducation.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./QualityEducation.css";
-import bannerVideo from "../assets/OurWork/Education.mp4";
+import { getBanners } from "../services/api.jsx";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
+  const [educationBanners, setEducationBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
   const SERVER_BASE = "http://localhost:5000";
+
+  // Fetch quality education page banners
+  useEffect(() => {
+    const fetchEducationBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching quality education page banners...');
+        const bannersData = await getBanners('our-work', 'quality-education');
+        console.log('✅ Quality education banners received:', bannersData);
+        setEducationBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching quality education banners:', error);
+        setEducationBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchEducationBanners();
+  }, []);
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -42,6 +65,52 @@ const QualityEducation = () => {
     }
   };
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="qe-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (educationBanners.length === 0) {
+      return (
+        <div className="qe-banner">
+          <div className="no-banner-message">
+            <p>Quality Education banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="qe-banner">
+        {educationBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Quality Education Banner - ${banner.page}`}
+                className="qe-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="qe-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading)
     return (
       <div className="qe-page">
@@ -57,17 +126,9 @@ const QualityEducation = () => {
 
   return (
     <div className="qe-page">
-      {/* Banner Section */}
-      <div className="qe-banner">
-        <video
-          src={bannerVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="qe-banner-video"
-        />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="qe-section">
         <div className="qe-container">
           <div className="qe-header">

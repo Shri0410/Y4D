@@ -1,14 +1,38 @@
+// src/pages/Events.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Events.css"; // new CSS file
+import "./Events.css";
+import { getBanners } from "../services/api.jsx";
 
 const API_BASE = "http://localhost:5000";
 const UPLOADS_BASE = `${API_BASE}/api/uploads`;
 
 const Events = () => {
   const [events, setEvents] = useState([]);
+  const [eventsBanners, setEventsBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  // Fetch events page banners
+  useEffect(() => {
+    const fetchEventsBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching events page banners...');
+        const bannersData = await getBanners('media-corner', 'events');
+        console.log('✅ Events banners received:', bannersData);
+        setEventsBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching events banners:', error);
+        setEventsBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchEventsBanners();
+  }, []);
 
   useEffect(() => {
     fetchEvents();
@@ -28,6 +52,52 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="events-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (eventsBanners.length === 0) {
+      return (
+        <div className="events-banner">
+          <div className="no-banner-message">
+            <p>Events banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="events-banner">
+        {eventsBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Events Banner - ${banner.page}`}
+                className="events-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="events-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const openEventModal = (event) => setSelectedEvent(event);
@@ -58,13 +128,15 @@ const Events = () => {
 
   return (
     <div className="ev-page">
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="ev-section">
         <div className="ev-container">
           <div className="ev-header">
             <h1 className="ev-title">
               Upcoming Events <span></span>
             </h1>
-
             <p className="ev-subtitle">
               Join us for workshops, seminars, and community gatherings
             </p>

@@ -6,6 +6,7 @@ import MediaManager from "./MediaManager";
 import OurWorkManagement from "./OurWorkManagement";
 import ImpactDataEditor from "./ImpactDataEditor";
 import AccreditationManagement from "./AccreditationManagement";
+import BannerManagement from "./BannerManagement";
 import "./Dashboard.css";
 
 const Dashboard = ({ currentUser: propCurrentUser }) => {
@@ -41,6 +42,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentAccreditationType, setCurrentAccreditationType] =
     useState(null);
   const [accreditationAction, setAccreditationAction] = useState("view");
+  const [currentBannerType, setCurrentBannerType] = useState(null);
+  const [bannerAction, setBannerAction] = useState("view");
 
   // Form states
   const [reportForm, setReportForm] = useState({
@@ -64,7 +67,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     social_links: "{}",
   });
   const [trusteeForm, setTrusteeForm] = useState({
-    // Added missing trusteeForm
     name: "",
     position: "",
     bio: "",
@@ -89,6 +91,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setOpenDropdown(null);
   };
 
+  const handleBannerAction = (action) => {
+    setCurrentBannerType("banners");
+    setBannerAction(action);
+    setOpenDropdown(null);
+  };
+
   const canManageContent =
     currentUser &&
     ["super_admin", "admin", "editor"].includes(currentUser.role);
@@ -102,9 +110,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setCurrentOurWorkCategory(null);
     setCurrentTeamType(null);
     setCurrentAccreditationType(null);
+    setCurrentBannerType(null);
     setTeamAction("view");
     setCareerAction("current");
     setLegalReportAction("view");
+    setBannerAction("view");
     setMediaSubDropdown(null);
     setInterventionsSubDropdown(null);
     setInterventionsAction("view");
@@ -158,7 +168,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       !currentOurWorkCategory &&
       activeTab !== "impact" &&
       activeTab !== "users" &&
-      activeTab !== "registrations"
+      activeTab !== "registrations" &&
+      activeTab !== "banners"
     ) {
       fetchData(activeTab);
     }
@@ -169,6 +180,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     currentOurWorkCategory,
     teamAction,
   ]);
+
   const renderOurWorkManagement = () => {
     if (currentOurWorkCategory) {
       return (
@@ -185,6 +197,37 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
     return null;
   };
+
+  const renderAccreditationContent = () => {
+    return (
+      <div className="accreditation-content-section">
+        <AccreditationManagement
+          action={accreditationAction}
+          onClose={() => {
+            setCurrentAccreditationType(null);
+            setAccreditationAction("view");
+          }}
+          onActionChange={(action) => setAccreditationAction(action)}
+        />
+      </div>
+    );
+  };
+
+  const renderBannerContent = () => {
+    return (
+      <div className="banner-content-section">
+        <BannerManagement
+          action={bannerAction}
+          onClose={() => {
+            setCurrentBannerType(null);
+            setBannerAction("view");
+          }}
+          onActionChange={(action) => setBannerAction(action)}
+        />
+      </div>
+    );
+  };
+
   const fetchAllTeamData = async () => {
     setLoading(true);
     try {
@@ -720,6 +763,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     };
     return descriptions[category] || "Manage content";
   };
+
   const renderMediaForm = () => {
     return (
       <div className="content-list">
@@ -865,6 +909,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
+
   const renderTeamForm = () => {
     if (!currentTeamType) {
       return (
@@ -1062,20 +1107,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         return null;
     }
   };
-  const renderAccreditationContent = () => {
-    return (
-      <div className="accreditation-content-section">
-        <AccreditationManagement
-          action={accreditationAction}
-          onClose={() => {
-            setCurrentAccreditationType(null);
-            setAccreditationAction("view");
-          }}
-          onActionChange={(action) => setAccreditationAction(action)}
-        />
-      </div>
-    );
-  };
+
   const renderTeamView = () => {
     if (loading) return <div className="loading">Loading...</div>;
 
@@ -1206,7 +1238,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               <table>
                 <thead>
                   <tr>
-                    <th>Image</th> {/* ADD THIS COLUMN */}
+                    <th>Image</th>
                     <th>Name</th>
                     <th>Designation</th>
                     <th>Actions</th>
@@ -1258,6 +1290,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
+
   // Add this useEffect to fetch media data
   useEffect(() => {
     if (activeTab === "media" && currentMediaType && mediaAction === "view") {
@@ -1515,6 +1548,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       </div>
     );
   };
+
   const handleMediaSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -1665,6 +1699,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
     setLoading(false);
   };
+
   const renderLegalReportForm = () => {
     return (
       <div className="content-list">
@@ -2203,95 +2238,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         return null;
     }
   };
-  const renderReportsContent = () => {
-    return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <h3>Legal Reports</h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setLegalReportAction("add");
-                setEditingId(null);
-                setReportForm({
-                  title: "",
-                  description: "",
-                  content: "",
-                  image: null,
-                  pdf: null,
-                });
-                setImagePreview(null);
-              }}
-            >
-              + Add Report
-            </button>
-          </div>
-        </div>
-
-        {legalReportAction === "add" || legalReportAction === "update"
-          ? renderLegalReportForm()
-          : renderReportsList()}
-      </div>
-    );
-  };
-
-  const renderCareersContent = () => {
-    const filteredCareers = getFilteredCareers();
-
-    if (careerAction === "add" || careerAction === "update") {
-      return renderCareerForm();
-    }
-
-    return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <h3>Career Openings</h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setCareerAction("add");
-                setEditingId(null);
-                setCareerForm({
-                  title: "",
-                  description: "",
-                  requirements: "",
-                  location: "",
-                  type: "full-time",
-                  is_active: true,
-                });
-              }}
-            >
-              + Add Opening
-            </button>
-          </div>
-
-          <div className="filter-options">
-            <select
-              value={careerAction}
-              onChange={(e) => {
-                const selectedValue = e.target.value;
-                setCareerAction(selectedValue);
-                setEditingId(null);
-              }}
-              className="dropdown-select"
-            >
-              <option value="all">All Openings ({careers.length})</option>
-              <option value="active">
-                Active Openings ({careers.filter((c) => c.is_active).length})
-              </option>
-              <option value="inactive">
-                Inactive Openings ({careers.filter((c) => !c.is_active).length})
-              </option>
-            </select>
-          </div>
-        </div>
-
-        {renderCareersList(filteredCareers)}
-      </div>
-    );
-  };
 
   const selectTopLevelTab = (tab) => {
     setActiveTab(tab);
@@ -2544,7 +2490,56 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               </li>
             )}
 
-            {/* Accreditations Section - FIXED */}
+            {/* Banner Management */}
+            {canManageContent && (
+              <li className={activeTab === "banners" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "banners") {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown("banners");
+                      setActiveTab("banners");
+                    }
+                  }}
+                >
+                  Banner Management {openDropdown === "banners" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "banners" && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleBannerAction("view");
+                        }}
+                      >
+                        Show Banners
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleBannerAction("add");
+                        }}
+                      >
+                        Add Banner
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleBannerAction("update");
+                        }}
+                      >
+                        Update Banner
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            )}
+
+            {/* Accreditations Section */}
             <li className={activeTab === "accreditations" ? "active" : ""}>
               <button
                 onClick={() => {
@@ -2855,8 +2850,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           ) : currentOurWorkCategory ? (
             renderOurWorkManagement()
-          ) : currentAccreditationType ? ( // ADDED: Render accreditation content
+          ) : currentAccreditationType ? (
             renderAccreditationContent()
+          ) : currentBannerType ? (
+            renderBannerContent()
           ) : activeTab === "users" && canManageUsers ? (
             <UserManagement />
           ) : activeTab === "registrations" && canManageUsers ? (

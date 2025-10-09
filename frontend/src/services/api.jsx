@@ -56,7 +56,39 @@ export const getReports = async () => {
   const response = await api.get('/reports');
   return response.data;
 };
+// Add these functions to your services/api.jsx
 
+// Fetch banners for specific page and section
+export const getBanners = async (page = 'home', section = null) => {
+  try {
+    console.log('🔄 Fetching banners from API...');
+    let url = `/banners/page/${page}`;
+    if (section) {
+      url += `?section=${section}`;
+    }
+    
+    const response = await axios.get(`http://localhost:5000/api${url}`);
+    console.log('✅ Banners API response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching banners:', error);
+    console.error('❌ Error response:', error.response?.data);
+    return [];
+  }
+};
+
+// Fetch all active banners (for multiple sections)
+export const getAllBanners = async () => {
+  try {
+    console.log('🔄 Fetching all banners...');
+    const response = await axios.get('http://localhost:5000/api/banners');
+    console.log('✅ All banners response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error fetching all banners:', error);
+    return [];
+  }
+};
 // Fetch accreditations
 export const getAccreditations = async () => {
   try {

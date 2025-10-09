@@ -1,12 +1,36 @@
+// src/pages/Newsletters.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./NewsLetters.css";
+import "./Newsletters.css";
+import { getBanners } from "../services/api.jsx";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
+  const [newsletterBanners, setNewsletterBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const API_BASE = "http://localhost:5000/api";
+
+  // Fetch newsletter page banners
+  useEffect(() => {
+    const fetchNewsletterBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching newsletter page banners...');
+        const bannersData = await getBanners('media-corner', 'newsletters');
+        console.log('✅ Newsletter banners received:', bannersData);
+        setNewsletterBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching newsletter banners:', error);
+        setNewsletterBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchNewsletterBanners();
+  }, []);
 
   useEffect(() => {
     fetchNewsletters();
@@ -24,11 +48,49 @@ const Newsletters = () => {
     setLoading(false);
   };
 
-  const handleView = (newsletter) => {
-    // Open PDF in new tab
-    window.open(
-      `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`,
-      "_blank"
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="newsletter-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (newsletterBanners.length === 0) {
+      return (
+        <div className="newsletter-banner">
+          <div className="no-banner-message">
+            <p>Newsletter banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="newsletter-banner">
+        {newsletterBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Newsletters Banner - ${banner.page}`}
+                className="newsletter-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="newsletter-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
     );
   };
 
@@ -36,6 +98,9 @@ const Newsletters = () => {
 
   return (
     <div className="newsletters-page">
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <div className="page-header">
         <h1>
           Newsletters<span></span>

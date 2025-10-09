@@ -1,16 +1,39 @@
+// src/pages/Livelihood.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Livelihood.css";
-import bannerVideo from "../assets/OurWork/Livelihood.mp4";
+import { getBanners } from "../services/api.jsx";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
+  const [livelihoodBanners, setLivelihoodBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
   const SERVER_BASE = "http://localhost:5000";
+
+  // Fetch livelihood page banners
+  useEffect(() => {
+    const fetchLivelihoodBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching livelihood page banners...');
+        const bannersData = await getBanners('our-work', 'livelihood');
+        console.log('✅ Livelihood banners received:', bannersData);
+        setLivelihoodBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching livelihood banners:', error);
+        setLivelihoodBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchLivelihoodBanners();
+  }, []);
 
   const getImageUrl = (path) => {
     if (!path) return "";
@@ -39,6 +62,52 @@ const Livelihood = () => {
     }
   };
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="lv-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (livelihoodBanners.length === 0) {
+      return (
+        <div className="lv-banner">
+          <div className="no-banner-message">
+            <p>Livelihood banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="lv-banner">
+        {livelihoodBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Livelihood Banner - ${banner.page}`}
+                className="lv-banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="lv-banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (loading)
     return (
       <div className="lv-page">
@@ -55,17 +124,9 @@ const Livelihood = () => {
 
   return (
     <div className="lv-page">
-      {/* Banner Section */}
-      <div className="lv-banner">
-        <video
-          src={bannerVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="lv-banner-video"
-        />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
+
       <section className="lv-section">
         <div className="lv-container">
           <div className="lv-header">

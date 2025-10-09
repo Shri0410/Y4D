@@ -1,13 +1,36 @@
+// src/pages/LegalReports.jsx
 import React, { useEffect, useState } from "react";
 import "./LegalReports.css";
-import bannerImg from "../assets/BannerImages/t.jpeg"; // replace with your banner image
 import axios from "axios";
+import { getBanners } from "../services/api.jsx";
 
 const LegalReports = () => {
   const [reports, setReports] = useState([]);
+  const [legalBanners, setLegalBanners] = useState([]);
+  const [bannersLoading, setBannersLoading] = useState(true);
 
   // your backend URL
   const BACKEND_URL = "http://localhost:5000";
+
+  // Fetch legal page banners
+  useEffect(() => {
+    const fetchLegalBanners = async () => {
+      try {
+        setBannersLoading(true);
+        console.log('🔄 Fetching legal page banners...');
+        const bannersData = await getBanners('legal-status', 'hero');
+        console.log('✅ Legal banners received:', bannersData);
+        setLegalBanners(bannersData);
+      } catch (error) {
+        console.error('❌ Error fetching legal banners:', error);
+        setLegalBanners([]);
+      } finally {
+        setBannersLoading(false);
+      }
+    };
+
+    fetchLegalBanners();
+  }, []);
 
   // Fetch reports from backend
   useEffect(() => {
@@ -42,12 +65,56 @@ const LegalReports = () => {
     { title: "9) MSME", value: "MH20D0001233" },
   ];
 
+  // Render dynamic banner
+  const renderBanner = () => {
+    if (bannersLoading) {
+      return (
+        <div className="legal-banner">
+          <div className="loading-banner">Loading banner...</div>
+        </div>
+      );
+    }
+
+    if (legalBanners.length === 0) {
+      return (
+        <div className="legal-banner">
+          <div className="no-banner-message">
+            <p>Legal page banner will appear here once added from dashboard</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="legal-banner">
+        {legalBanners.map((banner) => (
+          <div key={banner.id} className="banner-container">
+            {banner.media_type === 'image' ? (
+              <img
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                alt={`Legal Reports Banner - ${banner.page}`}
+                className="banner-image"
+              />
+            ) : (
+              <video
+                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                className="banner-video"
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="legal-page">
-      {/* Banner Section */}
-      <div className="legal-banner">
-        <img src={bannerImg} alt="Banner" />
-      </div>
+      {/* Dynamic Banner */}
+      {renderBanner()}
 
       {/* Legal Status Section */}
       <section className="legal-section">
