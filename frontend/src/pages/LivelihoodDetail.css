@@ -157,6 +157,9 @@
   .lv-detail-html {
     text-align: center;
   }
+  .lv-detail-image img {
+    width: 100%;
+  }
 }
 
 @media (max-width: 480px) {

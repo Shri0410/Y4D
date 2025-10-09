@@ -683,8 +683,8 @@
 }
 
 .accreditation-card {
-  max-width: 270px; /* fixed width */
-  height: auto; /* fixed height */
+  max-width: 270px;
+  height: 320px;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
@@ -1201,5 +1201,8 @@
   }
   .media-title span::after {
     left: -10px;
+  }
+  .SDGs-container {
+    width: 100%;
   }
 }
