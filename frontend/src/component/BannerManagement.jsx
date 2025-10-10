@@ -1,6 +1,7 @@
 // src/components/BannerManagement.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./BannerManagement.css";
 
 const BannerManagement = ({ action, onClose, onActionChange }) => {
   const [banners, setBanners] = useState([]);
@@ -10,7 +11,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
   const [filterPage, setFilterPage] = useState("all");
   const [filterSection, setFilterSection] = useState("all");
   const [availablePages, setAvailablePages] = useState([]);
-  
+
   const bannerFormInitialState = {
     media_type: "image",
     media: null,
@@ -26,29 +27,25 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
   // Updated predefined pages with your specific options
   const predefinedPages = [
-    "home", 
-    "about", 
-    "our-team", 
-    "legal-status", 
-    "our-work", 
+    "home",
+    "about",
+    "our-team",
+    "legal-status",
+    "our-work",
     "media-corner",
-    "donate"
+    "donate",
   ];
 
   // Main sections for all pages
-  const mainSections = [
-    "hero", 
-    "header", 
-    "footer"
-  ];
+  const mainSections = ["hero", "header", "footer"];
 
   // Our Work specific sections
   const ourWorkSections = [
     "quality-education",
-    "livelihood", 
-    "healthcare", 
+    "livelihood",
+    "healthcare",
     "environmental-sustainability",
-    "idp"
+    "idp",
   ];
 
   // Media Corner specific sections
@@ -57,7 +54,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
     "stories",
     "blogs",
     "events",
-    "documentaries"
+    "documentaries",
   ];
 
   // Get available sections based on selected page
@@ -103,21 +100,28 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
     try {
       let url = `${API_BASE}/banners`;
       const params = new URLSearchParams();
-      
-      if (filterPage !== "all") params.append('page', filterPage);
-      if (filterSection !== "all") params.append('section', filterSection);
-      
+
+      if (filterPage !== "all") params.append("page", filterPage);
+      if (filterSection !== "all") params.append("section", filterSection);
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-      
-      console.log("📋 Fetching banners with filters:", { filterPage, filterSection });
+
+      console.log("📋 Fetching banners with filters:", {
+        filterPage,
+        filterSection,
+      });
       const response = await axios.get(url);
       console.log("✅ Banners fetched:", response.data);
       setBanners(response.data);
     } catch (error) {
       console.error("❌ Error fetching banners:", error);
-      alert(`Error fetching banners: ${error.response?.data?.error || error.message}`);
+      alert(
+        `Error fetching banners: ${
+          error.response?.data?.error || error.message
+        }`
+      );
     }
     setLoading(false);
   };
@@ -169,21 +173,23 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
         : await axios.post(endpoint, formData, config);
 
       console.log("✅ Banner saved successfully:", response.data);
-      
+
       alert(`Banner ${editingId ? "updated" : "created"} successfully!`);
-      
+
       // Reset form
       setBannerForm(bannerFormInitialState);
       setEditingId(null);
       setMediaPreview(null);
-      
+
       // Refresh the list
       fetchBanners();
       fetchAvailablePages();
       onActionChange("view");
     } catch (error) {
       console.error("❌ Error saving banner:", error);
-      alert(`Error saving banner: ${error.response?.data?.error || error.message}`);
+      alert(
+        `Error saving banner: ${error.response?.data?.error || error.message}`
+      );
     }
     setLoading(false);
   };
@@ -216,17 +222,26 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       fetchAvailablePages();
     } catch (error) {
       console.error("❌ Error deleting banner:", error);
-      alert(`Error deleting banner: ${error.response?.data?.error || error.message}`);
+      alert(
+        `Error deleting banner: ${error.response?.data?.error || error.message}`
+      );
     }
     setLoading(false);
   };
 
   const handleStatusToggle = async (id, newStatus) => {
-    if (!window.confirm(`Are you sure you want to ${newStatus ? "activate" : "deactivate"} this banner?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to ${
+          newStatus ? "activate" : "deactivate"
+        } this banner?`
+      )
+    )
+      return;
 
     setLoading(true);
     try {
-      const banner = banners.find(b => b.id === id);
+      const banner = banners.find((b) => b.id === id);
       if (!banner) {
         throw new Error("Banner not found");
       }
@@ -248,7 +263,11 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       fetchBanners();
     } catch (error) {
       console.error("❌ Error toggling banner status:", error);
-      alert(`Error updating banner status: ${error.response?.data?.error || error.message}`);
+      alert(
+        `Error updating banner status: ${
+          error.response?.data?.error || error.message
+        }`
+      );
     }
     setLoading(false);
   };
@@ -262,9 +281,10 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
   // Helper function to format page/section names for display
   const formatDisplayName = (name) => {
-    return name.split('-')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    return name
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const renderForm = () => {
@@ -288,17 +308,17 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
               <select
                 value={bannerForm.page}
                 onChange={(e) =>
-                  setBannerForm({ 
-                    ...bannerForm, 
+                  setBannerForm({
+                    ...bannerForm,
                     page: e.target.value,
                     // Reset section to appropriate default when page changes
-                    section: getDefaultSection(e.target.value)
+                    section: getDefaultSection(e.target.value),
                   })
                 }
                 required
               >
                 <option value="">Select Page</option>
-                {predefinedPages.map(page => (
+                {predefinedPages.map((page) => (
                   <option key={page} value={page}>
                     {formatDisplayName(page)}
                   </option>
@@ -317,52 +337,54 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                 required
               >
                 <option value="">Select Section</option>
-                
+
                 {/* Main sections for all pages */}
                 <optgroup label="Main Sections">
-                  {mainSections.map(section => (
+                  {mainSections.map((section) => (
                     <option key={section} value={section}>
                       {formatDisplayName(section)}
                     </option>
                   ))}
                 </optgroup>
-                
+
                 {/* Our Work specific sections - only show when Our Work is selected */}
                 {bannerForm.page === "our-work" && (
                   <optgroup label="Our Work Programs">
-                    {ourWorkSections.map(section => (
+                    {ourWorkSections.map((section) => (
                       <option key={section} value={section}>
                         {formatDisplayName(section)}
                       </option>
                     ))}
                   </optgroup>
                 )}
-                
+
                 {/* Media Corner specific sections - only show when Media Corner is selected */}
                 {bannerForm.page === "media-corner" && (
                   <optgroup label="Media Corner Sections">
-                    {mediaCornerSections.map(section => (
+                    {mediaCornerSections.map((section) => (
                       <option key={section} value={section}>
                         {formatDisplayName(section)}
                       </option>
                     ))}
                   </optgroup>
                 )}
-                
+
                 <option value="custom">Custom Section</option>
               </select>
-              
+
               {/* Help text for Our Work sections */}
               {bannerForm.page === "our-work" && (
                 <small className="section-help">
-                  Select "hero" for main Our Work page banner, or choose specific program for sub-page banners
+                  Select "hero" for main Our Work page banner, or choose
+                  specific program for sub-page banners
                 </small>
               )}
-              
+
               {/* Help text for Media Corner sections */}
               {bannerForm.page === "media-corner" && (
                 <small className="section-help">
-                  Select "hero" for main Media Corner page banner, or choose specific media section for sub-page banners
+                  Select "hero" for main Media Corner page banner, or choose
+                  specific media section for sub-page banners
                 </small>
               )}
             </div>
@@ -410,30 +432,35 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
           </div>
 
           <div className="form-group">
-            <label>{bannerForm.media_type === 'image' ? 'Image' : 'Video'}: *</label>
+            <label>
+              {bannerForm.media_type === "image" ? "Image" : "Video"}: *
+            </label>
             <input
               type="file"
-              accept={bannerForm.media_type === 'image' ? 'image/*' : 'video/*'}
+              accept={bannerForm.media_type === "image" ? "image/*" : "video/*"}
               onChange={handleMediaChange}
               required={!editingId}
             />
             <small>
-              {bannerForm.media_type === 'image' 
-                ? 'Supported formats: JPG, PNG, GIF. Max size: 10MB'
-                : 'Supported formats: MP4, WebM. Max size: 50MB'
-              }
+              {bannerForm.media_type === "image"
+                ? "Supported formats: JPG, PNG, GIF. Max size: 10MB"
+                : "Supported formats: MP4, WebM. Max size: 50MB"}
             </small>
             {mediaPreview && (
               <div className="media-preview">
-                {bannerForm.media_type === 'image' ? (
+                {bannerForm.media_type === "image" ? (
                   <img src={mediaPreview} alt="Preview" />
                 ) : (
-                  <video controls src={mediaPreview} style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                  <video
+                    controls
+                    src={mediaPreview}
+                    style={{ maxWidth: "100%", maxHeight: "200px" }}
+                  />
                 )}
                 <p>Media Preview</p>
               </div>
             )}
-          </div>            
+          </div>
 
           <div className="form-row">
             <div className="form-group">
@@ -455,7 +482,8 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
           <div className="form-actions">
             <button type="submit" disabled={loading}>
-              {loading ? "Processing..." : editingId ? "Update" : "Create"} Banner
+              {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
+              Banner
             </button>
             <button type="button" onClick={cancelEdit} disabled={loading}>
               Cancel
@@ -513,7 +541,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                 className="filter-select"
               >
                 <option value="all">All Pages</option>
-                {availablePages.map(page => (
+                {availablePages.map((page) => (
                   <option key={page} value={page}>
                     {formatDisplayName(page)}
                   </option>
@@ -529,7 +557,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                 className="filter-select"
               >
                 <option value="all">All Sections</option>
-                {filterSections.map(section => (
+                {filterSections.map((section) => (
                   <option key={section} value={section}>
                     {formatDisplayName(section)}
                   </option>
@@ -554,14 +582,17 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
         ) : banners.length === 0 ? (
           <div className="no-data-message">
             <p>No banners found</p>
-            <p><small>Click "Add Banner" to create your first banner.</small></p>
+            <p>
+              <small>Click "Add Banner" to create your first banner.</small>
+            </p>
           </div>
         ) : (
           <div className="items-grid">
             {banners.map((banner) => {
-              const isActive = banner.is_active === true || 
-                              banner.is_active === 1 || 
-                              banner.is_active === "true";
+              const isActive =
+                banner.is_active === true ||
+                banner.is_active === 1 ||
+                banner.is_active === "true";
 
               return (
                 <div
@@ -573,16 +604,24 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                 >
                   {banner.media && (
                     <div className="item-media">
-                      {banner.media_type === 'image' ? (
+                      {banner.media_type === "image" ? (
                         <img
                           src={`${API_BASE}/uploads/banners/${banner.media}`}
                           alt={`Banner for ${banner.page} - ${banner.section}`}
-                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover' }}
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "150px",
+                            objectFit: "cover",
+                          }}
                         />
                       ) : (
-                        <video 
+                        <video
                           src={`${API_BASE}/uploads/banners/${banner.media}`}
-                          style={{ maxWidth: '100%', maxHeight: '150px', objectFit: 'cover' }}
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "150px",
+                            objectFit: "cover",
+                          }}
                           muted
                         />
                       )}
@@ -591,10 +630,17 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
                   <div className="item-content">
                     <div className="banner-header">
-                      <h4>{formatDisplayName(banner.page)} - {formatDisplayName(banner.section)}</h4>
+                      <h4>
+                        {formatDisplayName(banner.page)} -{" "}
+                        {formatDisplayName(banner.section)}
+                      </h4>
                       <div className="banner-meta">
-                        <span className="page-badge">{formatDisplayName(banner.page)}</span>
-                        <span className="section-badge">{formatDisplayName(banner.section)}</span>
+                        <span className="page-badge">
+                          {formatDisplayName(banner.page)}
+                        </span>
+                        <span className="section-badge">
+                          {formatDisplayName(banner.section)}
+                        </span>
                         <span
                           className={`status-badge ${
                             isActive ? "active" : "inactive"
@@ -604,12 +650,18 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                         </span>
                       </div>
                     </div>
-                    
-                    <p><strong>Type:</strong> {banner.media_type}</p>
-                    
-                    <p><strong>Category:</strong> {banner.category || 'main'}</p>
-                    
-                    <p><strong>Order:</strong> {banner.display_order || 0}</p>
+
+                    <p>
+                      <strong>Type:</strong> {banner.media_type}
+                    </p>
+
+                    <p>
+                      <strong>Category:</strong> {banner.category || "main"}
+                    </p>
+
+                    <p>
+                      <strong>Order:</strong> {banner.display_order || 0}
+                    </p>
 
                     <div className="item-actions">
                       <button

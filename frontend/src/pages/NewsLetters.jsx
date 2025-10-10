@@ -17,12 +17,12 @@ const Newsletters = () => {
     const fetchNewsletterBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching newsletter page banners...');
-        const bannersData = await getBanners('media-corner', 'newsletters');
-        console.log('✅ Newsletter banners received:', bannersData);
+        console.log("🔄 Fetching newsletter page banners...");
+        const bannersData = await getBanners("media-corner", "newsletters");
+        console.log("✅ Newsletter banners received:", bannersData);
         setNewsletterBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching newsletter banners:', error);
+        console.error("❌ Error fetching newsletter banners:", error);
         setNewsletterBanners([]);
       } finally {
         setBannersLoading(false);
@@ -72,7 +72,7 @@ const Newsletters = () => {
       <div className="newsletter-banner">
         {newsletterBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`http://localhost:5000/uploads/banners/${banner.media}`}
                 alt={`Newsletters Banner - ${banner.page}`}
@@ -97,44 +97,45 @@ const Newsletters = () => {
   if (loading) return <div className="loading">Loading newsletters...</div>;
 
   return (
-    <div className="newsletters-page">
+    <div className="newsletters-container">
       {/* Dynamic Banner */}
       {renderBanner()}
+      <div className="newsletters-page">
+        <div className="page-header">
+          <h1>
+            Newsletters<span></span>
+          </h1>
+          <p>Stay updated with our latest publications and monthly updates</p>
+        </div>
 
-      <div className="page-header">
-        <h1>
-          Newsletters<span></span>
-        </h1>
-        <p>Stay updated with our latest publications and monthly updates</p>
-      </div>
-
-      <div className="newsletters-grid">
-        {newsletters.length === 0 ? (
-          <div className="empty-state">
-            <p>No newsletters available at the moment</p>
-          </div>
-        ) : (
-          newsletters.map((newsletter) => (
-            <div key={newsletter.id} className="newsletter-card">
-              <div className="newsletter-content">
-                <h3>{newsletter.title}</h3>
-                <p className="newsletter-description">
-                  {newsletter.description}
-                </p>
-                <div className="newsletter-actions">
-                  <a
-                    href={`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="download-btn"
-                  >
-                    <i className="fas fa-download"></i> Download
-                  </a>
+        <div className="newsletters-grid">
+          {newsletters.length === 0 ? (
+            <div className="empty-state">
+              <p>No newsletters available at the moment</p>
+            </div>
+          ) : (
+            newsletters.map((newsletter) => (
+              <div key={newsletter.id} className="newsletter-card">
+                <div className="newsletter-content">
+                  <h3>{newsletter.title}</h3>
+                  <p className="newsletter-description">
+                    {newsletter.description}
+                  </p>
+                  <div className="newsletter-actions">
+                    <a
+                      href={`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="download-btn"
+                    >
+                      <i className="fas fa-download"></i> Download
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

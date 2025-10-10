@@ -18,12 +18,12 @@ const Stories = () => {
     const fetchStoriesBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching stories page banners...');
-        const bannersData = await getBanners('media-corner', 'stories');
-        console.log('✅ Stories banners received:', bannersData);
+        console.log("🔄 Fetching stories page banners...");
+        const bannersData = await getBanners("media-corner", "stories");
+        console.log("✅ Stories banners received:", bannersData);
         setStoriesBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching stories banners:', error);
+        console.error("❌ Error fetching stories banners:", error);
         setStoriesBanners([]);
       } finally {
         setBannersLoading(false);
@@ -74,7 +74,7 @@ const Stories = () => {
       <div className="stories-banner">
         {storiesBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`http://localhost:5000/uploads/banners/${banner.media}`}
                 alt={`Stories Banner - ${banner.page}`}
@@ -108,97 +108,98 @@ const Stories = () => {
   }
 
   return (
-    <div className="st-page">
+    <div className="stories-container">
       {/* Dynamic Banner */}
       {renderBanner()}
+      <div className="st-page">
+        <section className="st-section">
+          <div className="st-container">
+            <div className="st-header">
+              <h1 className="st-title">
+                Stories of Empowerment<span></span>
+              </h1>
+              <p className="st-subtitle">
+                Inspiring success stories from our community
+              </p>
+            </div>
 
-      <section className="st-section">
-        <div className="st-container">
-          <div className="st-header">
-            <h1 className="st-title">
-              Stories of Empowerment<span></span>
-            </h1>
-            <p className="st-subtitle">
-              Inspiring success stories from our community
-            </p>
-          </div>
+            <div className="st-grid">
+              {stories.length === 0 ? (
+                <div className="st-empty">
+                  <h3>No stories available at the moment</h3>
+                </div>
+              ) : (
+                stories.map((story) => (
+                  <div key={story.id} className="st-card">
+                    {story.image && (
+                      <div className="st-card-image">
+                        <img
+                          src={`${SERVER_BASE}/api/uploads/media/stories/${story.image}`}
+                          alt={story.title}
+                          onError={(e) => {
+                            e.target.src = "/placeholder-image.jpg";
+                          }}
+                        />
+                      </div>
+                    )}
 
-          <div className="st-grid">
-            {stories.length === 0 ? (
-              <div className="st-empty">
-                <h3>No stories available at the moment</h3>
-              </div>
-            ) : (
-              stories.map((story) => (
-                <div key={story.id} className="st-card">
-                  {story.image && (
-                    <div className="st-card-image">
-                      <img
-                        src={`${SERVER_BASE}/api/uploads/media/stories/${story.image}`}
-                        alt={story.title}
-                        onError={(e) => {
-                          e.target.src = "/placeholder-image.jpg";
-                        }}
-                      />
-                    </div>
-                  )}
+                    <div className="st-card-body">
+                      <h2 className="st-card-title">{story.title}</h2>
+                      <p className="st-card-desc">
+                        {story.content.length > 150
+                          ? `${story.content.substring(0, 150)}...`
+                          : story.content}
+                      </p>
 
-                  <div className="st-card-body">
-                    <h2 className="st-card-title">{story.title}</h2>
-                    <p className="st-card-desc">
-                      {story.content.length > 150
-                        ? `${story.content.substring(0, 150)}...`
-                        : story.content}
-                    </p>
-
-                    <div className="st-card-footer">
-                      <button
-                        onClick={() => openStoryModal(story)}
-                        className="st-read-more"
-                      >
-                        Read Full Story
-                      </button>
+                      <div className="st-card-footer">
+                        <button
+                          onClick={() => openStoryModal(story)}
+                          className="st-read-more"
+                        >
+                          Read Full Story
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Modal */}
-      {selectedStory && (
-        <div className="st-modal-overlay" onClick={closeStoryModal}>
-          <div
-            className="st-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="st-modal-header">
-              <h2>{selectedStory.title}</h2>
-              <button onClick={closeStoryModal} className="st-close-btn">
-                &times;
-              </button>
-            </div>
-            <div className="st-modal-body">
-              {selectedStory.image && (
-                <div className="st-modal-image">
-                  <img
-                    src={`${SERVER_BASE}/api/uploads/media/stories/${selectedStory.image}`}
-                    alt={selectedStory.title}
-                  />
-                </div>
+                ))
               )}
+            </div>
+          </div>
+        </section>
 
-              <div className="st-full-content">
-                {selectedStory.content.split("\n").map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
-                ))}
+        {/* Modal */}
+        {selectedStory && (
+          <div className="st-modal-overlay" onClick={closeStoryModal}>
+            <div
+              className="st-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="st-modal-header">
+                <h2>{selectedStory.title}</h2>
+                <button onClick={closeStoryModal} className="st-close-btn">
+                  &times;
+                </button>
+              </div>
+              <div className="st-modal-body">
+                {selectedStory.image && (
+                  <div className="st-modal-image">
+                    <img
+                      src={`${SERVER_BASE}/api/uploads/media/stories/${selectedStory.image}`}
+                      alt={selectedStory.title}
+                    />
+                  </div>
+                )}
+
+                <div className="st-full-content">
+                  {selectedStory.content.split("\n").map((paragraph, index) => (
+                    <p key={index}>{paragraph}</p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

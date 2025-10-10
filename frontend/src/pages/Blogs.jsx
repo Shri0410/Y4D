@@ -19,12 +19,12 @@ const Blogs = () => {
     const fetchBlogsBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching blogs page banners...');
-        const bannersData = await getBanners('media-corner', 'blogs');
-        console.log('✅ Blogs banners received:', bannersData);
+        console.log("🔄 Fetching blogs page banners...");
+        const bannersData = await getBanners("media-corner", "blogs");
+        console.log("✅ Blogs banners received:", bannersData);
         setBlogsBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching blogs banners:', error);
+        console.error("❌ Error fetching blogs banners:", error);
         setBlogsBanners([]);
       } finally {
         setBannersLoading(false);
@@ -73,7 +73,7 @@ const Blogs = () => {
       <div className="blogs-banner">
         {blogsBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`http://localhost:5000/uploads/banners/${banner.media}`}
                 alt={`Blogs Banner - ${banner.page}`}
@@ -121,62 +121,67 @@ const Blogs = () => {
     );
 
   return (
-    <div className="blogs-page">
+    <div className="blogs-container">
       {/* Dynamic Banner */}
       {renderBanner()}
 
-      <div className="blog-header">
-        <h1>
-          Blog Articles<span></span>
-        </h1>
-        <p>Insights, stories, and updates from our team and community</p>
-      </div>
+      <div className="blogs-page">
+        <div className="blog-header">
+          <h1>
+            Blog Articles<span></span>
+          </h1>
+          <p>Insights, stories, and updates from our team and community</p>
+        </div>
 
-      <div className="blogs-grid">
-        {blogs.length === 0 ? (
-          <div className="empty-state">
-            <p>No blog articles available at the moment</p>
-          </div>
-        ) : (
-          blogs.map((blog) => (
-            <div key={blog.id} className="blog-card">
-              {blog.image && (
-                <div className="blog-image">
-                  <img
-                    src={`${UPLOADS_BASE}/media/blogs/${blog.image}`}
-                    alt={blog.title}
-                    onError={(e) => {
-                      e.target.src = "/placeholder-blog.jpg";
-                    }}
-                  />
-                </div>
-              )}
-              <div className="blog-content">
-                <h3 className="blog-title">{blog.title}</h3>
-                {renderTags(blog.tags)}
-                <p className="blog-excerpt">
-                  {blog.content.length > 120
-                    ? `${blog.content.substring(0, 120)}...`
-                    : blog.content}
-                </p>
-                <div className="blog-meta">
-                  <p className="blog-author">By {blog.author}</p>
-                  <p className="blog-date">
-                    {new Date(blog.published_date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-                <Link to={`/blogs/${blog.id}`} className="btn-read-more">
-                  Read Article
-                </Link>
-              </div>
+        <div className="blogs-grid">
+          {blogs.length === 0 ? (
+            <div className="empty-state">
+              <p>No blog articles available at the moment</p>
             </div>
-          ))
-        )}
+          ) : (
+            blogs.map((blog) => (
+              <div key={blog.id} className="blog-card">
+                {blog.image && (
+                  <div className="blog-image">
+                    <img
+                      src={`${UPLOADS_BASE}/media/blogs/${blog.image}`}
+                      alt={blog.title}
+                      onError={(e) => {
+                        e.target.src = "/placeholder-blog.jpg";
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="blog-content">
+                  <h3 className="blog-title">{blog.title}</h3>
+                  {renderTags(blog.tags)}
+                  <p className="blog-excerpt">
+                    {blog.content.length > 120
+                      ? `${blog.content.substring(0, 120)}...`
+                      : blog.content}
+                  </p>
+                  <div className="blog-meta">
+                    <p className="blog-author">By {blog.author}</p>
+                    <p className="blog-date">
+                      {new Date(blog.published_date).toLocaleDateString(
+                        "en-US",
+                        {
+                          weekday: "short",
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        }
+                      )}
+                    </p>
+                  </div>
+                  <Link to={`/blogs/${blog.id}`} className="btn-read-more">
+                    Read Article
+                  </Link>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -44,16 +44,16 @@ const Footer = () => {
           </div>
 
           <div className="footer-column">
-            <h4>Get Involved</h4>
+            <h4>Satellite offices</h4>
             <ul>
               <li>
-                <a href="#">Corporate Partnership</a>
+                <a href="#">Palghar</a>
               </li>
               <li>
-                <a href="#">Volunteers & Internship</a>
+                <a href="#">Washim</a>
               </li>
               <li>
-                <a href="#">Careers</a>
+                <a href="#">chennai</a>
               </li>
             </ul>
           </div>

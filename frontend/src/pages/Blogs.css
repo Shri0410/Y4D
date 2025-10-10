@@ -1,9 +1,12 @@
-/* Blogs Page */
+.blogs-container{
+  margin-top: 80px;
+}
+
 .blogs-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
-  margin: 80px auto 0 auto;
+  margin: 0px auto;
 }
 
 .blog-header {

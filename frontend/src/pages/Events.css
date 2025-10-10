@@ -1,9 +1,13 @@
-/* Events Page */
+/* Events Page Styles */
+.events-container {
+  margin-top: 80px;
+}
+
 .ev-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
-  margin: 80px auto 0 auto;
+  margin: 0px auto;
 }
 
 .ev-header {
