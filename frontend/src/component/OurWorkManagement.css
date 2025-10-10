@@ -61,13 +61,13 @@
   border-radius: 8px;
   overflow: hidden;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .item-image {
@@ -383,7 +383,7 @@
 }
 
 .our-work-loading::after {
-  content: '';
+  content: "";
   display: inline-block;
   width: 20px;
   height: 20px;
@@ -396,8 +396,12 @@
 }
 
 @keyframes our-work-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive Design */
@@ -405,7 +409,7 @@
   .our-work-form-row {
     gap: 20px;
   }
-  
+
   .our-work-form {
     padding: 25px;
   }
@@ -416,32 +420,32 @@
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .our-work-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .our-work-form-actions {
     flex-direction: column;
   }
-  
+
   .our-work-image-url-input {
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
-  
+
   .our-work-remove-btn {
     align-self: flex-start;
   }
-  
+
   .our-work-form {
     padding: 20px;
     margin: 15px;
   }
-  
+
   .our-work-preview-section {
     padding: 20px;
     margin: 15px;
@@ -452,15 +456,15 @@
   .our-work-manager {
     padding: 15px;
   }
-  
+
   .our-work-form-section h3 {
     font-size: 18px;
   }
-  
+
   .our-work-preview-content h4 {
     font-size: 24px;
   }
-  
+
   .our-work-btn-primary,
   .our-work-btn-secondary {
     padding: 12px 20px;
@@ -646,7 +650,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .item-image {
@@ -695,7 +699,7 @@
 }
 
 .status-badge.active {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -711,7 +715,7 @@
 }
 
 .btn-edit {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
   border: none;
   padding: 8px 16px;

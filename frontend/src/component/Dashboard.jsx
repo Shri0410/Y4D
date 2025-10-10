@@ -26,6 +26,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     content: "",
     image: null,
     pdf: null,
+    video_url: "",
+    video_file: null,
     is_active: true,
   });
   const [currentMediaType, setCurrentMediaType] = useState(null);
@@ -688,6 +690,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         content: "",
         image: null,
         pdf: null,
+        video_url: "",
+        video_file: null,
         is_active: true,
       });
     }
@@ -813,7 +817,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               required
             />
           </div>
-
           <div className="form-group">
             <label>Description:</label>
             <textarea
@@ -825,7 +828,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               rows="3"
             />
           </div>
-
           {["stories", "blogs"].includes(currentMediaType) && (
             <div className="form-group">
               <label>Content:</label>
@@ -838,7 +840,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               />
             </div>
           )}
-
           <div className="form-group">
             <label>Featured Image:</label>
             <input
@@ -852,7 +853,60 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               </div>
             )}
           </div>
+          // In renderMediaForm() function, update the documentaries section:
+          {currentMediaType === "documentaries" && (
+            <>
+              {/* Video Inputs */}
+              <div className="form-group">
+                <label>Video Link (YouTube, Vimeo, etc.)</label>
+                <input
+                  type="url"
+                  value={mediaForm.video_url}
+                  onChange={(e) =>
+                    setMediaForm({ ...mediaForm, video_url: e.target.value })
+                  }
+                  placeholder="Enter video link (YouTube, Vimeo, etc.)"
+                />
+                <small>Example: https://www.youtube.com/watch?v=abc123</small>
+              </div>
 
+              {/* ADD THIS - Video File Upload */}
+              <div className="form-group">
+                <label>OR Upload Video File</label>
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    setMediaForm({
+                      ...mediaForm,
+                      video_file: file,
+                      // Clear URL if uploading file
+                      video_url: file ? "" : mediaForm.video_url,
+                    });
+                  }}
+                />
+                <small>Supported formats: MP4, WebM, MOV. Max size: 50MB</small>
+                {mediaForm.video_file && (
+                  <div className="file-preview">
+                    <span>🎥 Selected: {mediaForm.video_file.name}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label>Duration (optional)</label>
+                <input
+                  type="text"
+                  value={mediaForm.duration}
+                  onChange={(e) =>
+                    setMediaForm({ ...mediaForm, duration: e.target.value })
+                  }
+                  placeholder="e.g., 15:30, 1h 25m"
+                />
+              </div>
+            </>
+          )}
           {currentMediaType === "newsletters" && (
             <div className="form-group">
               <label>PDF Document:</label>
@@ -866,7 +920,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               />
             </div>
           )}
-
           <div className="form-group">
             <label>Status:</label>
             <select
@@ -882,7 +935,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               <option value={false}>Inactive</option>
             </select>
           </div>
-
           <div className="form-actions">
             <button type="submit" disabled={loading}>
               {loading ? "Processing..." : editingMediaId ? "Update" : "Create"}
@@ -1556,30 +1608,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     try {
       const formData = new FormData();
 
-      // Append form data based on media type requirements
+      // Append basic fields
       formData.append("title", mediaForm.title);
       formData.append("description", mediaForm.description);
 
-      // Add content for types that need it
-      if (["stories", "blogs"].includes(currentMediaType)) {
-        formData.append("content", mediaForm.content);
-      }
+      // Handle documentaries specifically
+      if (currentMediaType === "documentaries") {
+        formData.append("video_url", mediaForm.video_url || "");
+        formData.append("duration", mediaForm.duration || "0:00");
 
-      // Add specific fields for different media types
-      switch (currentMediaType) {
-        case "events":
-          formData.append("date", new Date().toISOString().split("T")[0]);
-          formData.append("time", "12:00");
-          formData.append("location", "TBD");
-          break;
-        case "blogs":
-          formData.append("author", "Admin");
-          formData.append("tags", JSON.stringify([]));
-          break;
-        case "documentaries":
-          formData.append("video_url", "");
-          formData.append("duration", "0:00");
-          break;
+        // Append video file if uploaded
+        if (mediaForm.video_file) {
+          formData.append("video_file", mediaForm.video_file);
+        }
       }
 
       // Handle file uploads
@@ -1587,7 +1628,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         formData.append("image", mediaForm.image);
       }
       if (mediaForm.pdf) {
-        formData.append("file", mediaForm.pdf); // Note: backend expects 'file' for newsletters
+        formData.append("file", mediaForm.pdf);
       }
 
       formData.append("published_date", new Date().toISOString().split("T")[0]);
@@ -1614,7 +1655,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         } successfully!`
       );
 
-      // Refresh the data
+      // Reset and refresh
       setMediaAction("view");
       setEditingMediaId(null);
       setMediaForm({
@@ -1623,11 +1664,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         content: "",
         image: null,
         pdf: null,
+        video_url: "",
+        video_file: null,
+        duration: "",
         is_active: true,
       });
       setImagePreview(null);
-
-      // Refresh the media list
       fetchMediaData();
     } catch (error) {
       console.error("Error saving media:", error);
@@ -1637,7 +1679,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
     setLoading(false);
   };
-
   const handleMediaEdit = (item) => {
     setEditingMediaId(item.id);
     setMediaAction("update");
@@ -2817,6 +2858,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                         content: "",
                         image: null,
                         pdf: null,
+                        video_url: "",
+                        video_file: null,
                         is_active: true,
                       });
                     }}
@@ -2824,25 +2867,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                     ← Back to{" "}
                     {mediaAction !== "view" ? currentMediaType : "Media Corner"}
                   </button>
-                  {mediaAction === "view" && (
-                    <button
-                      className="btn-primary"
-                      onClick={() => {
-                        setMediaAction("add");
-                        setEditingMediaId(null);
-                        setMediaForm({
-                          title: "",
-                          description: "",
-                          content: "",
-                          image: null,
-                          pdf: null,
-                          is_active: true,
-                        });
-                      }}
-                    >
-                      + Add {currentMediaType.slice(0, -1)}
-                    </button>
-                  )}
                 </div>
               </div>
 

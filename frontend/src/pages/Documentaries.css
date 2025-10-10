@@ -246,20 +246,43 @@
   overflow-y: auto;
 }
 
-.video-container {
-  position: relative;
-  padding-bottom: 56.25%; /* 16:9 */
-  height: 0;
-  margin-bottom: 1rem;
+.uploaded-video {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
 }
 
-.video-container iframe {
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  margin-bottom: 20px;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  margin-bottom: 20px;
+}
+
+.video-container iframe,
+.video-container .uploaded-video {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   border-radius: 8px;
+}
+.file-preview {
+  margin-top: 5px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
 .doc-details h3 {
