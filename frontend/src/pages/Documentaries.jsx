@@ -189,19 +189,35 @@ const Documentaries = () => {
                 </button>
               </div>
               <div className="modal-body">
-                {selectedDoc.video_url ? (
+                {/* FIXED: Handle both YouTube URLs and uploaded videos */}
+                {selectedDoc.video_url || selectedDoc.video_filename ? (
                   <div className="video-container">
-                    <iframe
-                      src={getYouTubeEmbedUrl(selectedDoc.video_url)}
-                      title={selectedDoc.title}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
+                    {selectedDoc.video_url ? (
+                      // YouTube/Vimeo embed
+                      <iframe
+                        src={getYouTubeEmbedUrl(selectedDoc.video_url)}
+                        title={selectedDoc.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    ) : (
+                      // Uploaded video file
+                      <video controls autoPlay className="uploaded-video">
+                        <source
+                          src={`${UPLOADS_BASE}/media/documentaries/${selectedDoc.video_filename}`}
+                          type="video/mp4"
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
                   </div>
                 ) : (
-                  <p>Video not available</p>
+                  <div className="no-video-message">
+                    <p>Video content not available</p>
+                  </div>
                 )}
+
                 <div className="doc-details">
                   <h3>Description</h3>
                   <p>{selectedDoc.description}</p>
@@ -217,6 +233,16 @@ const Documentaries = () => {
                         "en-US"
                       )}
                     </p>
+                    {selectedDoc.video_filename && (
+                      <p>
+                        <strong>Video Type:</strong> Uploaded File
+                      </p>
+                    )}
+                    {selectedDoc.video_url && (
+                      <p>
+                        <strong>Video Type:</strong> External URL
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
