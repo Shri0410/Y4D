@@ -19,12 +19,12 @@ const Events = () => {
     const fetchEventsBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching events page banners...');
-        const bannersData = await getBanners('media-corner', 'events');
-        console.log('✅ Events banners received:', bannersData);
+        console.log("🔄 Fetching events page banners...");
+        const bannersData = await getBanners("media-corner", "events");
+        console.log("✅ Events banners received:", bannersData);
         setEventsBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching events banners:', error);
+        console.error("❌ Error fetching events banners:", error);
         setEventsBanners([]);
       } finally {
         setBannersLoading(false);
@@ -78,7 +78,7 @@ const Events = () => {
       <div className="events-banner">
         {eventsBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`http://localhost:5000/uploads/banners/${banner.media}`}
                 alt={`Events Banner - ${banner.page}`}
@@ -127,135 +127,136 @@ const Events = () => {
     );
 
   return (
-    <div className="ev-page">
+    <div className="events-container">
       {/* Dynamic Banner */}
       {renderBanner()}
+      <div className="ev-page">
+        <section className="ev-section">
+          <div className="ev-container">
+            <div className="ev-header">
+              <h1 className="ev-title">
+                Upcoming Events <span></span>
+              </h1>
+              <p className="ev-subtitle">
+                Join us for workshops, seminars, and community gatherings
+              </p>
+            </div>
 
-      <section className="ev-section">
-        <div className="ev-container">
-          <div className="ev-header">
-            <h1 className="ev-title">
-              Upcoming Events <span></span>
-            </h1>
-            <p className="ev-subtitle">
-              Join us for workshops, seminars, and community gatherings
-            </p>
+            <div className="ev-grid">
+              {events.length === 0 ? (
+                <div className="ev-empty">
+                  <h3>No upcoming events at the moment</h3>
+                </div>
+              ) : (
+                events.map((event) => (
+                  <div key={event.id} className="ev-card">
+                    {event.image && (
+                      <div className="ev-card-image">
+                        <img
+                          src={`${UPLOADS_BASE}/media/events/${event.image}`}
+                          alt={event.title}
+                          onError={(e) => {
+                            e.target.src = "/placeholder-event.jpg";
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <div className="ev-card-body">
+                      <h2 className="ev-card-title">{event.title}</h2>
+                      <p className="ev-card-desc">{event.description}</p>
+
+                      <div className="ev-card-meta">
+                        <div>
+                          <strong>Date:</strong> {formatDate(event.date)}
+                        </div>
+                        {event.time && (
+                          <div>
+                            <strong>Time:</strong> {formatTime(event.time)}
+                          </div>
+                        )}
+                        {event.location && (
+                          <div>
+                            <strong>Location:</strong> {event.location}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="ev-card-footer">
+                        <button
+                          onClick={() => openEventModal(event)}
+                          className="ev-read-more"
+                        >
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
+        </section>
 
-          <div className="ev-grid">
-            {events.length === 0 ? (
-              <div className="ev-empty">
-                <h3>No upcoming events at the moment</h3>
+        {/* Modal */}
+        {selectedEvent && (
+          <div className="ev-modal-overlay" onClick={closeEventModal}>
+            <div
+              className="ev-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="ev-modal-header">
+                <h2>{selectedEvent.title}</h2>
+                <button onClick={closeEventModal} className="ev-close-btn">
+                  &times;
+                </button>
               </div>
-            ) : (
-              events.map((event) => (
-                <div key={event.id} className="ev-card">
-                  {event.image && (
-                    <div className="ev-card-image">
-                      <img
-                        src={`${UPLOADS_BASE}/media/events/${event.image}`}
-                        alt={event.title}
-                        onError={(e) => {
-                          e.target.src = "/placeholder-event.jpg";
-                        }}
-                      />
+              <div className="ev-modal-body">
+                {selectedEvent.image && (
+                  <div className="ev-modal-image">
+                    <img
+                      src={`${UPLOADS_BASE}/media/events/${selectedEvent.image}`}
+                      alt={selectedEvent.title}
+                    />
+                  </div>
+                )}
+                <div className="ev-modal-meta">
+                  <div>
+                    <strong>Date:</strong> {formatDate(selectedEvent.date)}
+                  </div>
+                  {selectedEvent.time && (
+                    <div>
+                      <strong>Time:</strong> {formatTime(selectedEvent.time)}
                     </div>
                   )}
-
-                  <div className="ev-card-body">
-                    <h2 className="ev-card-title">{event.title}</h2>
-                    <p className="ev-card-desc">{event.description}</p>
-
-                    <div className="ev-card-meta">
-                      <div>
-                        <strong>Date:</strong> {formatDate(event.date)}
-                      </div>
-                      {event.time && (
-                        <div>
-                          <strong>Time:</strong> {formatTime(event.time)}
-                        </div>
-                      )}
-                      {event.location && (
-                        <div>
-                          <strong>Location:</strong> {event.location}
-                        </div>
-                      )}
+                  {selectedEvent.location && (
+                    <div>
+                      <strong>Location:</strong> {selectedEvent.location}
                     </div>
-
-                    <div className="ev-card-footer">
-                      <button
-                        onClick={() => openEventModal(event)}
-                        className="ev-read-more"
-                      >
-                        View Details
-                      </button>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Modal */}
-      {selectedEvent && (
-        <div className="ev-modal-overlay" onClick={closeEventModal}>
-          <div
-            className="ev-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="ev-modal-header">
-              <h2>{selectedEvent.title}</h2>
-              <button onClick={closeEventModal} className="ev-close-btn">
-                &times;
-              </button>
-            </div>
-            <div className="ev-modal-body">
-              {selectedEvent.image && (
-                <div className="ev-modal-image">
-                  <img
-                    src={`${UPLOADS_BASE}/media/events/${selectedEvent.image}`}
-                    alt={selectedEvent.title}
-                  />
+                <div className="ev-full-content">
+                  <p>{selectedEvent.description}</p>
                 </div>
-              )}
-              <div className="ev-modal-meta">
-                <div>
-                  <strong>Date:</strong> {formatDate(selectedEvent.date)}
+                <div className="ev-modal-footer">
+                  <a
+                    href={`mailto:waghmareshrinivas99@gmail.com?subject=Inquiry about ${
+                      selectedEvent.title
+                    }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${
+                      selectedEvent.title
+                    }" happening on ${formatDate(
+                      selectedEvent.date
+                    )}.%0D%0A%0D%0AThanks,%0D%0A[Your Name]`}
+                    className="ev-connect-btn"
+                  >
+                    Connect with Us
+                  </a>
                 </div>
-                {selectedEvent.time && (
-                  <div>
-                    <strong>Time:</strong> {formatTime(selectedEvent.time)}
-                  </div>
-                )}
-                {selectedEvent.location && (
-                  <div>
-                    <strong>Location:</strong> {selectedEvent.location}
-                  </div>
-                )}
-              </div>
-              <div className="ev-full-content">
-                <p>{selectedEvent.description}</p>
-              </div>
-              <div className="ev-modal-footer">
-                <a
-                  href={`mailto:waghmareshrinivas99@gmail.com?subject=Inquiry about ${
-                    selectedEvent.title
-                  }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${
-                    selectedEvent.title
-                  }" happening on ${formatDate(
-                    selectedEvent.date
-                  )}.%0D%0A%0D%0AThanks,%0D%0A[Your Name]`}
-                  className="ev-connect-btn"
-                >
-                  Connect with Us
-                </a>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -1,11 +1,13 @@
-/* =============================
-   STORIES PAGE LAYOUT & STYLES
-   ============================= */
+
+/* Stories Page Styles */
+.stories-container {
+  margin-top: 80px;
+}
 .st-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
-  margin: 80px auto;
+  margin: 0px auto;
 }
 
 .st-title {

@@ -1,8 +1,13 @@
 /* Newsletters Page Styles */
+.newsletters-container {
+  margin-top: 80px;
+}
+
 .newsletters-page {
   font-family: "Poppins", sans-serif;
+  max-width: 1200px;
   padding: 2rem;
-  margin: 80px auto 0 auto;
+  margin: 0px auto;
 }
 
 .page-header {
@@ -52,7 +57,7 @@
   .newsletter-banner video {
     height: 300px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 300px;
@@ -65,7 +70,7 @@
   .newsletter-banner video {
     height: 200px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 200px;
@@ -208,12 +213,6 @@
   padding: 3rem;
   color: #7f8c8d;
   font-size: 1.1rem;
-}
-
-@media (min-width: 1260px) {
-  .newsletters-page {
-    max-width: 1280px; /* expand container for laptops/desktops */
-  }
 }
 
 @media (max-width: 1024px) {

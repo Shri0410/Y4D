@@ -1,9 +1,12 @@
 /* Documentaries Page */
+.documentaries-container {
+  margin-top: 80px;
+}
 .documentaries-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
   max-width: 1200px;
-  margin: 80px auto 0 auto;
+  margin: 0px auto;
 }
 
 .page-header {
@@ -308,7 +311,7 @@
   .documentaries-banner video {
     height: 300px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 300px;
@@ -321,13 +324,13 @@
   .documentaries-banner video {
     height: 200px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 200px;
     font-size: 16px;
   }
-} 
+}
 /* Animations */
 @keyframes fadeIn {
   from {
