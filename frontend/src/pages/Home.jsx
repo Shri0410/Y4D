@@ -47,6 +47,7 @@ import Partners1 from "./Partners1";
 import Partners2 from "./Partners2";
 
 import DonateButton from "../component/DonateButton";
+import fallbackBanner from "../assets/BannerImages/f.jpeg";
 
 // ✅ Store your array here
 const sdgImages = [
@@ -83,58 +84,57 @@ const Home = () => {
         setLoading(true);
         setBannersLoading(true);
         setAccreditationsError(false);
-        console.log('🚀 Starting to fetch home data...');
-        
+        console.log("🚀 Starting to fetch home data...");
+
         const [
-          mentorsData, 
-          managementData, 
-          reportsData, 
-          impactData, 
+          mentorsData,
+          managementData,
+          reportsData,
+          impactData,
           accreditationsData,
           heroBannersData,
-          campaignBannersData
+          campaignBannersData,
         ] = await Promise.all([
-          getMentors().catch(err => {
-            console.error('❌ Error fetching mentors:', err);
+          getMentors().catch((err) => {
+            console.error("❌ Error fetching mentors:", err);
             return [];
           }),
-          getManagement().catch(err => {
-            console.error('❌ Error fetching management:', err);
+          getManagement().catch((err) => {
+            console.error("❌ Error fetching management:", err);
             return [];
           }),
-          getReports().catch(err => {
-            console.error('❌ Error fetching reports:', err);
+          getReports().catch((err) => {
+            console.error("❌ Error fetching reports:", err);
             return [];
           }),
-          getImpactData().catch(err => {
-            console.error('❌ Error fetching impact data:', err);
+          getImpactData().catch((err) => {
+            console.error("❌ Error fetching impact data:", err);
             return { beneficiaries: 0, states: 0, projects: 0 };
           }),
-          getAccreditations().catch(err => {
-            console.error('❌ Error fetching accreditations:', err);
+          getAccreditations().catch((err) => {
+            console.error("❌ Error fetching accreditations:", err);
             setAccreditationsError(true);
             return [];
           }),
-          getBanners('home', 'hero').catch(err => {
-            console.error('❌ Error fetching hero banners:', err);
+          getBanners("home", "hero").catch((err) => {
+            console.error("❌ Error fetching hero banners:", err);
             return [];
           }),
-          getBanners('home', 'campaigns').catch(err => {
-            console.error('❌ Error fetching campaign banners:', err);
+          getBanners("home", "campaigns").catch((err) => {
+            console.error("❌ Error fetching campaign banners:", err);
             return [];
-          })
+          }),
         ]);
 
-        console.log('📊 Hero banners received:', heroBannersData);
-        console.log('📊 Campaign banners received:', campaignBannersData);
-        
+        console.log("📊 Hero banners received:", heroBannersData);
+        console.log("📊 Campaign banners received:", campaignBannersData);
+
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
         setImpact(impactData);
         setAccreditations(accreditationsData || []);
         setHeroBanners(heroBannersData);
         setCampaignBanners(campaignBannersData);
-        
       } catch (err) {
         console.error("💥 Error in fetchHomeData:", err);
         setAccreditationsError(true);
@@ -191,16 +191,17 @@ const Home = () => {
 
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
-  
-  const activeAccreditations = accreditations.filter(acc => 
-    acc.is_active === true || acc.is_active === 1 || acc.is_active === "true"
+
+  const activeAccreditations = accreditations.filter(
+    (acc) =>
+      acc.is_active === true || acc.is_active === 1 || acc.is_active === "true"
   );
 
   const handleImageError = (e) => {
     e.target.style.display = "none";
     const nextSibling = e.target.nextSibling;
     if (nextSibling && nextSibling.style) {
-      nextSibling.style.display = 'block';
+      nextSibling.style.display = "block";
     }
   };
 
@@ -215,11 +216,24 @@ const Home = () => {
     }
 
     if (heroBanners.length === 0) {
-      // Fallback to static banners if no dynamic banners
+      // Fallback static banner when backend sends no banners
       return (
         <section className="hero-slider">
-          <div className="no-banners-message">
-            <p>Hero banners will appear here once added from dashboard</p>
+          <div className="slide-content">
+            <img
+              src={fallbackBanner}
+              alt="Y4D Foundation"
+              className="slide-img"
+            />
+            {/* <div className="slide-overlay">
+              <div className="slide-text">
+                <h2>Empowering Communities for a Better Tomorrow</h2>
+                <p>Together, we can create sustainable and inclusive growth.</p>
+                <Link to="/our-work" className="slide-btn">
+                  Explore Our Work
+                </Link>
+              </div>
+            </div> */}
           </div>
         </section>
       );
@@ -230,7 +244,7 @@ const Home = () => {
         <Slider {...sliderSettings}>
           {heroBanners.map((banner) => (
             <div key={banner.id} className="slide-content">
-              {banner.media_type === 'image' ? (
+              {banner.media_type === "image" ? (
                 <img
                   src={`http://localhost:5000/uploads/banners/${banner.media}`}
                   alt={banner.title}
@@ -279,7 +293,7 @@ const Home = () => {
             {campaignBanners.map((banner) => (
               <div key={banner.id} className="campaign-banner-card">
                 <div className="campaign-banner-media">
-                  {banner.media_type === 'image' ? (
+                  {banner.media_type === "image" ? (
                     <img
                       src={`http://localhost:5000/uploads/banners/${banner.media}`}
                       alt={banner.title}
@@ -300,7 +314,10 @@ const Home = () => {
                   <h3>{banner.title}</h3>
                   {banner.description && <p>{banner.description}</p>}
                   {banner.button_text && banner.button_link && (
-                    <Link to={banner.button_link} className="campaign-banner-btn">
+                    <Link
+                      to={banner.button_link}
+                      className="campaign-banner-btn"
+                    >
                       {banner.button_text}
                     </Link>
                   )}
@@ -317,34 +334,6 @@ const Home = () => {
     <div className="home">
       {/* ✅ Dynamic Hero Slider Section */}
       {renderHeroSlider()}
-
-      {/* About Y4D Section */}
-      <section className="About-section">
-        <div className="About-container">
-          <h2 className="about-title">
-            About Y4D<span></span>
-          </h2>
-          <div className="about-content">
-            <p>
-              Y4D Foundation is a youth-led organization in India that focuses
-              on empowering underprivileged sections of our society. Its main
-              goal is to uplift students through skill-based education, health
-              initiatives, employment opportunities, and empowerment programs.
-              The foundation aims to improve their livelihoods, health, and
-              quality of life. Its holistic approach addresses the diverse needs
-              of youth and children, promoting sustainable development and
-              social transformation. <br /> <br /> Y4D aligns its work with the
-              United Nations' Agenda 2030 Sustainable Development Goals and
-              engages in areas like environmental conservation, food safety, and
-              security. Over the past decade, Y4D has made significant
-              contributions to these key sectors.
-            </p>
-            <Link to="/our-work" className="about-btn">
-              Know More
-            </Link>
-          </div>
-        </div>
-      </section>
 
       {/* Campaign Banners Section */}
       {renderCampaignBanners()}
@@ -529,56 +518,54 @@ const Home = () => {
                 </div>
               )}
             </div>
+          ) : activeAccreditations.length > 0 ? (
+            <Slider
+              slidesToShow={Math.min(4, activeAccreditations.length)}
+              slidesToScroll={1}
+              infinite={activeAccreditations.length > 1}
+              autoplay={activeAccreditations.length > 1}
+              autoplaySpeed={2000}
+              speed={800}
+              arrows={false}
+              dots={false}
+              responsive={[
+                {
+                  breakpoint: 1024,
+                  settings: {
+                    slidesToShow: Math.min(3, activeAccreditations.length),
+                  },
+                },
+                {
+                  breakpoint: 768,
+                  settings: {
+                    slidesToShow: Math.min(2, activeAccreditations.length),
+                  },
+                },
+                {
+                  breakpoint: 480,
+                  settings: {
+                    slidesToShow: 1,
+                  },
+                },
+              ]}
+            >
+              {activeAccreditations.map((item) => (
+                <div key={item.id} className="accreditation-card">
+                  <img
+                    src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                    alt={item.title}
+                    className="accreditation-icon"
+                    onError={handleImageError}
+                  />
+                  <h3>{item.title}</h3>
+                  {item.description && <p>{item.description}</p>}
+                </div>
+              ))}
+            </Slider>
           ) : (
-            activeAccreditations.length > 0 ? (
-              <Slider
-                slidesToShow={Math.min(4, activeAccreditations.length)}
-                slidesToScroll={1}
-                infinite={activeAccreditations.length > 1}
-                autoplay={activeAccreditations.length > 1}
-                autoplaySpeed={2000}
-                speed={800}
-                arrows={false}
-                dots={false}
-                responsive={[
-                  { 
-                    breakpoint: 1024, 
-                    settings: { 
-                      slidesToShow: Math.min(3, activeAccreditations.length) 
-                    } 
-                  },
-                  { 
-                    breakpoint: 768, 
-                    settings: { 
-                      slidesToShow: Math.min(2, activeAccreditations.length) 
-                    } 
-                  },
-                  { 
-                    breakpoint: 480, 
-                    settings: { 
-                      slidesToShow: 1 
-                    } 
-                  },
-                ]}
-              >
-                {activeAccreditations.map((item) => (
-                  <div key={item.id} className="accreditation-card">
-                    <img
-                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
-                      alt={item.title}
-                      className="accreditation-icon"
-                      onError={handleImageError}
-                    />
-                    <h3>{item.title}</h3>
-                    {item.description && <p>{item.description}</p>}
-                  </div>
-                ))}
-              </Slider>
-            ) : (
-              <div className="no-accreditations-message">
-                <p>No accreditations available at the moment.</p>
-              </div>
-            )
+            <div className="no-accreditations-message">
+              <p>No accreditations available at the moment.</p>
+            </div>
           )}
         </div>
       </div>
@@ -613,6 +600,34 @@ const Home = () => {
                 View Blogs
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Y4D Section */}
+      <section className="About-section">
+        <div className="About-container">
+          <h2 className="about-title">
+            Who We Are<span></span>
+          </h2>
+          <div className="about-content">
+            <p>
+              Y4D Foundation is a youth-led organization in India that focuses
+              on empowering underprivileged sections of our society. Its main
+              goal is to uplift students through skill-based education, health
+              initiatives, employment opportunities, and empowerment programs.
+              The foundation aims to improve their livelihoods, health, and
+              quality of life. Its holistic approach addresses the diverse needs
+              of youth and children, promoting sustainable development and
+              social transformation. <br /> <br /> Y4D aligns its work with the
+              United Nations' Agenda 2030 Sustainable Development Goals and
+              engages in areas like environmental conservation, food safety, and
+              security. Over the past decade, Y4D has made significant
+              contributions to these key sectors.
+            </p>
+            <Link to="/our-work" className="about-btn">
+              Know More
+            </Link>
           </div>
         </div>
       </section>

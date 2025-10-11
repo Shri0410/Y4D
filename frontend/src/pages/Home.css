@@ -377,7 +377,7 @@
   width: 90%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 15px;
+  padding: 0 15px 25px 15px;
   text-align: center;
 }
 
@@ -1120,16 +1120,16 @@
     margin-bottom: 2rem;
   }
   .impact-title::before {
-    right: 0px;
+    right: 40px;
   }
   .impact-title::after {
-    right: -20px;
+    right: 20px;
   }
   .impact-title span::before {
-    left: 10px;
+    left: 40px;
   }
   .impact-title span::after {
-    left: -10px;
+    left: 20px;
   }
 
   .Inter-title {
@@ -1156,16 +1156,16 @@
     margin-bottom: 2rem;
   }
   .sdg-title::before {
-    right: 20px;
+    right: 50px;
   }
   .sdg-title::after {
-    right: 0px;
+    right: 30px;
   }
   .sdg-title span::before {
-    left: 20px;
+    left: 50px;
   }
   .sdg-title span::after {
-    left: 0px;
+    left: 30px;
   }
 
   .accreditations-title {
