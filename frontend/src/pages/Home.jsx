@@ -1,5 +1,7 @@
 // src/pages/Home.jsx
 import React, { useState, useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
 import Counter from "../component/Counter";
@@ -79,6 +81,12 @@ const Home = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
 
   useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      easing: "ease-in-out",
+      once: true,
+      mirror: false,
+    });
     const fetchHomeData = async () => {
       try {
         setLoading(true);
@@ -339,13 +347,13 @@ const Home = () => {
       {renderCampaignBanners()}
 
       {/* Our Reach Section */}
-      <section className="our-reach-section">
+      <section className="our-reach-section" data-aos="fade-up">
         <div className="our-reach-container">
-          <h2 className="impact-title">
+          <h2 className="impact-title" data-aos="fade-up" data-aos-delay="100">
             Our Impact<span></span>
           </h2>
           <div className="reach-grid">
-            <div className="reach-item">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="200">
               <h3 className="reach-number">
                 <Counter end={impact.beneficiaries} />
                 L+
@@ -356,7 +364,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="reach-item">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="300">
               <h3 className="reach-number">
                 <Counter end={impact.states} />+
               </h3>
@@ -367,7 +375,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="reach-item">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="400">
               <h3 className="reach-number">
                 <Counter end={impact.projects} />+
               </h3>
@@ -381,9 +389,9 @@ const Home = () => {
       </section>
 
       {/* Our Interventions Section */}
-      <section className="Interventions-section">
+      <section className="Interventions-section" data-aos="fade-up">
         <div className="Interventions-container">
-          <h2 className="Inter-title">
+          <h2 className="Inter-title" data-aos="fade-up" data-aos-delay="100">
             Our Interventions<span></span>
           </h2>
           <div className="grid grid-3">
@@ -409,7 +417,12 @@ const Home = () => {
                 img: idp,
               },
             ].map((item, index) => (
-              <div key={index} className="card text-center intervention-card">
+              <div
+                key={index}
+                className="card text-center intervention-card"
+                data-aos="zoom-in"
+                data-aos-delay={200 + index * 100}
+              >
                 <img
                   src={item.img}
                   alt={item.title}
@@ -464,16 +477,30 @@ const Home = () => {
       </section>
 
       {/* Accreditations Section */}
-      <div className="accreditations-section">
+      <div className="accreditations-section" data-aos="fade-up">
         <div className="accreditations-container">
-          <h2 className="accreditations-title">
+          <h2
+            className="accreditations-title"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
             Accreditations<span></span>
           </h2>
           {isMobile ? (
-            <div className="accreditations-list" style={{ gap: "10px" }}>
+            <div
+              className="accreditations-list"
+              style={{ gap: "10px" }}
+              data-aos="zoom-in"
+              data-aos-delay="200"
+            >
               {activeAccreditations.length > 0 ? (
-                activeAccreditations.map((item) => (
-                  <div key={item.id} className="accreditation-card">
+                activeAccreditations.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="accreditation-card"
+                    data-aos="zoom-in"
+                    data-aos-delay={300 + index * 100}
+                  >
                     <img
                       src={`http://localhost:5000/uploads/accreditations/${item.image}`}
                       alt={item.title}
@@ -498,10 +525,17 @@ const Home = () => {
                 gridTemplateColumns: "1fr 1fr",
                 gap: "80px",
               }}
+              data-aos="zoom-in"
+              data-aos-delay="200"
             >
               {activeAccreditations.length > 0 ? (
-                activeAccreditations.map((item) => (
-                  <div key={item.id} className="accreditation-card">
+                activeAccreditations.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="accreditation-card"
+                    data-aos="zoom-in"
+                    data-aos-delay={300 + index * 100}
+                  >
                     <img
                       src={`http://localhost:5000/uploads/accreditations/${item.image}`}
                       alt={item.title}
@@ -549,8 +583,13 @@ const Home = () => {
                 },
               ]}
             >
-              {activeAccreditations.map((item) => (
-                <div key={item.id} className="accreditation-card">
+              {activeAccreditations.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="accreditation-card"
+                  data-aos="zoom-in"
+                  data-aos-delay={300 + index * 100}
+                >
                   <img
                     src={`http://localhost:5000/uploads/accreditations/${item.image}`}
                     alt={item.title}
@@ -571,39 +610,51 @@ const Home = () => {
       </div>
 
       {/* Media Highlights Section */}
-      <section className="Media-section bg-light">
+      <section className="Media-section bg-light" data-aos="fade-up">
         <div className="Media-container">
-          <h2 className="media-title">
+          <h2 className="media-title" data-aos="fade-up" data-aos-delay="100">
             Latest from Our Media Corner<span></span>
           </h2>
           <div className="grid grid-3">
-            <div className="Media-card text-center">
-              <h3>Newsletters</h3>
-              <p>Stay updated with our latest activities and impact stories </p>
-              <Link to="/newsletters" className="MC-btn">
-                Read Now
-              </Link>
-            </div>
-            <div className="Media-card text-center">
-              <h3>Stories of Empowerment</h3>
-              <p>Inspiring stories of transformation from our communities</p>
-              <Link to="/stories" className="MC-btn">
-                Read Stories
-              </Link>
-            </div>
-            <div className="Media-card text-center">
-              <h3>Blogs</h3>
-              <p>
-                Read stories, insights, and updates from our inspiring journey.
-              </p>
-              <Link to="/blogs" className="MC-btn">
-                View Blogs
-              </Link>
-            </div>
+            {[
+              {
+                title: "Newsletters",
+                description:
+                  "Stay updated with our latest activities and impact stories",
+                link: "/newsletters",
+                buttonText: "Read Now",
+              },
+              {
+                title: "Stories of Empowerment",
+                description:
+                  "Inspiring stories of transformation from our communities",
+                link: "/stories",
+                buttonText: "Read Stories",
+              },
+              {
+                title: "Blogs",
+                description:
+                  "Read stories, insights, and updates from our inspiring journey.",
+                link: "/blogs",
+                buttonText: "View Blogs",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="Media-card text-center"
+                data-aos="zoom-in"
+                data-aos-delay={200 + index * 100}
+              >
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+                <Link to={item.link} className="MC-btn">
+                  {item.buttonText}
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
       </section>
-
       {/* About Y4D Section */}
       <section className="About-section">
         <div className="About-container">
