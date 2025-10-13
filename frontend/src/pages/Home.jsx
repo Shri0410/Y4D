@@ -29,17 +29,6 @@ import healthcare from "../assets/Interventions/Healthcare.png";
 import environment from "../assets/Interventions/EnvironmentSustainibility.png";
 import idp from "../assets/Interventions/IDP.png";
 
-import sdg1 from "../assets/SDG/SDG1.png";
-import sdg2 from "../assets/SDG/SDG2.png";
-import sdg3 from "../assets/SDG/SDG3.png";
-import sdg4 from "../assets/SDG/SDG4.png";
-import sdg5 from "../assets/SDG/SDG5.png";
-import sdg6 from "../assets/SDG/SDG6.png";
-import sdg8 from "../assets/SDG/SDG8.png";
-import sdg9 from "../assets/SDG/SDG9.png";
-import sdg10 from "../assets/SDG/SDG10.png";
-import sdg11 from "../assets/SDG/SDG11.png";
-
 import accr1 from "../assets/Accredations/Purviz Shroff Social.jpg";
 import accr2 from "../assets/Accredations/Bhamashah Award RJ.jpg";
 import accr3 from "../assets/Accredations/CAF International Certificate.jpg";
@@ -51,19 +40,9 @@ import Partners2 from "./Partners2";
 import DonateButton from "../component/DonateButton";
 import fallbackBanner from "../assets/BannerImages/f.jpeg";
 
+import LogoSlider from "./LogoSlider.jsx";
+
 // ✅ Store your array here
-const sdgImages = [
-  sdg1,
-  sdg2,
-  sdg3,
-  sdg4,
-  sdg5,
-  sdg6,
-  sdg8,
-  sdg9,
-  sdg10,
-  sdg11,
-];
 
 const Home = () => {
   const [teamCount, setTeamCount] = useState(0);
@@ -440,34 +419,7 @@ const Home = () => {
 
       {/* SDGs Section */}
       <section className="SDGs-section">
-        <div className="SDGs-container">
-          <h2 className="sdg-title">
-            Towards Achieving SDGs<span></span>
-          </h2>
-          <Slider
-            slidesToShow={5}
-            slidesToScroll={1}
-            infinite
-            autoplay
-            autoplaySpeed={0}
-            speed={6000}
-            cssEase="linear"
-            arrows={false}
-            dots={false}
-            responsive={[
-              { breakpoint: 1280, settings: { slidesToShow: 4 } },
-              { breakpoint: 1024, settings: { slidesToShow: 3 } },
-              { breakpoint: 768, settings: { slidesToShow: 2 } },
-              { breakpoint: 480, settings: { slidesToShow: 1 } },
-            ]}
-          >
-            {sdgImages.map((img, index) => (
-              <div key={index} className="sdg-item">
-                <img src={img} alt={`SDG ${index + 1}`} className="sdg-icon" />
-              </div>
-            ))}
-          </Slider>
-        </div>
+        <LogoSlider />
       </section>
 
       {/* Partners Section */}
