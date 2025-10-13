@@ -281,6 +281,9 @@
 
 /* Mobile styles */
 @media (max-width: 768px) {
+  .D-btn {
+    display: none;
+  }
   .hamburger {
     display: flex;
   }

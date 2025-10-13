@@ -35,12 +35,20 @@
   transform: translateY(-50%) scale(0.98);
 }
 
+.donate-btn img {
+  width: 80px;
+  height: auto;
+  transition: all 0.3s ease;
+}
 /* Hide on desktop */
 @media (max-width: 1024px) {
   .donate-btn {
     display: block;
     padding: 10px 15px;
     font-size: 16px;
+  }
+  .donate-btn img {
+    width: 65px; /* smaller image */
   }
 }
 
@@ -50,5 +58,8 @@
     display: block;
     padding: 10px 10px;
     font-size: 16px;
+  }
+  .donate-btn img {
+    width: 55px; /* smallest size */
   }
 }
