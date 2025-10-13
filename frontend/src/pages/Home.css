@@ -1154,16 +1154,16 @@
     margin-bottom: 2rem;
   }
   .Inter-title::before {
-    right: 50px;
+    right: 45px;
   }
   .Inter-title::after {
-    right: 30px;
+    right: 25px;
   }
   .Inter-title span::before {
-    left: 50px;
+    left: 45px;
   }
   .Inter-title span::after {
-    left: 30px;
+    left: 25px;
   }
 
   .sdg-title {
@@ -1186,7 +1186,7 @@
 
   .accreditations-title {
     margin-top: 40px;
-    font-size: 1.8rem;
+    font-size: 26px;
     margin-bottom: 2rem;
   }
   .accreditations-title::before {
