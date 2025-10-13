@@ -47,6 +47,7 @@ import IDPDetail from "./pages/IDPDetail";
 
 import DonateNow from "./pages/DonateNow";
 import ReachPresence from "./pages/ReachPresence";
+import LogoSlider from "./pages/LogoSlider";
 
 import "./App.css";
 
@@ -140,6 +141,7 @@ function AppContent({
                   <Route path="/india-map" element={<IndiaMapHover />} />
                   <Route path="/DonateNow" element={<DonateNow />} />
                   <Route path="/reach-presence" element={<ReachPresence />} />
+                  <Route path="/logo-slider" element={<LogoSlider />} />
                 </Routes>
               </main>
               <Footer />

@@ -389,7 +389,7 @@
 }
 
 .SDGs-section {
-  padding: 40px 0;
+  padding: 0px 0;
   background: #f7f7f7;
   text-align: center;
 }
@@ -397,6 +397,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 10px;
   width: 100%;
 }
@@ -558,6 +559,7 @@
   height: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 .sdg-icon:hover {
   transform: scale(1.1);
@@ -752,6 +754,9 @@
   padding: 0 15px;
   text-align: center;
 }
+.sdg-slider-container {
+  padding: 0 20px;
+}
 
 .Media-container {
   width: 90%;
@@ -799,6 +804,10 @@
   }
   .SDGs-container {
     width: 86%;
+  }
+  .Partners-section {
+    max-width: 1100px;
+    margin: 0 auto;
   }
   .Partners-container {
     width: 86%;
@@ -875,7 +884,7 @@
     left: 180px;
   }
   .partner-title::before {
-    right: 340px;
+    right: 310px;
   }
   /* Right bottom line */
   .partner-title::after {
@@ -1112,6 +1121,7 @@
     flex-direction: column;
     margin: auto;
   }
+
   .about-title {
     font-size: 1.8rem;
     line-height: 30px;
