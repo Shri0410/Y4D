@@ -679,7 +679,6 @@
   max-width: 1200px;
   margin: 0px auto;
   padding: 40px 20px;
-  transition: all 0.5s ease;
 }
 
 .accreditation-card {
@@ -1059,6 +1058,18 @@
 }
 
 @media (max-width: 768px) {
+  .our-reach-container {
+    width: 100%;
+  }
+  .About-container {
+    width: 100%;
+  }
+  .Media-container {
+    width: 100%;
+  }
+  .Interventions-container {
+    width: 100%;
+  }
   .reach-grid {
     grid-template-columns: 1fr;
   }
@@ -1081,6 +1092,10 @@
     height: auto;
     margin: 0 auto 10px;
   }
+  .accreditation-card {
+    max-width: 300px;
+    height: auto;
+  }
 
   .accreditation-card h3 {
     font-size: 0.9rem;
@@ -1089,6 +1104,7 @@
   }
 
   .accreditations-container {
+    width: 100%;
     padding: 0px 0px;
     display: flex;
     align-items: center;
@@ -1102,16 +1118,16 @@
     margin-bottom: 2rem;
   }
   .about-title::before {
-    right: 0px;
+    right: 50px;
   }
   .about-title::after {
-    right: -20px;
+    right: 30px;
   }
   .about-title span::before {
-    left: 10px;
+    left: 50px;
   }
   .about-title span::after {
-    left: -10px;
+    left: 30px;
   }
 
   .impact-title {
@@ -1138,38 +1154,39 @@
     margin-bottom: 2rem;
   }
   .Inter-title::before {
-    right: 0px;
+    right: 50px;
   }
   .Inter-title::after {
-    right: -20px;
+    right: 30px;
   }
   .Inter-title span::before {
-    left: 10px;
+    left: 50px;
   }
   .Inter-title span::after {
-    left: -10px;
+    left: 30px;
   }
 
   .sdg-title {
-    font-size: 1.8rem;
+    font-size: 27px;
     line-height: 30px;
     margin-bottom: 2rem;
   }
   .sdg-title::before {
-    right: 50px;
+    right: 40px;
   }
   .sdg-title::after {
-    right: 30px;
+    right: 20px;
   }
   .sdg-title span::before {
-    left: 50px;
+    left: 40px;
   }
   .sdg-title span::after {
-    left: 30px;
+    left: 20px;
   }
 
   .accreditations-title {
-    font-size: 1.6rem;
+    margin-top: 40px;
+    font-size: 1.8rem;
     margin-bottom: 2rem;
   }
   .accreditations-title::before {
@@ -1186,23 +1203,116 @@
   }
 
   .media-title {
-    font-size: 1.8rem;
+    font-size: 28px;
     line-height: 30px;
     margin-bottom: 2rem;
   }
   .media-title::before {
-    right: 0px;
+    right: 30px;
   }
   .media-title::after {
-    right: -20px;
+    right: 10px;
   }
   .media-title span::before {
-    left: 10px;
+    left: 30px;
   }
   .media-title span::after {
-    left: -10px;
+    left: 10px;
   }
   .SDGs-container {
     width: 100%;
+  }
+}
+
+/* Smooth transitions for all animated elements */
+[data-aos] {
+  transition-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Custom animation delays */
+[data-aos-delay="100"] {
+  transition-delay: 100ms;
+}
+
+[data-aos-delay="200"] {
+  transition-delay: 200ms;
+}
+
+[data-aos-delay="300"] {
+  transition-delay: 300ms;
+}
+
+[data-aos-delay="400"] {
+  transition-delay: 400ms;
+}
+
+[data-aos-delay="500"] {
+  transition-delay: 500ms;
+}
+
+/* Ensure smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced hover effects for cards with animations */
+.intervention-card,
+.Media-card,
+.accreditation-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Smooth counter animation */
+.reach-number {
+  transition: all 0.8s ease-out;
+}
+
+/* Smooth image scaling */
+.sdg-icon,
+.intervention-icon,
+.accreditation-icon {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Loading state for banners */
+.loading-slider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Mobile optimizations for animations */
+@media (max-width: 768px) {
+  [data-aos] {
+    transition-duration: 800ms !important;
+  }
+
+  [data-aos-delay] {
+    transition-delay: 0ms !important;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
   }
 }
