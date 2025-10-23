@@ -171,6 +171,12 @@ router.post("/:type", upload, async (req, res) => {
     console.log("Uploaded files:", req.files);
     console.log("Request body:", req.body);
 
+    // FIX: Sanitize request body to ensure no null values
+    const sanitizedBody = {};
+    Object.keys(req.body).forEach(key => {
+      sanitizedBody[key] = req.body[key] || ""; // Convert null/undefined to empty string
+    });
+
     let fields = [];
     let values = [];
     let placeholders = [];
@@ -181,40 +187,6 @@ router.post("/:type", upload, async (req, res) => {
     const fileFile = files.find((file) => file.fieldname === "file");
 
     switch (type) {
-      case "newsletters":
-        const {
-          title,
-          description,
-          published_date,
-          publish_type = "immediate",
-          scheduled_date,
-        } = req.body;
-        const file_path = fileFile ? fileFile.filename : null;
-
-        let newsletterPublishedDate = published_date;
-        let newsletterIsPublished = publish_type === "immediate";
-
-        if (publish_type === "schedule" && scheduled_date) {
-          newsletterPublishedDate = scheduled_date;
-          newsletterIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "description",
-          "file_path",
-          "published_date",
-          "is_published",
-        ];
-        values = [
-          title,
-          description,
-          file_path,
-          newsletterPublishedDate,
-          newsletterIsPublished,
-        ];
-        break;
-
       case "stories":
         const {
           title: storyTitle,
@@ -223,10 +195,14 @@ router.post("/:type", upload, async (req, res) => {
           published_date: storyDate,
           publish_type: storyPublishType = "immediate",
           scheduled_date: storyScheduledDate,
-        } = req.body;
+        } = sanitizedBody; // Use sanitized body
+        
         const image = imageFile ? imageFile.filename : null;
 
-        let storyPublishedDate = storyDate;
+        // FIX: Ensure content is never null
+        const storyContent = content || "";
+
+        let storyPublishedDate = storyDate || new Date().toISOString().split('T')[0];
         let storyIsPublished = storyPublishType === "immediate";
 
         if (storyPublishType === "schedule" && storyScheduledDate) {
@@ -244,9 +220,9 @@ router.post("/:type", upload, async (req, res) => {
         ];
         values = [
           storyTitle,
-          content,
+          storyContent, // Use the sanitized content
           image,
-          author,
+          author || "Anonymous",
           storyPublishedDate,
           storyIsPublished,
         ];
@@ -401,6 +377,9 @@ router.post("/:type", upload, async (req, res) => {
       ", "
     )}) VALUES (${placeholders})`;
 
+    console.log("Final SQL query:", query);
+    console.log("Final values:", values);
+
     const [result] = await db.query(query, values);
 
     res.json({
@@ -495,44 +474,56 @@ router.put("/:type/:id", upload, async (req, res) => {
         ];
         break;
 
-      case "stories":
-        const {
-          title: storyTitle,
-          content,
-          author,
-          published_date: storyDate,
-          publish_type: storyPublishType,
-          scheduled_date: storyScheduledDate,
-          is_published: storyIsPublished,
-        } = req.body;
-        let storyImage = existingItem.image;
-        if (imageFile) storyImage = imageFile.filename;
+     case "stories":
+  const {
+    title: storyTitle,
+    content, // This is coming from formData
+    author,
+    published_date: storyDate,
+    publish_type: storyPublishType = "immediate",
+    scheduled_date: storyScheduledDate,
+  } = req.body;
+  
+  const image = imageFile ? imageFile.filename : null;
 
-        let finalStoryPublished = storyIsPublished;
-        if (storyPublishType === "schedule" && storyScheduledDate) {
-          finalStoryPublished = false;
-        } else if (storyPublishType === "immediate") {
-          finalStoryPublished = true;
-        }
+  // DEBUG: Log what we're receiving
+  console.log("Received story data:", {
+    title: storyTitle,
+    content: content,
+    author: author,
+    image: image
+  });
 
-        updates = [
-          "title = ?",
-          "content = ?",
-          "image = ?",
-          "author = ?",
-          "published_date = ?",
-          "is_published = ?",
-        ];
-        values = [
-          storyTitle,
-          content,
-          storyImage,
-          author,
-          storyDate,
-          finalStoryPublished,
-          id,
-        ];
-        break;
+  // FIX: Ensure content is never null or undefined
+  const storyContent = content || ""; // Default to empty string if null/undefined
+
+  let storyPublishedDate = storyDate || new Date().toISOString().split('T')[0];
+  let storyIsPublished = storyPublishType === "immediate";
+
+  if (storyPublishType === "schedule" && storyScheduledDate) {
+    storyPublishedDate = storyScheduledDate;
+    storyIsPublished = false;
+  }
+
+  fields = [
+    "title",
+    "content",
+    "image",
+    "author",
+    "published_date",
+    "is_published",
+  ];
+  values = [
+    storyTitle,
+    storyContent, // Use the sanitized content
+    image,
+    author || "Anonymous",
+    storyPublishedDate,
+    storyIsPublished,
+  ];
+  
+  console.log("Final values for database:", values); // Debug log
+  break;
 
       case "events":
         const {
