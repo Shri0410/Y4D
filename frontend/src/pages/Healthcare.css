@@ -170,6 +170,7 @@
 .hc-card-desc {
   display: -webkit-box;
   -webkit-line-clamp: 3; /* show 3 lines only */
+  line-clamp: 3; /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -181,6 +182,7 @@
 .hc-card-details {
   display: -webkit-box;
   -webkit-line-clamp: 4; /* show 4 lines only */
+  line-clamp: 4; /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;

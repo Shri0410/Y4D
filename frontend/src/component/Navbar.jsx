@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/Y4D LOGO NAVBAR.png";
 import "./Navbar.css";
+import helpingHands from "../assets/handshake.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,6 +15,7 @@ const Navbar = () => {
   const goToDonate = () => {
     navigate("/DonateNow");
   };
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -73,12 +75,34 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
       <div className="Nav-container">
+        {/* Logo */}
         <div className="nav-brand">
           <Link to="/" onClick={closeAllDropdowns}>
             <img src={logo} alt="Y4D Logo" className="logo" />
           </Link>
         </div>
 
+        {/* Helping hands - show only on mobile, centered */}
+        <div className="mobile-only-content" style={{ display: "none" }}>
+          <div
+            className="mobile-center-help"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img
+              src={helpingHands}
+              alt="Helping Hands"
+              style={{ width: "50px", height: "50px" }}
+            />
+            <div style={{ fontSize: "14px", fontWeight: "600" }}>Helping...</div>
+          </div>
+        </div>
+
+        {/* Navigation Menu */}
         <div className={`nav-menu ${isMobileMenuOpen ? "active" : ""}`}>
           <ul className="nav-list">
             <li>
@@ -112,11 +136,9 @@ const Navbar = () => {
                 }
               >
                 About Us
-                {/* Mobile/Tablet plus-minus */}
                 <span className="dropdown-icon">
                   {activeDropdown === "about" ? "−" : "+"}
                 </span>
-                {/* Desktop chevron */}
                 <i
                   className={`fas fa-chevron-${
                     activeDropdown === "about" ? "up" : "down"
@@ -181,21 +203,6 @@ const Navbar = () => {
               </div>
             </li>
 
-            {/* Get Involved Dropdown */}
-            <li
-              className={`dropdown ${
-                activeDropdown === "involved" ? "active" : ""
-              } ${
-                isDropdownItemActive(dropdownItems.involved) ? "has-active" : ""
-              }`}
-              onMouseEnter={() =>
-                window.innerWidth > 1024 && setActiveDropdown("involved")
-              }
-              onMouseLeave={() =>
-                window.innerWidth > 1024 && setActiveDropdown(null)
-              }
-            ></li>
-
             {/* Media Corner Dropdown */}
             <li
               className={`dropdown ${
@@ -257,6 +264,7 @@ const Navbar = () => {
           </ul>
         </div>
 
+        {/* Hamburger Menu */}
         <div
           className={`hamburger ${isMobileMenuOpen ? "active" : ""}`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -266,6 +274,27 @@ const Navbar = () => {
           <span></span>
         </div>
       </div>
+
+      {/* Mobile view activation logic */}
+      <style>
+        {`
+          @media (max-width: 768px) {
+            .mobile-only-content {
+              display: flex !important;
+              position: absolute;
+              left: 50%;
+              transform: translateX(-50%);
+              top: 50%;
+              transform: translate(-50%, -50%);
+            }
+          }
+          @media (min-width: 769px) {
+            .mobile-only-content {
+              display: none !important;
+            }
+          }
+        `}
+      </style>
     </nav>
   );
 };

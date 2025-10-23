@@ -281,10 +281,7 @@ const DonateNow = () => {
               />
             </div>
 
-            <div className="tax-benefit-note">
-              <strong>Tax Benefit:</strong> Your donation is eligible for 50% tax exemption under Section 80G of Income Tax Act, 1961.
-            </div>
-
+            
             <button type="submit" className="submit-btn">
               Donate Now
             </button>

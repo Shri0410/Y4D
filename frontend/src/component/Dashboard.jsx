@@ -20,16 +20,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
   const [mediaAction, setMediaAction] = useState("view");
   const [editingMediaId, setEditingMediaId] = useState(null);
-  const [mediaForm, setMediaForm] = useState({
-    title: "",
-    description: "",
-    content: "",
-    image: null,
-    pdf: null,
-    video_url: "",
-    video_file: null,
-    is_active: true,
-  });
+const [mediaForm, setMediaForm] = useState({
+  title: "",
+  description: "",
+  content: "", 
+  image: null,
+  pdf: null,
+  video_url: "",
+  video_file: null,
+  is_active: true,
+});
   const [currentMediaType, setCurrentMediaType] = useState(null);
   const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null);
   const [currentTeamType, setCurrentTeamType] = useState(null);
@@ -832,7 +832,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <div className="form-group">
               <label>Content:</label>
               <textarea
-                value={mediaForm.content}
+                value={mediaForm.content || ""}
                 onChange={(e) =>
                   setMediaForm({ ...mediaForm, content: e.target.value })
                 }
@@ -1602,83 +1602,96 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   };
 
   const handleMediaSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-      // Append basic fields
-      formData.append("title", mediaForm.title);
-      formData.append("description", mediaForm.description);
-
-      // Handle documentaries specifically
-      if (currentMediaType === "documentaries") {
-        formData.append("video_url", mediaForm.video_url || "");
-        formData.append("duration", mediaForm.duration || "0:00");
-
-        // Append video file if uploaded
-        if (mediaForm.video_file) {
-          formData.append("video_file", mediaForm.video_file);
-        }
-      }
-
-      // Handle file uploads
-      if (mediaForm.image) {
-        formData.append("image", mediaForm.image);
-      }
-      if (mediaForm.pdf) {
-        formData.append("file", mediaForm.pdf);
-      }
-
-      formData.append("published_date", new Date().toISOString().split("T")[0]);
-      formData.append("is_published", mediaForm.is_active);
-
-      const endpoint = editingMediaId
-        ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
-        : `${API_BASE}/media/${currentMediaType}`;
-
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      };
-
-      const response = editingMediaId
-        ? await axios.put(endpoint, formData, config)
-        : await axios.post(endpoint, formData, config);
-
-      alert(
-        `${currentMediaType.slice(0, -1)} ${
-          editingMediaId ? "updated" : "created"
-        } successfully!`
-      );
-
-      // Reset and refresh
-      setMediaAction("view");
-      setEditingMediaId(null);
-      setMediaForm({
-        title: "",
-        description: "",
-        content: "",
-        image: null,
-        pdf: null,
-        video_url: "",
-        video_file: null,
-        duration: "",
-        is_active: true,
-      });
-      setImagePreview(null);
-      fetchMediaData();
-    } catch (error) {
-      console.error("Error saving media:", error);
-      alert(
-        `Error saving media: ${error.response?.data?.error || error.message}`
-      );
+    // Append basic fields - ensure content is never null
+    formData.append("title", mediaForm.title || "");
+    formData.append("description", mediaForm.description || "");
+    
+    // FIX: Ensure content is always sent for stories and blogs
+    if (["stories", "blogs"].includes(currentMediaType)) {
+      formData.append("content", mediaForm.content || "");
+      console.log("Content being sent:", mediaForm.content); // Debug log
     }
-    setLoading(false);
-  };
+
+    // Handle documentaries specifically
+    if (currentMediaType === "documentaries") {
+      formData.append("video_url", mediaForm.video_url || "");
+      formData.append("duration", mediaForm.duration || "0:00");
+
+      // Append video file if uploaded
+      if (mediaForm.video_file) {
+        formData.append("video_file", mediaForm.video_file);
+      }
+    }
+
+    // Handle file uploads
+    if (mediaForm.image) {
+      formData.append("image", mediaForm.image);
+    }
+    if (mediaForm.pdf) {
+      formData.append("file", mediaForm.pdf);
+    }
+
+    formData.append("published_date", new Date().toISOString().split("T")[0]);
+    formData.append("is_published", mediaForm.is_active);
+
+    // Debug: Log all form data entries
+    console.log("FormData entries:");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    const endpoint = editingMediaId
+      ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
+      : `${API_BASE}/media/${currentMediaType}`;
+
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    };
+
+    const response = editingMediaId
+      ? await axios.put(endpoint, formData, config)
+      : await axios.post(endpoint, formData, config);
+
+    alert(
+      `${currentMediaType.slice(0, -1)} ${
+        editingMediaId ? "updated" : "created"
+      } successfully!`
+    );
+
+    // Reset and refresh
+    setMediaAction("view");
+    setEditingMediaId(null);
+    setMediaForm({
+      title: "",
+      description: "",
+      content: "", // Reset to empty string
+      image: null,
+      pdf: null,
+      video_url: "",
+      video_file: null,
+      duration: "",
+      is_active: true,
+    });
+    setImagePreview(null);
+    fetchMediaData();
+  } catch (error) {
+    console.error("Error saving media:", error);
+    console.error("Error details:", error.response?.data); // More detailed error
+    alert(
+      `Error saving media: ${error.response?.data?.error || error.message}`
+    );
+  }
+  setLoading(false);
+};
   const handleMediaEdit = (item) => {
     setEditingMediaId(item.id);
     setMediaAction("update");
