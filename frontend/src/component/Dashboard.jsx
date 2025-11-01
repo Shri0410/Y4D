@@ -20,16 +20,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
   const [mediaAction, setMediaAction] = useState("view");
   const [editingMediaId, setEditingMediaId] = useState(null);
-const [mediaForm, setMediaForm] = useState({
-  title: "",
-  description: "",
-  content: "", 
-  image: null,
-  pdf: null,
-  video_url: "",
-  video_file: null,
-  is_active: true,
-});
+  const [mediaForm, setMediaForm] = useState({
+    title: "",
+    description: "",
+    content: "",
+    image: null,
+    pdf: null,
+    video_url: "",
+    video_file: null,
+    is_active: true,
+  });
   const [currentMediaType, setCurrentMediaType] = useState(null);
   const [currentOurWorkCategory, setCurrentOurWorkCategory] = useState(null);
   const [currentTeamType, setCurrentTeamType] = useState(null);
@@ -91,12 +91,14 @@ const [mediaForm, setMediaForm] = useState({
     setCurrentAccreditationType("accreditations");
     setAccreditationAction(action);
     setOpenDropdown(null);
+    updateUrlPath("accreditations", action);
   };
 
   const handleBannerAction = (action) => {
     setCurrentBannerType("banners");
     setBannerAction(action);
     setOpenDropdown(null);
+    updateUrlPath("banners", action);
   };
 
   const canManageContent =
@@ -105,6 +107,18 @@ const [mediaForm, setMediaForm] = useState({
   const canManageUsers =
     currentUser && ["super_admin", "admin"].includes(currentUser.role);
   const API_BASE = "http://localhost:5000/api";
+
+  // Update URL path function
+  const updateUrlPath = (section, action = null, subSection = null) => {
+    let path = `/admin/${section}`;
+    if (subSection) {
+      path += `/${subSection}`;
+    }
+    if (action && action !== "view") {
+      path += `/${action}`;
+    }
+    window.history.pushState(null, "", path);
+  };
 
   // Clear sub-sections when switching tabs
   useEffect(() => {
@@ -192,6 +206,7 @@ const [mediaForm, setMediaForm] = useState({
           onClose={() => {
             setCurrentOurWorkCategory(null);
             setInterventionsAction("view");
+            updateUrlPath("interventions");
           }}
           onActionChange={(action) => setInterventionsAction(action)}
         />
@@ -208,6 +223,7 @@ const [mediaForm, setMediaForm] = useState({
           onClose={() => {
             setCurrentAccreditationType(null);
             setAccreditationAction("view");
+            updateUrlPath("accreditations");
           }}
           onActionChange={(action) => setAccreditationAction(action)}
         />
@@ -223,6 +239,7 @@ const [mediaForm, setMediaForm] = useState({
           onClose={() => {
             setCurrentBannerType(null);
             setBannerAction("view");
+            updateUrlPath("banners");
           }}
           onActionChange={(action) => setBannerAction(action)}
         />
@@ -681,6 +698,7 @@ const [mediaForm, setMediaForm] = useState({
     setMediaAction(action);
     setMediaSubDropdown(null);
     setOpenDropdown(null);
+    updateUrlPath("media", action, type);
 
     if (action === "add") {
       setEditingMediaId(null);
@@ -709,6 +727,7 @@ const [mediaForm, setMediaForm] = useState({
     setInterventionsAction(action);
     setInterventionsSubDropdown(null);
     setOpenDropdown(null);
+    updateUrlPath("interventions", action, category);
   };
 
   // Helper functions
@@ -786,6 +805,7 @@ const [mediaForm, setMediaForm] = useState({
                   pdf: null,
                   is_active: true,
                 });
+                updateUrlPath("media", "view", currentMediaType);
               }}
             >
               ← Back to{" "}
@@ -853,10 +873,8 @@ const [mediaForm, setMediaForm] = useState({
               </div>
             )}
           </div>
-          // In renderMediaForm() function, update the documentaries section:
           {currentMediaType === "documentaries" && (
             <>
-              {/* Video Inputs */}
               <div className="form-group">
                 <label>Video Link (YouTube, Vimeo, etc.)</label>
                 <input
@@ -870,7 +888,6 @@ const [mediaForm, setMediaForm] = useState({
                 <small>Example: https://www.youtube.com/watch?v=abc123</small>
               </div>
 
-              {/* ADD THIS - Video File Upload */}
               <div className="form-group">
                 <label>OR Upload Video File</label>
                 <input
@@ -881,7 +898,6 @@ const [mediaForm, setMediaForm] = useState({
                     setMediaForm({
                       ...mediaForm,
                       video_file: file,
-                      // Clear URL if uploading file
                       video_url: file ? "" : mediaForm.video_url,
                     });
                   }}
@@ -952,6 +968,7 @@ const [mediaForm, setMediaForm] = useState({
                   pdf: null,
                   is_active: true,
                 });
+                updateUrlPath("media", "view", currentMediaType);
               }}
             >
               Cancel
@@ -970,7 +987,10 @@ const [mediaForm, setMediaForm] = useState({
           <div className="team-type-options">
             <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType("mentors")}
+              onClick={() => {
+                setCurrentTeamType("mentors");
+                updateUrlPath("team", "add", "mentors");
+              }}
             >
               <span>👥</span>
               <div>
@@ -980,7 +1000,10 @@ const [mediaForm, setMediaForm] = useState({
             </button>
             <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType("management")}
+              onClick={() => {
+                setCurrentTeamType("management");
+                updateUrlPath("team", "add", "management");
+              }}
             >
               <span>💼</span>
               <div>
@@ -990,7 +1013,10 @@ const [mediaForm, setMediaForm] = useState({
             </button>
             <button
               className="team-type-btn"
-              onClick={() => setCurrentTeamType("board-trustees")}
+              onClick={() => {
+                setCurrentTeamType("board-trustees");
+                updateUrlPath("team", "add", "board-trustees");
+              }}
             >
               <span>🏛️</span>
               <div>
@@ -1172,6 +1198,7 @@ const [mediaForm, setMediaForm] = useState({
             onClick={() => {
               setTeamAction("add");
               setCurrentTeamType(null);
+              updateUrlPath("team", "add");
             }}
           >
             + Add User
@@ -1214,7 +1241,10 @@ const [mediaForm, setMediaForm] = useState({
                         <div className="action-buttons">
                           <button
                             className="btn-edit"
-                            onClick={() => handleEdit(mentor, "mentors")}
+                            onClick={() => {
+                              handleEdit(mentor, "mentors");
+                              updateUrlPath("team", "update", "mentors");
+                            }}
                           >
                             Edit
                           </button>
@@ -1258,7 +1288,10 @@ const [mediaForm, setMediaForm] = useState({
                         <div className="action-buttons">
                           <button
                             className="btn-edit"
-                            onClick={() => handleEdit(member, "management")}
+                            onClick={() => {
+                              handleEdit(member, "management");
+                              updateUrlPath("team", "update", "management");
+                            }}
                           >
                             Edit
                           </button>
@@ -1316,9 +1349,10 @@ const [mediaForm, setMediaForm] = useState({
                         <div className="action-buttons">
                           <button
                             className="btn-edit"
-                            onClick={() =>
-                              handleEdit(trustee, "board-trustees")
-                            }
+                            onClick={() => {
+                              handleEdit(trustee, "board-trustees");
+                              updateUrlPath("team", "update", "board-trustees");
+                            }}
                           >
                             Edit
                           </button>
@@ -1389,6 +1423,7 @@ const [mediaForm, setMediaForm] = useState({
                   pdf: null,
                   is_active: true,
                 });
+                updateUrlPath("media", "add", currentMediaType);
               }}
             >
               + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
@@ -1462,7 +1497,10 @@ const [mediaForm, setMediaForm] = useState({
 
                     <button
                       className="btn-edit"
-                      onClick={() => handleMediaEdit(item)}
+                      onClick={() => {
+                        handleMediaEdit(item);
+                        updateUrlPath("media", "update", currentMediaType);
+                      }}
                     >
                       Edit
                     </button>
@@ -1494,6 +1532,7 @@ const [mediaForm, setMediaForm] = useState({
                 setCareerAction("all");
                 setEditingId(null);
                 cancelEdit();
+                updateUrlPath("careers");
               }}
             >
               ← Back to Openings
@@ -1591,6 +1630,7 @@ const [mediaForm, setMediaForm] = useState({
               onClick={() => {
                 setCareerAction("all");
                 cancelEdit();
+                updateUrlPath("careers");
               }}
             >
               Cancel
@@ -1602,96 +1642,98 @@ const [mediaForm, setMediaForm] = useState({
   };
 
   const handleMediaSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    // Append basic fields - ensure content is never null
-    formData.append("title", mediaForm.title || "");
-    formData.append("description", mediaForm.description || "");
-    
-    // FIX: Ensure content is always sent for stories and blogs
-    if (["stories", "blogs"].includes(currentMediaType)) {
-      formData.append("content", mediaForm.content || "");
-      console.log("Content being sent:", mediaForm.content); // Debug log
-    }
+      // Append basic fields - ensure content is never null
+      formData.append("title", mediaForm.title || "");
+      formData.append("description", mediaForm.description || "");
 
-    // Handle documentaries specifically
-    if (currentMediaType === "documentaries") {
-      formData.append("video_url", mediaForm.video_url || "");
-      formData.append("duration", mediaForm.duration || "0:00");
-
-      // Append video file if uploaded
-      if (mediaForm.video_file) {
-        formData.append("video_file", mediaForm.video_file);
+      // FIX: Ensure content is always sent for stories and blogs
+      if (["stories", "blogs"].includes(currentMediaType)) {
+        formData.append("content", mediaForm.content || "");
+        console.log("Content being sent:", mediaForm.content); // Debug log
       }
+
+      // Handle documentaries specifically
+      if (currentMediaType === "documentaries") {
+        formData.append("video_url", mediaForm.video_url || "");
+        formData.append("duration", mediaForm.duration || "0:00");
+
+        // Append video file if uploaded
+        if (mediaForm.video_file) {
+          formData.append("video_file", mediaForm.video_file);
+        }
+      }
+
+      // Handle file uploads
+      if (mediaForm.image) {
+        formData.append("image", mediaForm.image);
+      }
+      if (mediaForm.pdf) {
+        formData.append("file", mediaForm.pdf);
+      }
+
+      formData.append("published_date", new Date().toISOString().split("T")[0]);
+      formData.append("is_published", mediaForm.is_active);
+
+      // Debug: Log all form data entries
+      console.log("FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      const endpoint = editingMediaId
+        ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
+        : `${API_BASE}/media/${currentMediaType}`;
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      };
+
+      const response = editingMediaId
+        ? await axios.put(endpoint, formData, config)
+        : await axios.post(endpoint, formData, config);
+
+      alert(
+        `${currentMediaType.slice(0, -1)} ${
+          editingMediaId ? "updated" : "created"
+        } successfully!`
+      );
+
+      // Reset and refresh
+      setMediaAction("view");
+      setEditingMediaId(null);
+      setMediaForm({
+        title: "",
+        description: "",
+        content: "", // Reset to empty string
+        image: null,
+        pdf: null,
+        video_url: "",
+        video_file: null,
+        duration: "",
+        is_active: true,
+      });
+      setImagePreview(null);
+      fetchMediaData();
+      updateUrlPath("media", "view", currentMediaType);
+    } catch (error) {
+      console.error("Error saving media:", error);
+      console.error("Error details:", error.response?.data); // More detailed error
+      alert(
+        `Error saving media: ${error.response?.data?.error || error.message}`
+      );
     }
+    setLoading(false);
+  };
 
-    // Handle file uploads
-    if (mediaForm.image) {
-      formData.append("image", mediaForm.image);
-    }
-    if (mediaForm.pdf) {
-      formData.append("file", mediaForm.pdf);
-    }
-
-    formData.append("published_date", new Date().toISOString().split("T")[0]);
-    formData.append("is_published", mediaForm.is_active);
-
-    // Debug: Log all form data entries
-    console.log("FormData entries:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    const endpoint = editingMediaId
-      ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
-      : `${API_BASE}/media/${currentMediaType}`;
-
-    const config = {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    };
-
-    const response = editingMediaId
-      ? await axios.put(endpoint, formData, config)
-      : await axios.post(endpoint, formData, config);
-
-    alert(
-      `${currentMediaType.slice(0, -1)} ${
-        editingMediaId ? "updated" : "created"
-      } successfully!`
-    );
-
-    // Reset and refresh
-    setMediaAction("view");
-    setEditingMediaId(null);
-    setMediaForm({
-      title: "",
-      description: "",
-      content: "", // Reset to empty string
-      image: null,
-      pdf: null,
-      video_url: "",
-      video_file: null,
-      duration: "",
-      is_active: true,
-    });
-    setImagePreview(null);
-    fetchMediaData();
-  } catch (error) {
-    console.error("Error saving media:", error);
-    console.error("Error details:", error.response?.data); // More detailed error
-    alert(
-      `Error saving media: ${error.response?.data?.error || error.message}`
-    );
-  }
-  setLoading(false);
-};
   const handleMediaEdit = (item) => {
     setEditingMediaId(item.id);
     setMediaAction("update");
@@ -1765,6 +1807,7 @@ const [mediaForm, setMediaForm] = useState({
                 setLegalReportAction("view");
                 setEditingId(null);
                 cancelEdit();
+                updateUrlPath("reports");
               }}
             >
               ← Back to Reports
@@ -1852,6 +1895,7 @@ const [mediaForm, setMediaForm] = useState({
               onClick={() => {
                 setLegalReportAction("view");
                 cancelEdit();
+                updateUrlPath("reports");
               }}
             >
               Cancel
@@ -1905,7 +1949,10 @@ const [mediaForm, setMediaForm] = useState({
                   <div
                     key={type}
                     className="media-type-card"
-                    onClick={() => setCurrentMediaType(type)}
+                    onClick={() => {
+                      setCurrentMediaType(type);
+                      updateUrlPath("media", "view", type);
+                    }}
                   >
                     <h4>
                       {getMediaTypeIcon(type)}{" "}
@@ -1937,7 +1984,10 @@ const [mediaForm, setMediaForm] = useState({
                   <div
                     key={category}
                     className="media-type-card"
-                    onClick={() => setCurrentOurWorkCategory(category)}
+                    onClick={() => {
+                      setCurrentOurWorkCategory(category);
+                      updateUrlPath("interventions", "view", category);
+                    }}
                   >
                     <h4>
                       {getOurWorkCategoryIcon(category)}{" "}
@@ -1987,6 +2037,7 @@ const [mediaForm, setMediaForm] = useState({
                       pdf: null,
                     });
                     setImagePreview(null);
+                    updateUrlPath("reports", "add");
                   }}
                 >
                   + Add Report
@@ -2051,6 +2102,7 @@ const [mediaForm, setMediaForm] = useState({
                               onClick={() => {
                                 setLegalReportAction("update");
                                 handleEdit(report, "reports");
+                                updateUrlPath("reports", "update");
                               }}
                             >
                               Edit
@@ -2133,6 +2185,7 @@ const [mediaForm, setMediaForm] = useState({
                       type: "full-time",
                       is_active: true,
                     });
+                    updateUrlPath("careers", "add");
                   }}
                 >
                   + Add Opening
@@ -2146,6 +2199,7 @@ const [mediaForm, setMediaForm] = useState({
                     const selectedValue = e.target.value;
                     setCareerAction(selectedValue);
                     setEditingId(null);
+                    updateUrlPath("careers", selectedValue);
                   }}
                   className="dropdown-select"
                 >
@@ -2267,6 +2321,7 @@ const [mediaForm, setMediaForm] = useState({
                             onClick={() => {
                               setCareerAction("update");
                               handleEdit(career, "careers");
+                              updateUrlPath("careers", "update");
                             }}
                           >
                             Edit
@@ -2302,17 +2357,21 @@ const [mediaForm, setMediaForm] = useState({
     setTeamAction("view");
     setCareerAction("current");
     setLegalReportAction("view");
+    updateUrlPath(tab);
   };
 
   const handleTeamAction = (action) => {
     if (action === "team") {
       setTeamAction("view");
+      updateUrlPath("team");
     } else if (action === "add") {
       setTeamAction("add");
       setCurrentTeamType(null);
+      updateUrlPath("team", "add");
     } else if (action === "update") {
       setTeamAction("update");
       setCurrentTeamType(null);
+      updateUrlPath("team", "update");
     }
   };
 
@@ -2348,6 +2407,7 @@ const [mediaForm, setMediaForm] = useState({
                       setActiveTab("ourWork");
                       setCurrentOurWorkCategory(null);
                       setInterventionsAction("view");
+                      updateUrlPath("interventions");
                     }
                   }}
                 >
@@ -2453,6 +2513,7 @@ const [mediaForm, setMediaForm] = useState({
                     setActiveTab("media");
                     setCurrentMediaType(null);
                     setMediaAction("view");
+                    updateUrlPath("media");
                   }
                 }}
               >
@@ -2537,6 +2598,7 @@ const [mediaForm, setMediaForm] = useState({
                   onClick={() => {
                     setActiveTab("impact");
                     setOpenDropdown(null);
+                    updateUrlPath("impact");
                   }}
                 >
                   Impact Data
@@ -2554,6 +2616,7 @@ const [mediaForm, setMediaForm] = useState({
                     } else {
                       setOpenDropdown("banners");
                       setActiveTab("banners");
+                      updateUrlPath("banners");
                     }
                   }}
                 >
@@ -2602,6 +2665,7 @@ const [mediaForm, setMediaForm] = useState({
                   } else {
                     setOpenDropdown("accreditations");
                     setActiveTab("accreditations");
+                    updateUrlPath("accreditations");
                   }
                 }}
               >
@@ -2649,6 +2713,7 @@ const [mediaForm, setMediaForm] = useState({
                   } else {
                     setOpenDropdown("our-team");
                     setActiveTab("our-team");
+                    updateUrlPath("team");
                   }
                 }}
               >
@@ -2699,6 +2764,7 @@ const [mediaForm, setMediaForm] = useState({
                   } else {
                     setOpenDropdown("careers");
                     setActiveTab("careers");
+                    updateUrlPath("careers");
                   }
                 }}
               >
@@ -2749,6 +2815,7 @@ const [mediaForm, setMediaForm] = useState({
                   } else {
                     setOpenDropdown("reports");
                     setActiveTab("reports");
+                    updateUrlPath("reports");
                   }
                 }}
               >
@@ -2806,6 +2873,7 @@ const [mediaForm, setMediaForm] = useState({
                     } else {
                       setOpenDropdown("users");
                       setActiveTab("users");
+                      updateUrlPath("users");
                     }
                   }}
                 >
@@ -2819,6 +2887,7 @@ const [mediaForm, setMediaForm] = useState({
                         onClick={() => {
                           setActiveTab("users");
                           setOpenDropdown(null);
+                          updateUrlPath("users");
                         }}
                       >
                         Users
@@ -2832,6 +2901,7 @@ const [mediaForm, setMediaForm] = useState({
                         onClick={() => {
                           setActiveTab("registrations");
                           setOpenDropdown(null);
+                          updateUrlPath("registrations");
                         }}
                       >
                         Registration Requests
@@ -2862,8 +2932,10 @@ const [mediaForm, setMediaForm] = useState({
                       if (mediaAction !== "view") {
                         setMediaAction("view");
                         setEditingMediaId(null);
+                        updateUrlPath("media", "view", currentMediaType);
                       } else {
                         setCurrentMediaType(null);
+                        updateUrlPath("media");
                       }
                       setMediaForm({
                         title: "",
