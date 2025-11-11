@@ -1,28 +1,34 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const db = require('../config/database');
+const express = require("express");
+const multer = require("multer");
+const path = require("path");
+const db = require("../config/database");
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/management/');
+    cb(null, "uploads/management/");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
-  }
+    cb(
+      null,
+      Date.now() +
+        "-" +
+        Math.round(Math.random() * 1e9) +
+        path.extname(file.originalname)
+    );
+  },
 });
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 // Get all management
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM management ORDER BY name');
+    const [rows] = await db.query("SELECT * FROM management ORDER BY name");
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -30,10 +36,13 @@ router.get('/', async (req, res) => {
 });
 
 // Get one member
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM management WHERE id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Management member not found' });
+    const [rows] = await db.query("SELECT * FROM management WHERE id = ?", [
+      req.params.id,
+    ]);
+    if (rows.length === 0)
+      return res.status(404).json({ error: "Management member not found" });
     res.json(rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -41,21 +50,28 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create member
-router.post('/', upload.single('image'), async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, position, bio, social_links } = req.body;
     const image = req.file ? req.file.filename : null;
     const socialLinksJson = social_links ? JSON.parse(social_links) : null;
 
     const [result] = await db.query(
-      'INSERT INTO management (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)',
+      "INSERT INTO management (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)",
       [name, position, bio, image, JSON.stringify(socialLinksJson)]
     );
 
     res.json({
       id: result.insertId,
-      message: 'Management member created successfully',
-      management: { id: result.insertId, name, position, bio, image, social_links: socialLinksJson }
+      message: "Management member created successfully",
+      management: {
+        id: result.insertId,
+        name,
+        position,
+        bio,
+        image,
+        social_links: socialLinksJson,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -63,36 +79,44 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update member
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, position, bio, social_links } = req.body;
 
-    const [rows] = await db.query('SELECT * FROM management WHERE id = ?', [id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Management member not found' });
+    const [rows] = await db.query("SELECT * FROM management WHERE id = ?", [
+      id,
+    ]);
+    if (rows.length === 0)
+      return res.status(404).json({ error: "Management member not found" });
 
     let image = rows[0].image;
     if (req.file) image = req.file.filename;
 
-    const socialLinksJson = social_links ? JSON.parse(social_links) : rows[0].social_links;
+    const socialLinksJson = social_links
+      ? JSON.parse(social_links)
+      : rows[0].social_links;
 
     await db.query(
-      'UPDATE management SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?',
+      "UPDATE management SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?",
       [name, position, bio, image, JSON.stringify(socialLinksJson), id]
     );
 
-    res.json({ message: 'Management member updated successfully' });
+    res.json({ message: "Management member updated successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
 // Delete member
-router.delete('/:id', async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const [result] = await db.query('DELETE FROM management WHERE id = ?', [req.params.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Management member not found' });
-    res.json({ message: 'Management member deleted successfully' });
+    const [result] = await db.query("DELETE FROM management WHERE id = ?", [
+      req.params.id,
+    ]);
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: "Management member not found" });
+    res.json({ message: "Management member deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
