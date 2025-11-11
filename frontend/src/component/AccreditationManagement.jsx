@@ -1,19 +1,87 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const AccreditationManagement = ({ action, onClose, onActionChange }) => {
+import {
+  canView,
+  canCreate,
+  canEdit,
+  canDelete,
+  canPublish,
+} from "../utils/permissions";
+
+const AccreditationManagement = ({
+  action,
+  onClose,
+  onActionChange,
+  currentUser,
+}) => {
   const [accreditations, setAccreditations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [accreditationForm, setAccreditationForm] = useState({
+  const [editingItem, setEditingItem] = useState(null);
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
     image: null,
+    issuing_organization: "",
+    issue_date: "",
+    expiry_date: "",
     is_active: true,
   });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState("");
 
   const API_BASE = "http://localhost:5000/api";
+  const token = localStorage.getItem("token");
+
+  // Permission check functions
+  const canUserPerformAction = (actionType) => {
+    if (!currentUser) return false;
+    if (currentUser.role === "super_admin") return true;
+
+    switch (actionType) {
+      case "view":
+        return canView(currentUser, "accreditations");
+      case "create":
+        return canCreate(currentUser, "accreditations");
+      case "edit":
+        return canEdit(currentUser, "accreditations");
+      case "delete":
+        return canDelete(currentUser, "accreditations");
+      case "publish":
+        return canPublish(currentUser, "accreditations");
+      default:
+        return false;
+    }
+  };
+
+  const renderLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    const modifiedByName = item.last_modified_by_name || item.modified_by_name;
+    const modifiedAt = item.last_modified_at || item.modified_at;
+
+    if (!modifiedByName && !modifiedAt) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{modifiedByName || "Unknown user"}</strong>{" "}
+          •{" "}
+          {modifiedAt
+            ? new Date(modifiedAt).toLocaleDateString()
+            : "Unknown date"}
+        </small>
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (action === "view") {
@@ -24,14 +92,18 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
   const fetchAccreditations = async () => {
     setLoading(true);
     try {
-      console.log("📋 Fetching accreditations...");
       const response = await axios.get(`${API_BASE}/accreditations`);
-      console.log("✅ Accreditations fetched:", response.data);
-      setAccreditations(response.data);
+
+      // Ensure we have last_modified_by_name for each accreditation
+      const accreditationsWithModifier = response.data.map((item) => ({
+        ...item,
+        last_modified_by_name: item.last_modified_by_name || "Unknown",
+      }));
+
+      setAccreditations(accreditationsWithModifier);
     } catch (error) {
-      console.error("❌ Error fetching accreditations:", error);
-      console.error("❌ Error details:", error.response?.data);
-      alert(`Error fetching accreditations: ${error.response?.data?.error || error.message}`);
+      console.error("Error fetching accreditations:", error);
+      setError("Failed to fetch accreditations");
     }
     setLoading(false);
   };
@@ -39,8 +111,7 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("🖼️ Image selected:", file.name, file.size, file.type);
-      setAccreditationForm((prev) => ({ ...prev, image: file }));
+      setFormData({ ...formData, image: file });
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -52,202 +123,410 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!canUserPerformAction(editingItem ? "edit" : "create")) {
+      alert("You don't have permission to perform this action");
+      return;
+    }
+
     setLoading(true);
-
+    setError("");
     try {
-      console.log("📤 Submitting accreditation form...");
-      console.log("📤 Form data:", accreditationForm);
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach((key) => {
+        if (key === "image" && formData.image) {
+          formDataToSend.append("image", formData.image);
+        } else if (key === "is_active") {
+          formDataToSend.append(key, formData[key] ? "1" : "0");
+        } else {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
 
-      const formData = new FormData();
-      formData.append("title", accreditationForm.title);
-      formData.append("description", accreditationForm.description);
-      formData.append("is_active", accreditationForm.is_active);
-
-      if (accreditationForm.image) {
-        formData.append("image", accreditationForm.image);
-        console.log("📤 Image appended to form data");
-      }
-
-      // Log form data contents for debugging
-      for (let [key, value] of formData.entries()) {
-        console.log(`📤 FormData: ${key} =`, value);
-      }
-
-      const endpoint = editingId
-        ? `${API_BASE}/accreditations/${editingId}`
-        : `${API_BASE}/accreditations`;
-
-      console.log("📤 Making request to:", endpoint);
-
+      let response;
       const config = {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       };
 
-      const response = editingId
-        ? await axios.put(endpoint, formData, config)
-        : await axios.post(endpoint, formData, config);
+      if (editingItem) {
+        response = await axios.put(
+          `${API_BASE}/accreditations/${editingItem.id}`,
+          formDataToSend,
+          config
+        );
+      } else {
+        response = await axios.post(
+          `${API_BASE}/accreditations`,
+          formDataToSend,
+          config
+        );
+      }
 
-      console.log("✅ Accreditation saved successfully:", response.data);
-      
-      alert(`Accreditation ${editingId ? "updated" : "created"} successfully!`);
-      
-      // Reset form
-      setAccreditationForm({
-        title: "",
-        description: "",
-        image: null,
-        is_active: true,
-      });
-      setEditingId(null);
-      setImagePreview(null);
-      
-      // Refresh the list
-      fetchAccreditations();
+      resetForm();
       onActionChange("view");
+      fetchAccreditations();
+      alert(
+        `Accreditation ${editingItem ? "updated" : "created"} successfully!`
+      );
     } catch (error) {
-      console.error("❌ Error saving accreditation:", error);
-      console.error("❌ Error response:", error.response?.data);
-      console.error("❌ Error message:", error.message);
-      
-      alert(`Error saving accreditation: ${error.response?.data?.error || error.response?.data?.details || error.message}`);
+      console.error("Error saving accreditation:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.details ||
+        "Failed to save accreditation";
+      setError(errorMessage);
     }
     setLoading(false);
   };
 
-  const handleEdit = (accreditation) => {
-    console.log("✏️ Editing accreditation:", accreditation);
-    setEditingId(accreditation.id);
-    setAccreditationForm({
-      title: accreditation.title,
-      description: accreditation.description || "",
+  const handleEdit = (item) => {
+    if (!canUserPerformAction("edit")) {
+      alert("You don't have permission to edit accreditations");
+      return;
+    }
+    setEditingItem(item);
+    setFormData({
+      title: item.title,
+      description: item.description,
       image: null,
-      is_active: accreditation.is_active,
+      issuing_organization: item.issuing_organization,
+      issue_date: item.issue_date,
+      expiry_date: item.expiry_date,
+      is_active: item.is_active,
     });
-    if (accreditation.image) {
-      setImagePreview(`${API_BASE}/uploads/accreditations/${accreditation.image}`);
+    if (item.image) {
+      setImagePreview(`${API_BASE}/uploads/accreditations/${item.image}`);
     }
     onActionChange("update");
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this accreditation?")) return;
-
-    setLoading(true);
-    try {
-      console.log("🗑️ Deleting accreditation ID:", id);
-      await axios.delete(`${API_BASE}/accreditations/${id}`);
-      console.log("✅ Accreditation deleted successfully");
-      alert("Accreditation deleted successfully!");
-      fetchAccreditations();
-    } catch (error) {
-      console.error("❌ Error deleting accreditation:", error);
-      console.error("❌ Error details:", error.response?.data);
-      alert(`Error deleting accreditation: ${error.response?.data?.error || error.message}`);
+    if (!canUserPerformAction("delete")) {
+      alert("You don't have permission to delete accreditations");
+      return;
     }
-    setLoading(false);
-  };
 
-  const handleStatusToggle = async (id, newStatus) => {
-    if (!window.confirm(`Are you sure you want to ${newStatus ? "activate" : "deactivate"} this accreditation?`)) return;
-
-    setLoading(true);
-    try {
-      console.log("🔄 Toggling status for ID:", id, "to:", newStatus);
-      
-      // Get current accreditation data
-      const accreditation = accreditations.find(a => a.id === id);
-      if (!accreditation) {
-        throw new Error("Accreditation not found");
+    if (window.confirm("Are you sure you want to delete this accreditation?")) {
+      setLoading(true);
+      try {
+        await axios.delete(`${API_BASE}/accreditations/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        fetchAccreditations();
+        alert("Accreditation deleted successfully!");
+      } catch (error) {
+        console.error("Error deleting accreditation:", error);
+        alert("Failed to delete accreditation");
       }
+      setLoading(false);
+    }
+  };
 
-      // Update with current data but change is_active
-      const formData = new FormData();
-      formData.append("title", accreditation.title);
-      formData.append("description", accreditation.description || "");
-      formData.append("is_active", newStatus);
+  const toggleStatus = async (id, currentStatus) => {
+    if (!canUserPerformAction("publish")) {
+      alert("You don't have permission to change accreditation status");
+      return;
+    }
 
-      await axios.put(`${API_BASE}/accreditations/${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+    if (
+      !window.confirm(
+        `Are you sure you want to ${
+          currentStatus ? "deactivate" : "activate"
+        } this accreditation?`
+      )
+    )
+      return;
 
-      console.log("✅ Status updated successfully");
-      alert(`Accreditation ${newStatus ? "activated" : "deactivated"} successfully!`);
+    setLoading(true);
+    try {
+      await axios.patch(
+        `${API_BASE}/accreditations/${id}/toggle-status`,
+        { is_active: !currentStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchAccreditations();
+      alert(
+        `Accreditation ${
+          !currentStatus ? "activated" : "deactivated"
+        } successfully!`
+      );
     } catch (error) {
-      console.error("❌ Error toggling accreditation status:", error);
-      console.error("❌ Error details:", error.response?.data);
-      alert(`Error updating accreditation status: ${error.response?.data?.error || error.message}`);
+      console.error("Error toggling status:", error);
+      alert("Failed to update accreditation status");
     }
     setLoading(false);
   };
 
-  const cancelEdit = () => {
-    console.log("❌ Canceling edit");
-    setEditingId(null);
-    setAccreditationForm({
+  const resetForm = () => {
+    setEditingItem(null);
+    setFormData({
       title: "",
       description: "",
       image: null,
+      issuing_organization: "",
+      issue_date: "",
+      expiry_date: "",
       is_active: true,
     });
     setImagePreview(null);
+    setError("");
+  };
+
+  const cancelAction = () => {
+    resetForm();
     onActionChange("view");
   };
 
-  const renderForm = () => {
+  // Render action buttons for each item
+  const renderItemActions = (item) => {
+    const canEditItem = canUserPerformAction("edit");
+    const canDeleteItem = canUserPerformAction("delete");
+    const canPublishItem = canUserPerformAction("publish");
+
+    if (!canEditItem && !canDeleteItem && !canPublishItem) {
+      return (
+        <div className="item-actions">
+          <span className="view-only-badge">View Only</span>
+        </div>
+      );
+    }
+
     return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <button className="btn-back" onClick={cancelEdit}>
-              ← Back to Accreditations
+      <div className="item-actions">
+        {canPublishItem && (
+          <button
+            className={`status-toggle-btn ${
+              item.is_active ? "btn-inactive" : "btn-active"
+            }`}
+            onClick={() => toggleStatus(item.id, item.is_active)}
+            disabled={loading}
+          >
+            {item.is_active ? "Deactivate" : "Activate"}
+          </button>
+        )}
+
+        {canEditItem && (
+          <button
+            className="btn-edit"
+            onClick={() => handleEdit(item)}
+            disabled={loading}
+          >
+            Edit
+          </button>
+        )}
+
+        {canDeleteItem && (
+          <button
+            className="btn-delete"
+            onClick={() => handleDelete(item.id)}
+            disabled={loading}
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Render View Mode
+  const renderViewMode = () => {
+    if (loading) return <div className="loading">Loading...</div>;
+
+    return (
+      <div className="accreditation-management">
+        <div className="accreditation-header">
+          <button onClick={onClose} className="close-btn">
+            ← Back to Accreditations
+          </button>
+          <h2>Accreditations Management</h2>
+          {canUserPerformAction("create") && (
+            <button
+              onClick={() => {
+                resetForm();
+                onActionChange("add");
+              }}
+              className="btn-primary"
+              disabled={loading}
+            >
+              + Add New Accreditation
             </button>
-            <h3>{editingId ? "Edit Accreditation" : "Add New Accreditation"}</h3>
-          </div>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="dashboard-form">
+        {error && <div className="error-message">{error}</div>}
+
+        <div className="accreditation-list">
+          {accreditations.length === 0 ? (
+            <div className="no-items">
+              <p>No accreditations found</p>
+              <p>
+                <small>
+                  Click "Add Accreditation" to create your first accreditation.
+                </small>
+              </p>
+            </div>
+          ) : (
+            <div className="items-grid">
+              {accreditations.map((item) => {
+                const isActive =
+                  item.is_active === true ||
+                  item.is_active === 1 ||
+                  item.is_active === "true";
+
+                return (
+                  <div
+                    key={item.id}
+                    className="item-card"
+                    style={{
+                      borderLeft: `4px solid ${
+                        isActive ? "#4CAF50" : "#ff9800"
+                      }`,
+                    }}
+                  >
+                    {item.image && (
+                      <div className="item-image">
+                        <img
+                          src={`${API_BASE}/uploads/accreditations/${item.image}`}
+                          alt={item.title}
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="item-content">
+                      <div className="accreditation-header">
+                        <h4>{item.title}</h4>
+                        <span
+                          className={`status-badge ${
+                            isActive ? "active" : "inactive"
+                          }`}
+                        >
+                          {isActive ? "ACTIVE" : "INACTIVE"}
+                        </span>
+                      </div>
+
+                      <p>{item.description}</p>
+
+                      <div className="item-meta">
+                        <p>
+                          <strong>Organization:</strong>{" "}
+                          {item.issuing_organization}
+                        </p>
+                        {item.issue_date && (
+                          <p>
+                            <strong>Issued:</strong>{" "}
+                            {new Date(item.issue_date).toLocaleDateString()}
+                          </p>
+                        )}
+                        {item.expiry_date && (
+                          <p>
+                            <strong>Expires:</strong>{" "}
+                            {new Date(item.expiry_date).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* ADDED: Last modified info display */}
+                      {renderLastModifiedInfo(item)}
+
+                      {renderItemActions(item)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Form Mode
+  const renderFormMode = () => {
+    return (
+      <div className="accreditation-management">
+        <div className="accreditation-header">
+          <button onClick={cancelAction} className="close-btn">
+            ← Back to Accreditations
+          </button>
+          <h2>{editingItem ? "Edit" : "Add New"} Accreditation</h2>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="accreditation-form">
           <div className="form-group">
-            <label>Title: *</label>
+            <label>Title:</label>
             <input
               type="text"
-              value={accreditationForm.title}
+              value={formData.title}
               onChange={(e) =>
-                setAccreditationForm({ ...accreditationForm, title: e.target.value })
+                setFormData({ ...formData, title: e.target.value })
               }
               required
-              placeholder="Enter accreditation title"
             />
           </div>
 
           <div className="form-group">
             <label>Description:</label>
             <textarea
-              value={accreditationForm.description}
+              value={formData.description}
               onChange={(e) =>
-                setAccreditationForm({ ...accreditationForm, description: e.target.value })
+                setFormData({ ...formData, description: e.target.value })
               }
               rows="3"
-              placeholder="Enter accreditation description (optional)"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Image:</label>
+            <label>Issuing Organization:</label>
             <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
+              type="text"
+              value={formData.issuing_organization}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  issuing_organization: e.target.value,
+                })
+              }
+              required
             />
-            <small>Supported formats: JPG, PNG, GIF. Max size: 5MB</small>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Issue Date:</label>
+              <input
+                type="date"
+                value={formData.issue_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, issue_date: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Expiry Date:</label>
+              <input
+                type="date"
+                value={formData.expiry_date}
+                onChange={(e) =>
+                  setFormData({ ...formData, expiry_date: e.target.value })
+                }
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Image:</label>
+            <input type="file" accept="image/*" onChange={handleImageChange} />
             {imagePreview && (
               <div className="image-preview">
                 <img src={imagePreview} alt="Preview" />
-                <p>Image Preview</p>
               </div>
             )}
           </div>
@@ -255,10 +534,10 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
           <div className="form-group">
             <label>Status:</label>
             <select
-              value={accreditationForm.is_active}
+              value={formData.is_active}
               onChange={(e) =>
-                setAccreditationForm({
-                  ...accreditationForm,
+                setFormData({
+                  ...formData,
                   is_active: e.target.value === "true",
                 })
               }
@@ -269,10 +548,19 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
           </div>
 
           <div className="form-actions">
-            <button type="submit" disabled={loading}>
-              {loading ? "Processing..." : editingId ? "Update" : "Create"} Accreditation
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading
+                ? "Saving..."
+                : editingItem
+                ? "Update Accreditation"
+                : "Create Accreditation"}
             </button>
-            <button type="button" onClick={cancelEdit} disabled={loading}>
+            <button
+              type="button"
+              onClick={cancelAction}
+              className="btn-secondary"
+              disabled={loading}
+            >
               Cancel
             </button>
           </div>
@@ -281,130 +569,13 @@ const AccreditationManagement = ({ action, onClose, onActionChange }) => {
     );
   };
 
-  const renderListView = () => {
-    return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <h3>Accreditations Management</h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setEditingId(null);
-                setAccreditationForm({
-                  title: "",
-                  description: "",
-                  image: null,
-                  is_active: true,
-                });
-                setImagePreview(null);
-                onActionChange("add");
-              }}
-              disabled={loading}
-            >
-              + Add Accreditation
-            </button>
-          </div>
-        </div>
+  if (action === "view") {
+    return renderViewMode();
+  } else if (action === "add" || action === "update") {
+    return renderFormMode();
+  }
 
-        {loading ? (
-          <div className="loading">Loading accreditations...</div>
-        ) : accreditations.length === 0 ? (
-          <div className="no-data-message">
-            <p>No accreditations found</p>
-            <p><small>Click "Add Accreditation" to create your first one.</small></p>
-          </div>
-        ) : (
-          <div className="items-grid">
-            {accreditations.map((accreditation) => {
-              const isActive = accreditation.is_active === true || 
-                              accreditation.is_active === 1 || 
-                              accreditation.is_active === "true";
-
-              return (
-                <div
-                  key={accreditation.id}
-                  className="item-card"
-                  style={{
-                    borderLeft: `4px solid ${isActive ? "#4CAF50" : "#ff9800"}`,
-                  }}
-                >
-                  {accreditation.image && (
-                    <div className="item-image">
-                      <img
-                        src={`${API_BASE}/uploads/accreditations/${accreditation.image}`}
-                        alt={accreditation.title}
-                        onError={(e) => {
-                          console.error("❌ Image failed to load:", e.target.src);
-                          e.target.style.display = "none";
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  <div className="item-content">
-                    <div className="accreditation-header">
-                      <h4>{accreditation.title}</h4>
-                      <span
-                        className={`status-badge ${
-                          isActive ? "active" : "inactive"
-                        }`}
-                      >
-                        {isActive ? "ACTIVE" : "INACTIVE"}
-                      </span>
-                    </div>
-                    
-                    {accreditation.description && (
-                      <p>{accreditation.description}</p>
-                    )}
-    
-                    <p>
-                      <strong>ID:</strong> {accreditation.id}
-                    </p>
-
-                    <div className="item-actions">
-                      <button
-                        className={`status-toggle-btn ${
-                          isActive ? "btn-inactive" : "btn-active"
-                        }`}
-                        onClick={() => handleStatusToggle(accreditation.id, !isActive)}
-                        disabled={loading}
-                      >
-                        {isActive ? "Deactivate" : "Activate"}
-                      </button>
-
-                      <button
-                        className="btn-edit"
-                        onClick={() => handleEdit(accreditation)}
-                        disabled={loading}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(accreditation.id)}
-                        disabled={loading}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return (
-    <div className="accreditation-management">
-      {action === "view" && renderListView()}
-      {(action === "add" || action === "update") && renderForm()}
-    </div>
-  );
+  return null;
 };
 
 export default AccreditationManagement;

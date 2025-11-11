@@ -1,9 +1,16 @@
-// src/components/BannerManagement.jsx
+// Updated BannerManagement.jsx file with last modified info
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./BannerManagement.css";
+import {
+  canView,
+  canCreate,
+  canEdit,
+  canDelete,
+  canPublish,
+} from "../utils/permissions";
 
-const BannerManagement = ({ action, onClose, onActionChange }) => {
+const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -11,6 +18,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
   const [filterPage, setFilterPage] = useState("all");
   const [filterSection, setFilterSection] = useState("all");
   const [availablePages, setAvailablePages] = useState([]);
+  const [error, setError] = useState("");
 
   const bannerFormInitialState = {
     media_type: "image",
@@ -24,6 +32,28 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
   const [bannerForm, setBannerForm] = useState(bannerFormInitialState);
 
   const API_BASE = "http://localhost:5000/api";
+  const token = localStorage.getItem("token");
+
+  // Permission check functions
+  const canUserPerformAction = (actionType) => {
+    if (!currentUser) return false;
+    if (currentUser.role === "super_admin") return true;
+
+    switch (actionType) {
+      case "view":
+        return canView(currentUser, "banners");
+      case "create":
+        return canCreate(currentUser, "banners");
+      case "edit":
+        return canEdit(currentUser, "banners");
+      case "delete":
+        return canDelete(currentUser, "banners");
+      case "publish":
+        return canPublish(currentUser, "banners");
+      default:
+        return false;
+    }
+  };
 
   // Updated predefined pages with your specific options
   const predefinedPages = [
@@ -68,6 +98,17 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
     }
   };
 
+  // Get filter sections based on selected page
+  const getFilterSections = () => {
+    if (filterPage === "our-work") {
+      return [...mainSections, ...ourWorkSections];
+    } else if (filterPage === "media-corner") {
+      return [...mainSections, ...mediaCornerSections];
+    } else {
+      return mainSections;
+    }
+  };
+
   // Get default section when page changes
   const getDefaultSection = (page) => {
     if (page === "our-work") {
@@ -77,6 +118,50 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
     } else {
       return "hero";
     }
+  };
+
+  // UPDATED: Function to render last modified info for banners
+  const renderLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    const modifiedByName = item.last_modified_by_name || item.modified_by_name;
+    const modifiedAt = item.last_modified_at || item.modified_at;
+
+    // If no modification info exists, don't show anything
+    if (!modifiedByName && !modifiedAt) {
+      return null;
+    }
+
+    // Format the date properly
+    const formatDate = (dateString) => {
+      if (!dateString) return "Unknown date";
+      try {
+        return new Date(dateString).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch (error) {
+        return "Invalid date";
+      }
+    };
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{modifiedByName || "Unknown user"}</strong>
+          {modifiedAt && <> • {formatDate(modifiedAt)}</>}
+        </small>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -114,10 +199,19 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       });
       const response = await axios.get(url);
       console.log("✅ Banners fetched:", response.data);
-      setBanners(response.data);
+
+      // Enhanced data handling for last modified info
+      const bannersWithModifier = response.data.map((banner) => ({
+        ...banner,
+        last_modified_by_name:
+          banner.last_modified_by_name || banner.modified_by_name || "Unknown",
+        last_modified_at: banner.last_modified_at || banner.modified_at,
+      }));
+
+      setBanners(bannersWithModifier);
     } catch (error) {
       console.error("❌ Error fetching banners:", error);
-      alert(
+      setError(
         `Error fetching banners: ${
           error.response?.data?.error || error.message
         }`
@@ -142,20 +236,36 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!canUserPerformAction(editingId ? "edit" : "create")) {
+      alert("You don't have permission to perform this action");
+      return;
+    }
+
     setLoading(true);
+    setError("");
 
     try {
       console.log("📤 Submitting banner form...");
 
-      const formData = new FormData();
-      formData.append("media_type", bannerForm.media_type);
-      formData.append("page", bannerForm.page);
-      formData.append("section", bannerForm.section);
-      formData.append("category", bannerForm.category);
-      formData.append("is_active", bannerForm.is_active);
+      const formDataToSend = new FormData();
+      formDataToSend.append("media_type", bannerForm.media_type);
+      formDataToSend.append("page", bannerForm.page);
+      formDataToSend.append("section", bannerForm.section);
+      formDataToSend.append("category", bannerForm.category);
+      formDataToSend.append("is_active", bannerForm.is_active);
+
+      // ADDED: Send user information for tracking
+      if (currentUser) {
+        formDataToSend.append("modified_by_id", currentUser.id);
+        formDataToSend.append(
+          "modified_by_name",
+          currentUser.username || currentUser.name
+        );
+      }
 
       if (bannerForm.media) {
-        formData.append("media", bannerForm.media);
+        formDataToSend.append("media", bannerForm.media);
       }
 
       const endpoint = editingId
@@ -164,13 +274,14 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
 
       const config = {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       };
 
       const response = editingId
-        ? await axios.put(endpoint, formData, config)
-        : await axios.post(endpoint, formData, config);
+        ? await axios.put(endpoint, formDataToSend, config)
+        : await axios.post(endpoint, formDataToSend, config);
 
       console.log("✅ Banner saved successfully:", response.data);
 
@@ -187,15 +298,22 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       onActionChange("view");
     } catch (error) {
       console.error("❌ Error saving banner:", error);
-      alert(
-        `Error saving banner: ${error.response?.data?.error || error.message}`
-      );
+      const errorMessage =
+        error.response?.data?.error ||
+        error.response?.data?.details ||
+        "Failed to save banner. Please check console for details.";
+      setError(errorMessage);
     }
     setLoading(false);
   };
 
   const handleEdit = (banner) => {
-    console.log("✏️ Editing banner:", banner);
+    if (!canUserPerformAction("edit")) {
+      alert("You don't have permission to edit banners");
+      return;
+    }
+
+    console.log("✏ Editing banner:", banner);
     setEditingId(banner.id);
     setBannerForm({
       media_type: banner.media_type || "image",
@@ -212,24 +330,36 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
   };
 
   const handleDelete = async (id) => {
+    if (!canUserPerformAction("delete")) {
+      alert("You don't have permission to delete banners");
+      return;
+    }
+
     if (!window.confirm("Are you sure you want to delete this banner?")) return;
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE}/banners/${id}`);
+      await axios.delete(`${API_BASE}/banners/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       alert("Banner deleted successfully!");
       fetchBanners();
       fetchAvailablePages();
     } catch (error) {
       console.error("❌ Error deleting banner:", error);
       alert(
-        `Error deleting banner: ${error.response?.data?.error || error.message}`
+        `Error: ${error.response?.data?.error || "Failed to delete banner"}`
       );
     }
     setLoading(false);
   };
 
   const handleStatusToggle = async (id, newStatus) => {
+    if (!canUserPerformAction("publish")) {
+      alert("You don't have permission to change banner status");
+      return;
+    }
+
     if (
       !window.confirm(
         `Are you sure you want to ${
@@ -253,8 +383,18 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       formData.append("category", banner.category);
       formData.append("is_active", newStatus);
 
+      // ADDED: Send user information for tracking
+      if (currentUser) {
+        formData.append("modified_by_id", currentUser.id);
+        formData.append(
+          "modified_by_name",
+          currentUser.username || currentUser.name
+        );
+      }
+
       await axios.put(`${API_BASE}/banners/${id}`, formData, {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
@@ -264,8 +404,8 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
     } catch (error) {
       console.error("❌ Error toggling banner status:", error);
       alert(
-        `Error updating banner status: ${
-          error.response?.data?.error || error.message
+        `Error: ${
+          error.response?.data?.error || "Failed to update banner status"
         }`
       );
     }
@@ -287,6 +427,58 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
       .join(" ");
   };
 
+  // Render action buttons for each banner
+  const renderBannerActions = (banner) => {
+    const canEditItem = canUserPerformAction("edit");
+    const canDeleteItem = canUserPerformAction("delete");
+    const canPublishItem = canUserPerformAction("publish");
+
+    // If user only has view permission, show "View Only" badge
+    if (!canEditItem && !canDeleteItem && !canPublishItem) {
+      return (
+        <div className="item-actions">
+          <span className="view-only-badge">View Only</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="item-actions">
+        {canPublishItem && (
+          <button
+            className={`status-toggle-btn ${
+              banner.is_active ? "btn-inactive" : "btn-active"
+            }`}
+            onClick={() => handleStatusToggle(banner.id, !banner.is_active)}
+            disabled={loading}
+          >
+            {banner.is_active ? "Deactivate" : "Activate"}
+          </button>
+        )}
+
+        {canEditItem && (
+          <button
+            className="btn-edit"
+            onClick={() => handleEdit(banner)}
+            disabled={loading}
+          >
+            Edit
+          </button>
+        )}
+
+        {canDeleteItem && (
+          <button
+            className="btn-delete"
+            onClick={() => handleDelete(banner.id)}
+            disabled={loading}
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    );
+  };
+
   const renderForm = () => {
     const availableSections = getAvailableSections();
 
@@ -302,6 +494,8 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="dashboard-form">
+          {error && <div className="error-message">{error}</div>}
+
           <div className="form-row">
             <div className="form-group">
               <label>Page: *</label>
@@ -481,11 +675,19 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
           </div>
 
           <div className="form-actions">
-            <button type="submit" disabled={loading}>
-              {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
-              Banner
+            <button type="submit" disabled={loading} className="btn-primary">
+              {loading
+                ? "Processing..."
+                : editingId
+                ? "Update Banner"
+                : "Create Banner"}
             </button>
-            <button type="button" onClick={cancelEdit} disabled={loading}>
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="btn-secondary"
+              disabled={loading}
+            >
               Cancel
             </button>
           </div>
@@ -495,53 +697,45 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
   };
 
   const renderListView = () => {
-    // Get available sections for filter based on selected page
-    const getFilterSections = () => {
-      if (filterPage === "our-work") {
-        return [...mainSections, ...ourWorkSections];
-      } else if (filterPage === "media-corner") {
-        return [...mainSections, ...mediaCornerSections];
-      } else {
-        return mainSections;
-      }
-    };
-
     const filterSections = getFilterSections();
 
     return (
       <div className="content-list">
         <div className="content-header">
           <div className="header-row">
-            <h3>Banner Management</h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setEditingId(null);
-                setBannerForm(bannerFormInitialState);
-                setMediaPreview(null);
-                onActionChange("add");
-              }}
-              disabled={loading}
-            >
-              + Add Banner
+            <button onClick={onClose} className="close-btn">
+              ← Back to Banner Management
             </button>
+            <h2>Banner Management</h2>
+            {canUserPerformAction("create") && (
+              <button
+                onClick={() => {
+                  setEditingId(null);
+                  setBannerForm(bannerFormInitialState);
+                  setMediaPreview(null);
+                  onActionChange("add");
+                }}
+                className="btn-primary"
+                disabled={loading}
+              >
+                + Add New Banner
+              </button>
+            )}
           </div>
+
+          {error && <div className="error-message">{error}</div>}
 
           {/* Filters */}
           <div className="filter-controls">
             <div className="filter-group">
-              <label>Filter by Page:</label>
+              <label>Filter by Page</label>
               <select
                 value={filterPage}
-                onChange={(e) => {
-                  setFilterPage(e.target.value);
-                  // Reset section filter when page changes
-                  setFilterSection("all");
-                }}
+                onChange={(e) => setFilterPage(e.target.value)}
                 className="filter-select"
               >
                 <option value="all">All Pages</option>
-                {availablePages.map((page) => (
+                {predefinedPages.map((page) => (
                   <option key={page} value={page}>
                     {formatDisplayName(page)}
                   </option>
@@ -550,7 +744,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
             </div>
 
             <div className="filter-group">
-              <label>Filter by Section:</label>
+              <label>Filter by Section</label>
               <select
                 value={filterSection}
                 onChange={(e) => setFilterSection(e.target.value)}
@@ -566,7 +760,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
             </div>
 
             <button
-              className="btn-secondary"
+              className="clear-filters-btn"
               onClick={() => {
                 setFilterPage("all");
                 setFilterSection("all");
@@ -580,7 +774,7 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
         {loading ? (
           <div className="loading">Loading banners...</div>
         ) : banners.length === 0 ? (
-          <div className="no-data-message">
+          <div className="no-items">
             <p>No banners found</p>
             <p>
               <small>Click "Add Banner" to create your first banner.</small>
@@ -663,33 +857,10 @@ const BannerManagement = ({ action, onClose, onActionChange }) => {
                       <strong>Order:</strong> {banner.display_order || 0}
                     </p>
 
-                    <div className="item-actions">
-                      <button
-                        className={`status-toggle-btn ${
-                          isActive ? "btn-inactive" : "btn-active"
-                        }`}
-                        onClick={() => handleStatusToggle(banner.id, !isActive)}
-                        disabled={loading}
-                      >
-                        {isActive ? "Deactivate" : "Activate"}
-                      </button>
+                    {/* ADDED: Last modified info display */}
+                    {renderLastModifiedInfo(banner)}
 
-                      <button
-                        className="btn-edit"
-                        onClick={() => handleEdit(banner)}
-                        disabled={loading}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className="btn-delete"
-                        onClick={() => handleDelete(banner.id)}
-                        disabled={loading}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {renderBannerActions(banner)}
                   </div>
                 </div>
               );

@@ -2543,3 +2543,118 @@
   margin: 0 auto;
   border-radius: 6px;
 }
+
+/* Add to your Dashboard.css */
+.view-only-badge {
+  padding: 4px 8px;
+  background: #6c757d;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Disabled state for view-only users */
+.view-only .btn-primary,
+.view-only .btn-edit,
+.view-only .btn-delete,
+.view-only .status-toggle-btn {
+  display: none;
+}
+
+/* Hide action columns in tables for view-only users */
+.view-only .action-buttons {
+  display: none;
+}
+
+/* Style for read-only content */
+.read-only-content {
+  opacity: 0.8;
+}
+
+.read-only-content .form-actions {
+  display: none;
+}
+
+/* Add to your Dashboard.css */
+.view-only-badge {
+  background-color: #6c757d;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.item-actions .view-only-badge {
+  margin-left: 8px;
+}
+
+/* Style for disabled sections */
+.disabled-section {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Style for hidden elements */
+.hidden-by-permission {
+  display: none !important;
+}
+
+.last-modified-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.last-modified-info.admin-only {
+  background-color: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.last-modified-info small {
+  color: #666;
+}
+
+.media-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.media-header h4 {
+  margin: 0;
+  flex: 1;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.media-image-preview {
+  margin: 12px 0;
+}
+
+.media-image-preview img {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 4px;
+  object-fit: cover;
+}

@@ -9,6 +9,16 @@ import AccreditationManagement from "./AccreditationManagement";
 import BannerManagement from "./BannerManagement";
 import "./Dashboard.css";
 
+import {
+  canView,
+  canCreate,
+  canEdit,
+  canDelete,
+  canPublish,
+  fetchUserPermissions,
+  clearPermissionsCache,
+} from "../utils/permissions";
+
 const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [activeTab, setActiveTab] = useState("ourWork");
   const [reports, setReports] = useState([]);
@@ -20,6 +30,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
   const [mediaAction, setMediaAction] = useState("view");
   const [editingMediaId, setEditingMediaId] = useState(null);
+
   const [mediaForm, setMediaForm] = useState({
     title: "",
     description: "",
@@ -87,26 +98,32 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
 
-  const handleAccreditationAction = (action) => {
-    setCurrentAccreditationType("accreditations");
-    setAccreditationAction(action);
-    setOpenDropdown(null);
-    updateUrlPath("accreditations", action);
-  };
-
-  const handleBannerAction = (action) => {
-    setCurrentBannerType("banners");
-    setBannerAction(action);
-    setOpenDropdown(null);
-    updateUrlPath("banners", action);
-  };
-
-  const canManageContent =
-    currentUser &&
-    ["super_admin", "admin", "editor"].includes(currentUser.role);
-  const canManageUsers =
-    currentUser && ["super_admin", "admin"].includes(currentUser.role);
   const API_BASE = "http://localhost:5000/api";
+
+  // Permission check functions
+  const canUserPerformAction = (
+    section,
+    subSection = null,
+    action = "view"
+  ) => {
+    if (!currentUser) return false;
+    if (currentUser.role === "super_admin") return true;
+
+    switch (action) {
+      case "view":
+        return canView(currentUser, section, subSection);
+      case "create":
+        return canCreate(currentUser, section, subSection);
+      case "edit":
+        return canEdit(currentUser, section, subSection);
+      case "delete":
+        return canDelete(currentUser, section, subSection);
+      case "publish":
+        return canPublish(currentUser, section, subSection);
+      default:
+        return false;
+    }
+  };
 
   // Update URL path function
   const updateUrlPath = (section, action = null, subSection = null) => {
@@ -140,6 +157,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   useEffect(() => {
     console.log("Careers data updated:", careers);
   }, [careers]);
+
+  // Fetch user permissions when user changes
+  useEffect(() => {
+    if (currentUser) {
+      fetchUserPermissions(currentUser);
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -209,10 +233,95 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             updateUrlPath("interventions");
           }}
           onActionChange={(action) => setInterventionsAction(action)}
+          currentUser={currentUser}
         />
       );
     }
     return null;
+  };
+
+  const handleAccreditationAction = (action) => {
+    setCurrentAccreditationType("accreditations");
+    setAccreditationAction(action);
+    setOpenDropdown(null);
+    updateUrlPath("accreditations", action);
+  };
+
+  const handleBannerAction = (action) => {
+    setCurrentBannerType("banners");
+    setBannerAction(action);
+    setOpenDropdown(null);
+    updateUrlPath("banners", action);
+  };
+
+  // Modified render functions to check permissions
+  const renderActionButtons = (item, section, subSection = null) => {
+    const canEditItem = canUserPerformAction(section, subSection, "edit");
+    const canDeleteItem = canUserPerformAction(section, subSection, "delete");
+    const canPublishItem = canUserPerformAction(section, subSection, "publish");
+
+    // If user only has view permission, show nothing or "View Only" badge
+    if (!canEditItem && !canDeleteItem && !canPublishItem) {
+      return (
+        <div className="item-actions">
+          <span className="view-only-badge">View Only</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="item-actions">
+        {canPublishItem && (
+          <button
+            className={`status-toggle-btn ${
+              item.is_published ? "btn-inactive" : "btn-active"
+            }`}
+            onClick={() => handleMediaStatusToggle(item.id, !item.is_published)}
+          >
+            {item.is_published ? "Unpublish" : "Publish"}
+          </button>
+        )}
+
+        {canEditItem && (
+          <button
+            className="btn-edit"
+            onClick={() => {
+              handleMediaEdit(item);
+              updateUrlPath("media", "update", currentMediaType);
+            }}
+          >
+            Edit
+          </button>
+        )}
+
+        {canDeleteItem && (
+          <button
+            className="btn-delete"
+            onClick={() => handleMediaDelete(item.id)}
+          >
+            Delete
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Update the add button rendering
+  const renderAddButton = (section, subSection = null) => {
+    const canCreateItem = canUserPerformAction(section, subSection, "create");
+
+    if (!canCreateItem) return null;
+
+    return (
+      <button
+        className="btn-primary"
+        onClick={() => {
+          // Your existing add button logic
+        }}
+      >
+        + Add {section.slice(0, -1)}
+      </button>
+    );
   };
 
   const renderAccreditationContent = () => {
@@ -226,6 +335,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             updateUrlPath("accreditations");
           }}
           onActionChange={(action) => setAccreditationAction(action)}
+          currentUser={currentUser}
         />
       </div>
     );
@@ -242,7 +352,120 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             updateUrlPath("banners");
           }}
           onActionChange={(action) => setBannerAction(action)}
+          currentUser={currentUser}
         />
+      </div>
+    );
+  };
+
+  // ADDED: Function to render last modified info for reports (admin/super_admin only)
+  const renderReportLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    if (!item.last_modified_by_name && !item.last_modified_at) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{item.last_modified_by_name}</strong> •{" "}
+          {item.last_modified_at
+            ? new Date(item.last_modified_at).toLocaleDateString()
+            : "Unknown date"}
+        </small>
+      </div>
+    );
+  };
+
+  // ADDED: Generic function to render last modified info for other sections
+  const renderLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    if (!item.last_modified_by_name && !item.last_modified_at) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{item.last_modified_by_name}</strong> •{" "}
+          {item.last_modified_at
+            ? new Date(item.last_modified_at).toLocaleDateString()
+            : "Unknown date"}
+        </small>
+      </div>
+    );
+  };
+
+  // ADDED: Function to render last modified info for banners
+  const renderBannerLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    const modifiedByName = item.last_modified_by_name || item.modified_by_name;
+    const modifiedAt = item.last_modified_at || item.modified_at;
+
+    if (!modifiedByName && !modifiedAt) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{modifiedByName || "Unknown user"}</strong>{" "}
+          •{" "}
+          {modifiedAt
+            ? new Date(modifiedAt).toLocaleDateString()
+            : "Unknown date"}
+        </small>
+      </div>
+    );
+  };
+
+  // ADDED: Function to render last modified info for accreditations
+  const renderAccreditationLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    const modifiedByName = item.last_modified_by_name || item.modified_by_name;
+    const modifiedAt = item.last_modified_at || item.modified_at;
+
+    if (!modifiedByName && !modifiedAt) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{modifiedByName || "Unknown user"}</strong>{" "}
+          •{" "}
+          {modifiedAt
+            ? new Date(modifiedAt).toLocaleDateString()
+            : "Unknown date"}
+        </small>
       </div>
     );
   };
@@ -270,9 +493,15 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(true);
     try {
       let response;
+      const token = localStorage.getItem("token");
+
       switch (type) {
         case "reports":
-          response = await axios.get(`${API_BASE}/reports`);
+          response = await axios.get(`${API_BASE}/reports`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           setReports(response.data);
           break;
         case "mentors":
@@ -297,7 +526,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       }
     } catch (error) {
       console.error(`Error fetching ${type}:`, error);
-      alert(`Error fetching ${type}: ${error.message}`);
+
+      // Handle 401 error specifically
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else {
+        alert(`Error fetching ${type}: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -348,6 +584,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             const config = {
               headers: {
                 "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
             };
 
@@ -569,10 +806,20 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     setLoading(true);
     try {
-      await axios.put(`${API_BASE}/careers/${id}`, {
-        ...careers.find((c) => c.id === id),
-        is_active: newStatus,
-      });
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        `${API_BASE}/careers/${id}`,
+        {
+          ...careers.find((c) => c.id === id),
+          is_active: newStatus,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       alert(
         `Career opening ${
@@ -582,7 +829,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       fetchData("careers");
     } catch (error) {
       console.error("Error toggling career status:", error);
-      alert(`Error updating career status: ${error.message}`);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else {
+        alert(`Error updating career status: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -598,12 +850,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(true);
     try {
       let endpoint = `${API_BASE}/${type}`;
+      const token = localStorage.getItem("token");
 
       if (type === "board-trustees") {
         endpoint = `${API_BASE}/board-trustees`;
+      } else if (type === "careers") {
+        endpoint = `${API_BASE}/careers`;
       }
 
-      const response = await axios.delete(`${endpoint}/${id}`);
+      const response = await axios.delete(`${endpoint}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.data) {
         console.log("Delete successful:", response.data);
@@ -613,12 +872,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         alert(`${type.slice(0, -1)} deleted successfully!`);
       }
 
-      fetchAllTeamData();
-      fetchData(type);
+      if (type === "our-team") {
+        fetchAllTeamData();
+      } else {
+        fetchData(type);
+      }
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
 
-      if (error.response) {
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
         alert(
@@ -685,6 +950,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    clearPermissionsCache();
     window.location.href = "/admin";
   };
 
@@ -837,6 +1103,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               required
             />
           </div>
+
           <div className="form-group">
             <label>Description:</label>
             <textarea
@@ -848,6 +1115,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               rows="3"
             />
           </div>
+
+          {/* Only show content field for stories and blogs */}
           {["stories", "blogs"].includes(currentMediaType) && (
             <div className="form-group">
               <label>Content:</label>
@@ -860,19 +1129,75 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               />
             </div>
           )}
-          <div className="form-group">
-            <label>Featured Image:</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e, setMediaForm)}
-            />
-            {imagePreview && (
-              <div className="image-preview">
-                <img src={imagePreview} alt="Preview" />
-              </div>
-            )}
-          </div>
+
+          {/* Show image upload for all types except newsletters */}
+          {currentMediaType !== "newsletters" && (
+            <div className="form-group">
+              <label>Featured Image:</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setMediaForm({ ...mediaForm, image: file });
+                }}
+              />
+            </div>
+          )}
+
+          {/* SPECIAL HANDLING FOR NEWSLETTERS - PDF UPLOAD */}
+          {currentMediaType === "newsletters" && (
+            <div className="form-group">
+              <label>PDF Document (Required for newsletters):</label>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setMediaForm({ ...mediaForm, pdf: file });
+                }}
+                required={currentMediaType === "newsletters"}
+              />
+              <small>Upload PDF document for newsletter</small>
+              {mediaForm.pdf && (
+                <div className="file-preview">
+                  <span>📄 {mediaForm.pdf.name}</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Show image upload for other types that need images */}
+          {["events", "blogs", "stories", "documentaries"].includes(
+            currentMediaType
+          ) && (
+            <div className="form-group">
+              <label>
+                {currentMediaType === "documentaries"
+                  ? "Thumbnail Image:"
+                  : "Featured Image:"}
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setMediaForm({ ...mediaForm, image: file });
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                  };
+                  if (file) reader.readAsDataURL(file);
+                }}
+              />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                </div>
+              )}
+            </div>
+          )}
+
           {currentMediaType === "documentaries" && (
             <>
               <div className="form-group">
@@ -923,19 +1248,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               </div>
             </>
           )}
-          {currentMediaType === "newsletters" && (
-            <div className="form-group">
-              <label>PDF Document:</label>
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setMediaForm((prev) => ({ ...prev, pdf: file }));
-                }}
-              />
-            </div>
-          )}
+
           <div className="form-group">
             <label>Status:</label>
             <select
@@ -951,6 +1264,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               <option value={false}>Inactive</option>
             </select>
           </div>
+
           <div className="form-actions">
             <button type="submit" disabled={loading}>
               {loading ? "Processing..." : editingMediaId ? "Update" : "Create"}
@@ -985,45 +1299,51 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <div className="team-type-selection">
           <h3>Select Team Type</h3>
           <div className="team-type-options">
-            <button
-              className="team-type-btn"
-              onClick={() => {
-                setCurrentTeamType("mentors");
-                updateUrlPath("team", "add", "mentors");
-              }}
-            >
-              <span>👥</span>
-              <div>
-                <h4>Mentors</h4>
-                <p>Add new mentor to the team</p>
-              </div>
-            </button>
-            <button
-              className="team-type-btn"
-              onClick={() => {
-                setCurrentTeamType("management");
-                updateUrlPath("team", "add", "management");
-              }}
-            >
-              <span>💼</span>
-              <div>
-                <h4>Management Team</h4>
-                <p>Add new management team member</p>
-              </div>
-            </button>
-            <button
-              className="team-type-btn"
-              onClick={() => {
-                setCurrentTeamType("board-trustees");
-                updateUrlPath("team", "add", "board-trustees");
-              }}
-            >
-              <span>🏛️</span>
-              <div>
-                <h4>Board of Trustees</h4>
-                <p>Add new board trustee</p>
-              </div>
-            </button>
+            {canUserPerformAction("team", "mentors", "create") && (
+              <button
+                className="team-type-btn"
+                onClick={() => {
+                  setCurrentTeamType("mentors");
+                  updateUrlPath("team", "add", "mentors");
+                }}
+              >
+                <span>👥</span>
+                <div>
+                  <h4>Mentors</h4>
+                  <p>Add new mentor to the team</p>
+                </div>
+              </button>
+            )}
+            {canUserPerformAction("team", "management", "create") && (
+              <button
+                className="team-type-btn"
+                onClick={() => {
+                  setCurrentTeamType("management");
+                  updateUrlPath("team", "add", "management");
+                }}
+              >
+                <span>💼</span>
+                <div>
+                  <h4>Management Team</h4>
+                  <p>Add new management team member</p>
+                </div>
+              </button>
+            )}
+            {canUserPerformAction("team", "board-trustees", "create") && (
+              <button
+                className="team-type-btn"
+                onClick={() => {
+                  setCurrentTeamType("board-trustees");
+                  updateUrlPath("team", "add", "board-trustees");
+                }}
+              >
+                <span>🏛️</span>
+                <div>
+                  <h4>Board of Trustees</h4>
+                  <p>Add new board trustee</p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       );
@@ -1193,186 +1513,282 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       <div className="team-dashboard">
         <div className="team-header">
           <h3>Team</h3>
-          <button
-            className="btn-primary"
-            onClick={() => {
-              setTeamAction("add");
-              setCurrentTeamType(null);
-              updateUrlPath("team", "add");
-            }}
-          >
-            + Add User
-          </button>
+          {canUserPerformAction("team", null, "create") && (
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setTeamAction("add");
+                setCurrentTeamType(null);
+                updateUrlPath("team", "add");
+              }}
+            >
+              + Add User
+            </button>
+          )}
         </div>
 
         {/* Mentors Section */}
-        <div className="team-section">
-          <h4>Mentors ({mentors.length})</h4>
-          {mentors.length === 0 ? (
-            <p className="no-data">No mentors found</p>
-          ) : (
-            <div className="team-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mentors.map((mentor) => (
-                    <tr key={mentor.id}>
-                      <td>
-                        {mentor.image ? (
-                          <img
-                            src={`${API_BASE}/uploads/mentors/${mentor.image}`}
-                            alt={mentor.name}
-                            className="team-avatar"
-                          />
-                        ) : (
-                          <div className="avatar-placeholder">👤</div>
-                        )}
-                      </td>
-                      <td>{mentor.name}</td>
-                      <td>{mentor.position}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="btn-edit"
-                            onClick={() => {
-                              handleEdit(mentor, "mentors");
-                              updateUrlPath("team", "update", "mentors");
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn-delete"
-                            onClick={() => handleDelete(mentor.id, "mentors")}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+        {canUserPerformAction("team", "mentors", "view") && (
+          <div className="team-section">
+            <h4>Mentors ({mentors.length})</h4>
+            {mentors.length === 0 ? (
+              <p className="no-data">No mentors found</p>
+            ) : (
+              <div className="team-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Designation</th>
+                      {(canUserPerformAction("team", "mentors", "edit") ||
+                        canUserPerformAction("team", "mentors", "delete")) && (
+                        <th>Actions</th>
+                      )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {mentors.map((mentor) => (
+                      <tr key={mentor.id}>
+                        <td>
+                          {mentor.image ? (
+                            <img
+                              src={`${API_BASE}/uploads/mentors/${mentor.image}`}
+                              alt={mentor.name}
+                              className="team-avatar"
+                            />
+                          ) : (
+                            <div className="avatar-placeholder">👤</div>
+                          )}
+                        </td>
+                        <td>{mentor.name}</td>
+                        <td>{mentor.position}</td>
+                        {(canUserPerformAction("team", "mentors", "edit") ||
+                          canUserPerformAction(
+                            "team",
+                            "mentors",
+                            "delete"
+                          )) && (
+                          <td>
+                            <div className="action-buttons">
+                              {canUserPerformAction(
+                                "team",
+                                "mentors",
+                                "edit"
+                              ) && (
+                                <button
+                                  className="btn-edit"
+                                  onClick={() => {
+                                    handleEdit(mentor, "mentors");
+                                    updateUrlPath("team", "update", "mentors");
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                              {canUserPerformAction(
+                                "team",
+                                "mentors",
+                                "delete"
+                              ) && (
+                                <button
+                                  className="btn-delete"
+                                  onClick={() =>
+                                    handleDelete(mentor.id, "mentors")
+                                  }
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Management Team Section */}
-        <div className="team-section">
-          <h4>Management Team ({management.length})</h4>
-          {management.length === 0 ? (
-            <p className="no-data">No management members found</p>
-          ) : (
-            <div className="team-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {management.map((member) => (
-                    <tr key={member.id}>
-                      <td>{member.name}</td>
-                      <td>{member.position}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="btn-edit"
-                            onClick={() => {
-                              handleEdit(member, "management");
-                              updateUrlPath("team", "update", "management");
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn-delete"
-                            onClick={() =>
-                              handleDelete(member.id, "management")
-                            }
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+        {canUserPerformAction("team", "management", "view") && (
+          <div className="team-section">
+            <h4>Management Team ({management.length})</h4>
+            {management.length === 0 ? (
+              <p className="no-data">No management members found</p>
+            ) : (
+              <div className="team-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Designation</th>
+                      {(canUserPerformAction("team", "management", "edit") ||
+                        canUserPerformAction(
+                          "team",
+                          "management",
+                          "delete"
+                        )) && <th>Actions</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {management.map((member) => (
+                      <tr key={member.id}>
+                        <td>{member.name}</td>
+                        <td>{member.position}</td>
+                        {(canUserPerformAction("team", "management", "edit") ||
+                          canUserPerformAction(
+                            "team",
+                            "management",
+                            "delete"
+                          )) && (
+                          <td>
+                            <div className="action-buttons">
+                              {canUserPerformAction(
+                                "team",
+                                "management",
+                                "edit"
+                              ) && (
+                                <button
+                                  className="btn-edit"
+                                  onClick={() => {
+                                    handleEdit(member, "management");
+                                    updateUrlPath(
+                                      "team",
+                                      "update",
+                                      "management"
+                                    );
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                              {canUserPerformAction(
+                                "team",
+                                "management",
+                                "delete"
+                              ) && (
+                                <button
+                                  className="btn-delete"
+                                  onClick={() =>
+                                    handleDelete(member.id, "management")
+                                  }
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Board of Trustees Section */}
-        <div className="team-section">
-          <h4>Board of Trustees ({boardTrustees.length})</h4>
-          {boardTrustees.length === 0 ? (
-            <p className="no-data">No board trustees found</p>
-          ) : (
-            <div className="team-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Image</th>
-                    <th>Name</th>
-                    <th>Designation</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {boardTrustees.map((trustee) => (
-                    <tr key={trustee.id}>
-                      <td>
-                        {trustee.image ? (
-                          <img
-                            src={`${API_BASE}/uploads/board-trustees/${trustee.image}`}
-                            alt={trustee.name}
-                            className="team-avatar"
-                          />
-                        ) : (
-                          <div className="avatar-placeholder">👤</div>
-                        )}
-                      </td>
-                      <td>{trustee.name}</td>
-                      <td>{trustee.position}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="btn-edit"
-                            onClick={() => {
-                              handleEdit(trustee, "board-trustees");
-                              updateUrlPath("team", "update", "board-trustees");
-                            }}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn-delete"
-                            onClick={() =>
-                              handleDelete(trustee.id, "board-trustees")
-                            }
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
+        {canUserPerformAction("team", "board-trustees", "view") && (
+          <div className="team-section">
+            <h4>Board of Trustees ({boardTrustees.length})</h4>
+            {boardTrustees.length === 0 ? (
+              <p className="no-data">No board trustees found</p>
+            ) : (
+              <div className="team-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Designation</th>
+                      {(canUserPerformAction(
+                        "team",
+                        "board-trustees",
+                        "edit"
+                      ) ||
+                        canUserPerformAction(
+                          "team",
+                          "board-trustees",
+                          "delete"
+                        )) && <th>Actions</th>}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {boardTrustees.map((trustee) => (
+                      <tr key={trustee.id}>
+                        <td>
+                          {trustee.image ? (
+                            <img
+                              src={`${API_BASE}/uploads/board-trustees/${trustee.image}`}
+                              alt={trustee.name}
+                              className="team-avatar"
+                            />
+                          ) : (
+                            <div className="avatar-placeholder">👤</div>
+                          )}
+                        </td>
+                        <td>{trustee.name}</td>
+                        <td>{trustee.position}</td>
+                        {(canUserPerformAction(
+                          "team",
+                          "board-trustees",
+                          "edit"
+                        ) ||
+                          canUserPerformAction(
+                            "team",
+                            "board-trustees",
+                            "delete"
+                          )) && (
+                          <td>
+                            <div className="action-buttons">
+                              {canUserPerformAction(
+                                "team",
+                                "board-trustees",
+                                "edit"
+                              ) && (
+                                <button
+                                  className="btn-edit"
+                                  onClick={() => {
+                                    handleEdit(trustee, "board-trustees");
+                                    updateUrlPath(
+                                      "team",
+                                      "update",
+                                      "board-trustees"
+                                    );
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                              )}
+                              {canUserPerformAction(
+                                "team",
+                                "board-trustees",
+                                "delete"
+                              ) && (
+                                <button
+                                  className="btn-delete"
+                                  onClick={() =>
+                                    handleDelete(trustee.id, "board-trustees")
+                                  }
+                                >
+                                  Delete
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   };
@@ -1389,11 +1805,24 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     setLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/media/${currentMediaType}`);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${API_BASE}/media/${currentMediaType}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setMediaItems(response.data);
     } catch (error) {
       console.error(`Error fetching ${currentMediaType}:`, error);
-      alert(`Error fetching ${currentMediaType}: ${error.message}`);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else {
+        alert(`Error fetching ${currentMediaType}: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -1410,24 +1839,27 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   " Management"
                 : "Media Corner"}
             </h3>
-            <button
-              className="btn-primary"
-              onClick={() => {
-                setMediaAction("add");
-                setEditingMediaId(null);
-                setMediaForm({
-                  title: "",
-                  description: "",
-                  content: "",
-                  image: null,
-                  pdf: null,
-                  is_active: true,
-                });
-                updateUrlPath("media", "add", currentMediaType);
-              }}
-            >
-              + Add {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
-            </button>
+            {canUserPerformAction("media", currentMediaType, "create") && (
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setMediaAction("add");
+                  setEditingMediaId(null);
+                  setMediaForm({
+                    title: "",
+                    description: "",
+                    content: "",
+                    image: null,
+                    pdf: null,
+                    is_active: true,
+                  });
+                  updateUrlPath("media", "add", currentMediaType);
+                }}
+              >
+                + Add{" "}
+                {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -1483,35 +1915,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       : "N/A"}
                   </p>
 
-                  <div className="item-actions">
-                    <button
-                      className={`status-toggle-btn ${
-                        item.is_published ? "btn-inactive" : "btn-active"
-                      }`}
-                      onClick={() =>
-                        handleMediaStatusToggle(item.id, !item.is_published)
-                      }
-                    >
-                      {item.is_published ? "Unpublish" : "Publish"}
-                    </button>
+                  {/* ADDED: Last modified info display */}
+                  {renderLastModifiedInfo(item)}
 
-                    <button
-                      className="btn-edit"
-                      onClick={() => {
-                        handleMediaEdit(item);
-                        updateUrlPath("media", "update", currentMediaType);
-                      }}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleMediaDelete(item.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {renderActionButtons(item, "media", currentMediaType)}
                 </div>
               </div>
             ))}
@@ -1647,23 +2054,23 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     try {
       const formData = new FormData();
+      const token = localStorage.getItem("token");
 
-      // Append basic fields - ensure content is never null
+      console.log("Current media type:", currentMediaType);
+      console.log("Form data:", mediaForm);
+
+      // Append basic fields
       formData.append("title", mediaForm.title || "");
       formData.append("description", mediaForm.description || "");
 
-      // FIX: Ensure content is always sent for stories and blogs
+      // Handle different media types
       if (["stories", "blogs"].includes(currentMediaType)) {
         formData.append("content", mediaForm.content || "");
-        console.log("Content being sent:", mediaForm.content); // Debug log
       }
 
-      // Handle documentaries specifically
       if (currentMediaType === "documentaries") {
         formData.append("video_url", mediaForm.video_url || "");
         formData.append("duration", mediaForm.duration || "0:00");
-
-        // Append video file if uploaded
         if (mediaForm.video_file) {
           formData.append("video_file", mediaForm.video_file);
         }
@@ -1673,12 +2080,28 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       if (mediaForm.image) {
         formData.append("image", mediaForm.image);
       }
-      if (mediaForm.pdf) {
+
+      // SPECIAL HANDLING FOR NEWSLETTERS
+      if (currentMediaType === "newsletters" && mediaForm.pdf) {
         formData.append("file", mediaForm.pdf);
+      } else if (mediaForm.pdf) {
+        formData.append("pdf", mediaForm.pdf);
       }
 
-      formData.append("published_date", new Date().toISOString().split("T")[0]);
-      formData.append("is_published", mediaForm.is_active);
+      // For newsletters, we might need additional fields
+      if (currentMediaType === "newsletters") {
+        formData.append(
+          "published_date",
+          new Date().toISOString().split("T")[0]
+        );
+        formData.append("is_published", mediaForm.is_active);
+      } else {
+        formData.append(
+          "published_date",
+          new Date().toISOString().split("T")[0]
+        );
+        formData.append("is_published", mediaForm.is_active);
+      }
 
       // Debug: Log all form data entries
       console.log("FormData entries:");
@@ -1690,16 +2113,20 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
         : `${API_BASE}/media/${currentMediaType}`;
 
+      console.log("API Endpoint:", endpoint);
+
       const config = {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       };
 
       const response = editingMediaId
         ? await axios.put(endpoint, formData, config)
         : await axios.post(endpoint, formData, config);
+
+      console.log("API Response:", response.data);
 
       alert(
         `${currentMediaType.slice(0, -1)} ${
@@ -1713,7 +2140,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setMediaForm({
         title: "",
         description: "",
-        content: "", // Reset to empty string
+        content: "",
         image: null,
         pdf: null,
         video_url: "",
@@ -1726,10 +2153,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       updateUrlPath("media", "view", currentMediaType);
     } catch (error) {
       console.error("Error saving media:", error);
-      console.error("Error details:", error.response?.data); // More detailed error
-      alert(
-        `Error saving media: ${error.response?.data?.error || error.message}`
-      );
+      console.error("Full error response:", error.response);
+
+      // More detailed error message
+      if (error.response?.data) {
+        console.error("Backend error details:", error.response.data);
+        alert(
+          `Error: ${error.response.data.error || "Unknown error"}\nDetails: ${
+            error.response.data.details || ""
+          }\nSQL: ${error.response.data.sqlMessage || ""}`
+        );
+      } else {
+        alert(`Error saving media: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -1743,7 +2179,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       content: item.content || "",
       image: null,
       pdf: null,
-      is_active: item.is_published || true,
+      video_url: item.video_url || "",
+      video_file: null,
+      duration: item.duration || "",
+      is_active: item.is_published !== undefined ? item.is_published : true,
     });
     if (item.image) {
       setImagePreview(
@@ -1764,14 +2203,26 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     setLoading(true);
     try {
-      await axios.patch(`${API_BASE}/media/${currentMediaType}/${id}/publish`, {
-        is_published: newStatus,
-      });
+      const token = localStorage.getItem("token");
+      await axios.patch(
+        `${API_BASE}/media/${currentMediaType}/${id}/publish`,
+        { is_published: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       alert(`Item ${newStatus ? "published" : "unpublished"} successfully!`);
       fetchMediaData();
     } catch (error) {
       console.error("Error toggling media status:", error);
-      alert(`Error updating status: ${error.message}`);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else {
+        alert(`Error updating status: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -1786,12 +2237,22 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE}/media/${currentMediaType}/${id}`);
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE}/media/${currentMediaType}/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
       fetchMediaData();
     } catch (error) {
       console.error("Error deleting media:", error);
-      alert(`Error deleting item: ${error.message}`);
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        handleLogout();
+      } else {
+        alert(`Error deleting item: ${error.message}`);
+      }
     }
     setLoading(false);
   };
@@ -1945,23 +2406,26 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   "events",
                   "blogs",
                   "documentaries",
-                ].map((type) => (
-                  <div
-                    key={type}
-                    className="media-type-card"
-                    onClick={() => {
-                      setCurrentMediaType(type);
-                      updateUrlPath("media", "view", type);
-                    }}
-                  >
-                    <h4>
-                      {getMediaTypeIcon(type)}{" "}
-                      {type.charAt(0).toUpperCase() +
-                        type.slice(1).replace("_", " ")}
-                    </h4>
-                    <p>{getMediaTypeDescription(type)}</p>
-                  </div>
-                ))}
+                ].map(
+                  (type) =>
+                    canUserPerformAction("media", type, "view") && (
+                      <div
+                        key={type}
+                        className="media-type-card"
+                        onClick={() => {
+                          setCurrentMediaType(type);
+                          updateUrlPath("media", "view", type);
+                        }}
+                      >
+                        <h4>
+                          {getMediaTypeIcon(type)}{" "}
+                          {type.charAt(0).toUpperCase() +
+                            type.slice(1).replace("_", " ")}
+                        </h4>
+                        <p>{getMediaTypeDescription(type)}</p>
+                      </div>
+                    )
+                )}
               </div>
             </div>
           );
@@ -1980,22 +2444,25 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   "healthcare",
                   "environment_sustainability",
                   "integrated_development",
-                ].map((category) => (
-                  <div
-                    key={category}
-                    className="media-type-card"
-                    onClick={() => {
-                      setCurrentOurWorkCategory(category);
-                      updateUrlPath("interventions", "view", category);
-                    }}
-                  >
-                    <h4>
-                      {getOurWorkCategoryIcon(category)}{" "}
-                      {getOurWorkCategoryLabel(category)}
-                    </h4>
-                    <p>{getOurWorkCategoryDescription(category)}</p>
-                  </div>
-                ))}
+                ].map(
+                  (category) =>
+                    canUserPerformAction("interventions", category, "view") && (
+                      <div
+                        key={category}
+                        className="media-type-card"
+                        onClick={() => {
+                          setCurrentOurWorkCategory(category);
+                          updateUrlPath("interventions", "view", category);
+                        }}
+                      >
+                        <h4>
+                          {getOurWorkCategoryIcon(category)}{" "}
+                          {getOurWorkCategoryLabel(category)}
+                        </h4>
+                        <p>{getOurWorkCategoryDescription(category)}</p>
+                      </div>
+                    )
+                )}
               </div>
             </div>
           );
@@ -2019,29 +2486,40 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     switch (activeTab) {
       case "reports":
+        if (!canUserPerformAction("reports", null, "view")) {
+          return (
+            <div className="no-permission">
+              <h3>Access Denied</h3>
+              <p>You don't have permission to view legal reports.</p>
+            </div>
+          );
+        }
+
         return (
           <div className="content-list">
             <div className="content-header">
               <div className="header-row">
                 <h3>Legal Reports</h3>
-                <button
-                  className="btn-primary"
-                  onClick={() => {
-                    setLegalReportAction("add");
-                    setEditingId(null);
-                    setReportForm({
-                      title: "",
-                      description: "",
-                      content: "",
-                      image: null,
-                      pdf: null,
-                    });
-                    setImagePreview(null);
-                    updateUrlPath("reports", "add");
-                  }}
-                >
-                  + Add Report
-                </button>
+                {canUserPerformAction("reports", null, "create") && (
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setLegalReportAction("add");
+                      setEditingId(null);
+                      setReportForm({
+                        title: "",
+                        description: "",
+                        content: "",
+                        image: null,
+                        pdf: null,
+                      });
+                      setImagePreview(null);
+                      updateUrlPath("reports", "add");
+                    }}
+                  >
+                    + Add Report
+                  </button>
+                )}
               </div>
             </div>
 
@@ -2080,6 +2558,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                           <h4>{report.title}</h4>
                           <p>{report.description}</p>
 
+                          {/* ADDED: Last modified info for reports - ADMIN/SUPER_ADMIN ONLY */}
+                          {renderReportLastModifiedInfo(report)}
+
                           {/* Action Buttons */}
                           <div className="item-actions">
                             {/* View PDF Button if PDF exists */}
@@ -2097,23 +2578,45 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               </button>
                             )}
 
-                            <button
-                              className="btn-edit"
-                              onClick={() => {
-                                setLegalReportAction("update");
-                                handleEdit(report, "reports");
-                                updateUrlPath("reports", "update");
-                              }}
-                            >
-                              Edit
-                            </button>
+                            {canUserPerformAction("reports", null, "edit") && (
+                              <button
+                                className="btn-edit"
+                                onClick={() => {
+                                  setLegalReportAction("update");
+                                  handleEdit(report, "reports");
+                                  updateUrlPath("reports", "update");
+                                }}
+                              >
+                                Edit
+                              </button>
+                            )}
 
-                            <button
-                              className="btn-delete"
-                              onClick={() => handleDelete(report.id, "reports")}
-                            >
-                              Delete
-                            </button>
+                            {canUserPerformAction(
+                              "reports",
+                              null,
+                              "delete"
+                            ) && (
+                              <button
+                                className="btn-delete"
+                                onClick={() =>
+                                  handleDelete(report.id, "reports")
+                                }
+                              >
+                                Delete
+                              </button>
+                            )}
+
+                            {/* Show View Only if no actions available */}
+                            {!canUserPerformAction("reports", null, "edit") &&
+                              !canUserPerformAction(
+                                "reports",
+                                null,
+                                "delete"
+                              ) && (
+                                <span className="view-only-badge">
+                                  View Only
+                                </span>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -2126,6 +2629,15 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         );
 
       case "careers":
+        if (!canUserPerformAction("careers", null, "view")) {
+          return (
+            <div className="no-permission">
+              <h3>Access Denied</h3>
+              <p>You don't have permission to view career openings.</p>
+            </div>
+          );
+        }
+
         // Filter careers based on selected filter
         const getFilteredCareers = () => {
           switch (careerAction) {
@@ -2172,24 +2684,26 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <div className="content-header">
               <div className="header-row">
                 <h3>Career Openings</h3>
-                <button
-                  className="btn-primary"
-                  onClick={() => {
-                    setCareerAction("add");
-                    setEditingId(null);
-                    setCareerForm({
-                      title: "",
-                      description: "",
-                      requirements: "",
-                      location: "",
-                      type: "full-time",
-                      is_active: true,
-                    });
-                    updateUrlPath("careers", "add");
-                  }}
-                >
-                  + Add Opening
-                </button>
+                {canUserPerformAction("careers", null, "create") && (
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setCareerAction("add");
+                      setEditingId(null);
+                      setCareerForm({
+                        title: "",
+                        description: "",
+                        requirements: "",
+                        location: "",
+                        type: "full-time",
+                        is_active: true,
+                      });
+                      updateUrlPath("careers", "add");
+                    }}
+                  >
+                    + Add Opening
+                  </button>
+                )}
               </div>
 
               <div className="filter-options">
@@ -2302,38 +2816,58 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                           />
                         </div>
 
+                        {/* ADDED: Last modified info for careers */}
+                        {renderLastModifiedInfo(career)}
+
                         <div className="item-actions">
-                          {/* Status Toggle Buttons */}
-                          <button
-                            className={`status-toggle-btn ${
-                              isActive ? "btn-inactive" : "btn-active"
-                            }`}
-                            onClick={() =>
-                              handleStatusToggle(career.id, !isActive)
-                            }
-                          >
-                            {isActive ? "Deactivate" : "Activate"}
-                          </button>
+                          {/* Status Toggle Buttons - only for users with publish permission */}
+                          {canUserPerformAction("careers", null, "publish") && (
+                            <button
+                              className={`status-toggle-btn ${
+                                isActive ? "btn-inactive" : "btn-active"
+                              }`}
+                              onClick={() =>
+                                handleStatusToggle(career.id, !isActive)
+                              }
+                            >
+                              {isActive ? "Deactivate" : "Activate"}
+                            </button>
+                          )}
 
-                          {/* Edit Button */}
-                          <button
-                            className="btn-edit"
-                            onClick={() => {
-                              setCareerAction("update");
-                              handleEdit(career, "careers");
-                              updateUrlPath("careers", "update");
-                            }}
-                          >
-                            Edit
-                          </button>
+                          {/* Edit Button - only for users with edit permission */}
+                          {canUserPerformAction("careers", null, "edit") && (
+                            <button
+                              className="btn-edit"
+                              onClick={() => {
+                                setCareerAction("update");
+                                handleEdit(career, "careers");
+                                updateUrlPath("careers", "update");
+                              }}
+                            >
+                              Edit
+                            </button>
+                          )}
 
-                          {/* Delete Button */}
-                          <button
-                            className="btn-delete"
-                            onClick={() => handleDelete(career.id, "careers")}
-                          >
-                            Delete
-                          </button>
+                          {/* Delete Button - only for users with delete permission */}
+                          {canUserPerformAction("careers", null, "delete") && (
+                            <button
+                              className="btn-delete"
+                              onClick={() => handleDelete(career.id, "careers")}
+                            >
+                              Delete
+                            </button>
+                          )}
+
+                          {/* View Only Indicator */}
+                          {!canUserPerformAction("careers", null, "edit") &&
+                            !canUserPerformAction("careers", null, "delete") &&
+                            !canUserPerformAction(
+                              "careers",
+                              null,
+                              "publish"
+                            ) && (
+                              <span className="view-only-badge">View Only</span>
+                            )}
                         </div>
                       </div>
                     </div>
@@ -2395,7 +2929,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <nav className="dashboard-sidebar">
           <ul>
             {/* Interventions with Sub Dropdown */}
-            {canManageContent && (
+            {canUserPerformAction("interventions", null, "view") && (
               <li className={activeTab === "ourWork" ? "active" : ""}>
                 <button
                   onClick={() => {
@@ -2421,178 +2955,232 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       "healthcare",
                       "environment_sustainability",
                       "integrated_development",
-                    ].map((category) => (
-                      <li
-                        key={category}
-                        className="interventions-dropdown-item"
-                      >
-                        <div className="interventions-type-header">
-                          <button
-                            className="interventions-type-btn"
-                            onClick={() =>
-                              handleInterventionsSubDropdown(category)
-                            }
+                    ].map(
+                      (category) =>
+                        canUserPerformAction(
+                          "interventions",
+                          category,
+                          "view"
+                        ) && (
+                          <li
+                            key={category}
+                            className="interventions-dropdown-item"
                           >
-                            <span className="interventions-type-label">
-                              {getOurWorkCategoryIcon(category)}{" "}
-                              {getOurWorkCategoryLabel(category)}
-                            </span>
-                            <span>
-                              {interventionsSubDropdown === category
-                                ? "▴"
-                                : "▾"}
-                            </span>
-                          </button>
-                        </div>
+                            <div className="interventions-type-header">
+                              <button
+                                className="interventions-type-btn"
+                                onClick={() =>
+                                  handleInterventionsSubDropdown(category)
+                                }
+                              >
+                                <span className="interventions-type-label">
+                                  {getOurWorkCategoryIcon(category)}{" "}
+                                  {getOurWorkCategoryLabel(category)}
+                                </span>
+                                <span>
+                                  {interventionsSubDropdown === category
+                                    ? "▴"
+                                    : "▾"}
+                                </span>
+                              </button>
+                            </div>
 
-                        {interventionsSubDropdown === category && (
-                          <ul className="interventions-submenu">
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "view")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "view"
-                                    ? "active-sub"
-                                    : ""
-                                }
-                              >
-                                📋 View {getOurWorkCategoryLabel(category)}
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "add")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "add"
-                                    ? "active-sub"
-                                    : ""
-                                }
-                              >
-                                ➕ Add {getOurWorkCategoryLabel(category)}
-                              </button>
-                            </li>
-                            <li>
-                              <button
-                                onClick={() =>
-                                  handleInterventionsAction(category, "update")
-                                }
-                                className={
-                                  currentOurWorkCategory === category &&
-                                  interventionsAction === "update"
-                                    ? "active-sub"
-                                    : ""
-                                }
-                              >
-                                ✏️ Update {getOurWorkCategoryLabel(category)}
-                              </button>
-                            </li>
-                          </ul>
-                        )}
-                      </li>
-                    ))}
+                            {interventionsSubDropdown === category && (
+                              <ul className="interventions-submenu">
+                                <li>
+                                  <button
+                                    onClick={() =>
+                                      handleInterventionsAction(
+                                        category,
+                                        "view"
+                                      )
+                                    }
+                                    className={
+                                      currentOurWorkCategory === category &&
+                                      interventionsAction === "view"
+                                        ? "active-sub"
+                                        : ""
+                                    }
+                                  >
+                                    📋 View {getOurWorkCategoryLabel(category)}
+                                  </button>
+                                </li>
+                                {canUserPerformAction(
+                                  "interventions",
+                                  category,
+                                  "create"
+                                ) && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleInterventionsAction(
+                                          category,
+                                          "add"
+                                        )
+                                      }
+                                      className={
+                                        currentOurWorkCategory === category &&
+                                        interventionsAction === "add"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      ➕ Add {getOurWorkCategoryLabel(category)}
+                                    </button>
+                                  </li>
+                                )}
+                                {canUserPerformAction(
+                                  "interventions",
+                                  category,
+                                  "edit"
+                                ) && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleInterventionsAction(
+                                          category,
+                                          "update"
+                                        )
+                                      }
+                                      className={
+                                        currentOurWorkCategory === category &&
+                                        interventionsAction === "update"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      ✏️ Update{" "}
+                                      {getOurWorkCategoryLabel(category)}
+                                    </button>
+                                  </li>
+                                )}
+                              </ul>
+                            )}
+                          </li>
+                        )
+                    )}
                   </ul>
                 )}
               </li>
             )}
 
             {/* Media Corner with Sub Dropdown */}
-            <li className={activeTab === "media" ? "active" : ""}>
-              <button
-                onClick={() => {
-                  if (openDropdown === "media") {
-                    setOpenDropdown(null);
-                    setMediaSubDropdown(null);
-                  } else {
-                    setOpenDropdown("media");
-                    setActiveTab("media");
-                    setCurrentMediaType(null);
-                    setMediaAction("view");
-                    updateUrlPath("media");
-                  }
-                }}
-              >
-                Media Corner {openDropdown === "media" ? "▴" : "▾"}
-              </button>
-              {openDropdown === "media" && (
-                <ul className="submenu">
-                  {[
-                    "newsletters",
-                    "stories",
-                    "events",
-                    "blogs",
-                    "documentaries",
-                  ].map((type) => (
-                    <li key={type} className="media-dropdown-item">
-                      <div className="media-type-header">
-                        <button
-                          className="media-type-btn"
-                          onClick={() => handleMediaSubDropdown(type)}
-                        >
-                          <span className="media-type-label">
-                            {getMediaTypeIcon(type)}{" "}
-                            {type.charAt(0).toUpperCase() + type.slice(1)}
-                          </span>
-                          <span>{mediaSubDropdown === type ? "▴" : "▾"}</span>
-                        </button>
-                      </div>
+            {canUserPerformAction("media", null, "view") && (
+              <li className={activeTab === "media" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "media") {
+                      setOpenDropdown(null);
+                      setMediaSubDropdown(null);
+                    } else {
+                      setOpenDropdown("media");
+                      setActiveTab("media");
+                      setCurrentMediaType(null);
+                      setMediaAction("view");
+                      updateUrlPath("media");
+                    }
+                  }}
+                >
+                  Media Corner {openDropdown === "media" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "media" && (
+                  <ul className="submenu">
+                    {[
+                      "newsletters",
+                      "stories",
+                      "events",
+                      "blogs",
+                      "documentaries",
+                    ].map(
+                      (type) =>
+                        canUserPerformAction("media", type, "view") && (
+                          <li key={type} className="media-dropdown-item">
+                            <div className="media-type-header">
+                              <button
+                                className="media-type-btn"
+                                onClick={() => handleMediaSubDropdown(type)}
+                              >
+                                <span className="media-type-label">
+                                  {getMediaTypeIcon(type)}{" "}
+                                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </span>
+                                <span>
+                                  {mediaSubDropdown === type ? "▴" : "▾"}
+                                </span>
+                              </button>
+                            </div>
 
-                      {mediaSubDropdown === type && (
-                        <ul className="media-submenu">
-                          <li>
-                            <button
-                              onClick={() => handleMediaAction(type, "view")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "view"
-                                  ? "active-sub"
-                                  : ""
-                              }
-                            >
-                              📋 View {type}
-                            </button>
+                            {mediaSubDropdown === type && (
+                              <ul className="media-submenu">
+                                <li>
+                                  <button
+                                    onClick={() =>
+                                      handleMediaAction(type, "view")
+                                    }
+                                    className={
+                                      currentMediaType === type &&
+                                      mediaAction === "view"
+                                        ? "active-sub"
+                                        : ""
+                                    }
+                                  >
+                                    📋 View {type}
+                                  </button>
+                                </li>
+                                {canUserPerformAction(
+                                  "media",
+                                  type,
+                                  "create"
+                                ) && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleMediaAction(type, "add")
+                                      }
+                                      className={
+                                        currentMediaType === type &&
+                                        mediaAction === "add"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      ➕ Add {type.slice(0, -1)}
+                                    </button>
+                                  </li>
+                                )}
+                                {canUserPerformAction(
+                                  "media",
+                                  type,
+                                  "edit"
+                                ) && (
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleMediaAction(type, "update")
+                                      }
+                                      className={
+                                        currentMediaType === type &&
+                                        mediaAction === "update"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      ✏️ Update {type.slice(0, -1)}
+                                    </button>
+                                  </li>
+                                )}
+                              </ul>
+                            )}
                           </li>
-                          <li>
-                            <button
-                              onClick={() => handleMediaAction(type, "add")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "add"
-                                  ? "active-sub"
-                                  : ""
-                              }
-                            >
-                              ➕ Add {type.slice(0, -1)}
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              onClick={() => handleMediaAction(type, "update")}
-                              className={
-                                currentMediaType === type &&
-                                mediaAction === "update"
-                                  ? "active-sub"
-                                  : ""
-                              }
-                            >
-                              ✏️ Update {type.slice(0, -1)}
-                            </button>
-                          </li>
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
+                        )
+                    )}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* Impact Data */}
-            {canManageContent && (
+            {canUserPerformAction("impact", null, "view") && (
               <li className={activeTab === "impact" ? "active" : ""}>
                 <button
                   onClick={() => {
@@ -2607,7 +3195,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             )}
 
             {/* Banner Management */}
-            {canManageContent && (
+            {canUserPerformAction("banners", null, "view") && (
               <li className={activeTab === "banners" ? "active" : ""}>
                 <button
                   onClick={() => {
@@ -2633,232 +3221,260 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                         Show Banners
                       </button>
                     </li>
-                    <li>
-                      <button
-                        onClick={() => {
-                          handleBannerAction("add");
-                        }}
-                      >
-                        Add Banner
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={() => {
-                          handleBannerAction("update");
-                        }}
-                      >
-                        Update Banner
-                      </button>
-                    </li>
+                    {canUserPerformAction("banners", null, "create") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleBannerAction("add");
+                          }}
+                        >
+                          Add Banner
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("banners", null, "edit") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleBannerAction("update");
+                          }}
+                        >
+                          Update Banner
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 )}
               </li>
             )}
 
             {/* Accreditations Section */}
-            <li className={activeTab === "accreditations" ? "active" : ""}>
-              <button
-                onClick={() => {
-                  if (openDropdown === "accreditations") {
-                    setOpenDropdown(null);
-                  } else {
-                    setOpenDropdown("accreditations");
-                    setActiveTab("accreditations");
-                    updateUrlPath("accreditations");
-                  }
-                }}
-              >
-                Accreditations {openDropdown === "accreditations" ? "▴" : "▾"}
-              </button>
-              {openDropdown === "accreditations" && (
-                <ul className="submenu">
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleAccreditationAction("view");
-                      }}
-                    >
-                      Show Accreditations
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleAccreditationAction("add");
-                      }}
-                    >
-                      Add Accreditation
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleAccreditationAction("update");
-                      }}
-                    >
-                      Update Accreditation
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
+            {canUserPerformAction("accreditations", null, "view") && (
+              <li className={activeTab === "accreditations" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "accreditations") {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown("accreditations");
+                      setActiveTab("accreditations");
+                      updateUrlPath("accreditations");
+                    }
+                  }}
+                >
+                  Accreditations {openDropdown === "accreditations" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "accreditations" && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleAccreditationAction("view");
+                        }}
+                      >
+                        Show Accreditations
+                      </button>
+                    </li>
+                    {canUserPerformAction("accreditations", null, "create") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleAccreditationAction("add");
+                          }}
+                        >
+                          Add Accreditation
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("accreditations", null, "edit") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleAccreditationAction("update");
+                          }}
+                        >
+                          Update Accreditation
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* Team */}
-            <li className={activeTab === "our-team" ? "active" : ""}>
-              <button
-                onClick={() => {
-                  if (openDropdown === "our-team") {
-                    setOpenDropdown(null);
-                  } else {
-                    setOpenDropdown("our-team");
-                    setActiveTab("our-team");
-                    updateUrlPath("team");
-                  }
-                }}
-              >
-                Team {openDropdown === "our-team" ? "▴" : "▾"}
-              </button>
-              {openDropdown === "our-team" && (
-                <ul className="submenu">
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleTeamAction("team");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Team
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleTeamAction("add");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Add User
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        handleTeamAction("update");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Update User
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
+            {canUserPerformAction("team", null, "view") && (
+              <li className={activeTab === "our-team" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "our-team") {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown("our-team");
+                      setActiveTab("our-team");
+                      updateUrlPath("team");
+                    }
+                  }}
+                >
+                  Team {openDropdown === "our-team" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "our-team" && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        onClick={() => {
+                          handleTeamAction("team");
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Team
+                      </button>
+                    </li>
+                    {canUserPerformAction("team", null, "create") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleTeamAction("add");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Add User
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("team", null, "edit") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            handleTeamAction("update");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Update User
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* Career */}
-            <li className={activeTab === "careers" ? "active" : ""}>
-              <button
-                onClick={() => {
-                  if (openDropdown === "careers") {
-                    setOpenDropdown(null);
-                  } else {
-                    setOpenDropdown("careers");
-                    setActiveTab("careers");
-                    updateUrlPath("careers");
-                  }
-                }}
-              >
-                Career {openDropdown === "careers" ? "▴" : "▾"}
-              </button>
-              {openDropdown === "careers" && (
-                <ul className="submenu">
-                  <li>
-                    <button
-                      onClick={() => {
-                        setCareerAction("current");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Career
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setCareerAction("add");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Add Opening
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setCareerAction("update");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Update Opening
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
+            {canUserPerformAction("careers", null, "view") && (
+              <li className={activeTab === "careers" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "careers") {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown("careers");
+                      setActiveTab("careers");
+                      updateUrlPath("careers");
+                    }
+                  }}
+                >
+                  Career {openDropdown === "careers" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "careers" && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        onClick={() => {
+                          setCareerAction("current");
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Career
+                      </button>
+                    </li>
+                    {canUserPerformAction("careers", null, "create") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            setCareerAction("add");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Add Opening
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("careers", null, "edit") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            setCareerAction("update");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Update Opening
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* Legal Report */}
-            <li className={activeTab === "reports" ? "active" : ""}>
-              <button
-                onClick={() => {
-                  if (openDropdown === "reports") {
-                    setOpenDropdown(null);
-                  } else {
-                    setOpenDropdown("reports");
-                    setActiveTab("reports");
-                    updateUrlPath("reports");
-                  }
-                }}
-              >
-                Legal Report {openDropdown === "reports" ? "▴" : "▾"}
-              </button>
-              {openDropdown === "reports" && (
-                <ul className="submenu">
-                  <li>
-                    <button
-                      onClick={() => {
-                        setLegalReportAction("view");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Show Legal Reports
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setLegalReportAction("add");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Add Report
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => {
-                        setLegalReportAction("update");
-                        setOpenDropdown(null);
-                      }}
-                    >
-                      Update Report
-                    </button>
-                  </li>
-                </ul>
-              )}
-            </li>
+            {canUserPerformAction("reports", null, "view") && (
+              <li className={activeTab === "reports" ? "active" : ""}>
+                <button
+                  onClick={() => {
+                    if (openDropdown === "reports") {
+                      setOpenDropdown(null);
+                    } else {
+                      setOpenDropdown("reports");
+                      setActiveTab("reports");
+                      updateUrlPath("reports");
+                    }
+                  }}
+                >
+                  Legal Report {openDropdown === "reports" ? "▴" : "▾"}
+                </button>
+                {openDropdown === "reports" && (
+                  <ul className="submenu">
+                    <li>
+                      <button
+                        onClick={() => {
+                          setLegalReportAction("view");
+                          setOpenDropdown(null);
+                        }}
+                      >
+                        Show Legal Reports
+                      </button>
+                    </li>
+                    {canUserPerformAction("reports", null, "create") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            setLegalReportAction("add");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Add Report
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("reports", null, "edit") && (
+                      <li>
+                        <button
+                          onClick={() => {
+                            setLegalReportAction("update");
+                            setOpenDropdown(null);
+                          }}
+                        >
+                          Update Report
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* User Management */}
-            {canManageUsers && (
+            {canUserPerformAction("users", null, "view") && (
               <li
                 className={
                   activeTab === "users" || activeTab === "registrations"
@@ -2881,32 +3497,36 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 </button>
                 {openDropdown === "users" && (
                   <ul className="submenu">
-                    <li>
-                      <button
-                        className={activeTab === "users" ? "active-sub" : ""}
-                        onClick={() => {
-                          setActiveTab("users");
-                          setOpenDropdown(null);
-                          updateUrlPath("users");
-                        }}
-                      >
-                        Users
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        className={
-                          activeTab === "registrations" ? "active-sub" : ""
-                        }
-                        onClick={() => {
-                          setActiveTab("registrations");
-                          setOpenDropdown(null);
-                          updateUrlPath("registrations");
-                        }}
-                      >
-                        Registration Requests
-                      </button>
-                    </li>
+                    {canUserPerformAction("users", "users", "view") && (
+                      <li>
+                        <button
+                          className={activeTab === "users" ? "active-sub" : ""}
+                          onClick={() => {
+                            setActiveTab("users");
+                            setOpenDropdown(null);
+                            updateUrlPath("users");
+                          }}
+                        >
+                          Users
+                        </button>
+                      </li>
+                    )}
+                    {canUserPerformAction("users", "registrations", "view") && (
+                      <li>
+                        <button
+                          className={
+                            activeTab === "registrations" ? "active-sub" : ""
+                          }
+                          onClick={() => {
+                            setActiveTab("registrations");
+                            setOpenDropdown(null);
+                            updateUrlPath("registrations");
+                          }}
+                        >
+                          Registration Requests
+                        </button>
+                      </li>
+                    )}
                   </ul>
                 )}
               </li>
@@ -2963,11 +3583,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             renderAccreditationContent()
           ) : currentBannerType ? (
             renderBannerContent()
-          ) : activeTab === "users" && canManageUsers ? (
+          ) : activeTab === "users" &&
+            canUserPerformAction("users", "users", "view") ? (
             <UserManagement />
-          ) : activeTab === "registrations" && canManageUsers ? (
+          ) : activeTab === "registrations" &&
+            canUserPerformAction("users", "registrations", "view") ? (
             <RegistrationRequests />
-          ) : activeTab === "impact" && canManageContent ? (
+          ) : activeTab === "impact" &&
+            canUserPerformAction("impact", null, "view") ? (
             <ImpactDataEditor />
           ) : (
             <>

@@ -24,8 +24,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .user-management-header {
@@ -134,7 +138,7 @@
   background: white;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -170,7 +174,7 @@
 .table-responsive {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
@@ -286,7 +290,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -297,7 +301,7 @@
 .modal {
   background: white;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
@@ -366,7 +370,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .modal-actions {
@@ -431,7 +435,7 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .user-stats {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
@@ -442,20 +446,492 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .header-actions {
     justify-content: center;
   }
-  
+
   .table-responsive {
     overflow-x: auto;
   }
-  
+
   .users-table {
     min-width: 800px;
   }
-  
+
   .modal {
     margin: 10px;
+  }
+}
+
+/* UserManagement.css - ADDITIONAL CSS ONLY */
+
+/* Sub Tabs Navigation */
+.sub-tabs-navigation {
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  padding: 5px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sub-tab {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.sub-tab.active {
+  background: #007bff;
+  color: white;
+}
+
+.sub-tab:hover:not(.active) {
+  background: #f8f9fa;
+}
+
+.sub-tab-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Add User Form Container */
+.add-user-form-container {
+  padding: 30px;
+}
+
+.form-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-header h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.form-header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.user-form {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Permission Management */
+.permission-management {
+  padding: 30px;
+}
+
+.permission-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.permission-header h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.permission-header p {
+  color: #6c757d;
+  margin: 0;
+}
+
+.user-selection {
+  margin-bottom: 30px;
+}
+
+.user-selection label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.user-selection select {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.permission-content .user-info {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.permission-content .user-info h4 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+}
+
+.permission-content .user-info p {
+  margin: 0 0 15px 0;
+  color: #6c757d;
+}
+
+.permission-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.permissions-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.permission-section {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fafafa;
+}
+
+.section-header {
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.section-header h5 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1em;
+}
+
+.permission-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.permission-row.sub-section {
+  padding-left: 30px;
+  background: white;
+  margin: 0 -20px;
+  padding-left: 50px;
+}
+
+.permission-row:last-child {
+  border-bottom: none;
+}
+
+.section-label {
+  flex: 1;
+  font-weight: 500;
+  color: #495057;
+}
+
+.toggle-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+  font-weight: 500;
+}
+
+.toggle-label:hover {
+  background: #e9ecef;
+}
+
+.toggle-label input {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Responsive additions */
+@media (max-width: 768px) {
+  .sub-tabs-navigation {
+    flex-direction: column;
+  }
+
+  .permission-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .toggle-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .permission-actions {
+    flex-direction: column;
+  }
+
+  .permission-row.sub-section {
+    padding-left: 20px;
+    margin: 0 -10px;
+  }
+}
+
+/* Add to UserManagement.css */
+
+.request-details {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.request-details p {
+  margin: 8px 0;
+  color: #495057;
+}
+
+.request-details strong {
+  color: #2c3e50;
+}
+
+/* Ensure form groups in modal have proper spacing */
+.modal-form .form-group {
+  margin-bottom: 20px;
+}
+
+.modal-form .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #495057;
+}
+
+.modal-form .form-group input,
+.modal-form .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Toggle Switch Styles for User Management */
+.usermgmt-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.usermgmt-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.usermgmt-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.usermgmt-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.usermgmt-toggle-switch input:checked + .usermgmt-toggle-slider {
+  background-color: #4caf50;
+}
+
+.usermgmt-toggle-switch input:checked + .usermgmt-toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.usermgmt-toggle-switch input:disabled + .usermgmt-toggle-slider {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.usermgmt-toggle-switch input:disabled + .usermgmt-toggle-slider:before {
+  background-color: #f5f5f5;
+}
+
+/* Permission Management Layout */
+.usermgmt-action-labels {
+  display: flex;
+  gap: 15px;
+}
+
+.usermgmt-action-label {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  min-width: 50px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.usermgmt-permission-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.usermgmt-permission-row:last-child {
+  border-bottom: none;
+}
+
+.usermgmt-section-label {
+  font-weight: 500;
+  color: #333;
+  min-width: 200px;
+}
+
+.usermgmt-sub-section .usermgmt-section-label {
+  padding-left: 20px;
+  color: #666;
+}
+
+.usermgmt-subsection-icon {
+  margin-right: 5px;
+  color: #999;
+}
+
+.usermgmt-main-section {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 5px;
+}
+
+.usermgmt-toggle-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.usermgmt-toggle-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Legend Styles */
+.usermgmt-legend-section {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.usermgmt-legend-title {
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.usermgmt-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.usermgmt-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.usermgmt-legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.usermgmt-legend-view {
+  background-color: #4caf50;
+}
+.usermgmt-legend-create {
+  background-color: #2196f3;
+}
+.usermgmt-legend-edit {
+  background-color: #ff9800;
+}
+.usermgmt-legend-delete {
+  background-color: #f44336;
+}
+.usermgmt-legend-publish {
+  background-color: #9c27b0;
+}
+
+/* Responsive Design for Permission Management */
+@media (max-width: 768px) {
+  .usermgmt-action-labels {
+    display: none;
+  }
+
+  .usermgmt-permission-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .usermgmt-toggle-container {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .usermgmt-legend-items {
+    flex-direction: column;
+    gap: 10px;
   }
 }

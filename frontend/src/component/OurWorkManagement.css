@@ -741,3 +741,26 @@
   max-height: 200px;
   border-radius: 4px;
 }
+
+.last-modified-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+  color: #666;
+  font-size: 0.85em;
+}
+
+.last-modified-info small {
+  color: #888;
+}
+
+.last-modified-info strong {
+  color: #555;
+  font-weight: 600;
+}
+
+.item-card .last-modified-info {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+}

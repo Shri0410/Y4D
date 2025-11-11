@@ -1,7 +1,6 @@
-// RegistrationRequests.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './UserManagement.css'; // reuse the same styles
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./UserManagement.css"; // reuse the same styles
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -9,16 +8,22 @@ const RegistrationRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [approveForm, setApproveForm] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    role: 'viewer'
+    username: "",
+    password: "",
+    confirmPassword: "",
+    role: "viewer",
   });
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+  });
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = "http://localhost:5000/api";
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchRequests();
@@ -30,8 +35,8 @@ const RegistrationRequests = () => {
       const response = await axios.get(`${API_BASE}/registration/requests`);
       setRequests(response.data);
     } catch (error) {
-      console.error('Error fetching requests:', error);
-      setError('Failed to fetch registration requests');
+      console.error("Error fetching requests:", error);
+      setError("Failed to fetch registration requests");
     }
     setLoading(false);
   };
@@ -41,35 +46,47 @@ const RegistrationRequests = () => {
       const response = await axios.get(`${API_BASE}/registration/stats`);
       setStats(response.data);
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error("Error fetching stats:", error);
     }
   };
 
   const handleApprove = (request) => {
     setSelectedRequest(request);
-    const usernameFromEmail = request.email.split('@')[0];
+    const usernameFromEmail = request.email.split("@")[0];
     setApproveForm({
       username: usernameFromEmail,
-      password: '',
-      confirmPassword: '',
-      role: 'viewer'
+      password: "",
+      confirmPassword: "",
+      role: "viewer",
     });
     setShowApproveModal(true);
-    setError('');
-    setMessage('');
+    setError("");
+    setMessage("");
   };
 
   const handleReject = async (requestId) => {
-    if (window.confirm('Are you sure you want to reject this registration request?')) {
+    if (
+      window.confirm(
+        "Are you sure you want to reject this registration request?"
+      )
+    ) {
       try {
-        await axios.post(`${API_BASE}/registration/requests/${requestId}/reject`, {
-          reason: 'Rejected by administrator'
-        });
-        setMessage('Registration request rejected successfully');
+        await axios.post(
+          `${API_BASE}/registration/requests/${requestId}/reject`,
+          {
+            reason: "Rejected by administrator",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setMessage("Registration request rejected successfully");
         fetchRequests();
         fetchStats();
       } catch (error) {
-        setError(error.response?.data?.error || 'Failed to reject request');
+        setError(error.response?.data?.error || "Failed to reject request");
       }
     }
   };
@@ -77,48 +94,64 @@ const RegistrationRequests = () => {
   const handleApproveSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     if (approveForm.password !== approveForm.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       setLoading(false);
       return;
     }
 
     if (approveForm.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       setLoading(false);
       return;
     }
 
     try {
-      await axios.post(`${API_BASE}/registration/requests/${selectedRequest.id}/approve`, {
-        username: approveForm.username,
-        password: approveForm.password,
-        role: approveForm.role
-      });
-      
-      setMessage('User account created successfully!');
+      await axios.post(
+        `${API_BASE}/registration/requests/${selectedRequest.id}/approve`,
+        {
+          username: approveForm.username,
+          password: approveForm.password,
+          role: approveForm.role,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setMessage("User account created successfully!");
       setShowApproveModal(false);
       fetchRequests();
       fetchStats();
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to approve request');
+      setError(error.response?.data?.error || "Failed to approve request");
     }
     setLoading(false);
   };
 
   const getStatusBadge = (status) => {
     const statusClasses = {
-      pending: 'status-pending',
-      approved: 'status-approved',
-      rejected: 'status-rejected'
+      pending: "status-pending",
+      approved: "status-approved",
+      rejected: "status-rejected",
     };
-    return <span className={`status-badge ${statusClasses[status]}`}>{status.toUpperCase()}</span>;
+    return (
+      <span className={`status-badge ${statusClasses[status]}`}>
+        {status.toUpperCase()}
+      </span>
+    );
   };
 
   const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
 
   if (loading) {
     return (
@@ -142,21 +175,43 @@ const RegistrationRequests = () => {
       </div>
 
       {/* Alerts */}
-      {message && <div className="alert alert-success">{message}</div>}
+      {message && (
+        <div className="alert alert-success">
+          <i className="fas fa-check-circle"></i>
+          {message}
+          <button onClick={() => setMessage("")} className="alert-close">
+            &times;
+          </button>
+        </div>
+      )}
       {error && (
         <div className="alert alert-error">
           <i className="fas fa-exclamation-circle"></i>
           {error}
-          <button onClick={() => setError('')} className="alert-close">&times;</button>
+          <button onClick={() => setError("")} className="alert-close">
+            &times;
+          </button>
         </div>
       )}
 
       {/* Stats */}
       <div className="user-stats">
-        <div className="stat-card"><h3>{stats.total}</h3><p>Total Requests</p></div>
-        <div className="stat-card"><h3>{stats.pending}</h3><p>Pending</p></div>
-        <div className="stat-card"><h3>{stats.approved}</h3><p>Approved</p></div>
-        <div className="stat-card"><h3>{stats.rejected}</h3><p>Rejected</p></div>
+        <div className="stat-card">
+          <h3>{stats.total}</h3>
+          <p>Total Requests</p>
+        </div>
+        <div className="stat-card">
+          <h3>{stats.pending}</h3>
+          <p>Pending</p>
+        </div>
+        <div className="stat-card">
+          <h3>{stats.approved}</h3>
+          <p>Approved</p>
+        </div>
+        <div className="stat-card">
+          <h3>{stats.rejected}</h3>
+          <p>Rejected</p>
+        </div>
       </div>
 
       {/* Requests Table */}
@@ -189,7 +244,9 @@ const RegistrationRequests = () => {
                   <tr key={request.id}>
                     <td>
                       <div className="user-info">
-                        <div className="user-avatar">{request.name.charAt(0).toUpperCase()}</div>
+                        <div className="user-avatar">
+                          {request.name.charAt(0).toUpperCase()}
+                        </div>
                         <div className="user-details">
                           <strong>{request.name}</strong>
                           <small>{request.email}</small>
@@ -202,16 +259,26 @@ const RegistrationRequests = () => {
                         <small>{request.address}</small>
                       </div>
                     </td>
-                    <td><div className="date-info">{formatDate(request.created_at)}</div></td>
+                    <td>
+                      <div className="date-info">
+                        {formatDate(request.created_at)}
+                      </div>
+                    </td>
                     <td>{getStatusBadge(request.status)}</td>
                     <td>
-                      {request.status === 'pending' && (
+                      {request.status === "pending" && (
                         <div className="action-buttons">
-                          <button onClick={() => handleApprove(request)} className="btn btn-primary btn-sm">
-                            Approve
+                          <button
+                            onClick={() => handleApprove(request)}
+                            className="btn btn-primary btn-sm"
+                          >
+                            <i className="fas fa-check"></i> Approve
                           </button>
-                          <button onClick={() => handleReject(request.id)} className="btn btn-danger btn-sm">
-                            Reject
+                          <button
+                            onClick={() => handleReject(request.id)}
+                            className="btn btn-danger btn-sm"
+                          >
+                            <i className="fas fa-times"></i> Reject
                           </button>
                         </div>
                       )}
@@ -229,46 +296,99 @@ const RegistrationRequests = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3>Approve Registration</h3>
-              <button onClick={() => setShowApproveModal(false)} className="modal-close">&times;</button>
+              <h3>Approve Registration Request</h3>
+              <button
+                onClick={() => setShowApproveModal(false)}
+                className="modal-close"
+              >
+                &times;
+              </button>
             </div>
 
             <form onSubmit={handleApproveSubmit} className="modal-form">
+              {/* Request Details Section */}
+              <div className="form-group">
+                <label>Request Details</label>
+                <div className="request-details">
+                  <p>
+                    <strong>Name:</strong> {selectedRequest.name}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {selectedRequest.email}
+                  </p>
+                  <p>
+                    <strong>Mobile:</strong> {selectedRequest.mobile_number}
+                  </p>
+                  {selectedRequest.address && (
+                    <p>
+                      <strong>Address:</strong> {selectedRequest.address}
+                    </p>
+                  )}
+                  <p>
+                    <strong>Submitted:</strong>{" "}
+                    {formatDate(selectedRequest.created_at)}
+                  </p>
+                </div>
+              </div>
+
               <div className="form-grid">
                 <div className="form-group">
                   <label>Username *</label>
                   <input
                     type="text"
                     value={approveForm.username}
-                    onChange={(e) => setApproveForm({ ...approveForm, username: e.target.value })}
+                    onChange={(e) =>
+                      setApproveForm({
+                        ...approveForm,
+                        username: e.target.value,
+                      })
+                    }
                     required
+                    placeholder="Enter username for the new account"
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Password *</label>
                   <input
                     type="password"
                     value={approveForm.password}
-                    onChange={(e) => setApproveForm({ ...approveForm, password: e.target.value })}
+                    onChange={(e) =>
+                      setApproveForm({
+                        ...approveForm,
+                        password: e.target.value,
+                      })
+                    }
                     required
                     minLength={6}
+                    placeholder="Enter password (min 6 characters)"
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Confirm Password *</label>
                   <input
                     type="password"
                     value={approveForm.confirmPassword}
-                    onChange={(e) => setApproveForm({ ...approveForm, confirmPassword: e.target.value })}
+                    onChange={(e) =>
+                      setApproveForm({
+                        ...approveForm,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     required
                     minLength={6}
+                    placeholder="Confirm the password"
                   />
                 </div>
+
                 <div className="form-group">
                   <label>Role *</label>
                   <select
                     value={approveForm.role}
-                    onChange={(e) => setApproveForm({ ...approveForm, role: e.target.value })}
+                    onChange={(e) =>
+                      setApproveForm({ ...approveForm, role: e.target.value })
+                    }
                   >
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
@@ -277,13 +397,40 @@ const RegistrationRequests = () => {
                 </div>
               </div>
 
-              {error && <div className="alert alert-error">{error}</div>}
+              {error && (
+                <div className="alert alert-error">
+                  <i className="fas fa-exclamation-circle"></i>
+                  {error}
+                </div>
+              )}
 
               <div className="modal-actions">
-                <button type="submit" className="btn btn-primary" disabled={loading}>
-                  {loading ? 'Creating...' : 'Create User Account'}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <div
+                        className="spinner"
+                        style={{
+                          width: "16px",
+                          height: "16px",
+                          marginRight: "8px",
+                        }}
+                      ></div>
+                      Creating User...
+                    </>
+                  ) : (
+                    "Create User Account"
+                  )}
                 </button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowApproveModal(false)}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowApproveModal(false)}
+                >
                   Cancel
                 </button>
               </div>
