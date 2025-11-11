@@ -49,6 +49,8 @@ import DonateNow from "./pages/DonateNow";
 import ReachPresence from "./pages/ReachPresence";
 import LogoSlider from "./pages/LogoSlider";
 
+import PublicRegistrationForm from "./component/PublicRegistrationForm";
+
 import "./App.css";
 
 function AppContent({
@@ -148,6 +150,9 @@ function AppContent({
             </>
           }
         />
+
+        <Route path="/register" element={<PublicRegistrationForm />} />
+        <Route path="/signup" element={<PublicRegistrationForm />} />
 
         {/* Admin routes */}
         <Route

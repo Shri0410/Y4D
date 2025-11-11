@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./OurWorkManagement.css";
+import {
+  canView,
+  canCreate,
+  canEdit,
+  canDelete,
+  canPublish,
+} from "../utils/permissions";
 
-const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
+const OurWorkManagement = ({
+  category,
+  action,
+  onClose,
+  onActionChange,
+  currentUser,
+}) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingItem, setEditingItem] = useState(null);
@@ -26,6 +39,27 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
   const API_BASE = "http://localhost:5000";
   const token = localStorage.getItem("token");
 
+  // Permission check functions for this component
+  const canUserPerformAction = (actionType) => {
+    if (!currentUser) return false;
+    if (currentUser.role === "super_admin") return true;
+
+    switch (actionType) {
+      case "view":
+        return canView(currentUser, "interventions", category);
+      case "create":
+        return canCreate(currentUser, "interventions", category);
+      case "edit":
+        return canEdit(currentUser, "interventions", category);
+      case "delete":
+        return canDelete(currentUser, "interventions", category);
+      case "publish":
+        return canPublish(currentUser, "interventions", category);
+      default:
+        return false;
+    }
+  };
+
   const categoryLabels = {
     quality_education: "Quality Education",
     livelihood: "Livelihood",
@@ -36,13 +70,10 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
 
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return null;
-
     if (imageUrl.startsWith("http")) return imageUrl;
-
     if (imageUrl.startsWith("/uploads/")) {
       return `${API_BASE}/api${imageUrl}`;
     }
-
     return `${API_BASE}/api/uploads/our-work/${category}/${imageUrl}`;
   };
 
@@ -66,10 +97,13 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
         }
       );
 
-      // Log the items to see what we're getting from the API
-      console.log("Fetched items:", response.data);
+      // Ensure we have last_modified_by_name for each item
+      const itemsWithModifier = response.data.map((item) => ({
+        ...item,
+        last_modified_by_name: item.last_modified_by_name || "Unknown",
+      }));
 
-      setItems(response.data);
+      setItems(itemsWithModifier);
     } catch (error) {
       console.error("Error fetching items:", error);
       setError("Failed to load items. Please check console for details.");
@@ -79,13 +113,16 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!canUserPerformAction(editingItem ? "edit" : "create")) {
+      alert("You don't have permission to perform this action");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
       const formDataToSend = new FormData();
-
-      // Append all form fields
       Object.keys(formData).forEach((key) => {
         if (key === "additional_images") {
           formDataToSend.append(key, JSON.stringify(formData[key]));
@@ -96,7 +133,6 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
         }
       });
 
-      // Append image file if selected
       if (imageFile) {
         formDataToSend.append("image", imageFile);
       }
@@ -123,11 +159,9 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
         );
       }
 
-      // Reset form and switch to view mode after successful submission
       resetForm();
       onActionChange("view");
       fetchItems();
-
       alert(`Item ${editingItem ? "updated" : "created"} successfully!`);
     } catch (error) {
       console.error("Error saving item:", error);
@@ -141,6 +175,10 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
   };
 
   const handleEdit = (item) => {
+    if (!canUserPerformAction("edit")) {
+      alert("You don't have permission to edit items");
+      return;
+    }
     setEditingItem(item);
     setFormData({
       title: item.title,
@@ -162,6 +200,11 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
   };
 
   const handleDelete = async (id) => {
+    if (!canUserPerformAction("delete")) {
+      alert("You don't have permission to delete items");
+      return;
+    }
+
     if (window.confirm("Are you sure you want to delete this item?")) {
       try {
         await axios.delete(`${API_BASE}/api/our-work/admin/${category}/${id}`, {
@@ -177,6 +220,11 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
   };
 
   const toggleStatus = async (id, currentStatus) => {
+    if (!canUserPerformAction("publish")) {
+      alert("You don't have permission to change item status");
+      return;
+    }
+
     try {
       await axios.patch(
         `${API_BASE}/api/our-work/admin/${category}/${id}/status`,
@@ -215,29 +263,6 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
     }
   };
 
-  const addImageUrl = () => {
-    setFormData((prev) => ({
-      ...prev,
-      additional_images: [...prev.additional_images, ""],
-    }));
-  };
-
-  const removeImageUrl = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      additional_images: prev.additional_images.filter((_, i) => i !== index),
-    }));
-  };
-
-  const updateImageUrl = (index, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      additional_images: prev.additional_images.map((url, i) =>
-        i === index ? value : url
-      ),
-    }));
-  };
-
   const resetForm = () => {
     setEditingItem(null);
     setFormData({
@@ -263,7 +288,77 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
     onActionChange("view");
   };
 
-  // Render View Mode - Only shows current items (no form)
+  // Render last modified info for each item
+
+  const renderLastModifiedInfo = (item) => {
+    // Only show last modified info to admin and super_admin
+    if (
+      !currentUser ||
+      (currentUser.role !== "admin" && currentUser.role !== "super_admin")
+    ) {
+      return null;
+    }
+
+    if (!item.last_modified_by_name && !item.last_modified_at) {
+      return null;
+    }
+
+    return (
+      <div className="last-modified-info admin-only">
+        <small>
+          Last modified by: <strong>{item.last_modified_by_name}</strong> •{" "}
+          {item.last_modified_at
+            ? new Date(item.last_modified_at).toLocaleDateString()
+            : "Unknown date"}
+        </small>
+      </div>
+    );
+  };
+
+  // Render action buttons for each item
+  const renderItemActions = (item) => {
+    const canEditItem = canUserPerformAction("edit");
+    const canDeleteItem = canUserPerformAction("delete");
+    const canPublishItem = canUserPerformAction("publish");
+
+    // If user only has view permission, show nothing or "View Only" badge
+    if (!canEditItem && !canDeleteItem && !canPublishItem) {
+      return (
+        <div className="item-actions">
+          <span className="view-only-badge">View Only</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="item-actions">
+        {canPublishItem && (
+          <button
+            className={`btn-status ${
+              item.is_active ? "btn-deactivate" : "btn-activate"
+            }`}
+            onClick={() => toggleStatus(item.id, item.is_active)}
+          >
+            {item.is_active ? "Deactivate" : "Activate"}
+          </button>
+        )}
+
+        {canEditItem && (
+          <button className="btn-edit" onClick={() => handleEdit(item)}>
+            Edit
+          </button>
+        )}
+
+        {canDeleteItem && (
+          <button className="btn-delete" onClick={() => handleDelete(item.id)}>
+            Delete
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  // Render View Mode
   const renderViewMode = () => {
     if (loading) return <div className="loading">Loading...</div>;
 
@@ -274,9 +369,14 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
             ← Back to Interventions
           </button>
           <h2>View {categoryLabels[category]}</h2>
-          <button onClick={() => onActionChange("add")} className="btn-primary">
-            + Add New Item
-          </button>
+          {canUserPerformAction("create") && (
+            <button
+              onClick={() => onActionChange("add")}
+              className="btn-primary"
+            >
+              + Add New Item
+            </button>
+          )}
         </div>
 
         {error && <div className="error-message">{error}</div>}
@@ -291,13 +391,6 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
             <div className="items-grid">
               {items.map((item) => {
                 const imageUrl = getImageUrl(item.image_url);
-                console.log("Item debug:", {
-                  title: item.title,
-                  originalImageUrl: item.image_url,
-                  constructedImageUrl: imageUrl,
-                  category: category,
-                });
-
                 return (
                   <div key={item.id} className="item-card">
                     {imageUrl ? (
@@ -308,14 +401,10 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
                           onError={(e) => {
                             console.error("Image failed to load:", imageUrl);
                             e.target.style.display = "none";
-                            // Show a placeholder if image fails to load
                             const placeholder = document.createElement("div");
                             placeholder.className = "image-placeholder";
                             placeholder.innerHTML = "📷 Image not available";
                             e.target.parentNode.appendChild(placeholder);
-                          }}
-                          onLoad={(e) => {
-                            console.log("Image loaded successfully:", imageUrl);
                           }}
                         />
                       </div>
@@ -339,28 +428,11 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
                           Order: {item.display_order || 0}
                         </span>
                       </div>
-                      <div className="item-actions">
-                        <button
-                          className="btn-edit"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className={`btn-status ${
-                            item.is_active ? "btn-deactivate" : "btn-activate"
-                          }`}
-                          onClick={() => toggleStatus(item.id, item.is_active)}
-                        >
-                          {item.is_active ? "Deactivate" : "Activate"}
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
+
+                      {/* Add last modified info */}
+                      {renderLastModifiedInfo(item)}
+
+                      {renderItemActions(item)}
                     </div>
                   </div>
                 );
@@ -372,7 +444,7 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
     );
   };
 
-  // Render Add/Update Mode - Only shows the form (no items list)
+  // Render Add/Update Mode
   const renderFormMode = () => {
     return (
       <div className="our-work-manager">
@@ -457,46 +529,6 @@ const OurWorkManagement = ({ category, action, onClose, onActionChange }) => {
               placeholder="https://youtube.com/embed/video-id"
             />
           </div>
-
-          {/* <div className="form-group">
-            <label>Additional Images:</label>
-            <div className="additional-images">
-              {formData.additional_images.map((url, index) => (
-                <div key={index} className="image-url-input">
-                  <input
-                    type="url"
-                    value={url}
-                    onChange={(e) => updateImageUrl(index, e.target.value)}
-                    placeholder="https://example.com/image.jpg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImageUrl(index)}
-                    className="remove-btn"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-              <button type="button" onClick={addImageUrl} className="add-btn">
-                + Add Image URL
-              </button>
-            </div>
-          </div> */}
-
-          {/* <div className="form-group">
-            <label>Display Order:</label>
-            <input
-              type="number"
-              value={formData.display_order}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  display_order: parseInt(e.target.value),
-                })
-              }
-            />
-          </div> */}
 
           <div className="form-group">
             <label>Status:</label>
