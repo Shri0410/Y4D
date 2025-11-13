@@ -209,7 +209,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       activeTab !== "impact" &&
       activeTab !== "users" &&
       activeTab !== "registrations" &&
-      activeTab !== "banners"
+      activeTab !== "banners" &&
+      activeTab !== "add-user" &&
+      activeTab !== "permissions"
     ) {
       fetchData(activeTab);
     }
@@ -3473,11 +3475,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               </li>
             )}
 
-            {/* User Management */}
+            {/* User Management - UPDATED WITH THREE BUTTONS */}
             {canUserPerformAction("users", null, "view") && (
               <li
                 className={
-                  activeTab === "users" || activeTab === "registrations"
+                  activeTab === "users" ||
+                  activeTab === "registrations" ||
+                  activeTab === "add-user" ||
+                  activeTab === "permissions"
                     ? "active"
                     : ""
                 }
@@ -3498,18 +3503,52 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 {openDropdown === "users" && (
                   <ul className="submenu">
                     {canUserPerformAction("users", "users", "view") && (
-                      <li>
-                        <button
-                          className={activeTab === "users" ? "active-sub" : ""}
-                          onClick={() => {
-                            setActiveTab("users");
-                            setOpenDropdown(null);
-                            updateUrlPath("users");
-                          }}
-                        >
-                          Users
-                        </button>
-                      </li>
+                      <>
+                        <li>
+                          <button
+                            className={
+                              activeTab === "users" ? "active-sub" : ""
+                            }
+                            onClick={() => {
+                              setActiveTab("users");
+                              setOpenDropdown(null);
+                              updateUrlPath("users");
+                            }}
+                          >
+                            <i className="fas fa-shield-alt"></i> User
+                            Permissions
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={
+                              activeTab === "add-user" ? "active-sub" : ""
+                            }
+                            onClick={() => {
+                              setActiveTab("add-user");
+                              setOpenDropdown(null);
+                              updateUrlPath("users", "add");
+                            }}
+                          >
+                            <i className="fas fa-user-plus"></i> Add User
+                          </button>
+                        </li>
+                        {/* <li>
+                          <button
+                            className={
+                              activeTab === "permissions" ? "active-sub" : ""
+                            }
+                            onClick={() => {
+                              setActiveTab("permissions");
+                              setOpenDropdown(null);
+                              updateUrlPath("users", "permissions");
+                            }}
+                          >
+                            <i className="fas fa-shield-alt"></i> User
+                            Permissions
+                          </button>
+                        </li> */}
+                      </>
                     )}
                     {canUserPerformAction("users", "registrations", "view") && (
                       <li>
@@ -3523,7 +3562,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             updateUrlPath("registrations");
                           }}
                         >
-                          Registration Requests
+                          <i className="fas fa-users"></i> New Users
                         </button>
                       </li>
                     )}
@@ -3585,7 +3624,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             renderBannerContent()
           ) : activeTab === "users" &&
             canUserPerformAction("users", "users", "view") ? (
-            <UserManagement />
+            <UserManagement activeSubTab="users" />
+          ) : activeTab === "add-user" &&
+            canUserPerformAction("users", "users", "create") ? (
+            <UserManagement activeSubTab="add-user" />
+          ) : activeTab === "permissions" &&
+            canUserPerformAction("users", "users", "edit") ? (
+            <UserManagement activeSubTab="permissions" />
           ) : activeTab === "registrations" &&
             canUserPerformAction("users", "registrations", "view") ? (
             <RegistrationRequests />
