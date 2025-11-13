@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./UserManagement.css";
 
-const UserManagement = () => {
-  const [activeSubTab, setActiveSubTab] = useState("users");
+const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
+  const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);
   const [selectedUserForPermissions, setSelectedUserForPermissions] =
     useState(null);
   const [users, setUsers] = useState([]);
@@ -24,6 +24,11 @@ const UserManagement = () => {
 
   const API_BASE = "http://localhost:5000/api";
   const token = localStorage.getItem("token");
+
+  // Sync with prop changes
+  useEffect(() => {
+    setActiveSubTab(propActiveSubTab);
+  }, [propActiveSubTab]);
 
   // Define all sections and sub-sections for permissions
   const allSections = [
@@ -983,30 +988,6 @@ const UserManagement = () => {
           <h3>{users.filter((u) => u.status === "pending").length}</h3>
           <p>Pending Users</p>
         </div>
-      </div>
-
-      {/* Sub Tabs Navigation */}
-      <div className="sub-tabs-navigation">
-        <button
-          className={`sub-tab ${activeSubTab === "users" ? "active" : ""}`}
-          onClick={() => setActiveSubTab("users")}
-        >
-          <i className="fas fa-users"></i> View Users
-        </button>
-        <button
-          className={`sub-tab ${activeSubTab === "add-user" ? "active" : ""}`}
-          onClick={() => setActiveSubTab("add-user")}
-        >
-          <i className="fas fa-user-plus"></i> Add User
-        </button>
-        <button
-          className={`sub-tab ${
-            activeSubTab === "permissions" ? "active" : ""
-          }`}
-          onClick={() => setActiveSubTab("permissions")}
-        >
-          <i className="fas fa-shield-alt"></i> User Permissions
-        </button>
       </div>
 
       {/* Content based on active sub tab */}
