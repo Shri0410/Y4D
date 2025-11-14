@@ -51,7 +51,7 @@ app.use("/api/mentors", require("./routes/mentors"));
 app.use("/api/management", require("./routes/management"));
 app.use("/api/careers", require("./routes/careers"));
 app.use("/api/media", require("./routes/media"));
-app.use("/api/our-work", require("./routes/OurWork"));
+app.use("/api/our-work", require("./routes/ourwork"));
 app.use("/api/quality-education", require("./routes/QualityEducation"));
 app.use("/api/livelihood", require("./routes/livelihood"));
 app.use("/api/healthcare", require("./routes/healthcare"));
