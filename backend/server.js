@@ -71,15 +71,6 @@ app.use("/api", impactDataRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "Backend server is running!" });
 });
-app.get("/api/accreditations", async (req, res) => {
-  try {
-    const accreditations = await Accreditation.find();
-    res.json(accreditations);
-  } catch (error) {
-    console.error("Error fetching accreditations:", error);
-    res.status(500).json({ error: "Failed to fetch accreditations" });
-  }
-});
 // Database test route
 app.get("/api/test-db", (req, res) => {
   db.query("SELECT 1 + 1 AS solution", (err, results) => {
