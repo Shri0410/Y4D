@@ -9,9 +9,9 @@ const BlogDetails = () => {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
+  const API_BASE = import.meta.env.VITE_API_BASE || "https://y4dorg-backend.onrender.com/api";
   const UPLOADS_BASE =
-    import.meta.env.VITE_UPLOADS_BASE || "http://localhost:5000/api/uploads";
+    import.meta.env.VITE_UPLOADS_BASE || "https://y4dorg-backend.onrender.com/api/uploads";
 
   useEffect(() => {
     const fetchBlog = async () => {
