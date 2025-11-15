@@ -4,7 +4,7 @@ import axios from "axios";
 import "./Stories.css";
 import { getBanners } from "../services/api.jsx";
 
-const SERVER_BASE = "http://localhost:5000";
+const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
 const Stories = () => {
   const [stories, setStories] = useState([]);
@@ -76,13 +76,13 @@ const Stories = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Stories Banner - ${banner.page}`}
                 className="stories-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="stories-banner-video"
                 autoPlay
                 muted
