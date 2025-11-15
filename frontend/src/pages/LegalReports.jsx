@@ -10,7 +10,7 @@ const LegalReports = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
 
   // your backend URL
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "https://y4dorg-backend.onrender.com/";
 
   // Fetch legal page banners
   useEffect(() => {
@@ -91,13 +91,13 @@ const LegalReports = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Legal Reports Banner - ${banner.page}`}
                 className="banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="banner-video"
                 autoPlay
                 muted
