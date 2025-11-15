@@ -11,8 +11,8 @@ const Documentaries = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  const API_BASE = "http://localhost:5000/api";
-  const UPLOADS_BASE = "http://localhost:5000/api/uploads";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
+  const UPLOADS_BASE = "https://y4dorg-backend.onrender.com/api/uploads";
 
   // Fetch documentaries page banners
   useEffect(() => {
@@ -79,13 +79,13 @@ const Documentaries = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Documentaries Banner - ${banner.page}`}
                 className="documentaries-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="documentaries-banner-video"
                 autoPlay
                 muted
