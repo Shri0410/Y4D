@@ -4,8 +4,8 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import "./LivelihoodDetail.css";
 
-const API_BASE = "http://localhost:5000/api";
-const SERVER_BASE = "http://localhost:5000";
+const API_BASE = "https://y4dorg-backend.onrender.com/api";
+const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
 // --- Helpers ---
 const getFullUrl = (path) => {
