@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
 // Create axios instance for consistent configuration
 const api = axios.create({
@@ -67,7 +67,7 @@ export const getBanners = async (page = "home", section = null) => {
       url += `?section=${section}`;
     }
 
-    const response = await axios.get(`http://localhost:5000/api${url}`);
+    const response = await axios.get(`https://y4dorg-backend.onrender.com/api${url}`);
     console.log("✅ Banners API response:", response.data);
     return response.data;
   } catch (error) {
@@ -81,7 +81,7 @@ export const getBanners = async (page = "home", section = null) => {
 export const getAllBanners = async () => {
   try {
     console.log("🔄 Fetching all banners...");
-    const response = await axios.get("http://localhost:5000/api/banners");
+    const response = await axios.get("https://y4dorg-backend.onrender.com/api/banners");
     console.log("✅ All banners response:", response.data);
     return response.data;
   } catch (error) {
