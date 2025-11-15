@@ -233,14 +233,14 @@ const Home = () => {
             <div key={banner.id} className="slide-content">
               {banner.media_type === "image" ? (
                 <img
-                  src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                  src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                   alt={banner.title}
                   className="slide-img"
                   onError={handleImageError}
                 />
               ) : (
                 <video
-                  src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                  src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                   className="slide-img"
                   autoPlay
                   muted
@@ -282,14 +282,14 @@ const Home = () => {
                 <div className="campaign-banner-media">
                   {banner.media_type === "image" ? (
                     <img
-                      src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                      src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                       alt={banner.title}
                       className="campaign-banner-img"
                       onError={handleImageError}
                     />
                   ) : (
                     <video
-                      src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                      src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                       className="campaign-banner-video"
                       muted
                       loop
@@ -454,7 +454,7 @@ const Home = () => {
                     data-aos-delay={300 + index * 100}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                      src={`https://y4dorg-backend.onrender.com/uploads/accreditations/${item.image}`}
                       alt={item.title}
                       className="accreditation-icon"
                       onError={handleImageError}
@@ -489,7 +489,7 @@ const Home = () => {
                     data-aos-delay={300 + index * 100}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                      src={`https://y4dorg-backend.onrender.com/uploads/accreditations/${item.image}`}
                       alt={item.title}
                       className="accreditation-icon"
                       onError={handleImageError}
@@ -543,7 +543,7 @@ const Home = () => {
                   data-aos-delay={300 + index * 100}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/accreditations/${item.image}`}
+                    src={`https://y4dorg-backend.onrender.com/uploads/accreditations/${item.image}`}
                     alt={item.title}
                     className="accreditation-icon"
                     onError={handleImageError}
