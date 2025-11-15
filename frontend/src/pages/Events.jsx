@@ -4,7 +4,7 @@ import axios from "axios";
 import "./Events.css";
 import { getBanners } from "../services/api.jsx";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://y4dorg-backend.onrender.com/";
 const UPLOADS_BASE = `${API_BASE}/api/uploads`;
 
 const Events = () => {
@@ -80,13 +80,13 @@ const Events = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Events Banner - ${banner.page}`}
                 className="events-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="events-banner-video"
                 autoPlay
                 muted
