@@ -43,7 +43,7 @@ app.use("/api/banners", require("./routes/banners"));
 
 // Routes
 app.use("/api/registration", require("./routes/registration"));
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api/auth", require("./routes/auth.js"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/permissions", require("./routes/userPermissions"));
 app.use("/api/reports", require("./routes/reports"));
