@@ -10,7 +10,7 @@ const Newsletters = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
   // Fetch newsletter page banners
   useEffect(() => {
@@ -74,13 +74,13 @@ const Newsletters = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Newsletters Banner - ${banner.page}`}
                 className="newsletter-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="newsletter-banner-video"
                 autoPlay
                 muted
