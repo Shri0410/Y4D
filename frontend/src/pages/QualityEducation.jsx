@@ -12,8 +12,8 @@ const QualityEducation = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://localhost:5000/api";
-  const SERVER_BASE = "http://localhost:5000";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
+  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch quality education page banners
   useEffect(() => {
@@ -91,13 +91,13 @@ const QualityEducation = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Quality Education Banner - ${banner.page}`}
                 className="qe-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="qe-banner-video"
                 autoPlay
                 muted
