@@ -30,7 +30,7 @@ const AccreditationManagement = ({
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://y4dorg-backend.onrender.com/";
   const token = localStorage.getItem("token");
 
   // Permission check functions
