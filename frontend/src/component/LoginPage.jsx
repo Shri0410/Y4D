@@ -21,7 +21,7 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://y4dorg-backend.onrender.com/api/auth/login",
         loginData
       );
       localStorage.setItem("token", response.data.token);
