@@ -5,8 +5,8 @@ import axios from "axios";
 import "./EnvironmentSustainability.css";
 import { getBanners } from "../services/api.jsx";
 
-const API_BASE = "http://localhost:5000/api";
-const SERVER_BASE = "http://localhost:5000";
+const API_BASE = "https://y4dorg-backend.onrender.com/api";
+const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
 const getImageUrl = (path) => {
   if (!path) return "";
@@ -91,13 +91,13 @@ const EnvironmentSustainability = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Environment Sustainability Banner - ${banner.page}`}
                 className="es-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="es-banner-video"
                 autoPlay
                 muted
