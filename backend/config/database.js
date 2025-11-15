@@ -2,17 +2,24 @@ const mysql = require('mysql2');
 require('dotenv').config();
 
 // Create a connection pool instead of single connection
+const mysql = require("mysql2");
+
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'y4d_dashboard',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 20, // Adjust based on your needs
+  connectionLimit: 20,
   queueLimit: 0,
-  acquireTimeout: 60000, // 60 seconds timeout
-  timeout: 60000, // 60 seconds
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
+
+module.exports = pool;
+
 
 // Get a promise based interface to the pool
 const promisePool = pool.promise();
