@@ -14,7 +14,7 @@ const MediaManager = ({ mediaType, onClose }) => {
   const [publishOptions, setPublishOptions] = useState('immediate');
   const [error, setError] = useState('');
 
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = 'https://y4dorg-backend.onrender.com/api';
 
   useEffect(() => {
     fetchItems();
