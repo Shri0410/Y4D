@@ -13,8 +13,8 @@ const IDP = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://localhost:5000/api";
-  const SERVER_BASE = "http://localhost:5000";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
+  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch IDP page banners
   useEffect(() => {
@@ -92,13 +92,13 @@ const IDP = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`IDP Banner - ${banner.page}`}
                 className="idp-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="idp-banner-video"
                 autoPlay
                 muted
