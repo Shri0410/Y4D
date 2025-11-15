@@ -22,7 +22,7 @@ const RegistrationRequests = () => {
     rejected: 0,
   });
 
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
   const token = localStorage.getItem("token");
 
   useEffect(() => {
