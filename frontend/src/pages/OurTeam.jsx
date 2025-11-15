@@ -38,7 +38,7 @@ const OurTeam = () => {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/mentors");
+        const response = await fetch("https://y4dorg-backend.onrender.com/api/mentors");
         const data = await response.json();
         setMentors(data);
         setLoadingMentors(false);
@@ -54,7 +54,7 @@ const OurTeam = () => {
   useEffect(() => {
     const fetchManagement = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/management");
+        const response = await fetch("https://y4dorg-backend.onrender.com/api/management");
         const data = await response.json();
         setManagement(data);
         setLoadingManagement(false);
@@ -70,7 +70,7 @@ const OurTeam = () => {
     const fetchTrustees = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/board-trustees"
+          "https://y4dorg-backend.onrender.com/api/board-trustees"
         );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -112,13 +112,13 @@ const OurTeam = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Our Team Banner - ${banner.page}`}
                 className="banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="banner-video"
                 autoPlay
                 muted
@@ -154,7 +154,7 @@ const OurTeam = () => {
               <div key={trustee.id} className="team-card">
                 {trustee.image ? (
                   <img
-                    src={`http://localhost:5000/api/uploads/board-trustees/${trustee.image}`}
+                    src={`https://y4dorg-backend.onrender.com/api/uploads/board-trustees/${trustee.image}`}
                     alt={trustee.name}
                   />
                 ) : null}
@@ -179,7 +179,7 @@ const OurTeam = () => {
             {mentors.map((mentor) => (
               <div key={mentor.id} className="team-card">
                 <img
-                  src={`http://localhost:5000/api/uploads/mentors/${mentor.image}`}
+                  src={`https://y4dorg-backend.onrender.com/api/uploads/mentors/${mentor.image}`}
                   alt={mentor.name}
                 />
                 <h3>{mentor.name}</h3>
