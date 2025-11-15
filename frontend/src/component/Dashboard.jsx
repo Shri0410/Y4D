@@ -98,7 +98,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
 
-  const API_BASE = "http://localhost:5000/api";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
   // Permission check functions
   const canUserPerformAction = (
