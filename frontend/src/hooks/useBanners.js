@@ -17,7 +17,7 @@ export const useBanners = (page, section = null) => {
           url += `?section=${section}`;
         }
         
-        const response = await axios.get(`http://localhost:5000/api${url}`);
+        const response = await axios.get(`https://y4dorg-backend.onrender.com/api${url}`);
         setBanners(response.data);
       } catch (err) {
         setError(err.message);
