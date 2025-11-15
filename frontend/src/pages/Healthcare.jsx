@@ -12,8 +12,8 @@ const Healthcare = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const API_BASE = "http://localhost:5000/api";
-  const SERVER_BASE = "http://localhost:5000";
+  const API_BASE = "https://y4dorg-backend.onrender.com/api";
+  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch healthcare page banners
   useEffect(() => {
@@ -88,13 +88,13 @@ const Healthcare = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 alt={`Healthcare Banner - ${banner.page}`}
                 className="hc-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
                 className="hc-banner-video"
                 autoPlay
                 muted
