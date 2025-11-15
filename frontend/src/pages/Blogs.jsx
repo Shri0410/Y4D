@@ -5,8 +5,8 @@ import { Link } from "react-router-dom";
 import "./Blogs.css";
 import { getBanners } from "../services/api.jsx";
 
-const API_BASE = "http://localhost:5000/api";
-const UPLOADS_BASE = "http://localhost:5000/api/uploads";
+const API_BASE = "https://y4dorg-backend.onrender.com/api";
+const UPLOADS_BASE = "https://y4dorg-backend.onrender.com/api/uploads";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
