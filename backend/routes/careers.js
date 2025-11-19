@@ -33,8 +33,7 @@ const upload = multer({
   },
 });
 
-// AREERS CRUD 
-
+// CAREERS CRUD 
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(

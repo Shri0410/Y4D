@@ -1,7 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const db = require('../config/database'); // <- using your promisePool
+const db = require('../config/database');
+const logger = require('../services/logger');
 
 const router = express.Router();
 
@@ -25,12 +26,19 @@ router.post('/login', async (req, res) => {
     console.log(`📊 Found ${results.length} users matching: ${username}`);
 
     if (results.length === 0) {
-      console.log('❌ No user found with username/email:', username);
-
       // log failed attempt without username_attempted
       const attemptQuery =
         'INSERT INTO login_attempts (ip_address, user_agent, success) VALUES (?, ?, FALSE)';
       await db.query(attemptQuery, [req.ip, req.get('User-Agent')]);
+
+      await logger.logLogin(
+        null,
+        username,
+        req.ip || req.connection.remoteAddress,
+        req.get('User-Agent'),
+        false,
+        'User not found'
+      );
 
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -45,7 +53,13 @@ router.post('/login', async (req, res) => {
 
     // Check approval
     if (user.status !== 'approved') {
-      console.log('❌ User not approved. Status:', user.status);
+      await logger.warning('authentication', `Login attempt by unapproved user: ${user.username}`, {
+        type: logger.LogType.LOGIN,
+        user_id: user.id,
+        ip_address: req.ip || req.connection.remoteAddress,
+        metadata: { status: user.status }
+      });
+
       return res
         .status(401)
         .json({ error: 'Account not approved. Please contact administrator.' });
@@ -57,11 +71,19 @@ router.post('/login', async (req, res) => {
     console.log('Password valid:', validPassword);
 
     if (!validPassword) {
-      console.log('❌ Invalid password for user:', user.username);
-
+      // Log failed login attempt
       const attemptQuery =
         'INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, FALSE)';
       await db.query(attemptQuery, [user.id, req.ip, req.get('User-Agent')]);
+
+      await logger.logLogin(
+        user.id,
+        user.username,
+        req.ip || req.connection.remoteAddress,
+        req.get('User-Agent'),
+        false,
+        'Invalid password'
+      );
 
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -78,7 +100,14 @@ router.post('/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
-    console.log('✅ Login successful for user:', user.username);
+    // Log successful login
+    await logger.logLogin(
+      user.id,
+      user.username,
+      req.ip || req.connection.remoteAddress,
+      req.get('User-Agent'),
+      true
+    );
 
     res.json({
       message: 'Login successful',

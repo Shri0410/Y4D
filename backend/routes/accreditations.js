@@ -33,6 +33,7 @@ const upload = multer({
   }
 });
 
+// Get all accreditations
 router.get('/', async (req, res) => {
   try {
     console.log('📋 Fetching all accreditations from database');

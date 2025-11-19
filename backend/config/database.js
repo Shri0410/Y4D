@@ -1,45 +1,65 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
+// Note: Environment variables are validated in utils/validateEnv.js
+// This file assumes validation has already been done
 
-const pool = mysql.createPool({
+// Database configuration
+const dbConfig = {
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 20,
+  connectionLimit: parseInt(process.env.DB_CONNECTION_LIMIT) || 20,
   queueLimit: 0,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
+  // SSL configuration - only if DB_SSL is set to true
+  ...(process.env.DB_SSL === 'true' ? {
+    ssl: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'false' 
+      ? { rejectUnauthorized: false }
+      : {}
+  } : {})
+};
 
-module.exports = pool;
+// Create connection pool
+const pool = mysql.createPool(dbConfig);
 
+// Get promise-based pool for async/await
 const promisePool = pool.promise();
 
+// Test connection on startup
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('Error connecting to database: ' + err.stack);
+    console.error('❌ Database connection error:', err.message);
+    console.error('Error code:', err.code);
     return;
   }
-  console.log('Connected to database as id ' + connection.threadId);
-  connection.release(); 
+  console.log('✅ Connected to database as id ' + connection.threadId);
+  connection.release();
 });
 
+// Handle pool errors
 pool.on('error', (err) => {
-  console.error('Database pool error:', err);
+  console.error('❌ Database pool error:', err.message);
   if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.log('Database connection was closed.');
+    console.log('⚠️  Database connection was closed. Reconnecting...');
   }
   if (err.code === 'ER_CON_COUNT_ERROR') {
-    console.log('Database has too many connections.');
+    console.log('⚠️  Database has too many connections.');
   }
   if (err.code === 'ECONNREFUSED') {
-    console.log('Database connection was refused.');
+    console.log('⚠️  Database connection was refused.');
+  }
+  if (err.fatal) {
+    console.error('❌ Fatal database error. Application may need to restart.');
   }
 });
 
+// Export promise pool for async/await usage
 module.exports = promisePool;
+
+// Also export the regular pool for backward compatibility if needed
+module.exports.pool = pool;
