@@ -6,13 +6,11 @@ const fs = require("fs").promises;
 const { authenticateToken: auth } = require("../middleware/auth");
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const category = req.params.category;
     const uploadPath = `uploads/our-work/${category}/`;
 
-    // Create directory if it doesn't exist
     fs.mkdir(uploadPath, { recursive: true })
       .then(() => cb(null, uploadPath))
       .catch((err) => cb(err));
@@ -28,7 +26,6 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
 }).any();
 
-// Our Work categories configuration with separate tables
 const ourWorkTables = {
   quality_education: {
     fields: [
@@ -107,12 +104,11 @@ const ourWorkTables = {
   },
 };
 
-// Helper function to validate category
 const isValidCategory = (category) => {
   return ourWorkTables.hasOwnProperty(category);
 };
 
-// Get all published items for a specific category (for frontend) - UPDATED: Include user info
+// Get all published items for a specific category (for frontend) - Include user info
 router.get("/published/:category", async (req, res) => {
   const { category } = req.params;
 
@@ -137,7 +133,6 @@ router.get("/published/:category", async (req, res) => {
   }
 });
 
-// Get all items for a specific category (for admin) - UPDATED: Include user info
 // Get all items for a specific category (for admin) - FILTERED by role
 router.get("/admin/:category", auth, async (req, res) => {
   const { category } = req.params;
@@ -149,7 +144,6 @@ router.get("/admin/:category", auth, async (req, res) => {
   try {
     let query;
 
-    // If user is admin or super_admin, include last_modified_by_name
     if (req.user.role === "admin" || req.user.role === "super_admin") {
       query = `
         SELECT ow.*, u.username as last_modified_by_name 
@@ -172,7 +166,7 @@ router.get("/admin/:category", auth, async (req, res) => {
   }
 });
 
-// Get single item - UPDATED: Include user info
+// Get single item - Include user info
 router.get("/admin/:category/:id", auth, async (req, res) => {
   const { category, id } = req.params;
 
@@ -224,7 +218,6 @@ async function createItem(req, res) {
     console.log("Uploaded files:", req.files);
     console.log("Request body:", req.body);
 
-    // Get files from request
     const files = req.files || [];
     const imageFile = files.find((file) => file.fieldname === "image");
 
@@ -242,19 +235,15 @@ async function createItem(req, res) {
       display_order,
     } = req.body;
 
-    // Convert data types properly
     const isActiveBool =
       is_active === "true" || is_active === "1" || is_active === true;
     const displayOrderInt = parseInt(display_order) || 0;
 
-    // Handle image upload
     let finalImageUrl = image_url;
     if (imageFile) {
-      // normalize path for DB (forward slashes, starts with /uploads)
       finalImageUrl = `/uploads/our-work/${category}/${imageFile.filename}`;
     }
 
-    // Handle additional images
     let additionalImagesArray = [];
     if (additional_images) {
       try {
@@ -280,7 +269,7 @@ async function createItem(req, res) {
       "meta_keywords",
       "is_active",
       "display_order",
-      "last_modified_by", // NEW: Add last_modified_by
+      "last_modified_by",
     ];
 
     const values = [
@@ -293,9 +282,9 @@ async function createItem(req, res) {
       meta_title || "",
       meta_description || "",
       meta_keywords || "",
-      isActiveBool ? 1 : 0, // Convert to MySQL tinyint (1 for true, 0 for false)
+      isActiveBool ? 1 : 0, 
       displayOrderInt,
-      req.user.id, // NEW: Set the user who created it
+      req.user.id, 
     ];
 
     console.log("Fields to insert:", fields);
@@ -319,7 +308,6 @@ async function createItem(req, res) {
     console.error(`Error creating ${category} item:`, error);
     console.error("SQL Error details:", error.sqlMessage);
 
-    // Clean up uploaded files if there was an error
     if (req.files) {
       for (const file of req.files) {
         try {
@@ -359,7 +347,6 @@ async function updateItem(req, res) {
   }
 
   try {
-    // Get existing item first
     const [existingItems] = await db.query(
       `SELECT * FROM ${category} WHERE id = ?`,
       [id]
@@ -371,7 +358,6 @@ async function updateItem(req, res) {
 
     const existingItem = existingItems[0];
 
-    // Get files from request
     const files = req.files || [];
     const imageFile = files.find((file) => file.fieldname === "image");
 
@@ -389,18 +375,15 @@ async function updateItem(req, res) {
       display_order,
     } = req.body;
 
-    // Handle image upload
     let finalImageUrl = image_url || existingItem.image_url;
     if (imageFile) {
       finalImageUrl = `/uploads/our-work/${category}/${imageFile.filename}`;
 
-      // Delete old image if it's being replaced
       if (
         existingItem.image_url &&
         existingItem.image_url.startsWith("/uploads")
       ) {
         try {
-          // convert URL back to local path
           const oldPath = path.join(process.cwd(), existingItem.image_url);
           await fs.unlink(oldPath);
         } catch (unlinkError) {
@@ -409,7 +392,6 @@ async function updateItem(req, res) {
       }
     }
 
-    // Handle additional images
     let additionalImagesArray = existingItem.additional_images;
     if (additional_images) {
       try {
@@ -441,7 +423,7 @@ async function updateItem(req, res) {
       "is_active = ?",
       "display_order = ?",
       "last_modified_by = ?",
-      "last_modified_at = CURRENT_TIMESTAMP", // NEW: Track who modified and update timestamp
+      "last_modified_at = CURRENT_TIMESTAMP", 
     ];
 
     const values = [
@@ -456,7 +438,7 @@ async function updateItem(req, res) {
       meta_keywords,
       is_active,
       display_order,
-      req.user.id, // NEW: User who made the change
+      req.user.id, 
       id,
     ];
 
@@ -470,7 +452,6 @@ async function updateItem(req, res) {
   } catch (error) {
     console.error(`Error updating ${category} item:`, error);
 
-    // Clean up uploaded files if there was an error
     if (req.files) {
       for (const file of req.files) {
         try {
@@ -498,7 +479,6 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
   }
 
   try {
-    // First get the item to check if it has files to delete
     const [items] = await db.query(`SELECT * FROM ${category} WHERE id = ?`, [
       id,
     ]);
@@ -509,7 +489,6 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
 
     const item = items[0];
 
-    // Delete associated image file
     if (item.image_url && item.image_url.startsWith("/uploads")) {
       try {
         const filePath = path.join(process.cwd(), item.image_url);
@@ -519,7 +498,6 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
       }
     }
 
-    // Delete additional images
     if (item.additional_images) {
       try {
         const additionalImages =
@@ -560,7 +538,7 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
   }
 });
 
-// Toggle active status - UPDATED: Track who changed the status
+// Toggle active status - Track who changed the status
 router.patch("/admin/:category/:id/status", auth, async (req, res) => {
   const { category, id } = req.params;
   const { is_active } = req.body;
@@ -586,7 +564,7 @@ router.patch("/admin/:category/:id/status", auth, async (req, res) => {
   }
 });
 
-// Update display order - UPDATED: Track who changed the order
+// Update display order - Track who changed the order
 router.patch("/admin/:category/:id/order", auth, async (req, res) => {
   const { category, id } = req.params;
   const { display_order } = req.body;
@@ -612,7 +590,7 @@ router.patch("/admin/:category/:id/order", auth, async (req, res) => {
   }
 });
 
-// Get statistics for specific category - UPDATED: Include user info in stats if needed
+// Get statistics for specific category -  Include user info in stats if needed
 router.get("/admin/stats/:category", auth, async (req, res) => {
   const { category } = req.params;
 
@@ -651,7 +629,7 @@ router.get("/admin/stats/:category", auth, async (req, res) => {
   }
 });
 
-// Get all categories with item counts - UPDATED: Include recent activity
+// Get all categories with item counts - Include recent activity
 router.get("/admin/categories/stats", auth, async (req, res) => {
   try {
     const stats = {};

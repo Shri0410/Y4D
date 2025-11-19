@@ -1,4 +1,3 @@
-// backend/test-auth.js
 const axios = require('axios');
 
 const API_BASE = 'http://localhost:5000/api';
@@ -7,7 +6,6 @@ async function testAuth() {
   console.log('🧪 Testing authentication...');
   
   try {
-    // Test login with admin credentials
     const response = await axios.post(`${API_BASE}/auth/login`, {
       username: 'admin',
       password: 'admin123'
@@ -19,7 +17,6 @@ async function testAuth() {
       user: response.data.user
     });
     
-    // Test token verification
     if (response.data.token) {
       const verifyResponse = await axios.get(`${API_BASE}/auth/verify`, {
         headers: {
@@ -41,7 +38,6 @@ async function testAuth() {
       console.error('Error:', error.message);
     }
     
-    // Test if server is running
     try {
       const statusResponse = await axios.get(`${API_BASE}/auth/verify`);
       console.log('Server status:', statusResponse.status);

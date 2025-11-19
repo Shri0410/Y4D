@@ -18,22 +18,17 @@ const pool = mysql.createPool({
 
 module.exports = pool;
 
-
-
-// Get a promise based interface to the pool
 const promisePool = pool.promise();
 
-// Test the connection
 pool.getConnection((err, connection) => {
   if (err) {
     console.error('Error connecting to database: ' + err.stack);
     return;
   }
   console.log('Connected to database as id ' + connection.threadId);
-  connection.release(); // Release the connection back to the pool
+  connection.release(); 
 });
 
-// Handle pool errors
 pool.on('error', (err) => {
   console.error('Database pool error:', err);
   if (err.code === 'PROTOCOL_CONNECTION_LOST') {

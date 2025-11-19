@@ -1,4 +1,3 @@
-// backend/routes/mentors.js - UPDATED VERSION
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -6,7 +5,6 @@ const db = require('../config/database');
 
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/mentors/');
@@ -28,7 +26,6 @@ const upload = multer({
   }
 });
 
-// Convert all routes to async/await for consistency
 // Get all mentors
 router.get('/', async (req, res) => {
   try {
@@ -97,7 +94,6 @@ router.post('/', upload.single('image'), async (req, res) => {
       return res.status(400).json({ error: 'Name is required' });
     }
     
-    // Handle social_links safely
     let socialLinksJson = {};
     try {
       if (social_links && social_links.trim() !== '') {
@@ -144,7 +140,6 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const { id } = req.params;
     const { name, position, bio, social_links } = req.body;
     
-    // Get existing mentor
     const [existingRows] = await db.query('SELECT * FROM mentors WHERE id = ?', [id]);
     if (existingRows.length === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
@@ -153,7 +148,6 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const existingMentor = existingRows[0];
     const image = req.file ? req.file.filename : existingMentor.image;
     
-    // Parse social_links safely
     let socialLinksJson;
     try {
       if (social_links && social_links.trim() !== '') {
@@ -231,7 +225,6 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Multer error handling middleware
 router.use((error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {

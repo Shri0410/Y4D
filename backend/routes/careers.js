@@ -7,7 +7,6 @@ const fs = require("fs");
 
 const router = express.Router();
 
-// Configure Multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = "uploads/";
@@ -34,9 +33,8 @@ const upload = multer({
   },
 });
 
-// ---------------- CAREERS CRUD ----------------
+// AREERS CRUD 
 
-// Get all careers
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -136,13 +134,12 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// ------------------- APPLY FOR JOB -------------------
+//  APPLY FOR JOB 
 router.post("/apply", upload.single("resume"), async (req, res) => {
   try {
     const { name, email, phone, message, careerId } = req.body;
     const resumeFile = req.file;
 
-    // Fetch career details
     const [careerRows] = await db.query("SELECT * FROM careers WHERE id = ?", [
       careerId,
     ]);
@@ -151,7 +148,6 @@ router.post("/apply", upload.single("resume"), async (req, res) => {
 
     const career = careerRows[0];
 
-    // Configure Nodemailer
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -188,7 +184,6 @@ router.post("/apply", upload.single("resume"), async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    // Optionally, delete uploaded file after sending email
     if (resumeFile) fs.unlinkSync(resumeFile.path);
 
     res.json({ success: true, message: "Application sent successfully!" });

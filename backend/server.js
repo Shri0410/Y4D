@@ -1,14 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const fs = require("fs"); // Add this import
+const fs = require("fs"); 
 const impactDataRoutes = require("./routes/impactData");
 require("dotenv").config();
 
 const db = require("./config/database");
 const { authenticateToken } = require("./middleware/auth");
 
-// Ensure upload directories exist
 const ensureUploadDirs = () => {
   const uploadsDir = path.join(process.cwd(), "uploads");
   const dirs = [
@@ -17,7 +16,7 @@ const ensureUploadDirs = () => {
     "board-trustees",
     "accreditations",
     "reports",
-  ]; // Add accreditations here
+  ]; 
   dirs.forEach((dir) => {
     const dirPath = path.join(uploadsDir, dir);
     if (!fs.existsSync(dirPath)) {
@@ -27,7 +26,6 @@ const ensureUploadDirs = () => {
   });
 };
 
-// Initialize upload directories
 ensureUploadDirs();
 
 const app = express();
@@ -67,11 +65,9 @@ app.use("/api/board-trustees", require("./routes/boardTrustees"));
 app.use("/api/accreditations", require("./routes/accreditations"));
 app.use("/api", impactDataRoutes);
 
-// Basic route
 app.get("/", (req, res) => {
   res.json({ message: "Backend server is running!" });
 });
-// Database test route
 app.get("/api/test-db", (req, res) => {
   db.query("SELECT 1 + 1 AS solution", (err, results) => {
     if (err) {

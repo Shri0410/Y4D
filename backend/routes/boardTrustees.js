@@ -1,16 +1,14 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs"); // Add this import
+const fs = require("fs"); 
 const db = require("../config/database");
 
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = "uploads/board-trustees/";
-    // Ensure directory exists
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
@@ -24,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, 
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -34,7 +32,6 @@ const upload = multer({
   },
 });
 
-// Error handling middleware for multer
 const handleMulterError = (err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
@@ -126,7 +123,6 @@ router.post(
       const image = req.file ? req.file.filename : null;
 
       if (!name || name.trim() === "") {
-        // Delete uploaded file if validation fails
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
@@ -139,7 +135,6 @@ router.post(
           socialLinksJson = JSON.parse(social_links);
         }
       } catch (parseError) {
-        // Delete uploaded file if validation fails
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
@@ -174,7 +169,6 @@ router.post(
         trustee: createdTrustee,
       });
     } catch (err) {
-      // Delete uploaded file if database operation fails
       if (req.file) {
         fs.unlinkSync(req.file.path);
       }
@@ -202,7 +196,6 @@ router.put(
         [id]
       );
       if (existingRows.length === 0) {
-        // Delete uploaded file if trustee not found
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
@@ -223,7 +216,6 @@ router.put(
               : existingTrustee.social_links;
         }
       } catch (parseError) {
-        // Delete uploaded file if validation fails
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
@@ -246,14 +238,12 @@ router.put(
       );
 
       if (result.affectedRows === 0) {
-        // Delete uploaded file if update fails
         if (req.file) {
           fs.unlinkSync(req.file.path);
         }
         return res.status(404).json({ error: "Trustee not found" });
       }
 
-      // Delete old image if a new one was uploaded
       if (req.file && existingTrustee.image) {
         const oldImagePath = path.join(
           "uploads/board-trustees/",
@@ -276,7 +266,6 @@ router.put(
         },
       });
     } catch (err) {
-      // Delete uploaded file if database operation fails
       if (req.file) {
         fs.unlinkSync(req.file.path);
       }
@@ -294,7 +283,6 @@ router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Get trustee info to delete associated image
     const [existingRows] = await db.query(
       "SELECT * FROM board_trustees WHERE id = ?",
       [id]
@@ -313,7 +301,6 @@ router.delete("/:id", async (req, res) => {
       return res.status(404).json({ error: "Trustee not found" });
     }
 
-    // Delete associated image file
     if (existingTrustee.image) {
       const imagePath = path.join(
         "uploads/board-trustees/",

@@ -3,7 +3,6 @@ const db = require('../config/database');
 
 const router = express.Router();
 
-// Get all quality education items
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM quality_education ORDER BY display_order ASC, created_at DESC');
@@ -13,7 +12,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get active quality education items
 router.get('/active', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM quality_education WHERE is_active = TRUE ORDER BY display_order ASC, created_at DESC');
@@ -23,7 +21,6 @@ router.get('/active', async (req, res) => {
   }
 });
 
-// Get one quality education item
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM quality_education WHERE id = ?', [req.params.id]);
@@ -34,7 +31,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create quality education item
 router.post('/', async (req, res) => {
   try {
     const { title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order } = req.body;
@@ -54,7 +50,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update quality education item
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -74,7 +69,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete quality education item
 router.delete('/:id', async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM quality_education WHERE id = ?', [req.params.id]);

@@ -3,7 +3,6 @@ const db = require('../config/database');
 
 const router = express.Router();
 
-// Get all quality education items
 router.get('/', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM environment_sustainability ORDER BY display_order ASC, created_at DESC');

@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const router = express.Router();
 
 // Submit registration request
-// routes/registration.js - Update the request route
 router.post("/request", async (req, res) => {
   try {
     const { name, email, mobile_number, address, password } = req.body;
@@ -16,7 +15,6 @@ router.post("/request", async (req, res) => {
       mobile_number,
     });
 
-    // Validate required fields including password
     if (!name || !email || !mobile_number || !address || !password) {
       return res.status(400).json({
         error:
@@ -30,7 +28,6 @@ router.post("/request", async (req, res) => {
       });
     }
 
-    // Check if email already exists in users or pending requests
     const [existingUser] = await db.query(
       'SELECT id FROM users WHERE email = ? UNION SELECT id FROM registration_requests WHERE email = ? AND status = "pending"',
       [email, email]
@@ -42,16 +39,13 @@ router.post("/request", async (req, res) => {
       });
     }
 
-    // Hash the password provided by user
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create registration request with hashed password
     const [result] = await db.query(
       "INSERT INTO registration_requests (name, email, mobile_number, address, password_hash) VALUES (?, ?, ?, ?, ?)",
       [name, email, mobile_number, address, hashedPassword]
     );
 
-    // Notify admins
     try {
       const [admins] = await db.query(
         'SELECT id FROM users WHERE role IN ("super_admin", "admin")'
@@ -99,7 +93,6 @@ router.get("/requests", async (req, res) => {
 });
 
 // Approve registration request (Admin only)
-// In routes/registration.js - approve route
 router.post("/requests/:id/approve", async (req, res) => {
   try {
     const { id } = req.params;
@@ -113,7 +106,6 @@ router.post("/requests/:id/approve", async (req, res) => {
       });
     }
 
-    // Get the registration request with stored password hash
     const [requests] = await db.query(
       'SELECT * FROM registration_requests WHERE id = ? AND status = "pending"',
       [id]
@@ -127,7 +119,6 @@ router.post("/requests/:id/approve", async (req, res) => {
 
     const request = requests[0];
 
-    // Check if username already exists
     const [existingUsername] = await db.query(
       "SELECT id FROM users WHERE username = ?",
       [username]
@@ -139,7 +130,6 @@ router.post("/requests/:id/approve", async (req, res) => {
       });
     }
 
-    // Create user account using the stored password hash
     const [userResult] = await db.query(
       'INSERT INTO users (username, email, password, role, mobile_number, address, status) VALUES (?, ?, ?, ?, ?, ?, "approved")',
       [
@@ -152,13 +142,11 @@ router.post("/requests/:id/approve", async (req, res) => {
       ]
     );
 
-    // Update request status
     await db.query(
       'UPDATE registration_requests SET status = "approved" WHERE id = ?',
       [id]
     );
 
-    // Create notification for the new user
     try {
       await db.query(
         "INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)",

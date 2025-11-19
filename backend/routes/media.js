@@ -7,13 +7,11 @@ const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const type = req.params.type;
     const uploadPath = `uploads/media/${type}/`;
 
-    // Create directory if it doesn't exist
     fs.mkdir(uploadPath, { recursive: true })
       .then(() => cb(null, uploadPath))
       .catch((err) => cb(err));
@@ -24,13 +22,11 @@ const storage = multer.diskStorage({
   },
 });
 
-// Use .any() to accept any field name
 const upload = multer({
   storage: storage,
   limits: { fileSize: 50 * 1024 * 1024 },
 }).any();
 
-// Media type configuration
 const mediaTables = {
   newsletters: {
     fields: [
@@ -87,12 +83,11 @@ const mediaTables = {
   },
 };
 
-// Helper function to validate media type
 const isValidMediaType = (type) => {
   return mediaTables.hasOwnProperty(type);
 };
 
-// Get all published items for a specific media type (for frontend) - UPDATED: Include user info
+// Get all published items for a specific media type (for frontend) : Include user info
 router.get("/published/:type", async (req, res) => {
   const { type } = req.params;
 
@@ -117,7 +112,7 @@ router.get("/published/:type", async (req, res) => {
   }
 });
 
-// Get all items for a specific media type (for admin) - FIXED AUTH
+// Get all items for a specific media type (for admin) 
 router.get("/:type", authenticateToken, async (req, res) => {
   const { type } = req.params;
 
@@ -128,7 +123,6 @@ router.get("/:type", authenticateToken, async (req, res) => {
   try {
     let query;
 
-    // If user is admin or super_admin, include last_modified_by_name
     if (req.user.role === "admin" || req.user.role === "super_admin") {
       query = `
         SELECT m.*, u.username as last_modified_by_name 
@@ -137,7 +131,6 @@ router.get("/:type", authenticateToken, async (req, res) => {
         ORDER BY m.created_at DESC
       `;
     } else {
-      // For regular users, only show their own items or published items
       query = `SELECT * FROM ${type} WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
     }
 
@@ -157,7 +150,7 @@ router.get("/:type", authenticateToken, async (req, res) => {
   }
 });
 
-// Get single item - UPDATED: Include user info
+// Get single item 
 router.get("/:type/:id", async (req, res) => {
   const { type, id } = req.params;
 
@@ -186,8 +179,7 @@ router.get("/:type/:id", async (req, res) => {
   }
 });
 
-// Create item - UPDATED: Track who created the item
-// Create item - UPDATED: Track who created the item
+// Create item - Track who created the item
 router.post("/:type", authenticateToken, upload, async (req, res) => {
   const { type } = req.params;
 
@@ -199,23 +191,20 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
     console.log("Uploaded files:", req.files);
     console.log("Request body:", req.body);
 
-    // FIX: Sanitize request body to ensure no null values
     const sanitizedBody = {};
     Object.keys(req.body).forEach((key) => {
-      sanitizedBody[key] = req.body[key] || ""; // Convert null/undefined to empty string
+      sanitizedBody[key] = req.body[key] || ""; 
     });
 
     let fields = [];
     let values = [];
     let placeholders = [];
 
-    // Get files from request
     const files = req.files || [];
     const imageFile = files.find((file) => file.fieldname === "image");
     const fileFile = files.find((file) => file.fieldname === "file");
 
     switch (type) {
-      // ADD THIS MISSING NEWSLETTERS CASE
       case "newsletters":
         const {
           title: newsletterTitle,
@@ -227,7 +216,6 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
 
         const file_path = fileFile ? fileFile.filename : null;
 
-        // Validate that newsletter has a file
         if (!file_path) {
           return res
             .status(400)
@@ -269,11 +257,10 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           published_date: storyDate,
           publish_type: storyPublishType = "immediate",
           scheduled_date: storyScheduledDate,
-        } = sanitizedBody; // Use sanitized body
+        } = sanitizedBody; 
 
         const image = imageFile ? imageFile.filename : null;
 
-        // FIX: Ensure content is never null
         const storyContent = content || "";
 
         let storyPublishedDate =
@@ -292,16 +279,16 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "author",
           "published_date",
           "is_published",
-          "last_modified_by", // NEW: Add last_modified_by
+          "last_modified_by", 
         ];
         values = [
           storyTitle,
-          storyContent, // Use the sanitized content
+          storyContent, 
           image,
           author || "Anonymous",
           storyPublishedDate,
           storyIsPublished,
-          req.user.id, // NEW: Set the user who created it
+          req.user.id,
         ];
         break;
 
@@ -334,7 +321,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "image",
           "published_date",
           "is_published",
-          "last_modified_by", // NEW: Add last_modified_by
+          "last_modified_by", 
         ];
         values = [
           eventTitle,
@@ -345,7 +332,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           eventImage,
           eventPublishedDate,
           eventIsPublished,
-          req.user.id, // NEW: Set the user who created it
+          req.user.id,
         ];
         break;
 
@@ -361,7 +348,6 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
         } = req.body;
         const blogImage = imageFile ? imageFile.filename : null;
 
-        // Handle tags parsing safely
         let tagsJson = [];
         if (tags) {
           try {
@@ -391,7 +377,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "tags",
           "published_date",
           "is_published",
-          "last_modified_by", // NEW: Add last_modified_by
+          "last_modified_by", 
         ];
         values = [
           blogTitle,
@@ -401,7 +387,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           JSON.stringify(tagsJson),
           blogPublishedDate,
           blogIsPublished,
-          req.user.id, // NEW: Set the user who created it
+          req.user.id, 
         ];
         break;
 
@@ -418,7 +404,6 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
 
         const thumbnail = imageFile ? imageFile.filename : null;
 
-        // NEW: Handle video file upload
         const videoFile = files.find((file) => file.fieldname === "video_file");
         const video_filename = videoFile ? videoFile.filename : null;
 
@@ -439,7 +424,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "duration",
           "published_date",
           "is_published",
-          "last_modified_by", // NEW: Add last_modified_by
+          "last_modified_by", 
         ];
         values = [
           docTitle,
@@ -450,7 +435,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           duration,
           docPublishedDate,
           docIsPublished,
-          req.user.id, // NEW: Set the user who created it
+          req.user.id, 
         ];
         break;
     }
@@ -468,12 +453,11 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
     res.json({
       id: result.insertId,
       message: `${type.slice(0, -1)} created successfully`,
-      is_published: values[values.length - 2], // Adjusted for last_modified_by
+      is_published: values[values.length - 2],
     });
   } catch (error) {
     console.error(`Error creating ${type}:`, error);
 
-    // Clean up uploaded files if there was an error
     if (req.files) {
       for (const file of req.files) {
         try {
@@ -492,7 +476,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
   }
 });
 
-// Update item - UPDATED: Track who modified the item
+// Update item -  Track who modified the item
 router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
   const { type, id } = req.params;
 
@@ -501,7 +485,6 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
   }
 
   try {
-    // Get existing item first
     const [existingItems] = await db.query(
       `SELECT * FROM ${type} WHERE id = ?`,
       [id]
@@ -515,7 +498,6 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
     let updates = [];
     let values = [];
 
-    // Get files from request
     const files = req.files || [];
     const imageFile = files.find((file) => file.fieldname === "image");
     const fileFile = files.find((file) => file.fieldname === "file");
@@ -546,8 +528,8 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "file_path = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", // NEW: Track who modified
-          "last_modified_at = CURRENT_TIMESTAMP", // NEW: Update timestamp
+          "last_modified_by = ?", 
+          "last_modified_at = CURRENT_TIMESTAMP", 
         ];
         values = [
           title,
@@ -555,7 +537,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           file_path,
           published_date,
           finalIsPublished,
-          req.user.id, // NEW: User who made the change
+          req.user.id,
           id,
         ];
         break;
@@ -563,7 +545,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
       case "stories":
         const {
           title: storyTitle,
-          content, // This is coming from formData
+          content,
           author,
           published_date: storyDate,
           publish_type: storyPublishType = "immediate",
@@ -572,7 +554,6 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
 
         const image = imageFile ? imageFile.filename : null;
 
-        // DEBUG: Log what we're receiving
         console.log("Received story data:", {
           title: storyTitle,
           content: content,
@@ -580,8 +561,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           image: image,
         });
 
-        // FIX: Ensure content is never null or undefined
-        const storyContent = content || ""; // Default to empty string if null/undefined
+        const storyContent = content || "";
 
         let storyPublishedDate =
           storyDate || new Date().toISOString().split("T")[0];
@@ -599,21 +579,21 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "author = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", // NEW: Track who modified
-          "last_modified_at = CURRENT_TIMESTAMP", // NEW: Update timestamp
+          "last_modified_by = ?", 
+          "last_modified_at = CURRENT_TIMESTAMP", 
         ];
         values = [
           storyTitle,
-          storyContent, // Use the sanitized content
+          storyContent, 
           image,
           author || "Anonymous",
           storyPublishedDate,
           storyIsPublished,
-          req.user.id, // NEW: User who made the change
+          req.user.id,
           id,
         ];
 
-        console.log("Final values for database:", values); // Debug log
+        console.log("Final values for database:", values);
         break;
 
       case "events":
@@ -646,8 +626,8 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "image = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", // NEW: Track who modified
-          "last_modified_at = CURRENT_TIMESTAMP", // NEW: Update timestamp
+          "last_modified_by = ?", 
+          "last_modified_at = CURRENT_TIMESTAMP", 
         ];
         values = [
           eventTitle,
@@ -658,7 +638,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           eventImage,
           existingItem.published_date,
           finalEventPublished,
-          req.user.id, // NEW: User who made the change
+          req.user.id, 
           id,
         ];
         break;
@@ -677,7 +657,6 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
         let blogImage = existingItem.image;
         if (imageFile) blogImage = imageFile.filename;
 
-        // Handle tags parsing safely
         let tagsJson = existingItem.tags;
         if (tags) {
           try {
@@ -705,8 +684,8 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "tags = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", // NEW: Track who modified
-          "last_modified_at = CURRENT_TIMESTAMP", // NEW: Update timestamp
+          "last_modified_by = ?", 
+          "last_modified_at = CURRENT_TIMESTAMP", 
         ];
         values = [
           blogTitle,
@@ -716,7 +695,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           JSON.stringify(tagsJson),
           blogDate,
           finalBlogPublished,
-          req.user.id, // NEW: User who made the change
+          req.user.id, 
           id,
         ];
         break;
@@ -750,8 +729,8 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "duration = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", // NEW: Track who modified
-          "last_modified_at = CURRENT_TIMESTAMP", // NEW: Update timestamp
+          "last_modified_by = ?", 
+          "last_modified_at = CURRENT_TIMESTAMP", 
         ];
         values = [
           docTitle,
@@ -761,7 +740,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           duration,
           docDate,
           finalDocPublished,
-          req.user.id, // NEW: User who made the change
+          req.user.id, 
           id,
         ];
         break;
@@ -772,12 +751,11 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
 
     res.json({
       message: `${type.slice(0, -1)} updated successfully`,
-      is_published: values[values.length - 3], // Adjusted for last_modified_by and id
+      is_published: values[values.length - 3],
     });
   } catch (error) {
     console.error(`Error updating ${type}:`, error);
 
-    // Clean up uploaded files if there was an error
     if (req.files) {
       for (const file of req.files) {
         try {
@@ -805,7 +783,6 @@ router.delete("/:type/:id", authenticateToken, async (req, res) => {
   }
 
   try {
-    // First get the item to check if it has files to delete
     const [items] = await db.query(`SELECT * FROM ${type} WHERE id = ?`, [id]);
 
     if (items.length === 0) {
@@ -814,7 +791,6 @@ router.delete("/:type/:id", authenticateToken, async (req, res) => {
 
     const item = items[0];
 
-    // Delete associated files
     if (item.image || item.file_path || item.thumbnail) {
       try {
         if (item.image) {
@@ -828,7 +804,6 @@ router.delete("/:type/:id", authenticateToken, async (req, res) => {
         }
       } catch (unlinkError) {
         console.warn("Error deleting associated files:", unlinkError);
-        // Continue with database deletion even if file deletion fails
       }
     }
 
@@ -849,7 +824,7 @@ router.delete("/:type/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Toggle publish status - UPDATED: Track who changed the status
+// Toggle publish status - Track who changed the status
 router.patch("/:type/:id/publish", authenticateToken, async (req, res) => {
   const { type, id } = req.params;
   const { is_published } = req.body;
@@ -877,7 +852,7 @@ router.patch("/:type/:id/publish", authenticateToken, async (req, res) => {
   }
 });
 
-// Get scheduled items for a specific media type - UPDATED: Include user info
+// Get scheduled items for a specific media type - Include user info
 router.get("/scheduled/:type", async (req, res) => {
   const { type } = req.params;
 
@@ -902,13 +877,12 @@ router.get("/scheduled/:type", async (req, res) => {
   }
 });
 
-// Publish all scheduled items that are due - UPDATED: Track who published
+// Publish all scheduled items that are due - Track who published
 router.post("/publish-scheduled", authenticateToken, async (req, res) => {
   try {
     const now = new Date().toISOString().slice(0, 19).replace("T", " ");
     let totalPublished = 0;
 
-    // Publish all scheduled items whose publish date has passed
     for (const type of Object.keys(mediaTables)) {
       const query = `UPDATE ${type} SET is_published = TRUE, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE is_published = FALSE AND published_date <= ?`;
       const [result] = await db.query(query, [req.user.id, now]);

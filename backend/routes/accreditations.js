@@ -5,7 +5,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = 'uploads/accreditations/';
@@ -30,11 +29,10 @@ const upload = multer({
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB limit
+    fileSize: 5 * 1024 * 1024 
   }
 });
 
-// GET all accreditations
 router.get('/', async (req, res) => {
   try {
     console.log('📋 Fetching all accreditations from database');
@@ -53,7 +51,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single accreditation by ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -78,7 +75,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST new accreditation
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     console.log('➕ Creating new accreditation');
@@ -88,7 +84,6 @@ router.post('/', upload.single('image'), async (req, res) => {
 
     console.log('📤 Raw form data:', { title, description, is_active, display_order, image });
 
-    // ✅ FIX: Convert string values to proper types
     const isActive = is_active === 'true' || is_active === true || is_active === '1';
     const displayOrder = parseInt(display_order) || 0;
 
@@ -103,8 +98,8 @@ router.post('/', upload.single('image'), async (req, res) => {
       title, 
       description, 
       image, 
-      isActive, // Use converted boolean
-      displayOrder // Use converted number
+      isActive, 
+      displayOrder 
     ]);
     
     console.log(`✅ Accreditation created successfully with ID: ${result.insertId}`);
@@ -124,7 +119,6 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-// PUT update accreditation
 router.put('/:id', upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
@@ -133,13 +127,11 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     console.log(`✏️ Updating accreditation with ID: ${id}`);
     console.log('📤 Raw form data:', { title, description, is_active, display_order });
 
-    // ✅ FIX: Convert string values to proper types
     const isActive = is_active === 'true' || is_active === true || is_active === '1';
     const displayOrder = parseInt(display_order) || 0;
 
     console.log('📤 Processed data:', { title, description, isActive, displayOrder });
 
-    // First get current accreditation to handle image updates
     const getQuery = 'SELECT * FROM accreditations WHERE id = ?';
     const [currentResults] = await db.query(getQuery, [id]);
     
@@ -151,11 +143,9 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const currentAccreditation = currentResults[0];
     let image = currentAccreditation.image;
 
-    // If new image uploaded, use new image filename
     if (req.file) {
       image = req.file.filename;
       
-      // Delete old image file
       if (currentAccreditation.image) {
         const oldImagePath = path.join('uploads/accreditations/', currentAccreditation.image);
         if (fs.existsSync(oldImagePath)) {
@@ -176,8 +166,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
       title, 
       description, 
       image, 
-      isActive, // Use converted boolean
-      displayOrder, // Use converted number
+      isActive, 
+      displayOrder, 
       id
     ]);
     
@@ -194,13 +184,11 @@ router.put('/:id', upload.single('image'), async (req, res) => {
   }
 });
 
-// DELETE accreditation
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     console.log(`🗑️ Deleting accreditation with ID: ${id}`);
 
-    // First get accreditation to delete image file
     const getQuery = 'SELECT * FROM accreditations WHERE id = ?';
     const [results] = await db.query(getQuery, [id]);
     
@@ -211,7 +199,6 @@ router.delete('/:id', async (req, res) => {
 
     const accreditation = results[0];
     
-    // Delete image file if exists
     if (accreditation.image) {
       const imagePath = path.join('uploads/accreditations/', accreditation.image);
       if (fs.existsSync(imagePath)) {
@@ -220,7 +207,6 @@ router.delete('/:id', async (req, res) => {
       }
     }
 
-    // Delete from database
     const deleteQuery = 'DELETE FROM accreditations WHERE id = ?';
     await db.query(deleteQuery, [id]);
     
@@ -235,13 +221,11 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PATCH - Toggle accreditation status
 router.patch('/:id/toggle-status', async (req, res) => {
   try {
     const { id } = req.params;
     console.log(`🔄 Toggling status for accreditation ID: ${id}`);
 
-    // Get current status
     const getQuery = 'SELECT is_active FROM accreditations WHERE id = ?';
     const [results] = await db.query(getQuery, [id]);
     

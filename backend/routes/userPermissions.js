@@ -1,11 +1,9 @@
-// routes/permissions.js
 const express = require("express");
 const db = require("../config/database");
 const { authenticateToken, requireRole } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Get permissions for a user
 router.get(
   "/user/:userId",
   authenticateToken,
@@ -48,15 +46,12 @@ router.put(
       console.log(`✏️ Updating permissions for user ID: ${userId}`);
       console.log("Permissions data:", permissions);
 
-      // Start transaction
       await db.query("START TRANSACTION");
 
-      // Delete existing permissions
       await db.query("DELETE FROM user_permissions WHERE user_id = ?", [
         userId,
       ]);
 
-      // Insert new permissions
       if (permissions && permissions.length > 0) {
         for (const perm of permissions) {
           await db.query(
@@ -77,10 +72,8 @@ router.put(
         }
       }
 
-      // Commit transaction
       await db.query("COMMIT");
 
-      // Log the action
       await db.query(
         `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, details) 
       VALUES (?, ?, ?, ?, ?)`,
@@ -99,7 +92,6 @@ router.put(
         updatedCount: permissions ? permissions.length : 0,
       });
     } catch (error) {
-      // Rollback transaction on error
       await db.query("ROLLBACK");
       console.error("❌ Error updating permissions:", error);
       res.status(500).json({
@@ -118,7 +110,6 @@ router.get("/role/:role", authenticateToken, async (req, res) => {
 
     console.log(`🔍 Getting default permissions for role: ${role}`);
 
-    // Define default permissions based on role
     const defaultPermissions = {
       viewer: {
         can_view: true,
@@ -162,7 +153,6 @@ router.get("/role/:role", authenticateToken, async (req, res) => {
   }
 });
 
-// Get user permissions for current user (for frontend permission checks)
 router.get("/my-permissions", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -174,7 +164,6 @@ router.get("/my-permissions", authenticateToken, async (req, res) => {
       [userId]
     );
 
-    // If no specific permissions set, return role-based defaults
     if (permissions.length === 0) {
       const defaultPermissions = {
         viewer: {
