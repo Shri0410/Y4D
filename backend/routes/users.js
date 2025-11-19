@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const db = require("../config/database");
 const { authenticateToken, requireRole } = require("../middleware/auth");
+const consoleLogger = require("../utils/logger");
 
 const router = express.Router();
 
@@ -11,7 +12,7 @@ router.get(
   authenticateToken,
   requireRole(["super_admin", "admin"]),
   async (req, res) => {
-    console.log("🔍 Fetching all users...");
+    consoleLogger.log("🔍 Fetching all users...");
 
     const query = `
     SELECT 
@@ -32,7 +33,7 @@ router.get(
 
     try {
       const [results] = await db.query(query);
-      console.log(`✅ Found ${results.length} users in database`);
+      consoleLogger.log(`✅ Found ${results.length} users in database`);
 
       const usersWithFallbackCreator = results.map((user) => ({
         ...user,
@@ -41,7 +42,7 @@ router.get(
 
       res.json(usersWithFallbackCreator);
     } catch (err) {
-      console.error("❌ Database error fetching users:", err);
+      consoleLogger.error("❌ Database error fetching users:", err);
       res
         .status(500)
         .json({ error: "Failed to fetch users", details: err.message });
@@ -51,7 +52,7 @@ router.get(
 
 // Get current user profile
 router.get("/profile", authenticateToken, async (req, res) => {
-  console.log("Fetching user profile for ID:", req.user.id);
+  consoleLogger.log("Fetching user profile for ID:", req.user.id);
 
   const query = `
     SELECT 
@@ -70,7 +71,7 @@ router.get("/profile", authenticateToken, async (req, res) => {
 
     res.json(results[0]);
   } catch (err) {
-    console.error("❌ Database error fetching user profile:", err);
+    consoleLogger.error("❌ Database error fetching user profile:", err);
     res
       .status(500)
       .json({ error: "Failed to fetch user profile", details: err.message });
@@ -214,7 +215,7 @@ router.patch(
         status,
       });
     } catch (err) {
-      console.error("❌ Error updating user status:", err);
+      consoleLogger.error("❌ Error updating user status:", err);
       res
         .status(500)
         .json({ error: "Failed to update user status", details: err.message });
@@ -283,7 +284,7 @@ router.patch(
         role,
       });
     } catch (err) {
-      console.error("❌ Error updating user role:", err);
+      consoleLogger.error("❌ Error updating user role:", err);
       res
         .status(500)
         .json({ error: "Failed to update user role", details: err.message });
@@ -307,7 +308,7 @@ router.put("/profile", authenticateToken, async (req, res) => {
 
     res.json({ message: "Profile updated successfully" });
   } catch (err) {
-    console.error("❌ Error updating profile:", err);
+    consoleLogger.error("❌ Error updating profile:", err);
     res
       .status(500)
       .json({ error: "Failed to update profile", details: err.message });
@@ -355,7 +356,7 @@ router.delete(
         deletedUser: { id, username },
       });
     } catch (err) {
-      console.error("❌ Error deleting user:", err);
+      consoleLogger.error("❌ Error deleting user:", err);
       res
         .status(500)
         .json({ error: "Failed to delete user", details: err.message });
@@ -381,7 +382,7 @@ router.get(
       const [results] = await db.query(testQuery);
       res.json({ schema: results });
     } catch (err) {
-      console.error("❌ Schema check error:", err);
+      consoleLogger.error("❌ Schema check error:", err);
       res
         .status(500)
         .json({ error: "Failed to check schema", details: err.message });
@@ -410,7 +411,7 @@ router.get(
 
       res.json(results[0]);
     } catch (err) {
-      console.error("❌ Error fetching user:", err);
+      consoleLogger.error("❌ Error fetching user:", err);
       res
         .status(500)
         .json({ error: "Failed to fetch user", details: err.message });
@@ -472,7 +473,7 @@ router.get(
 
       res.json(stats);
     } catch (err) {
-      console.error("❌ Error fetching user statistics:", err);
+      consoleLogger.error("❌ Error fetching user statistics:", err);
       res
         .status(500)
         .json({

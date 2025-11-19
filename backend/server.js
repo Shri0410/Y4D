@@ -8,6 +8,9 @@ require("dotenv").config();
 const { validateEnv, isProduction } = require("./utils/validateEnv");
 validateEnv();
 
+// Import console logger (respects NODE_ENV)
+const consoleLogger = require("./utils/logger");
+
 // Import database and middleware
 const db = require("./config/database");
 const { requestLogger, errorLogger } = require("./middleware/logger");
@@ -42,10 +45,10 @@ const ensureUploadDirs = () => {
 
   dirs.forEach((dir) => {
     const dirPath = path.join(uploadsDir, dir);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-      console.log(`✅ Created upload directory: ${dirPath}`);
-    }
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+        consoleLogger.log(`✅ Created upload directory: ${dirPath}`);
+      }
   });
 };
 
@@ -55,9 +58,78 @@ ensureUploadDirs();
 // Create Express app
 const app = express();
 
+// Trust proxy for correct protocol and hostname detection
+// This is important when behind a reverse proxy (like nginx or hosting providers)
+app.set('trust proxy', true);
+
+// ==================== Path Prefix Detection ====================
+// Detect if app is served under a path prefix (e.g., /dev)
+// This is useful for hosting providers that serve apps at subpaths
+function getBasePath(req) {
+  // Check if API_BASE_URL has a path
+  if (process.env.API_BASE_URL) {
+    try {
+      const url = new URL(process.env.API_BASE_URL);
+      if (url.pathname && url.pathname !== '/') {
+        return url.pathname;
+      }
+    } catch (e) {
+      // Invalid URL, continue
+    }
+  }
+  
+  // Try to detect from request path
+  // If request comes to /dev/api-docs, base path is /dev
+  const path = req.originalUrl || req.url;
+  if (path.startsWith('/dev/')) {
+    return '/dev';
+  }
+  
+  return '';
+}
+
+// Middleware to set base path on request object
+app.use((req, res, next) => {
+  req.basePath = getBasePath(req);
+  next();
+});
+
 // ==================== Middleware ====================
 // CORS configuration
-app.use(cors());
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Get allowed origins from environment variable
+    const allowedOrigins = process.env.ALLOWED_ORIGINS 
+      ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+      : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'];
+    
+    // In production, also allow the API's own domain
+    if (process.env.NODE_ENV === 'production') {
+      const apiUrl = process.env.API_BASE_URL || '';
+      if (apiUrl) {
+        try {
+          const url = new URL(apiUrl);
+          allowedOrigins.push(`${url.protocol}//${url.host}`);
+        } catch (e) {
+          // Invalid URL, skip
+        }
+      }
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 app.use(express.json({ limit: "50mb" }));
@@ -66,39 +138,87 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Request logging middleware (must be before routes)
 app.use(requestLogger);
 
-// Static file serving
+// Static file serving (support path prefix)
 app.use("/api/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use("/dev/api/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Swagger API Documentation (Disabled in production)
+// Support path prefixes like /dev
 if (!isProduction()) {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: "Y4D API Documentation",
-    customfavIcon: "/favicon.ico"
-  }));
+  // Dynamic Swagger setup with request-based URL and path prefix support
+  app.use(["/api-docs", "/dev/api-docs"], swaggerUi.serve, (req, res, next) => {
+    // Get the correct base URL from request (auto-detects hostname)
+    const apiBaseUrl = swaggerSpec.getApiBaseUrl(req);
+    
+    // Debug logging (only in development)
+    if (process.env.NODE_ENV !== 'production') {
+      consoleLogger.debug('Swagger URL Detection:', {
+        protocol: req.protocol,
+        host: req.get('host'),
+        forwardedHost: req.get('x-forwarded-host'),
+        forwardedProto: req.get('x-forwarded-proto'),
+        originalUrl: req.originalUrl,
+        detectedUrl: apiBaseUrl
+      });
+    }
+    
+    // Update Swagger spec with dynamic server URL
+    const dynamicSpec = {
+      ...swaggerSpec,
+      servers: [
+        {
+          url: apiBaseUrl,
+          description: 'Current server'
+        }
+      ]
+    };
+    
+    swaggerUi.setup(dynamicSpec, {
+      customCss: '.swagger-ui .topbar { display: none }',
+      customSiteTitle: "Y4D API Documentation",
+      customfavIcon: "/favicon.ico"
+    })(req, res, next);
+  });
 
-  // Swagger JSON endpoint
-  app.get("/api-docs.json", (req, res) => {
+  // Swagger JSON endpoint with dynamic URL and path prefix support
+  app.get(["/api-docs.json", "/dev/api-docs.json"], (req, res) => {
+    // Get the correct base URL from request (auto-detects hostname)
+    const apiBaseUrl = swaggerSpec.getApiBaseUrl(req);
+    
+    const dynamicSpec = {
+      ...swaggerSpec,
+      servers: [
+        {
+          url: apiBaseUrl,
+          description: 'Current server'
+        }
+      ]
+    };
     res.setHeader("Content-Type", "application/json");
-    res.send(swaggerSpec);
+    res.send(dynamicSpec);
   });
   
-  console.log("📚 Swagger UI available at: http://localhost:" + process.env.PORT + "/api-docs");
+  // Log Swagger URL on startup (will show localhost in dev)
+  const swaggerUrl = process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`;
+  consoleLogger.startup(`📚 Swagger UI available at: ${swaggerUrl}/api-docs`);
+  if (process.env.API_BASE_URL && process.env.API_BASE_URL.includes('/dev')) {
+    consoleLogger.startup(`📚 Swagger UI also available at: ${swaggerUrl}/dev/api-docs`);
+  }
 } else {
   // In production, return 404 for Swagger endpoints
-  app.get("/api-docs", (req, res) => {
+  app.get(["/api-docs", "/dev/api-docs"], (req, res) => {
     res.status(404).json({ error: "Not found" });
   });
   
-  app.get("/api-docs.json", (req, res) => {
+  app.get(["/api-docs.json", "/dev/api-docs.json"], (req, res) => {
     res.status(404).json({ error: "Not found" });
   });
 }
 
 // ==================== Routes ====================
-// Health check endpoint
-app.get("/", async (req, res) => {
+// Health check endpoint (support path prefix)
+app.get(["/", "/dev"], async (req, res) => {
   await logger.info("system", "Health check endpoint accessed", {
     ip_address: req.ip,
     request_method: req.method,
@@ -111,8 +231,8 @@ app.get("/", async (req, res) => {
   });
 });
 
-// Database connection test endpoint
-app.get("/api/test-db", async (req, res) => {
+// Database connection test endpoint (support path prefix)
+app.get(["/api/test-db", "/dev/api/test-db"], async (req, res) => {
   try {
     const [results] = await db.query("SELECT 1 + 1 AS solution");
     await logger.success("system", "Database connection test successful", {
@@ -135,7 +255,9 @@ app.get("/api/test-db", async (req, res) => {
 });
 
 // API Routes - All routes registered through centralized index
+// Support both /api and /dev/api paths
 app.use("/api", apiRoutes);
+app.use("/dev/api", apiRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -166,13 +288,23 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", async () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
+  consoleLogger.startup(`🚀 Server running on port ${PORT}`);
+  consoleLogger.startup(`📝 Environment: ${process.env.NODE_ENV || "development"}`);
   
+  // Log server information
   if (isProduction()) {
-    console.log("🔒 Production mode: Swagger UI is disabled");
+    consoleLogger.startup("🔒 Production mode: Swagger UI is disabled");
+    if (process.env.API_BASE_URL) {
+      consoleLogger.startup(`🌐 API Base URL: ${process.env.API_BASE_URL}`);
+    } else {
+      consoleLogger.startup("⚠️  API_BASE_URL not set - will use request hostname dynamically");
+    }
+    if (process.env.ALLOWED_ORIGINS) {
+      consoleLogger.startup(`🔐 Allowed CORS origins: ${process.env.ALLOWED_ORIGINS}`);
+    }
   } else {
-    console.log("🔓 Development mode: Swagger UI is enabled");
+    consoleLogger.startup("🔓 Development mode: Swagger UI is enabled");
+    consoleLogger.startup(`🌐 API Base URL: ${process.env.API_BASE_URL || 'http://localhost:5000'}`);
   }
   
   // Log server startup
@@ -191,13 +323,13 @@ app.listen(PORT, "0.0.0.0", async () => {
 
 // Graceful shutdown
 process.on("SIGTERM", async () => {
-  console.log("SIGTERM signal received: closing HTTP server");
+  consoleLogger.startup("SIGTERM signal received: closing HTTP server");
   await logger.info("system", "Server shutting down gracefully");
   process.exit(0);
 });
 
 process.on("SIGINT", async () => {
-  console.log("SIGINT signal received: closing HTTP server");
+  consoleLogger.startup("SIGINT signal received: closing HTTP server");
   await logger.info("system", "Server shutting down gracefully");
   process.exit(0);
 });

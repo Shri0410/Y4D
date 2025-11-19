@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../config/database");
 const { authenticateToken, requireRole } = require("../middleware/auth");
+const consoleLogger = require("../utils/logger");
 
 const router = express.Router();
 
@@ -19,12 +20,12 @@ router.get(
         [userId]
       );
 
-      console.log(
+      consoleLogger.log(
         `✅ Found ${permissions.length} permissions for user ${userId}`
       );
       res.json(permissions);
     } catch (error) {
-      console.error("❌ Error fetching user permissions:", error);
+      consoleLogger.error("❌ Error fetching user permissions:", error);
       res.status(500).json({
         error: "Failed to fetch permissions",
         details: error.message,
@@ -145,7 +146,7 @@ router.get("/role/:role", authenticateToken, async (req, res) => {
     console.log(`✅ Default permissions for ${role}:`, permissions);
     res.json(permissions);
   } catch (error) {
-    console.error("❌ Error fetching role permissions:", error);
+    consoleLogger.error("❌ Error fetching role permissions:", error);
     res.status(500).json({
       error: "Failed to fetch role permissions",
       details: error.message,
@@ -157,7 +158,7 @@ router.get("/my-permissions", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    console.log(`🔍 Getting permissions for current user ID: ${userId}`);
+    consoleLogger.log(`🔍 Getting permissions for current user ID: ${userId}`);
 
     const [permissions] = await db.query(
       `SELECT * FROM user_permissions WHERE user_id = ? ORDER BY section, sub_section`,
@@ -198,16 +199,16 @@ router.get("/my-permissions", authenticateToken, async (req, res) => {
 
       const rolePermissions =
         defaultPermissions[req.user.role] || defaultPermissions.viewer;
-      console.log(`✅ Using role-based permissions for ${req.user.role}`);
+      consoleLogger.log(`✅ Using role-based permissions for ${req.user.role}`);
       return res.json({ roleBased: true, permissions: rolePermissions });
     }
 
-    console.log(
+    consoleLogger.log(
       `✅ Found ${permissions.length} custom permissions for user ${userId}`
     );
     res.json({ roleBased: false, permissions });
   } catch (error) {
-    console.error("❌ Error fetching user permissions:", error);
+    consoleLogger.error("❌ Error fetching user permissions:", error);
     res.status(500).json({
       error: "Failed to fetch user permissions",
       details: error.message,

@@ -1,5 +1,78 @@
 const swaggerDefinitions = require('./swaggerDefinitions');
 
+/**
+ * Get API base URL dynamically
+ * Always uses request hostname if available, falls back to environment variable or localhost
+ */
+function getApiBaseUrl(req = null) {
+  // Priority 1: Use API_BASE_URL if set (most reliable for production)
+  if (process.env.API_BASE_URL) {
+    try {
+      const url = new URL(process.env.API_BASE_URL);
+      // Validate it's a proper URL
+      if (url.hostname && url.hostname !== 'localhost') {
+        return process.env.API_BASE_URL;
+      }
+    } catch (e) {
+      // Invalid URL, continue to next priority
+    }
+  }
+  
+  // Priority 2: Get from request (auto-detects hostname)
+  if (req) {
+    // Get protocol (handles reverse proxy correctly with trust proxy)
+    // Check X-Forwarded-Proto header first (from reverse proxy)
+    let protocol = req.get('x-forwarded-proto') || req.protocol || 'https';
+    // Ensure https for production (if not explicitly http)
+    if (protocol !== 'https' && protocol !== 'http') {
+      protocol = 'https';
+    }
+    
+    // Get host from request headers (most reliable)
+    // X-Forwarded-Host is set by reverse proxies
+    const forwardedHost = req.get('x-forwarded-host');
+    const hostHeader = req.get('host');
+    const host = forwardedHost || hostHeader || req.hostname;
+    
+    // Only use request hostname if it's not localhost (means it's a real server)
+    if (host && host !== 'localhost' && host !== '127.0.0.1' && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+      // Get base path from request or API_BASE_URL
+      let basePath = '';
+      
+      // Check if API_BASE_URL has a path
+      if (process.env.API_BASE_URL) {
+        try {
+          const url = new URL(process.env.API_BASE_URL);
+          basePath = url.pathname;
+        } catch (e) {
+          // Invalid URL, try to detect from request
+          const requestPath = req.originalUrl || req.url || '';
+          if (requestPath.startsWith('/dev/')) {
+            basePath = '/dev';
+          }
+        }
+      } else {
+        // Detect from request path
+        const requestPath = req.originalUrl || req.url || '';
+        if (requestPath.startsWith('/dev/')) {
+          basePath = '/dev';
+        }
+      }
+      
+      const fullUrl = `${protocol}://${host}${basePath}`;
+      return fullUrl;
+    }
+  }
+  
+  // Priority 3: Fallback to API_BASE_URL even if localhost (better than nothing)
+  if (process.env.API_BASE_URL) {
+    return process.env.API_BASE_URL;
+  }
+  
+  // Priority 4: Default to localhost for development
+  return 'http://localhost:5000';
+}
+
 const swaggerConfig = {
   openapi: '3.0.0',
   info: {
@@ -308,6 +381,9 @@ const swaggerConfig = {
     ],
     paths: swaggerDefinitions.paths
 };
+
+// Export function to get dynamic config
+swaggerConfig.getApiBaseUrl = getApiBaseUrl;
 
 module.exports = swaggerConfig;
 

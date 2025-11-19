@@ -1,5 +1,6 @@
 const mysql = require('mysql2');
 require('dotenv').config();
+const consoleLogger = require('../utils/logger');
 
 // Note: Environment variables are validated in utils/validateEnv.js
 // This file assumes validation has already been done
@@ -33,29 +34,29 @@ const promisePool = pool.promise();
 // Test connection on startup
 pool.getConnection((err, connection) => {
   if (err) {
-    console.error('❌ Database connection error:', err.message);
-    console.error('Error code:', err.code);
+      consoleLogger.error('❌ Database connection error:', err.message);
+      consoleLogger.error('Error code:', err.code);
     return;
   }
-  console.log('✅ Connected to database as id ' + connection.threadId);
+      consoleLogger.log('✅ Connected to database as id ' + connection.threadId);
   connection.release();
 });
 
 // Handle pool errors
 pool.on('error', (err) => {
-  console.error('❌ Database pool error:', err.message);
-  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-    console.log('⚠️  Database connection was closed. Reconnecting...');
-  }
-  if (err.code === 'ER_CON_COUNT_ERROR') {
-    console.log('⚠️  Database has too many connections.');
-  }
-  if (err.code === 'ECONNREFUSED') {
-    console.log('⚠️  Database connection was refused.');
-  }
-  if (err.fatal) {
-    console.error('❌ Fatal database error. Application may need to restart.');
-  }
+      consoleLogger.error('❌ Database pool error:', err.message);
+      if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+        consoleLogger.log('⚠️  Database connection was closed. Reconnecting...');
+      }
+      if (err.code === 'ER_CON_COUNT_ERROR') {
+        consoleLogger.log('⚠️  Database has too many connections.');
+      }
+      if (err.code === 'ECONNREFUSED') {
+        consoleLogger.log('⚠️  Database connection was refused.');
+      }
+      if (err.fatal) {
+        consoleLogger.error('❌ Fatal database error. Application may need to restart.');
+      }
 });
 
 // Export promise pool for async/await usage

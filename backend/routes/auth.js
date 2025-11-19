@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const logger = require('../services/logger');
+const consoleLogger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -11,19 +12,19 @@ const router = express.Router();
 // ===============================
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log('🔐 Login attempt:', { username, password: password ? '***' : 'missing' });
+  consoleLogger.log('🔐 Login attempt:', { username, password: password ? '***' : 'missing' });
 
   if (!username || !password) {
-    console.log('❌ Missing username or password');
+    consoleLogger.log('❌ Missing username or password');
     return res.status(400).json({ error: 'Username and password are required' });
   }
 
   try {
     const query = 'SELECT * FROM users WHERE username = ? OR email = ?';
-    console.log('🔍 Searching for user:', username);
+    consoleLogger.log('🔍 Searching for user:', username);
 
     const [results] = await db.query(query, [username, username]);
-    console.log(`📊 Found ${results.length} users matching: ${username}`);
+    consoleLogger.log(`📊 Found ${results.length} users matching: ${username}`);
 
     if (results.length === 0) {
       // log failed attempt without username_attempted
@@ -44,7 +45,7 @@ router.post('/login', async (req, res) => {
     }
 
     const user = results[0];
-    console.log('👤 User found:', {
+    consoleLogger.log('👤 User found:', {
       id: user.id,
       username: user.username,
       status: user.status,
@@ -66,9 +67,9 @@ router.post('/login', async (req, res) => {
     }
 
     // Check password
-    console.log('🔑 Checking password...');
+    consoleLogger.log('🔑 Checking password...');
     const validPassword = await bcrypt.compare(password, user.password);
-    console.log('Password valid:', validPassword);
+    consoleLogger.log('Password valid:', validPassword);
 
     if (!validPassword) {
       // Log failed login attempt
@@ -121,7 +122,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('❌ Login error:', error);
+    consoleLogger.error('❌ Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 });
@@ -161,7 +162,7 @@ router.post('/register', async (req, res) => {
       userId: result.insertId,
     });
   } catch (error) {
-    console.error('❌ Registration error:', error);
+    consoleLogger.error('❌ Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -189,7 +190,7 @@ router.get('/verify', async (req, res) => {
 
     res.json({ valid: true, user: results[0] });
   } catch (error) {
-    console.error('❌ Token verification error:', error);
+    consoleLogger.error('❌ Token verification error:', error);
     res.status(401).json({ error: 'Invalid token' });
   }
 });

@@ -18,7 +18,8 @@ const optionalEnvVars = {
   DB_SSL_REJECT_UNAUTHORIZED: { default: 'true', type: 'boolean' },
   PORT: { default: '5000', type: 'number' },
   NODE_ENV: { default: 'development', type: 'string' },
-  API_BASE_URL: { default: 'http://localhost:5000', type: 'string' }
+  API_BASE_URL: { default: 'http://localhost:5000', type: 'string' },
+  ALLOWED_ORIGINS: { default: 'http://localhost:3000,http://localhost:5173', type: 'string' }
 };
 
 /**
@@ -135,6 +136,7 @@ function validateEnv() {
 
   // Display success message in development
   if (process.env.NODE_ENV !== 'production') {
+    // Use console.log directly here since this runs before logger is available
     console.log('✅ Environment variables validated successfully');
     console.log(`   Environment: ${process.env.NODE_ENV}`);
     console.log(`   Database: ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
