@@ -318,7 +318,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       <button
         className="btn-primary"
         onClick={() => {
-          // Your existing add button logic
         }}
       >
         + Add {section.slice(0, -1)}
@@ -360,9 +359,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-  // ADDED: Function to render last modified info for reports (admin/super_admin only)
   const renderReportLastModifiedInfo = (item) => {
-    // Only show last modified info to admin and super_admin
     if (
       !currentUser ||
       (currentUser.role !== "admin" && currentUser.role !== "super_admin")
@@ -386,9 +383,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-  // ADDED: Generic function to render last modified info for other sections
   const renderLastModifiedInfo = (item) => {
-    // Only show last modified info to admin and super_admin
     if (
       !currentUser ||
       (currentUser.role !== "admin" && currentUser.role !== "super_admin")
@@ -412,9 +407,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-  // ADDED: Function to render last modified info for banners
   const renderBannerLastModifiedInfo = (item) => {
-    // Only show last modified info to admin and super_admin
     if (
       !currentUser ||
       (currentUser.role !== "admin" && currentUser.role !== "super_admin")
@@ -442,9 +435,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-  // ADDED: Function to render last modified info for accreditations
   const renderAccreditationLastModifiedInfo = (item) => {
-    // Only show last modified info to admin and super_admin
     if (
       !currentUser ||
       (currentUser.role !== "admin" && currentUser.role !== "super_admin")
@@ -2378,7 +2369,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       }
     }
 
-    // Only show media form when we're in add/update mode for a specific media type
     if (
       activeTab === "media" &&
       currentMediaType &&
@@ -2675,12 +2665,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
         const filteredCareers = getFilteredCareers();
 
-        // FIX: Only show form when explicitly in add/update mode
         if (careerAction === "add" || careerAction === "update") {
           return renderCareerForm();
         }
 
-        // Show the careers list for view modes (all, active, inactive)
         return (
           <div className="content-list">
             <div className="content-header">
