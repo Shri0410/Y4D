@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 const db = require("../config/database");
 const fs = require("fs");
-const { authenticateToken } = require("../middleware/auth");
+const { authenticateToken, JWT_SECRET } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -40,28 +40,54 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, 
 });
 
-// Get all reports with last modified user info
-router.get("/", authenticateToken, async (req, res) => {
+// Get all reports - Public endpoint (optional auth for admin access)
+router.get("/", async (req, res) => {
   try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
     let query;
 
-    if (req.user.role === "admin" || req.user.role === "super_admin") {
-      query = `
-        SELECT r.*, u.username as last_modified_by_name 
-        FROM reports r 
-        LEFT JOIN users u ON r.last_modified_by = u.id 
-        ORDER BY r.created_at DESC
-      `;
-    } else {
-      query = `SELECT * FROM reports WHERE last_modified_by = ? ORDER BY created_at DESC`;
+    // If token is provided, try to authenticate (optional auth)
+    if (token) {
+      try {
+        const jwt = require("jsonwebtoken");
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        // Check if user exists and is approved
+        const [userResults] = await db.query(
+          "SELECT id, username, role, status FROM users WHERE id = ?",
+          [decoded.id]
+        );
+
+        if (userResults && userResults.length > 0 && userResults[0].status === "approved") {
+          const user = userResults[0];
+          req.user = user;
+
+          // Authenticated users get role-based access
+          if (user.role === "admin" || user.role === "super_admin") {
+            query = `
+              SELECT r.*, u.username as last_modified_by_name 
+              FROM reports r 
+              LEFT JOIN users u ON r.last_modified_by = u.id 
+              ORDER BY r.created_at DESC
+            `;
+            const [rows] = await db.query(query);
+            return res.json(rows);
+          } else {
+            // Regular users see their own reports + published reports
+            query = `SELECT * FROM reports WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
+            const [rows] = await db.query(query, [user.id]);
+            return res.json(rows);
+          }
+        }
+      } catch (authError) {
+        // Invalid token, fall through to public access
+      }
     }
 
-    const [rows] = await db.query(
-      query,
-      req.user.role !== "admin" && req.user.role !== "super_admin"
-        ? [req.user.id]
-        : []
-    );
+    // Public access: return only published reports
+    query = `SELECT * FROM reports WHERE is_published = TRUE ORDER BY created_at DESC`;
+    const [rows] = await db.query(query);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
