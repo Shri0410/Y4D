@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Stories.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
-const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
 const Stories = () => {
   const [stories, setStories] = useState([]);
@@ -40,7 +40,7 @@ const Stories = () => {
   const fetchStories = async () => {
     try {
       const response = await axios.get(
-        `${SERVER_BASE}/api/media/published/stories`
+        `${API_BASE}/media/published/stories`
       );
       setStories(response.data);
     } catch (error) {
@@ -76,13 +76,13 @@ const Stories = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Stories Banner - ${banner.page}`}
                 className="stories-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="stories-banner-video"
                 autoPlay
                 muted
@@ -134,7 +134,7 @@ const Stories = () => {
                     {story.image && (
                       <div className="st-card-image">
                         <img
-                          src={`${SERVER_BASE}/api/uploads/media/stories/${story.image}`}
+                          src={`${UPLOADS_BASE}/media/stories/${story.image}`}
                           alt={story.title}
                           onError={(e) => {
                             e.target.src = "/placeholder-image.jpg";
@@ -184,7 +184,7 @@ const Stories = () => {
                 {selectedStory.image && (
                   <div className="st-modal-image">
                     <img
-                      src={`${SERVER_BASE}/api/uploads/media/stories/${selectedStory.image}`}
+                      src={`${UPLOADS_BASE}/media/stories/${selectedStory.image}`}
                       alt={selectedStory.title}
                     />
                   </div>

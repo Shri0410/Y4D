@@ -1,0 +1,63 @@
+/**
+ * Centralized API Configuration
+ * 
+ * This file provides a single source of truth for all API endpoints.
+ * All API URLs should be imported from here instead of being hardcoded.
+ * 
+ * Environment Variables:
+ * - VITE_API_BASE_URL: Base URL for API endpoints (e.g., http://localhost:5000/api or https://y4d.ngo/dev/api)
+ * - VITE_UPLOADS_BASE_URL: Base URL for uploaded files (e.g., http://localhost:5000/api/uploads or https://y4d.ngo/dev/api/uploads)
+ */
+
+// Get API base URL from environment variable with fallback
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+
+// Get uploads base URL from environment variable with fallback
+const UPLOADS_BASE_URL = import.meta.env.VITE_UPLOADS_BASE_URL || 'http://localhost:5000/api/uploads';
+
+// Server base URL (without /api) - useful for some endpoints
+const SERVER_BASE_URL = API_BASE_URL.replace('/api', '');
+
+// Export configuration
+export const API_CONFIG = {
+  // Base URLs
+  API_BASE: API_BASE_URL,
+  UPLOADS_BASE: UPLOADS_BASE_URL,
+  SERVER_BASE: SERVER_BASE_URL,
+  
+  // Helper function to get full upload URL
+  getUploadUrl: (path) => {
+    if (!path) return '';
+    // If path already starts with http, return as is
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    // If path starts with /, remove it
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    return `${UPLOADS_BASE_URL}/${cleanPath}`;
+  },
+  
+  // Helper function to get full API URL
+  getApiUrl: (endpoint) => {
+    if (!endpoint) return API_BASE_URL;
+    // If endpoint already starts with http, return as is
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      return endpoint;
+    }
+    // If endpoint starts with /, use it directly with API_BASE
+    if (endpoint.startsWith('/')) {
+      return `${API_BASE_URL}${endpoint}`;
+    }
+    // Otherwise, add / between base and endpoint
+    return `${API_BASE_URL}/${endpoint}`;
+  }
+};
+
+// Export individual constants for backward compatibility
+export const API_BASE = API_CONFIG.API_BASE;
+export const UPLOADS_BASE = API_CONFIG.UPLOADS_BASE;
+export const SERVER_BASE = API_CONFIG.SERVER_BASE;
+
+// Default export
+export default API_CONFIG;
+

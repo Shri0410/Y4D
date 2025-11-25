@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./QualityEducation.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
@@ -11,9 +12,6 @@ const QualityEducation = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
-  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch quality education page banners
   useEffect(() => {
@@ -44,7 +42,7 @@ const QualityEducation = () => {
       /^\/?uploads\/our-work\/quality_education\//,
       ""
     );
-    return `${SERVER_BASE}/api/uploads/our-work/quality_education/${cleanPath}`;
+    return `${UPLOADS_BASE}/our-work/quality_education/${cleanPath}`;
   };
 
   useEffect(() => {
@@ -91,13 +89,13 @@ const QualityEducation = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Quality Education Banner - ${banner.page}`}
                 className="qe-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="qe-banner-video"
                 autoPlay
                 muted

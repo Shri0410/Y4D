@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "./Healthcare.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
@@ -11,9 +12,6 @@ const Healthcare = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
-  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch healthcare page banners
   useEffect(() => {
@@ -41,7 +39,7 @@ const Healthcare = () => {
 
     // Remove any leading slashes just in case
     const cleanPath = path.replace(/^\/?uploads\/our-work\/healthcare\//, "");
-    return `${SERVER_BASE}/api/uploads/our-work/healthcare/${cleanPath}`;
+    return `${UPLOADS_BASE}/our-work/healthcare/${cleanPath}`;
   };
 
   useEffect(() => {
@@ -88,13 +86,13 @@ const Healthcare = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Healthcare Banner - ${banner.page}`}
                 className="hc-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="hc-banner-video"
                 autoPlay
                 muted

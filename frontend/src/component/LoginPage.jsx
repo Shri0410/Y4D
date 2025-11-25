@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../config/api";
 import RegistrationModal from "./RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
@@ -21,7 +22,7 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
 
     try {
       const response = await axios.post(
-        "https://y4dorg-backend.onrender.com/api/auth/login",
+        `${API_BASE}/auth/login`,
         loginData
       );
       localStorage.setItem("token", response.data.token);

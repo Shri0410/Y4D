@@ -1,5 +1,6 @@
 // src/components/PublicRegistrationForm.jsx
 import React, { useState } from "react";
+import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./RegistrationForm.css"; // We'll create this CSS
 
@@ -16,7 +17,6 @@ const PublicRegistrationForm = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
   const handleSubmit = async (e) => {
     e.preventDefault();

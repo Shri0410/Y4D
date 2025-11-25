@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 import "./QualityEducationDetail.css";
-
-const API_BASE = "https://y4dorg-backend.onrender.com/api";
-const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
 // --- Helpers ---
 const getFullUrl = (path) => {
@@ -16,7 +14,7 @@ const getFullUrl = (path) => {
     /^\/?uploads\/our-work\/quality_education\//,
     ""
   );
-  return `${SERVER_BASE}/api/uploads/our-work/quality_education/${cleanPath}`;
+  return `${UPLOADS_BASE}/our-work/quality_education/${cleanPath}`;
 };
 
 // Convert YouTube / Vimeo watch URLs to embeddable URLs

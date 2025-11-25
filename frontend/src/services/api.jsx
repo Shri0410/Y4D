@@ -1,7 +1,6 @@
 // src/services/api.js
 import axios from "axios";
-
-const API_BASE = "https://y4dorg-backend.onrender.com/api";
+import { API_BASE } from "../config/api";
 
 // Create axios instance for consistent configuration
 const api = axios.create({
@@ -12,11 +11,41 @@ const api = axios.create({
   },
 });
 
-// Add response interceptor for better error handling
+// Add request interceptor to automatically inject auth token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling and automatic logout on 401
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("API Error:", error.response?.data || error.message);
+    // Handle 401 Unauthorized - token expired or invalid
+    if (error.response?.status === 401) {
+      // Clear auth data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      
+      // Redirect to login if not already there
+      if (window.location.pathname.startsWith("/admin")) {
+        window.location.href = "/admin";
+      }
+    }
+    
+    // Log error in development only
+    if (import.meta.env.DEV) {
+      console.error("API Error:", error.response?.data || error.message);
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -61,18 +90,18 @@ export const getReports = async () => {
 // Fetch banners for specific page and section
 export const getBanners = async (page = "home", section = null) => {
   try {
-    console.log("🔄 Fetching banners from API...");
     let url = `/banners/page/${page}`;
     if (section) {
       url += `?section=${section}`;
     }
 
-    const response = await axios.get(`https://y4dorg-backend.onrender.com/api${url}`);
-    console.log("✅ Banners API response:", response.data);
+    const response = await api.get(url);
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching banners:", error);
-    console.error("❌ Error response:", error.response?.data);
+    if (import.meta.env.DEV) {
+      console.error("❌ Error fetching banners:", error);
+      console.error("❌ Error response:", error.response?.data);
+    }
     return [];
   }
 };
@@ -80,25 +109,25 @@ export const getBanners = async (page = "home", section = null) => {
 // Fetch all active banners (for multiple sections)
 export const getAllBanners = async () => {
   try {
-    console.log("🔄 Fetching all banners...");
-    const response = await axios.get("https://y4dorg-backend.onrender.com/api/banners");
-    console.log("✅ All banners response:", response.data);
+    const response = await api.get("/banners");
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching all banners:", error);
+    if (import.meta.env.DEV) {
+      console.error("❌ Error fetching all banners:", error);
+    }
     return [];
   }
 };
 // Fetch accreditations
 export const getAccreditations = async () => {
   try {
-    console.log("🔄 Fetching accreditations from API...");
     const response = await api.get("/accreditations");
-    console.log("✅ Accreditations API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ Error fetching accreditations:", error);
-    console.error("❌ Error details:", error.response?.data);
+    if (import.meta.env.DEV) {
+      console.error("❌ Error fetching accreditations:", error);
+      console.error("❌ Error details:", error.response?.data);
+    }
     return [];
   }
 };

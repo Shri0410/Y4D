@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE } from "../config/api";
 import UserManagement from "./UserManagement";
 import RegistrationRequests from "./RegistrationRequests";
 import MediaManager from "./MediaManager";
@@ -98,7 +99,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
 
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
   // Permission check functions
   const canUserPerformAction = (

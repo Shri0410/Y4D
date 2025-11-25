@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Documentaries.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const Documentaries = () => {
   const [documentaries, setDocumentaries] = useState([]);
@@ -10,9 +11,6 @@ const Documentaries = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(null);
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
-  const UPLOADS_BASE = "https://y4dorg-backend.onrender.com/api/uploads";
 
   // Fetch documentaries page banners
   useEffect(() => {
@@ -79,13 +77,13 @@ const Documentaries = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Documentaries Banner - ${banner.page}`}
                 className="documentaries-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="documentaries-banner-video"
                 autoPlay
                 muted

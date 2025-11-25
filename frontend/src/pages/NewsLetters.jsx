@@ -3,14 +3,13 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./NewsLetters.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
   const [newsletterBanners, setNewsletterBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
 
   // Fetch newsletter page banners
   useEffect(() => {
@@ -74,13 +73,13 @@ const Newsletters = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Newsletters Banner - ${banner.page}`}
                 className="newsletter-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="newsletter-banner-video"
                 autoPlay
                 muted

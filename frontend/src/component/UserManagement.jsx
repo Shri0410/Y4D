@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE } from "../config/api";
 import "./UserManagement.css";
 
 const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
@@ -22,7 +23,6 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   });
   const [permissions, setPermissions] = useState([]);
 
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
   const token = localStorage.getItem("token");
 
   // Sync with prop changes

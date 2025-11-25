@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_BASE = "https://y4dorg-backend.onrender.com/api";
+import { API_BASE } from "../config/api";
 
 // Cache for user permissions
 let userPermissionsCache = null;
@@ -17,7 +16,9 @@ export const fetchUserPermissions = async (currentUser) => {
     userPermissionsCache = response.data;
     return userPermissionsCache;
   } catch (error) {
-    console.error("Error fetching user permissions:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error fetching user permissions:", error);
+    }
     // Fall back to role-based permissions
     return getRoleBasedPermissions(currentUser.role);
   }

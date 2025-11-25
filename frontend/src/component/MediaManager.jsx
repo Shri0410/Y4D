@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config/api';
 import axios from 'axios';
 
 const MediaManager = ({ mediaType, onClose }) => {
@@ -14,7 +15,6 @@ const MediaManager = ({ mediaType, onClose }) => {
   const [publishOptions, setPublishOptions] = useState('immediate');
   const [error, setError] = useState('');
 
-  const API_BASE = 'https://y4dorg-backend.onrender.com/api';
 
   useEffect(() => {
     fetchItems();

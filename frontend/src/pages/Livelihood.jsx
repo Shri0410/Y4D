@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Livelihood.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
@@ -11,9 +12,6 @@ const Livelihood = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
-  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch livelihood page banners
   useEffect(() => {
@@ -41,7 +39,7 @@ const Livelihood = () => {
 
     // Remove any leading slashes just in case
     const cleanPath = path.replace(/^\/?uploads\/our-work\/livelihood\//, "");
-    return `${SERVER_BASE}/api/uploads/our-work/livelihood/${cleanPath}`;
+    return `${UPLOADS_BASE}/our-work/livelihood/${cleanPath}`;
   };
 
   useEffect(() => {
@@ -88,13 +86,13 @@ const Livelihood = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Livelihood Banner - ${banner.page}`}
                 className="lv-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="lv-banner-video"
                 autoPlay
                 muted

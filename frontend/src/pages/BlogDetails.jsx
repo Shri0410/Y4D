@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 import "./BlogDetails.css";
 
 const BlogDetails = () => {
@@ -9,9 +10,6 @@ const BlogDetails = () => {
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = import.meta.env.VITE_API_BASE || "https://y4dorg-backend.onrender.com/api";
-  const UPLOADS_BASE =
-    import.meta.env.VITE_UPLOADS_BASE || "https://y4dorg-backend.onrender.com/api/uploads";
 
   useEffect(() => {
     const fetchBlog = async () => {

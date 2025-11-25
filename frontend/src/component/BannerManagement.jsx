@@ -1,5 +1,6 @@
 // Updated BannerManagement.jsx file with last modified info
 import React, { useState, useEffect } from "react";
+import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./BannerManagement.css";
 import {
@@ -31,7 +32,6 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
 
   const [bannerForm, setBannerForm] = useState(bannerFormInitialState);
 
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
   const token = localStorage.getItem("token");
 
   // Permission check functions

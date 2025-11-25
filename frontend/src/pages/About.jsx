@@ -88,13 +88,13 @@ const About = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={banner.title}
                 className="banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="banner-video"
                 autoPlay
                 muted

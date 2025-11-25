@@ -12,16 +12,13 @@ export const useBanners = (page, section = null) => {
         setLoading(true);
         setError(null);
         
-        let url = `/banners/page/${page}`;
-        if (section) {
-          url += `?section=${section}`;
-        }
-        
-        const response = await axios.get(`https://y4dorg-backend.onrender.com/api${url}`);
-        setBanners(response.data);
+        const data = await getBanners(page, section);
+        setBanners(data);
       } catch (err) {
         setError(err.message);
-        console.error('Error fetching banners:', err);
+        if (import.meta.env.DEV) {
+          console.error('Error fetching banners:', err);
+        }
       } finally {
         setLoading(false);
       }
@@ -38,15 +35,11 @@ export const useBanners = (page, section = null) => {
 // Alternative: Simple function for specific page/section
 export const getPageBanners = async (page, section = null) => {
   try {
-    let url = `/banners/page/${page}`;
-    if (section) {
-      url += `?section=${section}`;
-    }
-    
-    const response = await axios.get(`http://localhost:5000/api${url}`);
-    return response.data;
+    return await getBanners(page, section);
   } catch (error) {
-    console.error('Error fetching page banners:', error);
+    if (import.meta.env.DEV) {
+      console.error('Error fetching page banners:', error);
+    }
     return [];
   }
 };

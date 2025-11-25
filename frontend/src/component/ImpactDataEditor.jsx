@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../config/api';
 import axios from 'axios';
 
 const ImpactDataEditor = () => {
@@ -9,7 +10,6 @@ const ImpactDataEditor = () => {
   });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const API_BASE = 'https://y4dorg-backend.onrender.com/api';
 
   useEffect(() => {
     fetchImpactData();

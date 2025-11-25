@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config/api';
 import './AdminLogin.css';
 
 const AdminLogin = ({ onLogin }) => {
@@ -12,7 +13,7 @@ const AdminLogin = ({ onLogin }) => {
     setError('');
     
     try {
-      const response = await fetch('https://y4dorg-backend.onrender.com/api/auth/login', {
+      const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

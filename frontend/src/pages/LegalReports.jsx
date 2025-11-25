@@ -3,14 +3,12 @@ import React, { useEffect, useState } from "react";
 import "./LegalReports.css";
 import axios from "axios";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const LegalReports = () => {
   const [reports, setReports] = useState([]);
   const [legalBanners, setLegalBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
-
-  // your backend URL
-  const BACKEND_URL = "https://y4dorg-backend.onrender.com/";
 
   // Fetch legal page banners
   useEffect(() => {
@@ -36,7 +34,7 @@ const LegalReports = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get(`${BACKEND_URL}/api/reports`);
+        const res = await axios.get(`${API_BASE}/reports`);
         setReports(res.data);
       } catch (err) {
         console.error("Error fetching reports:", err);
@@ -91,13 +89,13 @@ const LegalReports = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Legal Reports Banner - ${banner.page}`}
                 className="banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="banner-video"
                 autoPlay
                 muted
@@ -154,7 +152,7 @@ const LegalReports = () => {
                 <div className="lr-image">
                   {report.image ? (
                     <img
-                      src={`${BACKEND_URL}/api/uploads/reports/${report.image}`}
+                      src={`${UPLOADS_BASE}/reports/${report.image}`}
                       alt={report.title}
                     />
                   ) : (
@@ -168,7 +166,7 @@ const LegalReports = () => {
                 <div className="report-actions">
                   {report.pdf ? (
                     <a
-                      href={`${BACKEND_URL}/api/uploads/reports/${report.pdf}`}
+                      href={`${UPLOADS_BASE}/reports/${report.pdf}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="download-btn"

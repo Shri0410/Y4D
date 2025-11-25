@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./OurWorkManagement.css";
 import {
@@ -36,7 +37,6 @@ const OurWorkManagement = ({
   const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState("");
 
-  const API_BASE = "https://y4dorg-backend.onrender.com/";
   const token = localStorage.getItem("token");
 
   // Permission check functions for this component

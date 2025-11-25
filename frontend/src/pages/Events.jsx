@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Events.css";
 import { getBanners } from "../services/api.jsx";
-
-const API_BASE = "https://y4dorg-backend.onrender.com/";
-const UPLOADS_BASE = `${API_BASE}/api/uploads`;
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -80,13 +78,13 @@ const Events = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Events Banner - ${banner.page}`}
                 className="events-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="events-banner-video"
                 autoPlay
                 muted

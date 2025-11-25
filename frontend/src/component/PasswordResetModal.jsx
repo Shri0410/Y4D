@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE } from '../config/api';
 import axios from 'axios';
 
 const PasswordResetModal = ({ onClose }) => {
@@ -11,7 +12,6 @@ const PasswordResetModal = ({ onClose }) => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const API_BASE = 'https://y4dorg-backend.onrender.com/api';
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();

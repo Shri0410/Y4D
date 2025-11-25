@@ -5,8 +5,6 @@ import { Link } from "react-router-dom";
 import "./Blogs.css";
 import { getBanners } from "../services/api.jsx";
 
-const API_BASE = "https://y4dorg-backend.onrender.com/api";
-const UPLOADS_BASE = "https://y4dorg-backend.onrender.com/api/uploads";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
@@ -75,13 +73,13 @@ const Blogs = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === "image" ? (
               <img
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Blogs Banner - ${banner.page}`}
                 className="blogs-banner-image"
               />
             ) : (
               <video
-                src={`http://localhost:5000/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="blogs-banner-video"
                 autoPlay
                 muted

@@ -4,9 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "./EnvironmentSustainability.css";
 import { getBanners } from "../services/api.jsx";
-
-const API_BASE = "https://y4dorg-backend.onrender.com/api";
-const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const getImageUrl = (path) => {
   if (!path) return "";
@@ -17,7 +15,7 @@ const getImageUrl = (path) => {
     /^\/?uploads\/our-work\/environment_sustainability\//,
     ""
   );
-  return `${SERVER_BASE}/api/uploads/our-work/environment_sustainability/${cleanPath}`;
+  return `${UPLOADS_BASE}/our-work/environment_sustainability/${cleanPath}`;
 };
 
 const EnvironmentSustainability = () => {
@@ -91,13 +89,13 @@ const EnvironmentSustainability = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Environment Sustainability Banner - ${banner.page}`}
                 className="es-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="es-banner-video"
                 autoPlay
                 muted

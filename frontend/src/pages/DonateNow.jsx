@@ -1,5 +1,6 @@
 // src/pages/DonateNow.jsx
 import React, { useState, useEffect } from "react";
+import { UPLOADS_BASE } from "../config/api";
 import "./DonateNow.css";
 import { getBanners } from "../services/api.jsx";
 
@@ -114,13 +115,13 @@ const DonateNow = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Donate Banner - ${banner.page}`}
                 className="donate-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="donate-banner-video"
                 autoPlay
                 muted

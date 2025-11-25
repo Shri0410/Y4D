@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE, UPLOADS_BASE } from '../config/api';
 import axios from 'axios';
 
 const OurWorkManager = ({ category, onClose }) => {
@@ -20,7 +21,6 @@ const OurWorkManager = ({ category, onClose }) => {
   });
   const [error, setError] = useState('');
 
-  const API_BASE = 'https://y4dorg-backend.onrender.com/api';
   const token = localStorage.getItem('token');
 
   const categoryLabels = {
@@ -277,7 +277,7 @@ const OurWorkManager = ({ category, onClose }) => {
       item.image_url
         ? (item.image_url.startsWith('http') 
             ? item.image_url 
-            : `http://localhost:5000${item.image_url}`
+            : `${UPLOADS_BASE}/${item.image_url.replace(/^\/api\/uploads\//, '')}`
           )
         : '/placeholder-image.jpg'
     }

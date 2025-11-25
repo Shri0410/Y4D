@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import "./IDP.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 import DonateButton from "../component/DonateButton";
 
 const IDP = () => {
@@ -12,9 +13,6 @@ const IDP = () => {
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const API_BASE = "https://y4dorg-backend.onrender.com/api";
-  const SERVER_BASE = "https://y4dorg-backend.onrender.com/";
 
   // Fetch IDP page banners
   useEffect(() => {
@@ -45,7 +43,7 @@ const IDP = () => {
       /^\/?uploads\/our-work\/integrated_development\//,
       ""
     );
-    return `${SERVER_BASE}/api/uploads/our-work/integrated_development/${cleanPath}`;
+    return `${UPLOADS_BASE}/our-work/integrated_development/${cleanPath}`;
   };
 
   useEffect(() => {
@@ -92,13 +90,13 @@ const IDP = () => {
           <div key={banner.id} className="banner-container">
             {banner.media_type === 'image' ? (
               <img
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`IDP Banner - ${banner.page}`}
                 className="idp-banner-image"
               />
             ) : (
               <video
-                src={`https://y4dorg-backend.onrender.com/uploads/banners/${banner.media}`}
+                src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 className="idp-banner-video"
                 autoPlay
                 muted
