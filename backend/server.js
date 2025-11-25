@@ -99,34 +99,50 @@ app.use((req, res, next) => {
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      consoleLogger.debug('CORS: Request with no origin, allowing');
+      return callback(null, true);
+    }
     
     // Get allowed origins from environment variable
     const allowedOrigins = process.env.ALLOWED_ORIGINS 
-      ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-      : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'];
+      ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().toLowerCase())
+      : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'].map(o => o.toLowerCase());
     
-    // In production, also allow the API's own domain
-    if (process.env.NODE_ENV === 'production') {
-      const apiUrl = process.env.API_BASE_URL || '';
-      if (apiUrl) {
-        try {
-          const url = new URL(apiUrl);
-          allowedOrigins.push(`${url.protocol}//${url.host}`);
-        } catch (e) {
-          // Invalid URL, skip
+    // Also allow the API's own domain (for both development and production)
+    const apiUrl = process.env.API_BASE_URL || '';
+    if (apiUrl) {
+      try {
+        const url = new URL(apiUrl);
+        const apiOrigin = `${url.protocol}//${url.host}`.toLowerCase();
+        if (!allowedOrigins.includes(apiOrigin)) {
+          allowedOrigins.push(apiOrigin);
         }
+      } catch (e) {
+        // Invalid URL, skip
+        consoleLogger.debug('CORS: Invalid API_BASE_URL, skipping');
       }
     }
     
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+    // Normalize origin for comparison (remove trailing slash, lowercase)
+    const normalizedOrigin = origin.toLowerCase().replace(/\/$/, '');
+    const isAllowed = allowedOrigins.some(allowed => {
+      const normalizedAllowed = allowed.replace(/\/$/, '');
+      return normalizedOrigin === normalizedAllowed;
+    });
+    
+    if (isAllowed) {
+      consoleLogger.debug(`CORS: Origin ${origin} is allowed`);
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      consoleLogger.warn(`CORS: Origin ${origin} is not allowed. Allowed origins: ${allowedOrigins.join(', ')}`);
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
