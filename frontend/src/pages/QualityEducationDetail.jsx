@@ -60,7 +60,7 @@ const QualityEducationDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/quality-education/${id}`;
+      const url = `${API_BASE}/our-work/published/quality_education/${id}`;
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {

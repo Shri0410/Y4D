@@ -53,7 +53,7 @@ const HealthcareDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/healthcare/${id}`;
+      const url = `${API_BASE}/our-work/published/healthcare/${id}`;
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {

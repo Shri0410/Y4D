@@ -133,6 +133,35 @@ router.get("/published/:category", async (req, res) => {
   }
 });
 
+// Get single published item by ID (for frontend) - Public access
+router.get("/published/:category/:id", async (req, res) => {
+  const { category, id } = req.params;
+
+  if (!isValidCategory(category)) {
+    return res.status(400).json({ error: "Invalid category" });
+  }
+
+  try {
+    const query = `SELECT ow.*, u.username as last_modified_by_name 
+                   FROM ${category} ow 
+                   LEFT JOIN users u ON ow.last_modified_by = u.id 
+                   WHERE ow.id = ? AND ow.is_active = TRUE`;
+    const [results] = await db.query(query, [id]);
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: "Item not found or not published" });
+    }
+
+    return res.status(200).json(results[0]);
+  } catch (error) {
+    console.error(`Error fetching published ${category} item:`, error);
+    res.status(500).json({
+      error: `Failed to fetch ${category} item`,
+      details: error.message,
+    });
+  }
+});
+
 // Get all items for a specific category (for admin) - FILTERED by role
 router.get("/admin/:category", auth, async (req, res) => {
   const { category } = req.params;

@@ -57,7 +57,7 @@ const IDPDetail = () => {
   const fetchItem = async () => {
     try {
       const response = await axios.get(
-        `${API_BASE}/integrated-development/${id}`
+        `${API_BASE}/our-work/published/integrated_development/${id}`
       );
       setItem(response.data);
     } catch (err) {

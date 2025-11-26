@@ -55,7 +55,7 @@ const EnvironmentSustainabilityDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/environment-sustainability/${id}`;
+      const url = `${API_BASE}/our-work/published/environment_sustainability/${id}`;
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {

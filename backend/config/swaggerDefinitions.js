@@ -580,6 +580,57 @@ module.exports = {
         }
       }
     },
+    '/api/our-work/published/{category}/{id}': {
+      get: {
+        summary: 'Get single published work item by ID',
+        description: 'Retrieve a single published item by category and ID (for frontend)',
+        tags: ['Our Work'],
+        parameters: [
+          {
+            in: 'path',
+            name: 'category',
+            required: true,
+            schema: {
+              type: 'string',
+              enum: ['quality_education', 'livelihood', 'healthcare', 'environment_sustainability', 'integrated_development']
+            }
+          },
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: {
+              type: 'integer'
+            },
+            description: 'Item ID'
+          }
+        ],
+        responses: {
+          '200': { 
+            description: 'Published item retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'integer' },
+                    title: { type: 'string' },
+                    description: { type: 'string' },
+                    content: { type: 'string' },
+                    image_url: { type: 'string' },
+                    video_url: { type: 'string' },
+                    is_active: { type: 'boolean' },
+                    display_order: { type: 'integer' }
+                  }
+                }
+              }
+            }
+          },
+          '400': { description: 'Invalid category' },
+          '404': { description: 'Item not found or not published' }
+        }
+      }
+    },
     '/api/our-work/admin/{category}': {
       get: {
         summary: 'Get all work items by category (Admin)',

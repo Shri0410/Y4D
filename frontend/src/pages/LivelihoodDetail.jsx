@@ -53,7 +53,7 @@ const LivelihoodDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/livelihood/${id}`;
+      const url = `${API_BASE}/our-work/published/livelihood/${id}`;
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {
