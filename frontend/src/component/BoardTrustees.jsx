@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import "./BoardTrustees.css";
 
 const BoardTrustees = () => {
@@ -20,7 +21,7 @@ const BoardTrustees = () => {
 
   const fetchTrustees = async () => {
     try {
-      const response = await axios.get('/api/board-trustees');
+      const response = await axios.get(`${API_BASE}/board-trustees`);
       setTrustees(response.data);
     } catch (error) {
       console.error('Error fetching trustees:', error);
@@ -42,9 +43,9 @@ const BoardTrustees = () => {
       }
 
       if (editingId) {
-        await axios.put(`/api/board-trustees/${editingId}`, data);
+        await axios.put(`${API_BASE}/board-trustees/${editingId}`, data);
       } else {
-        await axios.post('/api/board-trustees', data);
+        await axios.post(`${API_BASE}/board-trustees`, data);
       }
 
       setFormData({ name: '', position: '', bio: '', social_links: '{}', image: null });
@@ -71,7 +72,7 @@ const BoardTrustees = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this trustee?')) {
       try {
-        await axios.delete(`/api/board-trustees/${id}`);
+        await axios.delete(`${API_BASE}/board-trustees/${id}`);
         fetchTrustees();
       } catch (error) {
         console.error('Error deleting trustee:', error);

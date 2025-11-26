@@ -39,7 +39,7 @@ const Events = () => {
   const fetchEvents = async () => {
     try {
       const response = await axios.get(
-        `${API_BASE}/api/media/published/events`
+        `${API_BASE}/media/published/events`
       );
       const sortedEvents = response.data.sort(
         (a, b) => new Date(b.date) - new Date(a.date)

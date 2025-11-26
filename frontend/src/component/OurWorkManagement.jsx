@@ -72,9 +72,9 @@ const OurWorkManagement = ({
     if (!imageUrl) return null;
     if (imageUrl.startsWith("http")) return imageUrl;
     if (imageUrl.startsWith("/uploads/")) {
-      return `${API_BASE}/api${imageUrl}`;
+      return `${API_BASE}${imageUrl}`;
     }
-    return `${API_BASE}/api/uploads/our-work/${category}/${imageUrl}`;
+    return `${API_BASE}/uploads/our-work/${category}/${imageUrl}`;
   };
 
   useEffect(() => {
@@ -88,7 +88,7 @@ const OurWorkManagement = ({
       setLoading(true);
       setError("");
       const response = await axios.get(
-        `${API_BASE}/api/our-work/admin/${category}`,
+        `${API_BASE}/our-work/admin/${category}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -147,13 +147,13 @@ const OurWorkManagement = ({
 
       if (editingItem) {
         response = await axios.put(
-          `${API_BASE}/api/our-work/admin/${category}/${editingItem.id}`,
+          `${API_BASE}/our-work/admin/${category}/${editingItem.id}`,
           formDataToSend,
           config
         );
       } else {
         response = await axios.post(
-          `${API_BASE}/api/our-work/admin/${category}`,
+          `${API_BASE}/our-work/admin/${category}`,
           formDataToSend,
           config
         );
@@ -207,7 +207,7 @@ const OurWorkManagement = ({
 
     if (window.confirm("Are you sure you want to delete this item?")) {
       try {
-        await axios.delete(`${API_BASE}/api/our-work/admin/${category}/${id}`, {
+        await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchItems();
@@ -227,7 +227,7 @@ const OurWorkManagement = ({
 
     try {
       await axios.patch(
-        `${API_BASE}/api/our-work/admin/${category}/${id}/status`,
+        `${API_BASE}/our-work/admin/${category}/${id}/status`,
         {
           is_active: !currentStatus,
         },

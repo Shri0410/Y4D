@@ -6,6 +6,7 @@ import "../pages/About.css";
 // import bannerImg from "../assets/BannerImages/f.jpeg";
 import pyramidImg from "../assets/Pyramid.png";
 import { getBanners } from "../services/api.jsx";
+import { UPLOADS_BASE } from "../config/api";
 
 const About = () => {
   const navigate = useNavigate();
