@@ -3,6 +3,7 @@ import axios from "axios";
 import { API_BASE } from "../config/api";
 import { getToken, clearAuth } from "../utils/tokenManager";
 import logger from "../utils/logger";
+import { extractData, extractErrorMessage } from "../utils/apiResponse";
 
 // Create axios instance for consistent configuration
 const api = axios.create({
@@ -29,7 +30,11 @@ api.interceptors.request.use(
 
 // Add response interceptor for better error handling and automatic logout on 401
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Response is successful, return as is
+    // Components can use extractData() to get the data
+    return response;
+  },
   (error) => {
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
@@ -42,8 +47,18 @@ api.interceptors.response.use(
       }
     }
     
+    // Extract error message from standardized response
+    const errorMessage = extractErrorMessage(error);
+    
     // Log error using logger utility
-    logger.error("API Error:", error.response?.data || error.message);
+    logger.error("API Error:", {
+      message: errorMessage,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    
+    // Enhance error object with extracted message
+    error.extractedMessage = errorMessage;
     
     return Promise.reject(error);
   }
@@ -52,37 +67,37 @@ api.interceptors.response.use(
 // Get all careers
 export const getCareers = async () => {
   const response = await api.get("/careers");
-  return response.data;
+  return extractData(response);
 };
 
 // Apply for a job
 export const applyForJob = async (applicationData) => {
   const response = await api.post("/careers/apply", applicationData);
-  return response.data;
+  return extractData(response);
 };
 
 // Fetch impact data
 export const getImpactData = async () => {
   const response = await api.get("/impact-data");
-  return response.data;
+  return extractData(response);
 };
 
 // Fetch management data
 export const getManagement = async () => {
   const response = await api.get("/management");
-  return response.data;
+  return extractData(response);
 };
 
 // Fetch mentors
 export const getMentors = async () => {
   const response = await api.get("/mentors");
-  return response.data;
+  return extractData(response);
 };
 
 // Fetch reports
 export const getReports = async () => {
   const response = await api.get("/reports");
-  return response.data;
+  return extractData(response);
 };
 // Add these functions to your services/api.jsx
 
@@ -95,7 +110,7 @@ export const getBanners = async (page = "home", section = null) => {
     }
 
     const response = await api.get(url);
-    return response.data;
+    return extractData(response);
   } catch (error) {
     logger.error("Error fetching banners:", error);
     return [];

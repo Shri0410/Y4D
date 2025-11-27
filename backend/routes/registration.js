@@ -1,11 +1,12 @@
 const express = require("express");
 const db = require("../config/database");
 const bcrypt = require("bcrypt");
+const { authLimiter } = require("../middleware/rateLimiter");
 
 const router = express.Router();
 
 // Submit registration request
-router.post("/request", async (req, res) => {
+router.post("/request", authLimiter, async (req, res) => {
   try {
     const { name, email, mobile_number, address, password } = req.body;
 

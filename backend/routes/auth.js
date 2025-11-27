@@ -4,23 +4,22 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 const logger = require('../services/logger');
 const consoleLogger = require('../utils/logger');
+const { authLimiter } = require('../middleware/rateLimiter');
+const { sendError, sendSuccess, sendUnauthorized, sendInternalError } = require('../utils/response');
+const { validateLogin, validateRegistration } = require('../middleware/validation');
 
 const router = express.Router();
 
 // ===============================
 // LOGIN
 // ===============================
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, validateLogin, async (req, res) => {
   const { username, password } = req.body;
   consoleLogger.log('🔐 Login attempt:', { username, password: password ? '***' : 'missing' });
 
-  if (!username || !password) {
-    consoleLogger.log('❌ Missing username or password');
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
-
   try {
-    const query = 'SELECT * FROM users WHERE username = ? OR email = ?';
+    // Optimized: Select only needed fields
+    const query = 'SELECT id, username, email, password, role, status, created_at FROM users WHERE username = ? OR email = ?';
     consoleLogger.log('🔍 Searching for user:', username);
 
     const [results] = await db.query(query, [username, username]);
@@ -61,9 +60,7 @@ router.post('/login', async (req, res) => {
         metadata: { status: user.status }
       });
 
-      return res
-        .status(401)
-        .json({ error: 'Account not approved. Please contact administrator.' });
+      return sendError(res, 401, 'Account not approved. Please contact administrator.');
     }
 
     // Check password
@@ -123,26 +120,22 @@ router.post('/login', async (req, res) => {
     });
   } catch (error) {
     consoleLogger.error('❌ Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    return sendInternalError(res, error, 'Login failed');
   }
 });
 
 // ===============================
 // REGISTER (Admin creates users)
 // ===============================
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, validateRegistration, async (req, res) => {
   const { username, email, password, role } = req.body;
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
 
   try {
     const checkQuery = 'SELECT id FROM users WHERE username = ? OR email = ?';
     const [existing] = await db.query(checkQuery, [username, email]);
 
     if (existing.length > 0) {
-      return res.status(409).json({ error: 'Username or email already exists' });
+      return sendError(res, 409, 'Username or email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -157,13 +150,11 @@ router.post('/register', async (req, res) => {
       userRole,
     ]);
 
-    res.status(201).json({
-      message: 'User registered successfully. Waiting for admin approval.',
+    return sendSuccess(res, {
       userId: result.insertId,
-    });
+    }, 'User registered successfully. Waiting for admin approval.', 201);
   } catch (error) {
-    consoleLogger.error('❌ Registration error:', error);
-    res.status(500).json({ error: 'Registration failed' });
+    return sendInternalError(res, error, 'Registration failed');
   }
 });
 

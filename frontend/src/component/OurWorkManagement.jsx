@@ -4,6 +4,7 @@ import axios from "axios";
 import toast from "../utils/toast";
 import logger from "../utils/logger";
 import confirmDialog from "../utils/confirmDialog";
+import { extractData, extractErrorMessage, handleApiSuccess, handleApiError } from "../utils/apiResponse";
 import "./OurWorkManagement.css";
 import {
   canView,
@@ -100,8 +101,11 @@ const OurWorkManagement = ({
         }
       );
 
+      // Extract data from standardized response
+      const data = extractData(response) || [];
+      
       // Ensure we have last_modified_by_name for each item
-      const itemsWithModifier = response.data.map((item) => ({
+      const itemsWithModifier = data.map((item) => ({
         ...item,
         last_modified_by_name: item.last_modified_by_name || "Unknown",
       }));
@@ -165,13 +169,13 @@ const OurWorkManagement = ({
       resetForm();
       onActionChange("view");
       fetchItems();
-      toast.success(`Item ${editingItem ? "updated" : "created"} successfully!`);
+      
+      // Handle success with standardized response
+      handleApiSuccess(response, { 
+        customMessage: `Item ${editingItem ? "updated" : "created"} successfully!` 
+      });
     } catch (error) {
-      logger.error("Error saving item:", error);
-      const errorMessage =
-        error.response?.data?.error ||
-        error.response?.data?.details ||
-        "Failed to save. Please check console for details.";
+      const errorMessage = handleApiError(error, { showToast: false });
       setError(errorMessage);
     }
     setLoading(false);
@@ -211,14 +215,13 @@ const OurWorkManagement = ({
     const confirmed = await confirmDialog("Are you sure you want to delete this item?");
     if (confirmed) {
       try {
-        await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
+        const response = await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchItems();
-        toast.success("Item deleted successfully!");
+        handleApiSuccess(response, { customMessage: "Item deleted successfully!" });
       } catch (error) {
-        logger.error("Error deleting item:", error);
-        toast.error(error.response?.data?.error || "Failed to delete item");
+        handleApiError(error);
       }
     }
   };
@@ -230,7 +233,7 @@ const OurWorkManagement = ({
     }
 
     try {
-      await axios.patch(
+      const response = await axios.patch(
         `${API_BASE}/our-work/admin/${category}/${id}/status`,
         {
           is_active: !currentStatus,
@@ -243,14 +246,11 @@ const OurWorkManagement = ({
         }
       );
       fetchItems();
-      toast.success(
-        `Item ${!currentStatus ? "activated" : "deactivated"} successfully!`
-      );
+      handleApiSuccess(response, { 
+        customMessage: `Item ${!currentStatus ? "activated" : "deactivated"} successfully!` 
+      });
     } catch (error) {
-      logger.error("Error toggling status:", error);
-      toast.error(
-        error.response?.data?.error || "Failed to update status"
-      );
+      handleApiError(error);
     }
   };
 

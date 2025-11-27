@@ -5,6 +5,9 @@ const db = require("../config/database");
 const fs = require("fs").promises;
 const { authenticateToken: auth } = require("../middleware/auth");
 const consoleLogger = require("../utils/logger");
+const { publicLimiter, adminLimiter, uploadLimiter } = require("../middleware/rateLimiter");
+const { sendError, sendSuccess, sendNotFound, sendInternalError } = require("../utils/response");
+const { validateCategory, validateId, validateOurWorkItem, validateStatusUpdate, validateDisplayOrder } = require("../middleware/validation");
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -110,15 +113,15 @@ const isValidCategory = (category) => {
 };
 
 // Get all published items for a specific category (for frontend) - Include user info
-router.get("/published/:category", async (req, res) => {
+router.get("/published/:category", publicLimiter, validateCategory, async (req, res) => {
   const { category } = req.params;
 
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
-
   try {
-    const query = `SELECT ow.*, u.username as last_modified_by_name 
+    // Optimized: Select only needed fields instead of *
+    const query = `SELECT ow.id, ow.title, ow.description, ow.content, ow.image_url, 
+                          ow.video_url, ow.additional_images, ow.meta_title, ow.meta_description, 
+                          ow.meta_keywords, ow.is_active, ow.display_order, ow.created_at, 
+                          ow.last_modified_at, u.username as last_modified_by_name 
                    FROM ${category} ow 
                    LEFT JOIN users u ON ow.last_modified_by = u.id 
                    WHERE ow.is_active = TRUE 
@@ -126,76 +129,66 @@ router.get("/published/:category", async (req, res) => {
     const [results] = await db.query(query);
     return res.status(200).json(results || []);
   } catch (error) {
-    consoleLogger.error(`Error fetching published ${category}:`, error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to fetch ${category}`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to fetch ${category}`);
   }
 });
 
 // Get single published item by ID (for frontend) - Public access
-router.get("/published/:category/:id", async (req, res) => {
+router.get("/published/:category/:id", publicLimiter, validateCategory, validateId, async (req, res) => {
   const { category, id } = req.params;
 
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
-
   try {
-    const query = `SELECT ow.*, u.username as last_modified_by_name 
+    // Optimized: Select only needed fields
+    const query = `SELECT ow.id, ow.title, ow.description, ow.content, ow.image_url, 
+                          ow.video_url, ow.additional_images, ow.meta_title, ow.meta_description, 
+                          ow.meta_keywords, ow.is_active, ow.display_order, ow.created_at, 
+                          ow.last_modified_at, u.username as last_modified_by_name 
                    FROM ${category} ow 
                    LEFT JOIN users u ON ow.last_modified_by = u.id 
                    WHERE ow.id = ? AND ow.is_active = TRUE`;
     const [results] = await db.query(query, [id]);
 
     if (results.length === 0) {
-      return res.status(404).json({ error: "Item not found or not published" });
+      return sendNotFound(res, "Item not found or not published");
     }
 
     return res.status(200).json(results[0]);
   } catch (error) {
-    consoleLogger.error(`Error fetching published ${category} item:`, error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to fetch ${category} item`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to fetch ${category} item`);
   }
 });
 
 // Get all items for a specific category (for admin) - FILTERED by role
-router.get("/admin/:category", auth, async (req, res) => {
+router.get("/admin/:category", auth, adminLimiter, validateCategory, async (req, res) => {
   const { category } = req.params;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     let query;
 
     if (req.user.role === "admin" || req.user.role === "super_admin") {
+      // Optimized: Select only needed fields
       query = `
-        SELECT ow.*, u.username as last_modified_by_name 
+        SELECT ow.id, ow.title, ow.description, ow.content, ow.image_url, 
+               ow.video_url, ow.additional_images, ow.meta_title, ow.meta_description, 
+               ow.meta_keywords, ow.is_active, ow.display_order, ow.created_at, 
+               ow.last_modified_at, ow.last_modified_by, u.username as last_modified_by_name 
         FROM ${category} ow 
         LEFT JOIN users u ON ow.last_modified_by = u.id 
         ORDER BY ow.display_order ASC, ow.created_at DESC
       `;
     } else {
-      query = `SELECT * FROM ${category} ORDER BY display_order ASC, created_at DESC`;
+      // Optimized: Select only needed fields for regular users
+      query = `SELECT id, title, description, content, image_url, video_url, 
+                      additional_images, meta_title, meta_description, meta_keywords, 
+                      is_active, display_order, created_at, last_modified_at 
+               FROM ${category} 
+               ORDER BY display_order ASC, created_at DESC`;
     }
 
     const [results] = await db.query(query);
     return res.status(200).json(results || []);
   } catch (error) {
-    consoleLogger.error(`Error fetching ${category}:`, error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to fetch ${category}`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to fetch ${category}`);
   }
 });
 
@@ -208,34 +201,31 @@ router.get("/admin/:category/:id", auth, async (req, res) => {
   }
 
   try {
-    const query = `SELECT ow.*, u.username as last_modified_by_name 
+    // Optimized: Select only needed fields
+    const query = `SELECT ow.id, ow.title, ow.description, ow.content, ow.image_url, 
+                          ow.video_url, ow.additional_images, ow.meta_title, ow.meta_description, 
+                          ow.meta_keywords, ow.is_active, ow.display_order, ow.created_at, 
+                          ow.last_modified_at, ow.last_modified_by, u.username as last_modified_by_name 
                    FROM ${category} ow 
                    LEFT JOIN users u ON ow.last_modified_by = u.id 
                    WHERE ow.id = ?`;
     const [results] = await db.query(query, [id]);
 
     if (results.length === 0) {
-      return res.status(404).json({ error: "Item not found" });
+      return sendNotFound(res, "Item not found");
     }
 
     return res.status(200).json(results[0]);
   } catch (error) {
-    consoleLogger.error(`Error fetching ${category} item:`, error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to fetch ${category} item`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to fetch ${category} item`);
   }
 });
 
 // Create item - UPDATED: Track who created the item
-router.post("/admin/:category", auth, (req, res, next) => {
+router.post("/admin/:category", auth, uploadLimiter, validateCategory, validateOurWorkItem, (req, res, next) => {
   upload(req, res, function (err) {
     if (err) {
-      return res
-        .status(500)
-        .json({ error: "File upload error", details: err.message });
+      return sendInternalError(res, err, "File upload error");
     }
     createItem(req, res).catch(next);
   });
@@ -243,10 +233,6 @@ router.post("/admin/:category", auth, (req, res, next) => {
 
 async function createItem(req, res) {
   const { category } = req.params;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     consoleLogger.debug(`Creating ${category} item`, {
@@ -335,11 +321,10 @@ async function createItem(req, res) {
 
     const [result] = await db.query(query, values);
 
-    res.json({
+    return sendSuccess(res, {
       id: result.insertId,
-      message: "Item created successfully",
       is_active: isActiveBool,
-    });
+    }, "Item created successfully");
   } catch (error) {
     consoleLogger.error(`Error creating ${category} item:`, {
       message: error.message,
@@ -359,25 +344,15 @@ async function createItem(req, res) {
       }
     }
 
-    // Don't expose SQL errors in production
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to create ${category} item`,
-      ...(isDevelopment && {
-      details: error.message,
-      sqlMessage: error.sqlMessage,
-      }),
-    });
+    return sendInternalError(res, error, `Failed to create ${category} item`);
   }
 }
 
 // Update item - UPDATED: Track who modified the item
-router.put("/admin/:category/:id", auth, (req, res, next) => {
+router.put("/admin/:category/:id", auth, uploadLimiter, validateCategory, validateId, validateOurWorkItem, (req, res, next) => {
   upload(req, res, function (err) {
     if (err) {
-      return res
-        .status(500)
-        .json({ error: "File upload error", details: err.message });
+      return sendInternalError(res, err, "File upload error");
     }
     updateItem(req, res).catch(next);
   });
@@ -386,10 +361,6 @@ router.put("/admin/:category/:id", auth, (req, res, next) => {
 async function updateItem(req, res) {
   const { category, id } = req.params;
 
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
-
   try {
     const [existingItems] = await db.query(
       `SELECT * FROM ${category} WHERE id = ?`,
@@ -397,7 +368,7 @@ async function updateItem(req, res) {
     );
 
     if (existingItems.length === 0) {
-      return res.status(404).json({ error: "Item not found" });
+      return sendNotFound(res, "Item not found");
     }
 
     const existingItem = existingItems[0];
@@ -489,10 +460,9 @@ async function updateItem(req, res) {
     const query = `UPDATE ${category} SET ${updates.join(", ")} WHERE id = ?`;
     await db.query(query, values);
 
-    res.json({
-      message: "Item updated successfully",
+    return sendSuccess(res, {
       is_active: is_active,
-    });
+    }, "Item updated successfully");
   } catch (error) {
     consoleLogger.error(`Error updating ${category} item:`, {
       message: error.message,
@@ -511,24 +481,13 @@ async function updateItem(req, res) {
       }
     }
 
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to update ${category} item`,
-      ...(isDevelopment && {
-      details: error.message,
-      sqlMessage: error.sqlMessage,
-      }),
-    });
+    return sendInternalError(res, error, `Failed to update ${category} item`);
   }
 }
 
 // Delete item
-router.delete("/admin/:category/:id", auth, async (req, res) => {
+router.delete("/admin/:category/:id", auth, adminLimiter, validateCategory, validateId, async (req, res) => {
   const { category, id } = req.params;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     const [items] = await db.query(`SELECT * FROM ${category} WHERE id = ?`, [
@@ -580,7 +539,7 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
       return res.status(404).json({ error: "Item not found" });
     }
 
-    res.json({ message: "Item deleted successfully" });
+    return sendSuccess(res, null, "Item deleted successfully");
   } catch (error) {
     consoleLogger.error(`Error deleting ${category} item:`, {
       message: error.message,
@@ -588,83 +547,57 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
       userId: req.user?.id,
       itemId: id,
     });
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to delete ${category} item`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to delete ${category} item`);
   }
 });
 
 // Toggle active status - Track who changed the status
-router.patch("/admin/:category/:id/status", auth, async (req, res) => {
+router.patch("/admin/:category/:id/status", auth, adminLimiter, validateCategory, validateId, validateStatusUpdate, async (req, res) => {
   const { category, id } = req.params;
   const { is_active } = req.body;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     const query = `UPDATE ${category} SET is_active = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?`;
     await db.query(query, [is_active, req.user.id, id]);
 
-    res.json({
-      message: `Item ${is_active ? "activated" : "deactivated"} successfully`,
+    return sendSuccess(res, {
       is_active,
-    });
+    }, `Item ${is_active ? "activated" : "deactivated"} successfully`);
   } catch (error) {
     consoleLogger.error(`Error toggling active status for ${category}:`, {
       message: error.message,
       userId: req.user?.id,
       itemId: id,
     });
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: `Failed to update status`,
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, `Failed to update status`);
   }
 });
 
 // Update display order - Track who changed the order
-router.patch("/admin/:category/:id/order", auth, async (req, res) => {
+router.patch("/admin/:category/:id/order", auth, adminLimiter, validateCategory, validateId, validateDisplayOrder, async (req, res) => {
   const { category, id } = req.params;
   const { display_order } = req.body;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     const query = `UPDATE ${category} SET display_order = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?`;
     await db.query(query, [display_order, req.user.id, id]);
 
-    res.json({
-      message: "Display order updated successfully",
+    return sendSuccess(res, {
       display_order,
-    });
+    }, "Display order updated successfully");
   } catch (error) {
     consoleLogger.error(`Error updating display order for ${category}:`, {
       message: error.message,
       userId: req.user?.id,
       itemId: id,
     });
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: "Failed to update display order",
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, "Failed to update display order");
   }
 });
 
 // Get statistics for specific category -  Include user info in stats if needed
-router.get("/admin/stats/:category", auth, async (req, res) => {
+router.get("/admin/stats/:category", auth, adminLimiter, validateCategory, async (req, res) => {
   const { category } = req.params;
-
-  if (!isValidCategory(category)) {
-    return res.status(400).json({ error: "Invalid category" });
-  }
 
   try {
     const totalQuery = `SELECT COUNT(*) as total FROM ${category}`;
@@ -690,16 +623,12 @@ router.get("/admin/stats/:category", auth, async (req, res) => {
     });
   } catch (error) {
     consoleLogger.error(`Error fetching stats for ${category}:`, error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: "Failed to fetch statistics",
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, "Failed to fetch statistics");
   }
 });
 
 // Get all categories with item counts - Include recent activity
-router.get("/admin/categories/stats", auth, async (req, res) => {
+router.get("/admin/categories/stats", auth, adminLimiter, async (req, res) => {
   try {
     const stats = {};
 
@@ -735,11 +664,7 @@ router.get("/admin/categories/stats", auth, async (req, res) => {
     res.json(stats);
   } catch (error) {
     consoleLogger.error("Error fetching category statistics:", error.message);
-    const isDevelopment = process.env.NODE_ENV !== "production";
-    res.status(500).json({
-      error: "Failed to fetch category statistics",
-      ...(isDevelopment && { details: error.message }),
-    });
+    return sendInternalError(res, error, "Failed to fetch category statistics");
   }
 });
 

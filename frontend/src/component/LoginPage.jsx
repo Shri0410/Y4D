@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import { setToken, setUser } from "../utils/tokenManager";
+import { extractData, extractErrorMessage, handleApiError } from "../utils/apiResponse";
 import RegistrationModal from "./RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
@@ -26,11 +27,16 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
         `${API_BASE}/auth/login`,
         loginData
       );
-      setToken(response.data.token);
-      setUser(response.data.user);
-      onLogin(response.data.user);
+      
+      // Handle standardized response - login returns token and user directly
+      const data = extractData(response) || response.data;
+      setToken(data.token || response.data.token);
+      setUser(data.user || response.data.user);
+      onLogin(data.user || response.data.user);
     } catch (error) {
-      setError(error.response?.data?.error || "Login failed");
+      const errorMessage = extractErrorMessage(error);
+      setError(errorMessage || "Login failed");
+      handleApiError(error, { showToast: false }); // Don't show toast, we show error in form
     }
     setLoading(false);
   };
