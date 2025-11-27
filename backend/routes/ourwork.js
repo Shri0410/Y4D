@@ -4,6 +4,7 @@ const path = require("path");
 const db = require("../config/database");
 const fs = require("fs").promises;
 const { authenticateToken: auth } = require("../middleware/auth");
+const consoleLogger = require("../utils/logger");
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -125,10 +126,11 @@ router.get("/published/:category", async (req, res) => {
     const [results] = await db.query(query);
     return res.status(200).json(results || []);
   } catch (error) {
-    console.error(`Error fetching published ${category}:`, error);
+    consoleLogger.error(`Error fetching published ${category}:`, error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to fetch ${category}`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -154,10 +156,11 @@ router.get("/published/:category/:id", async (req, res) => {
 
     return res.status(200).json(results[0]);
   } catch (error) {
-    console.error(`Error fetching published ${category} item:`, error);
+    consoleLogger.error(`Error fetching published ${category} item:`, error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to fetch ${category} item`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -187,10 +190,11 @@ router.get("/admin/:category", auth, async (req, res) => {
     const [results] = await db.query(query);
     return res.status(200).json(results || []);
   } catch (error) {
-    console.error(`Error fetching ${category}:`, error);
+    consoleLogger.error(`Error fetching ${category}:`, error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to fetch ${category}`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -216,10 +220,11 @@ router.get("/admin/:category/:id", auth, async (req, res) => {
 
     return res.status(200).json(results[0]);
   } catch (error) {
-    console.error(`Error fetching ${category} item:`, error);
+    consoleLogger.error(`Error fetching ${category} item:`, error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to fetch ${category} item`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -244,8 +249,10 @@ async function createItem(req, res) {
   }
 
   try {
-    console.log("Uploaded files:", req.files);
-    console.log("Request body:", req.body);
+    consoleLogger.debug(`Creating ${category} item`, {
+      fileCount: req.files?.length || 0,
+      hasImage: !!req.files?.find((f) => f.fieldname === "image"),
+    });
 
     const files = req.files || [];
     const imageFile = files.find((file) => file.fieldname === "image");
@@ -281,7 +288,7 @@ async function createItem(req, res) {
             ? JSON.parse(additional_images)
             : additional_images;
       } catch (error) {
-        console.warn("Error parsing additional images:", error);
+        consoleLogger.warn("Error parsing additional images:", error.message);
         additionalImagesArray = [];
       }
     }
@@ -316,15 +323,15 @@ async function createItem(req, res) {
       req.user.id, 
     ];
 
-    console.log("Fields to insert:", fields);
-    console.log("Values to insert:", values);
+    consoleLogger.debug(`Inserting ${category} item`, {
+      fieldCount: fields.length,
+      hasImage: !!finalImageUrl,
+    });
 
     const placeholders = fields.map(() => "?").join(", ");
     const query = `INSERT INTO ${category} (${fields.join(
       ", "
     )}) VALUES (${placeholders})`;
-
-    console.log("SQL Query:", query);
 
     const [result] = await db.query(query, values);
 
@@ -334,24 +341,32 @@ async function createItem(req, res) {
       is_active: isActiveBool,
     });
   } catch (error) {
-    console.error(`Error creating ${category} item:`, error);
-    console.error("SQL Error details:", error.sqlMessage);
+    consoleLogger.error(`Error creating ${category} item:`, {
+      message: error.message,
+      sqlMessage: error.sqlMessage,
+      userId: req.user?.id,
+    });
 
+    // Cleanup uploaded files on error
     if (req.files) {
       for (const file of req.files) {
         try {
           await fs.unlink(file.path);
-          console.log("Cleaned up file:", file.path);
+          consoleLogger.debug("Cleaned up file after error:", file.path);
         } catch (unlinkError) {
-          console.error("Error cleaning up file:", unlinkError);
+          consoleLogger.error("Error cleaning up file:", unlinkError.message);
         }
       }
     }
 
+    // Don't expose SQL errors in production
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to create ${category} item`,
+      ...(isDevelopment && {
       details: error.message,
       sqlMessage: error.sqlMessage,
+      }),
     });
   }
 }
@@ -416,7 +431,7 @@ async function updateItem(req, res) {
           const oldPath = path.join(process.cwd(), existingItem.image_url);
           await fs.unlink(oldPath);
         } catch (unlinkError) {
-          console.warn("Error deleting old image:", unlinkError);
+          consoleLogger.warn("Error deleting old image:", unlinkError.message);
         }
       }
     }
@@ -432,9 +447,9 @@ async function updateItem(req, res) {
           additionalImagesArray = [additionalImagesArray];
         }
       } catch (error) {
-        console.warn(
+        consoleLogger.warn(
           "Error parsing additional images, keeping existing:",
-          error
+          error.message
         );
       }
     }
@@ -479,22 +494,30 @@ async function updateItem(req, res) {
       is_active: is_active,
     });
   } catch (error) {
-    console.error(`Error updating ${category} item:`, error);
+    consoleLogger.error(`Error updating ${category} item:`, {
+      message: error.message,
+      sqlMessage: error.sqlMessage,
+      userId: req.user?.id,
+      itemId: id,
+    });
 
     if (req.files) {
       for (const file of req.files) {
         try {
           await fs.unlink(file.path);
         } catch (unlinkError) {
-          console.error("Error cleaning up file:", unlinkError);
+          consoleLogger.error("Error cleaning up file:", unlinkError.message);
         }
       }
     }
 
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to update ${category} item`,
+      ...(isDevelopment && {
       details: error.message,
       sqlMessage: error.sqlMessage,
+      }),
     });
   }
 }
@@ -523,7 +546,7 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
         const filePath = path.join(process.cwd(), item.image_url);
         await fs.unlink(filePath);
       } catch (unlinkError) {
-        console.warn("Error deleting associated image:", unlinkError);
+        consoleLogger.warn("Error deleting associated image:", unlinkError.message);
       }
     }
 
@@ -540,13 +563,13 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
               try {
                 await fs.unlink(`uploads/our-work/${category}/${imageUrl}`);
               } catch (unlinkError) {
-                console.warn("Error deleting additional image:", unlinkError);
+                consoleLogger.warn("Error deleting additional image:", unlinkError.message);
               }
             }
           }
         }
       } catch (error) {
-        console.warn("Error parsing additional images for deletion:", error);
+        consoleLogger.warn("Error parsing additional images for deletion:", error.message);
       }
     }
 
@@ -559,10 +582,16 @@ router.delete("/admin/:category/:id", auth, async (req, res) => {
 
     res.json({ message: "Item deleted successfully" });
   } catch (error) {
-    console.error(`Error deleting ${category} item:`, error);
+    consoleLogger.error(`Error deleting ${category} item:`, {
+      message: error.message,
+      sqlMessage: error.sqlMessage,
+      userId: req.user?.id,
+      itemId: id,
+    });
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to delete ${category} item`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -585,10 +614,15 @@ router.patch("/admin/:category/:id/status", auth, async (req, res) => {
       is_active,
     });
   } catch (error) {
-    console.error(`Error toggling active status for ${category}:`, error);
+    consoleLogger.error(`Error toggling active status for ${category}:`, {
+      message: error.message,
+      userId: req.user?.id,
+      itemId: id,
+    });
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: `Failed to update status`,
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -611,10 +645,15 @@ router.patch("/admin/:category/:id/order", auth, async (req, res) => {
       display_order,
     });
   } catch (error) {
-    console.error(`Error updating display order for ${category}:`, error);
+    consoleLogger.error(`Error updating display order for ${category}:`, {
+      message: error.message,
+      userId: req.user?.id,
+      itemId: id,
+    });
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: "Failed to update display order",
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -650,10 +689,11 @@ router.get("/admin/stats/:category", auth, async (req, res) => {
       recent_activity: recentActivityResult,
     });
   } catch (error) {
-    console.error(`Error fetching stats for ${category}:`, error);
+    consoleLogger.error(`Error fetching stats for ${category}:`, error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: "Failed to fetch statistics",
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });
@@ -687,17 +727,18 @@ router.get("/admin/categories/stats", auth, async (req, res) => {
             recentModificationsResult[0].recent_modifications,
         };
       } catch (error) {
-        console.error(`Error fetching stats for ${category}:`, error);
+        consoleLogger.error(`Error fetching stats for ${category}:`, error.message);
         stats[category] = { error: "Failed to fetch statistics" };
       }
     }
 
     res.json(stats);
   } catch (error) {
-    console.error("Error fetching category statistics:", error);
+    consoleLogger.error("Error fetching category statistics:", error.message);
+    const isDevelopment = process.env.NODE_ENV !== "production";
     res.status(500).json({
       error: "Failed to fetch category statistics",
-      details: error.message,
+      ...(isDevelopment && { details: error.message }),
     });
   }
 });

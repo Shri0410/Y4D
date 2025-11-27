@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const db = require("../config/database");
+const consoleLogger = require("../utils/logger");
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_fallback_secret_here_change_in_production";
@@ -11,39 +12,49 @@ const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  console.log("Auth middleware called. Token:", token ? "present" : "missing");
+  consoleLogger.debug("Auth middleware called", { hasToken: !!token });
 
   if (!token) {
-    console.log("No token provided");
+    consoleLogger.debug("No token provided");
     return res.status(401).json({ error: "Access token required" });
   }
 
   try {
     // Verify and decode token
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log("Token decoded:", decoded);
+    consoleLogger.debug("Token verified", { userId: decoded.id });
 
     // Check if user exists in DB
     const query = "SELECT id, username, role, status FROM users WHERE id = ?";
     const [results] = await db.query(query, [decoded.id]);
 
     if (!results || results.length === 0) {
-      console.log("User not found in database");
+      consoleLogger.warn("User not found in database", { userId: decoded.id });
       return res.status(403).json({ error: "User not found" });
     }
 
     const user = results[0];
 
     if (user.status !== "approved") {
-      console.log("User not approved. Status:", user.status);
+      consoleLogger.warn("User not approved", { 
+        userId: user.id, 
+        username: user.username, 
+        status: user.status 
+      });
       return res.status(403).json({ error: "Account not approved" });
     }
 
-    console.log("User authenticated successfully:", user.username);
+    consoleLogger.debug("User authenticated successfully", { 
+      userId: user.id, 
+      username: user.username 
+    });
     req.user = user;
     next();
   } catch (err) {
-    console.log("Token verification failed or DB error:", err.message);
+    consoleLogger.error("Token verification failed", { 
+      message: err.message,
+      name: err.name 
+    });
     return res.status(403).json({ error: "Invalid or expired token" });
   }
 };
@@ -100,7 +111,10 @@ const checkPermission = (action, section, subSection = null) => {
 
       next();
     } catch (error) {
-      console.error("Permission check error:", error);
+      consoleLogger.error("Permission check error", { 
+        message: error.message,
+        userId: req.user?.id 
+      });
       res.status(500).json({ error: "Permission check failed" });
     }
   };

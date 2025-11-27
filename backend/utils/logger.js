@@ -39,9 +39,11 @@ const consoleLogger = {
     }
   },
   
-  // Special method for startup messages (always shown)
+  // Special method for startup messages (only in development)
   startup: (...args) => {
-    console.log(...args);
+    if (!isProduction()) {
+      console.log(...args);
+    }
   }
 };
 
