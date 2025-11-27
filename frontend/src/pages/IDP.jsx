@@ -6,6 +6,7 @@ import "./IDP.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import DonateButton from "../component/DonateButton";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const IDP = () => {
   const [items, setItems] = useState([]);
@@ -162,9 +163,9 @@ const IDP = () => {
                       <p className="idp-card-description">{item.description}</p>
 
                       {item.content && (
-                        <div
+                        <SanitizedHTML
+                          content={item.content}
                           className="idp-card-details"
-                          dangerouslySetInnerHTML={{ __html: item.content }}
                         />
                       )}
 

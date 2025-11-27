@@ -105,9 +105,11 @@ const corsOptions = {
     }
     
     // Get allowed origins from environment variable
-    const allowedOrigins = process.env.ALLOWED_ORIGINS 
-      ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().toLowerCase())
-      : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'].map(o => o.toLowerCase());
+    // const allowedOrigins = process.env.ALLOWED_ORIGINS 
+    //   ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().toLowerCase())
+    //   : ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'].map(o => o.toLowerCase());
+
+    const allowedOrigins = ['https://app.y4dinfo.org','http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000'];
     
     // Also allow the API's own domain (for both development and production)
     const apiUrl = process.env.API_BASE_URL || '';

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config/api";
+import { setToken, setUser } from "../utils/tokenManager";
 import RegistrationModal from "./RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
@@ -25,8 +26,8 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
         `${API_BASE}/auth/login`,
         loginData
       );
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      setToken(response.data.token);
+      setUser(response.data.user);
       onLogin(response.data.user);
     } catch (error) {
       setError(error.response?.data?.error || "Login failed");

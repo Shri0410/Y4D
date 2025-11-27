@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 import "./EnvironmentSustainabilityDetail.css";
 
 // --- Helpers ---
@@ -59,7 +61,7 @@ const EnvironmentSustainabilityDetail = () => {
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {
-      console.error("Error fetching environment sustainability details:", err);
+      logger.error("Error fetching environment sustainability details:", err);
       setError("Failed to load initiative details");
     } finally {
       setLoading(false);
@@ -123,9 +125,9 @@ const EnvironmentSustainabilityDetail = () => {
 
         {/* HTML content below row */}
         {item.content && (
-          <div
+          <SanitizedHTML
+            content={item.content}
             className="es-detail-html"
-            dangerouslySetInnerHTML={{ __html: item.content }}
           />
         )}
 

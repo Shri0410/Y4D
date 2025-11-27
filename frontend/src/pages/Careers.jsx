@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { getCareers, applyForJob } from "../services/api";
 import "./Careers.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const Careers = () => {
   const [careers, setCareers] = useState([]);
@@ -189,10 +190,8 @@ const Careers = () => {
 
                   <div className="careers-description">
                     {career.shortDescription || (
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: career.description.substring(0, 120) + "...",
-                        }}
+                      <SanitizedHTML
+                        content={career.description.substring(0, 120) + "..."}
                       />
                     )}
                   </div>
@@ -246,11 +245,9 @@ const Careers = () => {
               <strong>Requirements:</strong> {selectedCareer.requirements}
             </p>
 
-            <div
+            <SanitizedHTML
+              content={selectedCareer.description}
               className="career-modal-description"
-              dangerouslySetInnerHTML={{
-                __html: selectedCareer.description,
-              }}
             />
 
             {!showApplicationForm ? (

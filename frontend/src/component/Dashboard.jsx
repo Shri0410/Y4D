@@ -8,6 +8,7 @@ import OurWorkManagement from "./OurWorkManagement";
 import ImpactDataEditor from "./ImpactDataEditor";
 import AccreditationManagement from "./AccreditationManagement";
 import BannerManagement from "./BannerManagement";
+import SanitizedHTML from "../components/SanitizedHTML";
 import "./Dashboard.css";
 
 import {
@@ -2797,12 +2798,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
                         <div className="career-description">
                           <strong>Description:</strong>
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: career.description
+                          <SanitizedHTML
+                            content={
+                              career.description
                                 ? career.description.substring(0, 150) + "..."
-                                : "No description available",
-                            }}
+                                : "No description available"
+                            }
                           />
                         </div>
 

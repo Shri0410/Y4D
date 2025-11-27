@@ -5,6 +5,7 @@ import axios from "axios";
 import "./Healthcare.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
@@ -155,9 +156,9 @@ const Healthcare = () => {
                     <p className="hc-card-desc">{item.description}</p>
 
                     {item.content && (
-                      <div
+                      <SanitizedHTML
+                        content={item.content}
                         className="hc-card-details"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
                       />
                     )}
 

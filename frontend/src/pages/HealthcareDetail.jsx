@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 import "./HealthcareDetail.css";
 
 // --- Helpers ---
@@ -57,7 +59,7 @@ const HealthcareDetail = () => {
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {
-      console.error("Error fetching healthcare details:", err);
+      logger.error("Error fetching healthcare details:", err);
       setError("Failed to load healthcare initiative details");
     } finally {
       setLoading(false);
@@ -119,9 +121,9 @@ const HealthcareDetail = () => {
 
         {/* HTML content below the row */}
         {item.content && (
-          <div
+          <SanitizedHTML
+            content={item.content}
             className="hc-detail-html"
-            dangerouslySetInnerHTML={{ __html: item.content }}
           />
         )}
 

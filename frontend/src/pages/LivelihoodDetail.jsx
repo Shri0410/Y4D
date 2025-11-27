@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 import "./LivelihoodDetail.css";
 
 // --- Helpers ---
@@ -57,7 +59,7 @@ const LivelihoodDetail = () => {
       const response = await axios.get(url);
       setItem(response.data);
     } catch (err) {
-      console.error("Error fetching details:", err);
+      logger.error("Error fetching details:", err);
       setError("Failed to load program details");
     } finally {
       setLoading(false);
@@ -117,9 +119,9 @@ const LivelihoodDetail = () => {
 
         {/* HTML content below the row */}
         {item.content && (
-          <div
+          <SanitizedHTML
+            content={item.content}
             className="lv-detail-html"
-            dangerouslySetInnerHTML={{ __html: item.content }}
           />
         )}
 

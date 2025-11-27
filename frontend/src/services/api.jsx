@@ -1,6 +1,8 @@
 // src/services/api.js
 import axios from "axios";
 import { API_BASE } from "../config/api";
+import { getToken, clearAuth } from "../utils/tokenManager";
+import logger from "../utils/logger";
 
 // Create axios instance for consistent configuration
 const api = axios.create({
@@ -14,7 +16,7 @@ const api = axios.create({
 // Add request interceptor to automatically inject auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,8 +34,7 @@ api.interceptors.response.use(
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
       // Clear auth data
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      clearAuth();
       
       // Redirect to login if not already there
       if (window.location.pathname.startsWith("/admin")) {
@@ -41,10 +42,8 @@ api.interceptors.response.use(
       }
     }
     
-    // Log error in development only
-    if (import.meta.env.DEV) {
-      console.error("API Error:", error.response?.data || error.message);
-    }
+    // Log error using logger utility
+    logger.error("API Error:", error.response?.data || error.message);
     
     return Promise.reject(error);
   }
@@ -98,10 +97,7 @@ export const getBanners = async (page = "home", section = null) => {
     const response = await api.get(url);
     return response.data;
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("❌ Error fetching banners:", error);
-      console.error("❌ Error response:", error.response?.data);
-    }
+    logger.error("Error fetching banners:", error);
     return [];
   }
 };
@@ -112,9 +108,7 @@ export const getAllBanners = async () => {
     const response = await api.get("/banners");
     return response.data;
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("❌ Error fetching all banners:", error);
-    }
+    logger.error("Error fetching all banners:", error);
     return [];
   }
 };
@@ -124,10 +118,7 @@ export const getAccreditations = async () => {
     const response = await api.get("/accreditations");
     return response.data;
   } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error("❌ Error fetching accreditations:", error);
-      console.error("❌ Error details:", error.response?.data);
-    }
+    logger.error("Error fetching accreditations:", error);
     return [];
   }
 };

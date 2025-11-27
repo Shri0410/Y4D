@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 import "./IDPDetail.css";
 
 const getFullUrl = (path) => {
@@ -61,7 +63,7 @@ const IDPDetail = () => {
       );
       setItem(response.data);
     } catch (err) {
-      console.error("Error fetching IDP details:", err);
+      logger.error("Error fetching IDP details:", err);
       setError("Failed to load Integrated Development Initiative details");
     } finally {
       setLoading(false);
@@ -120,9 +122,9 @@ const IDPDetail = () => {
 
         {/* HTML content */}
         {item.content && (
-          <div
+          <SanitizedHTML
+            content={item.content}
             className="idp-detail-html"
-            dangerouslySetInnerHTML={{ __html: item.content }}
           />
         )}
 

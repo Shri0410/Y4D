@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import "./QualityEducation.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
@@ -162,9 +163,9 @@ const QualityEducation = () => {
                     <p className="qe-card-desc">{item.description}</p>
 
                     {item.content && (
-                      <div
+                      <SanitizedHTML
+                        content={item.content}
                         className="qe-card-details"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
                       />
                     )}
 

@@ -6,6 +6,8 @@ import {
   Route,
   useLocation,
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./component/Navbar";
 import Footer from "./component/Footer";
 import Banner from "./component/Banner";
@@ -38,6 +40,7 @@ import LegalReports from "./pages/LegalReports";
 import VolunteersInternship from "./pages/VolunteersInternship";
 import IndiaMapHover from "./pages/IndiaMapHover";
 import Popup from "./pages/Popup";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import QualityEducationDetail from "./pages/QualityEducationDetail";
 import LivelihoodDetail from "./pages/LivelihoodDetail";
@@ -74,10 +77,23 @@ function AppContent({
   }
 
   return (
-    <div className="App">
-      <Popup />
-      <ScrollToTop />
-      <Routes>
+    <ErrorBoundary>
+      <div className="App">
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+        <Popup />
+        <ScrollToTop />
+        <Routes>
         {/* Public routes */}
         <Route
           path="/*"
@@ -174,8 +190,9 @@ function AppContent({
             )
           }
         />
-      </Routes>
-    </div>
+        </Routes>
+      </div>
+    </ErrorBoundary>
   );
 }
 

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import "./Livelihood.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
@@ -159,9 +160,9 @@ const Livelihood = () => {
                     <p className="lv-card-desc">{item.description}</p>
 
                     {item.content && (
-                      <div
+                      <SanitizedHTML
+                        content={item.content}
                         className="lv-card-details"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
                       />
                     )}
 

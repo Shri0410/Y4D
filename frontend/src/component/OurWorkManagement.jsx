@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
+import toast from "../utils/toast";
+import logger from "../utils/logger";
+import confirmDialog from "../utils/confirmDialog";
 import "./OurWorkManagement.css";
 import {
   canView,
@@ -105,8 +108,8 @@ const OurWorkManagement = ({
 
       setItems(itemsWithModifier);
     } catch (error) {
-      console.error("Error fetching items:", error);
-      setError("Failed to load items. Please check console for details.");
+      logger.error("Error fetching items:", error);
+      setError("Failed to load items. Please try again.");
     }
     setLoading(false);
   };
@@ -114,7 +117,7 @@ const OurWorkManagement = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canUserPerformAction(editingItem ? "edit" : "create")) {
-      alert("You don't have permission to perform this action");
+      toast.warning("You don't have permission to perform this action");
       return;
     }
 
@@ -162,9 +165,9 @@ const OurWorkManagement = ({
       resetForm();
       onActionChange("view");
       fetchItems();
-      alert(`Item ${editingItem ? "updated" : "created"} successfully!`);
+      toast.success(`Item ${editingItem ? "updated" : "created"} successfully!`);
     } catch (error) {
-      console.error("Error saving item:", error);
+      logger.error("Error saving item:", error);
       const errorMessage =
         error.response?.data?.error ||
         error.response?.data?.details ||
@@ -176,7 +179,7 @@ const OurWorkManagement = ({
 
   const handleEdit = (item) => {
     if (!canUserPerformAction("edit")) {
-      alert("You don't have permission to edit items");
+      toast.warning("You don't have permission to edit items");
       return;
     }
     setEditingItem(item);
@@ -201,27 +204,28 @@ const OurWorkManagement = ({
 
   const handleDelete = async (id) => {
     if (!canUserPerformAction("delete")) {
-      alert("You don't have permission to delete items");
+      toast.warning("You don't have permission to delete items");
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this item?")) {
+    const confirmed = await confirmDialog("Are you sure you want to delete this item?");
+    if (confirmed) {
       try {
         await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchItems();
-        alert("Item deleted successfully!");
+        toast.success("Item deleted successfully!");
       } catch (error) {
-        console.error("Error deleting item:", error);
-        alert(`Error: ${error.response?.data?.error || "Failed to delete"}`);
+        logger.error("Error deleting item:", error);
+        toast.error(error.response?.data?.error || "Failed to delete item");
       }
     }
   };
 
   const toggleStatus = async (id, currentStatus) => {
     if (!canUserPerformAction("publish")) {
-      alert("You don't have permission to change item status");
+      toast.warning("You don't have permission to change item status");
       return;
     }
 
@@ -239,13 +243,13 @@ const OurWorkManagement = ({
         }
       );
       fetchItems();
-      alert(
+      toast.success(
         `Item ${!currentStatus ? "activated" : "deactivated"} successfully!`
       );
     } catch (error) {
-      console.error("Error toggling status:", error);
-      alert(
-        `Error: ${error.response?.data?.error || "Failed to update status"}`
+      logger.error("Error toggling status:", error);
+      toast.error(
+        error.response?.data?.error || "Failed to update status"
       );
     }
   };
@@ -399,7 +403,7 @@ const OurWorkManagement = ({
                           src={imageUrl}
                           alt={item.title || "No title"}
                           onError={(e) => {
-                            console.error("Image failed to load:", imageUrl);
+                            logger.error("Image failed to load:", imageUrl);
                             e.target.style.display = "none";
                             const placeholder = document.createElement("div");
                             placeholder.className = "image-placeholder";

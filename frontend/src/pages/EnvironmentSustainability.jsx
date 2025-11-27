@@ -5,6 +5,7 @@ import axios from "axios";
 import "./EnvironmentSustainability.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../components/SanitizedHTML";
 
 const getImageUrl = (path) => {
   if (!path) return "";
@@ -160,9 +161,9 @@ const EnvironmentSustainability = () => {
                     <p className="es-card-desc">{item.description}</p>
 
                     {item.content && (
-                      <div
+                      <SanitizedHTML
+                        content={item.content}
                         className="es-card-details"
-                        dangerouslySetInnerHTML={{ __html: item.content }}
                       />
                     )}
 
