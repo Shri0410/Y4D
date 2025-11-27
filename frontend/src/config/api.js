@@ -10,10 +10,27 @@
  */
 
 // Get API base URL from environment variable with fallback
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// Handle empty strings (Vite may return empty string instead of undefined)
+const getEnvVar = (key, fallback) => {
+  const value = import.meta.env[key];
+  // Return fallback if value is undefined, null, or empty string
+  return (value && value.trim() !== '') ? value.trim() : fallback;
+};
 
-// Get uploads base URL from environment variable with fallback
-const UPLOADS_BASE_URL = import.meta.env.VITE_UPLOADS_BASE_URL || 'http://localhost:5000/api/uploads';
+const API_BASE_URL = getEnvVar('VITE_API_BASE_URL', 'https://y4d.ngo/dev/api');
+const UPLOADS_BASE_URL = getEnvVar('VITE_UPLOADS_BASE_URL', 'https://y4d.ngo/dev/api/uploads');
+
+// Debug logging (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔧 API Configuration:', {
+    'VITE_API_BASE_URL (raw)': import.meta.env.VITE_API_BASE_URL,
+    'VITE_UPLOADS_BASE_URL (raw)': import.meta.env.VITE_UPLOADS_BASE_URL,
+    'API_BASE_URL (resolved)': API_BASE_URL,
+    'UPLOADS_BASE_URL (resolved)': UPLOADS_BASE_URL,
+    'Mode': import.meta.env.MODE,
+    'All env vars': Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'))
+  });
+}
 
 // Server base URL (without /api) - useful for some endpoints
 const SERVER_BASE_URL = API_BASE_URL.replace('/api', '');
