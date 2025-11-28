@@ -623,3 +623,58 @@ textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+/* Needed for updated header layout */
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Back button on the right side */
+.btn-back-right {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-back-right:hover {
+  background: #545b62;
+  color: white;
+}
+
+/* Optional: Last modified styling (recommended) */
+.last-modified-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eee;
+}
+
+.last-modified-info.admin-only {
+  background-color: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.last-modified-info small {
+  color: #666;
+}
+
+.last-modified-info strong {
+  color: #555;
+  font-weight: 600;
+}

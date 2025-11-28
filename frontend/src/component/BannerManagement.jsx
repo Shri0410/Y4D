@@ -120,7 +120,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
     }
   };
 
-  // UPDATED: Function to render last modified info for banners
+  // Function to render last modified info for banners
   const renderLastModifiedInfo = (item) => {
     // Only show last modified info to admin and super_admin
     if (
@@ -484,12 +484,17 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
 
     return (
       <div className="content-list">
+        {/* UPDATED HEADER FOR FORM MODE */}
         <div className="content-header">
           <div className="header-row">
-            <button className="btn-back" onClick={cancelEdit}>
-              ← Back to Banners
-            </button>
-            <h3>{editingId ? "Edit Banner" : "Add New Banner"}</h3>
+            <div className="header-left">
+              <h3>{editingId ? "Edit Banner" : "Add New Banner"}</h3>
+            </div>
+            <div className="header-right">
+              <button className="btn-back" onClick={cancelEdit}>
+                ← Back to Banners
+              </button>
+            </div>
           </div>
         </div>
 
@@ -703,10 +708,10 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       <div className="content-list">
         <div className="content-header">
           <div className="header-row">
-            <button onClick={onClose} className="close-btn">
-              ← Back to Banner Management
-            </button>
-            <h2>Banner Management</h2>
+            <div className="header-left">
+              <h2>Banner Management</h2>
+            </div>
+            <div className="header-right">
             {canUserPerformAction("create") && (
               <button
                 onClick={() => {
@@ -721,6 +726,12 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
                 + Add New Banner
               </button>
             )}
+
+              {/* Back button moved to right side */}
+              <button onClick={onClose} className="btn-back-right">
+                ← Back to Banner Management
+              </button>
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}

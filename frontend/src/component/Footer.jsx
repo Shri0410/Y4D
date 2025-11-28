@@ -11,13 +11,13 @@ const Footer = () => {
             <h4>About Us</h4>
             <ul>
               <li>
-                <a href="#">Reach & Presence</a>
+                <a href="/reach-presence">Reach & Presence</a>
               </li>
               <li>
-                <a href="#">Our Team</a>
+                <a href="/our-team">Our Team</a>
               </li>
               <li>
-                <a href="#">Legal Status</a>
+                <a href="/legal-status">Legal Status</a>
               </li>
             </ul>
           </div>
@@ -26,19 +26,21 @@ const Footer = () => {
             <h4>Our Work</h4>
             <ul>
               <li>
-                <a href="#">Quality Education</a>
+                <a href="/quality-education">Quality Education</a>
               </li>
               <li>
-                <a href="#">Livelihood</a>
+                <a href="/livelihood">Livelihood</a>
               </li>
               <li>
-                <a href="#">Healthcare</a>
+                <a href="/healthcare">Healthcare</a>
               </li>
               <li>
-                <a href="#">Envirnment Sustainability</a>
+                <a href="/environment-sustainability">
+                  Envirnment Sustainability
+                </a>
               </li>
               <li>
-                <a href="#">IDP</a>
+                <a href="/idp">IDP</a>
               </li>
             </ul>
           </div>
@@ -62,19 +64,19 @@ const Footer = () => {
             <h4>Media Corner</h4>
             <ul>
               <li>
-                <a href="#">Newsletters</a>
+                <a href="/newsletters">Newsletters</a>
               </li>
               <li>
-                <a href="#">Stories of Empowerment</a>
+                <a href="/stories">Stories of Empowerment</a>
               </li>
               <li>
-                <a href="#">Events</a>
+                <a href="/events">Events</a>
               </li>
               <li>
-                <a href="#">Blogs</a>
+                <a href="/blogs">Blogs</a>
               </li>
               <li>
-                <a href="#">Documentaries</a>
+                <a href="/documentaries">Documentaries</a>
               </li>
             </ul>
           </div>
@@ -169,15 +171,22 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="footer-linkedin">
+         <div className="footer-linkedin">
           <h4>LinkedIn</h4>
+
           <iframe
-            src="https://www.linkedin.com/embed/feed/update/urn:li:share:7242738242133864448"
-            height="250"
+            src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7398713869050978304"
+            height="350"
             width="100%"
             frameBorder="0"
             allowFullScreen
-            title="LinkedIn Post"
+            title="Latest LinkedIn Post"
+            style={{
+              background: "#fff",
+              borderRadius: "8px",
+              border: "none",
+              marginTop: "10px",
+            }}
           ></iframe>
         </div>
       </div>

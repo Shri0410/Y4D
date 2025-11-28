@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Contact.css";
+import { API_BASE } from "../config/api";
 
 const Contact = () => {
   const [faqs, setFaqs] = useState([
@@ -134,14 +135,10 @@ const Contact = () => {
 
   const toggleFAQ = (index) => {
     setFaqs(
-      faqs.map((faq, i) => {
-        if (i === index) {
-          faq.open = !faq.open;
-        } else {
-          faq.open = false;
-        }
-        return faq;
-      })
+      faqs.map((faq, i) => ({
+        ...faq,
+        open: i === index ? !faq.open : false,
+      }))
     );
   };
 
@@ -166,12 +163,140 @@ const Contact = () => {
 
   const [selectedOffice, setSelectedOffice] = useState(offices[0]);
 
-  const [popupType, setPopupType] = useState(null); // 'partnership', 'internship', 'volunteer', 'enquiry'
+  // Popup state
+  const [popupType, setPopupType] = useState(null);
+
+  // Success popup
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const closePopup = () => setPopupType(null);
 
-  const navigateCareer = () => {
-    window.location.href = "/careers";
+  // FORM STATES
+  const [companyName, setCompanyName] = useState("");
+  const [email, setEmail] = useState("");
+  const [contact, setContact] = useState("");
+  const [details, setDetails] = useState("");
+
+  const [internName, setInternName] = useState("");
+  const [internEmail, setInternEmail] = useState("");
+  const [internPhone, setInternPhone] = useState("");
+  const [internField, setInternField] = useState("");
+  const [internMessage, setInternMessage] = useState("");
+
+  const [volName, setVolName] = useState("");
+  const [volEmail, setVolEmail] = useState("");
+  const [volPhone, setVolPhone] = useState("");
+  const [volReason, setVolReason] = useState("");
+
+  const [enqFirst, setEnqFirst] = useState("");
+  const [enqLast, setEnqLast] = useState("");
+  const [enqEmail, setEnqEmail] = useState("");
+  const [enqPhone, setEnqPhone] = useState("");
+  const [enqMessage, setEnqMessage] = useState("");
+
+  // Generic helper to show success popup
+  const handleSuccess = (msg) => {
+    setSuccessMessage(msg);
+    setShowSuccess(true);
+
+    setTimeout(() => {
+      setShowSuccess(false);
+      setSuccessMessage("");
+    }, 5000);
+  };
+
+  // Corporate partnership submit
+  const handleCorporateSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`${API_BASE}/contact/corporate-partnership`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ companyName, email, contact, details }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      closePopup();
+      handleSuccess("Your partnership form has been submitted.");
+      setCompanyName("");
+      setEmail("");
+      setContact("");
+      setDetails("");
+    }
+  };
+
+  // Internship submit
+  const handleInternshipSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`${API_BASE}/contact/internship`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: internName,
+        email: internEmail,
+        phone: internPhone,
+        field: internField,
+        message: internMessage,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      closePopup();
+      handleSuccess("Your internship application has been submitted.");
+    }
+  };
+
+  // Volunteer submit
+  const handleVolunteerSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`${API_BASE}/contact/volunteer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: volName,
+        email: volEmail,
+        phone: volPhone,
+        reason: volReason,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      closePopup();
+      handleSuccess("Your volunteer form has been submitted.");
+    }
+  };
+
+  // Enquiry submit
+  const handleEnquirySubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`${API_BASE}/contact/enquiry`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: enqFirst,
+        lastName: enqLast,
+        email: enqEmail,
+        phone: enqPhone,
+        message: enqMessage,
+      }),
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      closePopup();
+      handleSuccess("Your enquiry has been submitted.");
+    }
   };
 
   return (
@@ -181,7 +306,8 @@ const Contact = () => {
           Get Involve <span></span>
         </h2>
       </div>
-      {/* Top Buttons */}
+
+      {/* TOP BUTTONS */}
       <div className="contact-top-buttons">
         <button onClick={() => setPopupType("partnership")}>
           Corporate Partnership
@@ -189,10 +315,12 @@ const Contact = () => {
         <button onClick={() => setPopupType("internship")}>Internship</button>
         <button onClick={() => setPopupType("volunteer")}>Volunteers</button>
         <button onClick={() => setPopupType("enquiry")}>Enquiry Form</button>
-        <button onClick={navigateCareer}>Career</button>
+        <button onClick={() => (window.location.href = "/careers")}>
+          Career
+        </button>
       </div>
 
-      {/* Popup Overlay */}
+      {/* POPUP FORMS */}
       {popupType && (
         <div className="popup-overlay" onClick={closePopup}>
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>
@@ -200,68 +328,180 @@ const Contact = () => {
               ✕
             </button>
 
+            {/* Partnership */}
             {popupType === "partnership" && (
               <>
                 <h2>Corporate Partnership Form</h2>
-                <form className="popup-form">
-                  <input type="text" placeholder="Company Name" required />
-                  <input type="email" placeholder="Official Email" required />
-                  <input type="text" placeholder="Contact Number" required />
+                <form className="popup-form" onSubmit={handleCorporateSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Company Name"
+                    required
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                  />
+
+                  <input
+                    type="email"
+                    placeholder="Official Email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Contact Number"
+                    required
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                  />
+
                   <textarea
-                    placeholder="Partnership Details"
                     rows="4"
+                    placeholder="Partnership Details"
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
                   ></textarea>
+
                   <button type="submit">Submit</button>
                 </form>
               </>
             )}
 
+            {/* Internship */}
             {popupType === "internship" && (
               <>
                 <h2>Internship Application</h2>
-                <form className="popup-form">
-                  <input type="text" placeholder="Full Name" required />
-                  <input type="email" placeholder="Email Address" required />
-                  <input type="text" placeholder="Phone Number" required />
+                <form className="popup-form" onSubmit={handleInternshipSubmit}>
                   <input
                     type="text"
-                    placeholder="e.g. Web Development, Marketing"
+                    placeholder="Full Name"
+                    required
+                    value={internName}
+                    onChange={(e) => setInternName(e.target.value)}
                   />
-                  <input type="file" required />
+
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    required
+                    value={internEmail}
+                    onChange={(e) => setInternEmail(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Phone Number"
+                    required
+                    value={internPhone}
+                    onChange={(e) => setInternPhone(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Preferred Field (Web Dev, Marketing, etc)"
+                    value={internField}
+                    onChange={(e) => setInternField(e.target.value)}
+                  />
+
                   <textarea
                     placeholder="Why do you want to intern with Y4D?"
                     rows="4"
+                    value={internMessage}
+                    onChange={(e) => setInternMessage(e.target.value)}
                   ></textarea>
+
                   <button type="submit">Apply</button>
                 </form>
               </>
             )}
 
+            {/* Volunteer */}
             {popupType === "volunteer" && (
               <>
                 <h2>Volunteer Registration</h2>
-                <form className="popup-form">
-                  <input type="text" placeholder="Full Name" required />
-                  <input type="email" placeholder="Email Address" required />
-                  <input type="text" placeholder="Contact Number" required />
+                <form className="popup-form" onSubmit={handleVolunteerSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    required
+                    value={volName}
+                    onChange={(e) => setVolName(e.target.value)}
+                  />
+
+                  <input
+                    type="email"
+                    placeholder="Email Address"
+                    required
+                    value={volEmail}
+                    onChange={(e) => setVolEmail(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Contact Number"
+                    required
+                    value={volPhone}
+                    onChange={(e) => setVolPhone(e.target.value)}
+                  />
+
                   <textarea
                     placeholder="Why do you want to volunteer?"
                     rows="4"
+                    value={volReason}
+                    onChange={(e) => setVolReason(e.target.value)}
                   ></textarea>
+
                   <button type="submit">Submit</button>
                 </form>
               </>
             )}
 
+            {/* Enquiry */}
             {popupType === "enquiry" && (
               <>
                 <h2>General Enquiry</h2>
-                <form className="popup-form">
-                  <input type="text" placeholder="First Name" required />
-                  <input type="text" placeholder="Last Name" required />
-                  <input type="email" placeholder="Email" required />
-                  <input type="text" placeholder="Mobile Number" required />
-                  <textarea placeholder="Your Message" rows="4"></textarea>
+                <form className="popup-form" onSubmit={handleEnquirySubmit}>
+                  <input
+                    type="text"
+                    placeholder="First Name"
+                    required
+                    value={enqFirst}
+                    onChange={(e) => setEnqFirst(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    required
+                    value={enqLast}
+                    onChange={(e) => setEnqLast(e.target.value)}
+                  />
+
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    required
+                    value={enqEmail}
+                    onChange={(e) => setEnqEmail(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Mobile Number"
+                    required
+                    value={enqPhone}
+                    onChange={(e) => setEnqPhone(e.target.value)}
+                  />
+
+                  <textarea
+                    placeholder="Your Message"
+                    rows="4"
+                    value={enqMessage}
+                    onChange={(e) => setEnqMessage(e.target.value)}
+                  ></textarea>
+
                   <button type="submit">Submit</button>
                 </form>
               </>
@@ -270,7 +510,27 @@ const Contact = () => {
         </div>
       )}
 
-      {/* Office Address */}
+      {/* SUCCESS POPUP */}
+      {showSuccess && (
+        <div className="popup-overlay success-overlay">
+          <div className="popup-content success-popup">
+            <div className="success-icon">✔</div>
+            <h2 className="success-title">Thank You!</h2>
+            <p className="success-text">{successMessage}</p>
+            <button
+              className="success-ok-btn"
+              onClick={() => {
+                setShowSuccess(false);
+                setSuccessMessage("");
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* OFFICE SECTION */}
       <section className="contactus-section contactus-office">
         <div className="office-title">
           <h2>
@@ -279,7 +539,6 @@ const Contact = () => {
         </div>
 
         <div className="office-container">
-          {/* Left side - addresses */}
           <div className="office-list new-office-list">
             {offices.map((office, index) => (
               <div
@@ -297,7 +556,6 @@ const Contact = () => {
             ))}
           </div>
 
-          {/* Right side - Map */}
           <div
             className="office-map"
             onClick={() => window.open(selectedOffice.mapsUrl, "_blank")}
@@ -307,7 +565,6 @@ const Contact = () => {
               width="100%"
               height="100%"
               style={{ border: 0 }}
-              allowFullScreen=""
               loading="lazy"
               title="office-map"
             ></iframe>
@@ -315,7 +572,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ SECTION */}
       <section className="contactus-section contactus-faq">
         <div className="faq-title">
           <h2>
@@ -335,13 +592,14 @@ const Contact = () => {
                 <h3>{faq.question}</h3>
                 <span className={`arrow ${faq.open ? "up" : "down"}`}>⌄</span>
               </div>
-              <div className="faq-answer">
-                {faq.open && (
+
+              {faq.open && (
+                <div className="faq-answer">
                   <p>
                     <span className="faq-icon">{">"}</span> {faq.answer}
                   </p>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -12,14 +12,12 @@ const Documentaries = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState(null);
 
-  // Fetch documentaries page banners
+  // Fetch dynamic banners
   useEffect(() => {
     const fetchDocsBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log("🔄 Fetching documentaries page banners...");
         const bannersData = await getBanners("media-corner", "documentaries");
-        console.log("✅ Documentaries banners received:", bannersData);
         setDocsBanners(bannersData);
       } catch (error) {
         console.error("❌ Error fetching documentaries banners:", error);
@@ -32,6 +30,7 @@ const Documentaries = () => {
     fetchDocsBanners();
   }, []);
 
+  // Fetch documentaries
   useEffect(() => {
     fetchDocumentaries();
   }, []);
@@ -49,7 +48,7 @@ const Documentaries = () => {
     }
   };
 
-  // Render dynamic banner
+  // Render banner
   const renderBanner = () => {
     if (bannersLoading) {
       return (
@@ -63,9 +62,7 @@ const Documentaries = () => {
       return (
         <div className="documentaries-banner">
           <div className="no-banner-message">
-            <p>
-              Documentaries banner will appear here once added from dashboard
-            </p>
+            <p>Documentaries banner will appear here once added from dashboard</p>
           </div>
         </div>
       );
@@ -78,17 +75,16 @@ const Documentaries = () => {
             {banner.media_type === "image" ? (
               <img
                 src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Documentaries Banner - ${banner.page}`}
+                alt="Documentaries Banner"
                 className="documentaries-banner-image"
               />
             ) : (
               <video
                 src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="documentaries-banner-video"
                 autoPlay
                 muted
                 loop
-                playsInline
+                className="documentaries-banner-video"
               />
             )}
           </div>
@@ -97,25 +93,89 @@ const Documentaries = () => {
     );
   };
 
-  const openDocModal = (doc) => setSelectedDoc(doc);
-  const closeDocModal = () => setSelectedDoc(null);
-
-  const getYouTubeEmbedUrl = (url) => {
-    if (!url) return "";
-    const regex =
-      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = url.match(regex);
-    return match && match[1]
-      ? `https://www.youtube.com/embed/${match[1]}`
-      : url;
+  // Open modal
+  const openDocModal = (doc) => {
+    console.log("🎬 Opening documentary:", doc);
+    setSelectedDoc(doc);
   };
 
-  if (loading) return <div className="loading">Loading documentaries...</div>;
+  const closeDocModal = () => setSelectedDoc(null);
+
+  // Extract embed URLs for YouTube/Vimeo
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return "";
+
+    const ytRegex =
+      /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/;
+    const matchYT = url.match(ytRegex);
+    if (matchYT) return `https://www.youtube.com/embed/${matchYT[1]}`;
+
+    const vimeoRegex = /vimeo\.com\/(\d+)/;
+    const matchVimeo = url.match(vimeoRegex);
+    if (matchVimeo) return `https://player.vimeo.com/video/${matchVimeo[1]}`;
+
+    return url; // fallback
+  };
+
+  const isExternalVideo = (videoUrl) =>
+    videoUrl &&
+    (videoUrl.includes("youtube.com") ||
+      videoUrl.includes("youtu.be") ||
+      videoUrl.includes("vimeo.com"));
+
+  // Smart video rendering logic
+  const renderVideoPlayer = (doc) => {
+    console.log("🎥 Rendering video:", doc);
+
+    // 1) External video (YouTube/Vimeo)
+    if (doc.video_url && isExternalVideo(doc.video_url)) {
+      const embed = getYouTubeEmbedUrl(doc.video_url);
+      return (
+        <iframe
+          src={embed}
+          title={doc.title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      );
+    }
+
+    // 2) Uploaded video file
+    if (doc.video_filename) {
+      const videoPath = `${UPLOADS_BASE}/media/documentaries/${doc.video_filename}`;
+      return (
+        <video controls autoPlay className="uploaded-video">
+          <source src={videoPath} type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+      );
+    }
+
+    // 3) Direct video URL (non-YouTube)
+    if (doc.video_url) {
+      return (
+        <video controls autoPlay className="uploaded-video">
+          <source src={doc.video_url} type="video/mp4" />
+        </video>
+      );
+    }
+
+    // 4) No video available
+    return (
+      <div className="no-video-message">
+        <p>Video content not available</p>
+      </div>
+    );
+  };
+
+  if (loading)
+    return <div className="loading">Loading documentaries...</div>;
 
   return (
     <div className="documentaries-container">
-      {/* Dynamic Banner */}
       {renderBanner()}
+
       <div className="documentaries-page">
         <div className="page-header">
           <h1>
@@ -124,6 +184,7 @@ const Documentaries = () => {
           <p>Watch our inspiring video content and stories</p>
         </div>
 
+        {/* Documentaries Grid */}
         <div className="documentaries-grid">
           {documentaries.length === 0 ? (
             <div className="empty-state">
@@ -147,13 +208,15 @@ const Documentaries = () => {
                     </div>
                   </div>
                 )}
+
                 <div className="doc-content">
                   <h3>{doc.title}</h3>
                   <p className="doc-description">
-                    {doc.description.length > 100
+                    {doc.description && doc.description.length > 100
                       ? doc.description.substring(0, 35) + "..."
-                      : doc.description}
+                      : doc.description || "No description available"}
                   </p>
+
                   <div className="doc-meta">
                     {doc.duration && (
                       <span className="doc-duration">
@@ -161,9 +224,10 @@ const Documentaries = () => {
                       </span>
                     )}
                   </div>
+
                   <button
-                    onClick={() => openDocModal(doc)}
                     className="btn-watch"
+                    onClick={() => openDocModal(doc)}
                   >
                     Watch Documentary
                   </button>
@@ -173,7 +237,7 @@ const Documentaries = () => {
           )}
         </div>
 
-        {/* Documentary Modal */}
+        {/* Modal */}
         {selectedDoc && (
           <div className="modal-overlay" onClick={closeDocModal}>
             <div
@@ -182,63 +246,46 @@ const Documentaries = () => {
             >
               <div className="modal-header">
                 <h2>{selectedDoc.title}</h2>
-                <button onClick={closeDocModal} className="close-btn">
+                <button className="close-btn" onClick={closeDocModal}>
                   &times;
                 </button>
               </div>
+
               <div className="modal-body">
-                {/* FIXED: Handle both YouTube URLs and uploaded videos */}
-                {selectedDoc.video_url || selectedDoc.video_filename ? (
-                  <div className="video-container">
-                    {selectedDoc.video_url ? (
-                      // YouTube/Vimeo embed
-                      <iframe
-                        src={getYouTubeEmbedUrl(selectedDoc.video_url)}
-                        title={selectedDoc.title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                    ) : (
-                      // Uploaded video file
-                      <video controls autoPlay className="uploaded-video">
-                        <source
-                          src={`${UPLOADS_BASE}/media/documentaries/${selectedDoc.video_filename}`}
-                          type="video/mp4"
-                        />
-                        Your browser does not support the video tag.
-                      </video>
-                    )}
-                  </div>
-                ) : (
-                  <div className="no-video-message">
-                    <p>Video content not available</p>
-                  </div>
-                )}
+                <div className="video-container">
+                  {renderVideoPlayer(selectedDoc)}
+                </div>
 
                 <div className="doc-details">
                   <h3>Description</h3>
-                  <p>{selectedDoc.description}</p>
+                  <p>{selectedDoc.description || "No description available"}</p>
+
                   <div className="doc-meta-full">
                     {selectedDoc.duration && (
                       <p>
                         <strong>Duration:</strong> {selectedDoc.duration}
                       </p>
                     )}
+
                     <p>
                       <strong>Published:</strong>{" "}
                       {new Date(selectedDoc.published_date).toLocaleDateString(
                         "en-US"
                       )}
                     </p>
+
                     {selectedDoc.video_filename && (
                       <p>
                         <strong>Video Type:</strong> Uploaded File
                       </p>
                     )}
+
                     {selectedDoc.video_url && (
                       <p>
-                        <strong>Video Type:</strong> External URL
+                        <strong>Video Type:</strong>{" "}
+                        {isExternalVideo(selectedDoc.video_url)
+                          ? "External (YouTube/Vimeo)"
+                          : "Direct URL"}
                       </p>
                     )}
                   </div>
@@ -247,6 +294,7 @@ const Documentaries = () => {
             </div>
           </div>
         )}
+        
       </div>
     </div>
   );

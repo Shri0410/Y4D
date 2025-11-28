@@ -126,12 +126,14 @@
 }
 
 .newsletters-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
+  justify-content: space-between;
 }
 
 .newsletter-card {
+  width: calc(33% - 1.33rem);
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -153,11 +155,31 @@
   color: #2c3e50;
   margin-bottom: 1rem;
   font-size: 1.3rem;
+  flex: 1;
+  /* Title overflow handling for content items */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 2.6em;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 .newsletter-description {
   color: #5a6c7d;
-  line-height: 1.6;
+  line-height: 1.5;
+  /* Limit description to 3 lines max */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 4.5em;
   margin-bottom: 1.5rem;
 }
 
