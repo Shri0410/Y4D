@@ -150,8 +150,8 @@ router.post("/apply", upload.single("resume"), async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: process.env.OWNER_EMAIL,
-        pass: process.env.OWNER_EMAIL_PASSWORD,
+        user: process.env.HR_EMAIL,
+        pass: process.env.HR_EMAIL_PASSWORD,
       },
     });
 
