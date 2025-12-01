@@ -22,15 +22,16 @@ const DonateNow = () => {
   const suggestedAmounts = [500, 1000, 2000, 5000];
 
   /*  SAFE ENV VARIABLE DETECTION*/
-const RAZORPAY_KEY = process.env.development.REACT_APP_RAZORPAY_KEY_ID || null;
+  const RAZORPAY_KEY =
+    process.env.development.REACT_APP_RAZORPAY_KEY_ID || null;
 
-useEffect(() => {
-  if (!RAZORPAY_KEY) {
-    console.error(
-      "❌ Razorpay key missing. Add REACT_APP_RAZORPAY_KEY_ID in your .env file"
-    );
-  }
-}, []);
+  useEffect(() => {
+    if (!RAZORPAY_KEY) {
+      console.error(
+        "❌ Razorpay key missing. Add REACT_APP_RAZORPAY_KEY_ID in your .env file"
+      );
+    }
+  }, []);
 
   /* Fetch Donate Banners*/
   useEffect(() => {
@@ -187,9 +188,7 @@ useEffect(() => {
               alert("Payment verification failed.");
             }
           } catch (error) {
-            alert(
-              "Verification error. Contact support with your Payment ID."
-            );
+            alert("Verification error. Contact support with your Payment ID.");
           }
         },
 
