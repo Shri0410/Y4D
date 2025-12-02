@@ -12,6 +12,7 @@
 }
 
 .popup-box {
+  position: relative; /* Add this */
   background: #fff;
   padding: 25px;
   border-radius: 12px;
@@ -34,18 +35,14 @@
   margin-bottom: 15px;
 }
 
-.popup-box button {
-  background: #0077cc;
+.popup-explore {
+  background: #fd6500;
   color: white;
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s ease;
-}
-
-.popup-box button:hover {
-  background: #005fa3;
 }
 
 @keyframes fadeIn {
@@ -65,7 +62,7 @@
   right: 12px;
   background: transparent;
   border: none;
-  font-size: 22px;
+  font-size: 35px;
   cursor: pointer;
   color: #666;
 }

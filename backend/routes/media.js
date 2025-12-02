@@ -1,3 +1,4 @@
+
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -85,6 +86,18 @@ const mediaTables = {
 
 const isValidMediaType = (type) => {
   return mediaTables.hasOwnProperty(type);
+};
+
+// Helper: safely get first element if value is array
+const safeFirst = (val) => {
+  if (Array.isArray(val)) return val[0];
+  return val;
+};
+
+// Helper: ensure not null/undefined
+const ensureString = (val) => {
+  if (val === undefined || val === null) return "";
+  return val;
 };
 
 // Get all published items for a specific media type (for frontend) : Include user info
@@ -187,25 +200,23 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
     return res.status(400).json({ error: "Invalid media type" });
   }
 
-  try {
-    console.log("Uploaded files:", req.files);
-    console.log("Request body:", req.body);
+  // Sanitize request body to avoid null/undefined and handle array form values
+  const sanitizedBody = {};
+  Object.keys(req.body || {}).forEach((key) => {
+    sanitizedBody[key] = safeFirst(req.body[key]);
+  });
 
-    const sanitizedBody = {};
-    Object.keys(req.body).forEach((key) => {
-      sanitizedBody[key] = req.body[key] || ""; 
-    });
+  try {
+    const files = req.files || [];
+    const imageFile = files.find((file) => file.fieldname === "image");
+    const fileFile = files.find((file) => file.fieldname === "file");
 
     let fields = [];
     let values = [];
     let placeholders = [];
 
-    const files = req.files || [];
-    const imageFile = files.find((file) => file.fieldname === "image");
-    const fileFile = files.find((file) => file.fieldname === "file");
-
     switch (type) {
-      case "newsletters":
+      case "newsletters": {
         const {
           title: newsletterTitle,
           description: newsletterDesc,
@@ -240,16 +251,17 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "last_modified_by",
         ];
         values = [
-          newsletterTitle,
-          newsletterDesc,
+          ensureString(newsletterTitle),
+          ensureString(newsletterDesc),
           file_path,
           newsletterPublishedDate,
           newsletterIsPublished,
           req.user.id,
         ];
         break;
+      }
 
-      case "stories":
+      case "stories": {
         const {
           title: storyTitle,
           content,
@@ -257,11 +269,12 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           published_date: storyDate,
           publish_type: storyPublishType = "immediate",
           scheduled_date: storyScheduledDate,
-        } = sanitizedBody; 
+        } = sanitizedBody;
 
         const image = imageFile ? imageFile.filename : null;
 
-        const storyContent = content || "";
+        // Ensure content is a single string and not null
+        const storyContent = ensureString(content);
 
         let storyPublishedDate =
           storyDate || new Date().toISOString().split("T")[0];
@@ -279,20 +292,21 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "author",
           "published_date",
           "is_published",
-          "last_modified_by", 
+          "last_modified_by",
         ];
         values = [
-          storyTitle,
-          storyContent, 
+          ensureString(storyTitle),
+          storyContent,
           image,
-          author || "Anonymous",
+          ensureString(author) || "Anonymous",
           storyPublishedDate,
           storyIsPublished,
           req.user.id,
         ];
         break;
+      }
 
-      case "events":
+      case "events": {
         const {
           title: eventTitle,
           description: eventDesc,
@@ -301,15 +315,33 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           location,
           publish_type: eventPublishType = "immediate",
           scheduled_date: eventScheduledDate,
-        } = req.body;
+          published_date: eventPublished_date,
+          is_published: eventIsPublishedInput,
+        } = sanitizedBody;
+
         const eventImage = imageFile ? imageFile.filename : null;
 
+        // Validate required fields for events
+        if (!date || !time || !location) {
+          return res.status(400).json({
+            error: "Missing required fields for event",
+            details: "Date, time, and location are required for events",
+          });
+        }
+
+        // Determine published date and publish flag
+        let eventPublishedDate = eventPublished_date || new Date().toISOString().split("T")[0];
         let eventIsPublished = eventPublishType === "immediate";
-        let eventPublishedDate = new Date().toISOString().split("T")[0];
 
         if (eventPublishType === "schedule" && eventScheduledDate) {
           eventPublishedDate = eventScheduledDate;
           eventIsPublished = false;
+        }
+
+        // If is_published passed explicitly (string), normalize it
+        if (typeof eventIsPublishedInput !== "undefined") {
+          const val = eventIsPublishedInput;
+          eventIsPublished = (val === true || val === "true" || val === "1" || val === 1);
         }
 
         fields = [
@@ -321,22 +353,23 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "image",
           "published_date",
           "is_published",
-          "last_modified_by", 
+          "last_modified_by",
         ];
         values = [
-          eventTitle,
-          eventDesc,
-          date,
-          time,
-          location,
+          ensureString(eventTitle),
+          ensureString(eventDesc),
+          ensureString(date),
+          ensureString(time),
+          ensureString(location),
           eventImage,
           eventPublishedDate,
           eventIsPublished,
           req.user.id,
         ];
         break;
+      }
 
-      case "blogs":
+      case "blogs": {
         const {
           title: blogTitle,
           content: blogContent,
@@ -345,13 +378,15 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           published_date: blogDate,
           publish_type: blogPublishType = "immediate",
           scheduled_date: blogScheduledDate,
-        } = req.body;
+        } = sanitizedBody;
         const blogImage = imageFile ? imageFile.filename : null;
 
+        // Safe tags parsing
         let tagsJson = [];
         if (tags) {
           try {
-            tagsJson = typeof tags === "string" ? JSON.parse(tags) : tags;
+            tagsJson =
+              typeof tags === "string" ? JSON.parse(tags) : tags;
             if (!Array.isArray(tagsJson)) {
               tagsJson = [tagsJson];
             }
@@ -361,7 +396,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           }
         }
 
-        let blogPublishedDate = blogDate;
+        let blogPublishedDate = blogDate || null;
         let blogIsPublished = blogPublishType === "immediate";
 
         if (blogPublishType === "schedule" && blogScheduledDate) {
@@ -377,21 +412,22 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "tags",
           "published_date",
           "is_published",
-          "last_modified_by", 
+          "last_modified_by",
         ];
         values = [
-          blogTitle,
-          blogContent,
+          ensureString(blogTitle),
+          ensureString(blogContent),
           blogImage,
-          blogAuthor,
+          ensureString(blogAuthor),
           JSON.stringify(tagsJson),
           blogPublishedDate,
           blogIsPublished,
-          req.user.id, 
+          req.user.id,
         ];
         break;
+      }
 
-      case "documentaries":
+      case "documentaries": {
         const {
           title: docTitle,
           description: docDesc,
@@ -400,14 +436,14 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           published_date: docDate,
           publish_type: docPublishType = "immediate",
           scheduled_date: docScheduledDate,
-        } = req.body;
+        } = sanitizedBody;
 
         const thumbnail = imageFile ? imageFile.filename : null;
 
         const videoFile = files.find((file) => file.fieldname === "video_file");
         const video_filename = videoFile ? videoFile.filename : null;
 
-        let docPublishedDate = docDate;
+        let docPublishedDate = docDate || null;
         let docIsPublished = docPublishType === "immediate";
 
         if (docPublishType === "schedule" && docScheduledDate) {
@@ -424,20 +460,24 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           "duration",
           "published_date",
           "is_published",
-          "last_modified_by", 
+          "last_modified_by",
         ];
         values = [
-          docTitle,
-          docDesc,
-          video_url,
+          ensureString(docTitle),
+          ensureString(docDesc),
+          ensureString(video_url),
           video_filename,
           thumbnail,
-          duration,
+          ensureString(duration),
           docPublishedDate,
           docIsPublished,
-          req.user.id, 
+          req.user.id,
         ];
         break;
+      }
+
+      default:
+        return res.status(400).json({ error: "Unsupported media type" });
     }
 
     placeholders = fields.map(() => "?").join(", ");
@@ -458,10 +498,11 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
   } catch (error) {
     console.error(`Error creating ${type}:`, error);
 
+    // Better file cleanup when error occurs
     if (req.files) {
       for (const file of req.files) {
         try {
-          await fs.unlink(file.path);
+          if (file && file.path) await fs.unlink(file.path);
         } catch (unlinkError) {
           console.error("Error cleaning up file:", unlinkError);
         }
@@ -471,7 +512,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
     res.status(500).json({
       error: `Failed to create ${type}`,
       details: error.message,
-      sqlMessage: error.sqlMessage,
+      sqlMessage: error && error.sqlMessage ? error.sqlMessage : undefined,
     });
   }
 });
@@ -483,6 +524,12 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
   if (!isValidMediaType(type)) {
     return res.status(400).json({ error: "Invalid media type" });
   }
+
+  // Sanitize request body
+  const sanitizedBody = {};
+  Object.keys(req.body || {}).forEach((key) => {
+    sanitizedBody[key] = safeFirst(req.body[key]);
+  });
 
   try {
     const [existingItems] = await db.query(
@@ -503,7 +550,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
     const fileFile = files.find((file) => file.fieldname === "file");
 
     switch (type) {
-      case "newsletters":
+      case "newsletters": {
         const {
           title,
           description,
@@ -511,7 +558,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           publish_type,
           scheduled_date,
           is_published,
-        } = req.body;
+        } = sanitizedBody;
         let file_path = existingItem.file_path;
         if (fileFile) file_path = fileFile.filename;
 
@@ -528,12 +575,12 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "file_path = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP",
         ];
         values = [
-          title,
-          description,
+          ensureString(title),
+          ensureString(description),
           file_path,
           published_date,
           finalIsPublished,
@@ -541,8 +588,9 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           id,
         ];
         break;
+      }
 
-      case "stories":
+      case "stories": {
         const {
           title: storyTitle,
           content,
@@ -550,18 +598,11 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           published_date: storyDate,
           publish_type: storyPublishType = "immediate",
           scheduled_date: storyScheduledDate,
-        } = req.body;
+        } = sanitizedBody;
 
         const image = imageFile ? imageFile.filename : null;
 
-        console.log("Received story data:", {
-          title: storyTitle,
-          content: content,
-          author: author,
-          image: image,
-        });
-
-        const storyContent = content || "";
+        const storyContent = ensureString(content);
 
         let storyPublishedDate =
           storyDate || new Date().toISOString().split("T")[0];
@@ -579,24 +620,23 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "author = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP",
         ];
         values = [
-          storyTitle,
-          storyContent, 
+          ensureString(storyTitle),
+          storyContent,
           image,
-          author || "Anonymous",
+          ensureString(author) || "Anonymous",
           storyPublishedDate,
           storyIsPublished,
           req.user.id,
           id,
         ];
-
-        console.log("Final values for database:", values);
         break;
+      }
 
-      case "events":
+      case "events": {
         const {
           title: eventTitle,
           description: eventDesc,
@@ -605,18 +645,13 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           location,
           publish_type: eventPublishType,
           scheduled_date: eventScheduledDate,
-          is_published: eventIsPublished,
-        } = req.body;
+          is_published: eventIsPublishedInput,
+        } = sanitizedBody;
+
         let eventImage = existingItem.image;
         if (imageFile) eventImage = imageFile.filename;
 
-        let finalEventPublished = eventIsPublished;
-        if (eventPublishType === "schedule" && eventScheduledDate) {
-          finalEventPublished = false;
-        } else if (eventPublishType === "immediate") {
-          finalEventPublished = true;
-        }
-
+        // Build updates similar to File1 but keep safety checks
         updates = [
           "title = ?",
           "description = ?",
@@ -626,24 +661,43 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "image = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP",
         ];
+
+        // Compute publish status
+        let finalEventPublished = eventIsPublishedInput;
+        if (eventPublishType === "schedule" && eventScheduledDate) {
+          finalEventPublished = false;
+        } else if (eventPublishType === "immediate") {
+          finalEventPublished = true;
+        }
+        // normalize if passed as string
+        if (typeof finalEventPublished !== "undefined") {
+          finalEventPublished =
+            finalEventPublished === true ||
+            finalEventPublished === "true" ||
+            finalEventPublished === 1 ||
+            finalEventPublished === "1";
+        }
+
         values = [
-          eventTitle,
-          eventDesc,
-          date,
-          time,
-          location,
+          ensureString(eventTitle),
+          ensureString(eventDesc),
+          ensureString(date || existingItem.date),
+          ensureString(time || existingItem.time),
+          ensureString(location || existingItem.location),
           eventImage,
           existingItem.published_date,
           finalEventPublished,
-          req.user.id, 
+          req.user.id,
           id,
         ];
-        break;
 
-      case "blogs":
+        break;
+      }
+
+      case "blogs": {
         const {
           title: blogTitle,
           content: blogContent,
@@ -653,7 +707,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           publish_type: blogPublishType,
           scheduled_date: blogScheduledDate,
           is_published: blogIsPublished,
-        } = req.body;
+        } = sanitizedBody;
         let blogImage = existingItem.image;
         if (imageFile) blogImage = imageFile.filename;
 
@@ -684,23 +738,24 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "tags = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP",
         ];
         values = [
-          blogTitle,
-          blogContent,
+          ensureString(blogTitle),
+          ensureString(blogContent),
           blogImage,
-          blogAuthor,
+          ensureString(blogAuthor),
           JSON.stringify(tagsJson),
           blogDate,
           finalBlogPublished,
-          req.user.id, 
+          req.user.id,
           id,
         ];
         break;
+      }
 
-      case "documentaries":
+      case "documentaries": {
         const {
           title: docTitle,
           description: docDesc,
@@ -710,9 +765,14 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           publish_type: docPublishType,
           scheduled_date: docScheduledDate,
           is_published: docIsPublished,
-        } = req.body;
+        } = sanitizedBody;
+
         let thumbnail = existingItem.thumbnail;
         if (imageFile) thumbnail = imageFile.filename;
+
+        const videoFile = files.find((file) => file.fieldname === "video_file");
+        let video_filename = existingItem.video_filename;
+        if (videoFile) video_filename = videoFile.filename;
 
         let finalDocPublished = docIsPublished;
         if (docPublishType === "schedule" && docScheduledDate) {
@@ -729,21 +789,25 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "duration = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP",
         ];
         values = [
-          docTitle,
-          docDesc,
-          video_url,
+          ensureString(docTitle),
+          ensureString(docDesc),
+          ensureString(video_url) || existingItem.video_url,
           thumbnail,
-          duration,
-          docDate,
+          ensureString(duration) || existingItem.duration,
+          docDate || existingItem.published_date,
           finalDocPublished,
-          req.user.id, 
+          req.user.id,
           id,
         ];
         break;
+      }
+
+      default:
+        return res.status(400).json({ error: "Unsupported media type" });
     }
 
     const query = `UPDATE ${type} SET ${updates.join(", ")} WHERE id = ?`;
@@ -759,7 +823,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
     if (req.files) {
       for (const file of req.files) {
         try {
-          await fs.unlink(file.path);
+          if (file && file.path) await fs.unlink(file.path);
         } catch (unlinkError) {
           console.error("Error cleaning up file:", unlinkError);
         }
@@ -769,7 +833,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
     res.status(500).json({
       error: `Failed to update ${type}`,
       details: error.message,
-      sqlMessage: error.sqlMessage,
+      sqlMessage: error && error.sqlMessage ? error.sqlMessage : undefined,
     });
   }
 });

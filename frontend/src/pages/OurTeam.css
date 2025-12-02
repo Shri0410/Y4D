@@ -3,10 +3,17 @@
   color: #333;
   text-align: center;
 }
+.banner {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+}
 
 .banner img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
 .FOT-section {

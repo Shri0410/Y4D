@@ -139,19 +139,6 @@ const PublicRegistrationForm = () => {
           </div>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="address">Address *</label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            placeholder="Enter your complete address"
-            rows="3"
-          />
-        </div>
-
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="password">Password *</label>
@@ -163,11 +150,8 @@ const PublicRegistrationForm = () => {
               onChange={handleChange}
               required
               minLength={6}
-              placeholder="Create a password (min 6 characters)"
+              placeholder="Create a password "
             />
-            <small className="help-text">
-              Must be at least 6 characters long
-            </small>
           </div>
 
           <div className="form-group">
@@ -183,6 +167,19 @@ const PublicRegistrationForm = () => {
               placeholder="Confirm your password"
             />
           </div>
+
+        </div>
+        <div className="form-group">
+          <label htmlFor="address">Address *</label>
+          <textarea
+            id="address"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+            placeholder="Enter your complete address"
+            rows="3"
+          />
         </div>
 
         <div className="form-actions">

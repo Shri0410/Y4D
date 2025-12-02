@@ -7,6 +7,7 @@ import { extractData, extractErrorMessage, handleApiError } from "../utils/apiRe
 import RegistrationModal from "./RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
+import logo from "../assets/Y4D LOGO LOADING.png";
 
 const LoginPage = ({ onLogin, onAdminLogin }) => {
   const [showRegistration, setShowRegistration] = useState(false);
@@ -49,15 +50,15 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h2>Youth4Development Dashboard</h2>
+        <img src={logo} alt="Youth4Development" className="login-logo" />
 
         {/* User Login Form */}
         <form onSubmit={handleUserLogin} className="login-form">
-          <h3>User Login</h3>
+          <h3>Login</h3>
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label>Username or Email:</label>
+            <label>Email:</label>
             <input
               type="text"
               value={loginData.username}

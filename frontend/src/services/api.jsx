@@ -5,7 +5,7 @@ import { getToken, clearAuth } from "../utils/tokenManager";
 import logger from "../utils/logger";
 import { extractData, extractErrorMessage } from "../utils/apiResponse";
 
-// Create axios instance for consistent configuration
+/* AXIOS INSTANCE (Production Base)*/
 const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
@@ -14,126 +14,125 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to automatically inject auth token
+/*REQUEST INTERCEPTOR (Token Injection) */
 api.interceptors.request.use(
   (config) => {
     const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor for better error handling and automatic logout on 401
+/* RESPONSE INTERCEPTOR (401 handler + logging)*/
 api.interceptors.response.use(
-  (response) => {
-    // Response is successful, return as is
-    // Components can use extractData() to get the data
-    return response;
-  },
+  (response) => response,
   (error) => {
-    // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
-      // Clear auth data
       clearAuth();
-      
-      // Redirect to login if not already there
+
+      // Redirect admin panel users
       if (window.location.pathname.startsWith("/admin")) {
         window.location.href = "/admin";
       }
     }
-    
-    // Extract error message from standardized response
-    const errorMessage = extractErrorMessage(error);
-    
-    // Log error using logger utility
+
+    // Logs from File 1 + File 2 (merged)
+    const extractedMsg = extractErrorMessage(error);
     logger.error("API Error:", {
-      message: errorMessage,
+      message: extractedMsg,
       status: error.response?.status,
-      data: error.response?.data
+      data: error.response?.data,
     });
-    
-    // Enhance error object with extracted message
-    error.extractedMessage = errorMessage;
-    
+
+    error.extractedMessage = extractedMsg;
     return Promise.reject(error);
   }
 );
 
-// Get all careers
+/*CAREERS*/
 export const getCareers = async () => {
+  console.log("🔄 Fetching careers...");
   const response = await api.get("/careers");
+  console.log("✅ Careers loaded");
   return extractData(response);
 };
 
-// Apply for a job
-export const applyForJob = async (applicationData) => {
-  const response = await api.post("/careers/apply", applicationData);
+// From File 2: multipart/form-data support
+export const applyForJob = async (formData) => {
+  console.log("📤 Submitting job application...");
+  const response = await api.post("/careers/apply", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  console.log("✅ Application submitted");
   return extractData(response);
 };
 
-// Fetch impact data
+/* IMPACT / MANAGEMENT / MENTORS / REPORTS*/
 export const getImpactData = async () => {
+  console.log("🔄 Fetching impact data...");
   const response = await api.get("/impact-data");
   return extractData(response);
 };
 
-// Fetch management data
 export const getManagement = async () => {
+  console.log("🔄 Fetching management...");
   const response = await api.get("/management");
   return extractData(response);
 };
 
-// Fetch mentors
 export const getMentors = async () => {
+  console.log("🔄 Fetching mentors...");
   const response = await api.get("/mentors");
   return extractData(response);
 };
 
-// Fetch reports
 export const getReports = async () => {
+  console.log("🔄 Fetching reports...");
   const response = await api.get("/reports");
   return extractData(response);
 };
-// Add these functions to your services/api.jsx
 
-// Fetch banners for specific page and section
+/* BANNERS (Merged Improvements)*/
 export const getBanners = async (page = "home", section = null) => {
   try {
+    console.log(`🔄 Fetching banners for: page=${page}, section=${section}`);
+
     let url = `/banners/page/${page}`;
-    if (section) {
-      url += `?section=${section}`;
-    }
+    if (section) url += `?section=${section}`;
 
     const response = await api.get(url);
+
+    console.log("✅ Banners response:", extractData(response));
     return extractData(response);
   } catch (error) {
-    logger.error("Error fetching banners:", error);
+    console.error("❌ Error fetching banners:", error.response?.data);
+    logger.error("Banner API Error:", error);
     return [];
   }
 };
 
-// Fetch all active banners (for multiple sections)
 export const getAllBanners = async () => {
   try {
+    console.log("🔄 Fetching all banners...");
     const response = await api.get("/banners");
-    return response.data;
+    console.log("✅ All banners received");
+    return extractData(response);
   } catch (error) {
-    logger.error("Error fetching all banners:", error);
+    logger.error("❌ Error fetching all banners:", error);
     return [];
   }
 };
-// Fetch accreditations
+
+/* ACCREDITATIONS */
 export const getAccreditations = async () => {
   try {
+    console.log("🔄 Fetching accreditations...");
     const response = await api.get("/accreditations");
-    return response.data;
+    console.log("✅ Accreditations loaded");
+    return extractData(response);
   } catch (error) {
-    logger.error("Error fetching accreditations:", error);
+    console.error("❌ Accreditations error:", error.response?.data);
     return [];
   }
 };

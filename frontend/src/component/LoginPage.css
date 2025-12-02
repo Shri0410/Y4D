@@ -2,21 +2,36 @@
   min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  justify-content: end;
+  background-image: url("../assets/Loginbg.jpg"); /* your image path */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .login-container {
   background: white;
   padding: 2rem;
+  margin-right: 6rem;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 400px;
   max-width: 90%;
+}
+.login-logo {
+  display: block;
+  width: 100px;
+  margin: 0 auto 20px auto;
 }
 
 .login-form {
   margin-bottom: 1rem;
+}
+.login-form h3 {
+  text-align: center;
+  font-size: 1.7rem;
+
+  color: #333;
 }
 
 .form-group {
@@ -47,7 +62,8 @@
   margin-bottom: 1rem;
 }
 
-.option-btn, .admin-btn {
+.option-btn,
+.admin-btn {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -56,7 +72,7 @@
 }
 
 .option-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
@@ -72,7 +88,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -93,30 +109,40 @@
   margin-top: 1rem;
 }
 
-
 .btn-login {
-  display: block;  
+  display: block;
   margin: 0 auto;
-  background-color: #4CAF50;
-  color: white;   
-  padding: 12px 24px;    
-  border: none;            
-  border-radius: 8px;        
-  font-size: 16px;         
-  font-weight: 600;          
-  cursor: pointer;           
+  background-color: #4caf50;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .btn-login:hover {
-  background-color: #45a049; 
-  transform: scale(1.05);   
+  background-color: #45a049;
+  transform: scale(1.05);
 }
 
 .btn-login:disabled {
-  background-color: #ccc;    
-  color: #666;               
-  cursor: not-allowed;      
-  transform: none;           
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
 }
 
+@media (max-width: 768px) {
+  .login-page {
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .login-container {
+    margin: 0;
+    width: 100%;
+  }
+}

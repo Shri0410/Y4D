@@ -4,7 +4,12 @@ import axios from "axios";
 import toast from "../utils/toast";
 import logger from "../utils/logger";
 import confirmDialog from "../utils/confirmDialog";
-import { extractData, extractErrorMessage, handleApiSuccess, handleApiError } from "../utils/apiResponse";
+import {
+  extractData,
+  extractErrorMessage,
+  handleApiSuccess,
+  handleApiError,
+} from "../utils/apiResponse";
 import "./OurWorkManagement.css";
 import {
   canView,
@@ -43,7 +48,7 @@ const OurWorkManagement = ({
 
   const token = localStorage.getItem("token");
 
-  // Permission check functions for this component
+  // Permissions
   const canUserPerformAction = (actionType) => {
     if (!currentUser) return false;
     if (currentUser.role === "super_admin") return true;
@@ -81,6 +86,7 @@ const OurWorkManagement = ({
     return `${API_BASE}/uploads/our-work/${category}/${imageUrl}`;
   };
 
+  // Fetch Items
   useEffect(() => {
     if (category && (action === "view" || action === "update")) {
       fetchItems();
@@ -91,6 +97,7 @@ const OurWorkManagement = ({
     try {
       setLoading(true);
       setError("");
+
       const response = await axios.get(
         `${API_BASE}/our-work/admin/${category}`,
         {
@@ -101,10 +108,8 @@ const OurWorkManagement = ({
         }
       );
 
-      // Extract data from standardized response
       const data = extractData(response) || [];
-      
-      // Ensure we have last_modified_by_name for each item
+
       const itemsWithModifier = data.map((item) => ({
         ...item,
         last_modified_by_name: item.last_modified_by_name || "Unknown",
@@ -118,8 +123,10 @@ const OurWorkManagement = ({
     setLoading(false);
   };
 
+  // Save / Update Item
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!canUserPerformAction(editingItem ? "edit" : "create")) {
       toast.warning("You don't have permission to perform this action");
       return;
@@ -169,18 +176,19 @@ const OurWorkManagement = ({
       resetForm();
       onActionChange("view");
       fetchItems();
-      
-      // Handle success with standardized response
-      handleApiSuccess(response, { 
-        customMessage: `Item ${editingItem ? "updated" : "created"} successfully!` 
+
+      handleApiSuccess(response, {
+        customMessage: `Item ${editingItem ? "updated" : "created"} successfully!`,
       });
     } catch (error) {
       const errorMessage = handleApiError(error, { showToast: false });
       setError(errorMessage);
     }
+
     setLoading(false);
   };
 
+  // Edit Item
   const handleEdit = (item) => {
     if (!canUserPerformAction("edit")) {
       toast.warning("You don't have permission to edit items");
@@ -206,26 +214,33 @@ const OurWorkManagement = ({
     onActionChange("update");
   };
 
+  // Delete Item
   const handleDelete = async (id) => {
     if (!canUserPerformAction("delete")) {
       toast.warning("You don't have permission to delete items");
       return;
     }
 
-    const confirmed = await confirmDialog("Are you sure you want to delete this item?");
+    const confirmed = await confirmDialog(
+      "Are you sure you want to delete this item?"
+    );
     if (confirmed) {
       try {
-        const response = await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.delete(
+          `${API_BASE}/our-work/admin/${category}/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         fetchItems();
-        handleApiSuccess(response, { customMessage: "Item deleted successfully!" });
+        handleApiSuccess(response, {
+          customMessage: "Item deleted successfully!",
+        });
       } catch (error) {
         handleApiError(error);
       }
     }
   };
 
+  // Toggle Status
   const toggleStatus = async (id, currentStatus) => {
     if (!canUserPerformAction("publish")) {
       toast.warning("You don't have permission to change item status");
@@ -246,14 +261,17 @@ const OurWorkManagement = ({
         }
       );
       fetchItems();
-      handleApiSuccess(response, { 
-        customMessage: `Item ${!currentStatus ? "activated" : "deactivated"} successfully!` 
+      handleApiSuccess(response, {
+        customMessage: `Item ${
+          !currentStatus ? "activated" : "deactivated"
+        } successfully!`,
       });
     } catch (error) {
       handleApiError(error);
     }
   };
 
+  // Image Preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
@@ -262,9 +280,7 @@ const OurWorkManagement = ({
     reader.onloadend = () => {
       setImagePreview(reader.result);
     };
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    if (file) reader.readAsDataURL(file);
   };
 
   const resetForm = () => {
@@ -292,10 +308,8 @@ const OurWorkManagement = ({
     onActionChange("view");
   };
 
-  // Render last modified info for each item
-
+  // Last modified info
   const renderLastModifiedInfo = (item) => {
-    // Only show last modified info to admin and super_admin
     if (
       !currentUser ||
       (currentUser.role !== "admin" && currentUser.role !== "super_admin")
@@ -303,9 +317,7 @@ const OurWorkManagement = ({
       return null;
     }
 
-    if (!item.last_modified_by_name && !item.last_modified_at) {
-      return null;
-    }
+    if (!item.last_modified_by_name && !item.last_modified_at) return null;
 
     return (
       <div className="last-modified-info admin-only">
@@ -319,13 +331,12 @@ const OurWorkManagement = ({
     );
   };
 
-  // Render action buttons for each item
+  // Action buttons
   const renderItemActions = (item) => {
     const canEditItem = canUserPerformAction("edit");
     const canDeleteItem = canUserPerformAction("delete");
     const canPublishItem = canUserPerformAction("publish");
 
-    // If user only has view permission, show nothing or "View Only" badge
     if (!canEditItem && !canDeleteItem && !canPublishItem) {
       return (
         <div className="item-actions">
@@ -362,31 +373,38 @@ const OurWorkManagement = ({
     );
   };
 
-  // Render View Mode
+  // VIEW MODE (Updated UI)
   const renderViewMode = () => {
     if (loading) return <div className="loading">Loading...</div>;
 
     return (
       <div className="our-work-manager">
         <div className="our-work-header">
-          <button onClick={onClose} className="close-btn">
-            ← Back to Interventions
-          </button>
-          <h2>View {categoryLabels[category]}</h2>
-          {canUserPerformAction("create") && (
-            <button
-              onClick={() => onActionChange("add")}
-              className="btn-primary"
-            >
-              + Add New Item
+          <div className="header-left">
+            <h2>View {categoryLabels[category]}</h2>
+          </div>
+
+          <div className="header-right">
+            {canUserPerformAction("create") && (
+              <button
+                onClick={() => onActionChange("add")}
+                className="btn-primary"
+              >
+                + Add New Item
+              </button>
+            )}
+
+            <button onClick={onClose} className="btn-back-right">
+              ← Back to Interventions
             </button>
-          )}
+          </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
         <div className="our-work-list">
           <h3>Existing Items ({items.length})</h3>
+
           {items.length === 0 ? (
             <div className="no-items">
               <p>No items found for {categoryLabels[category]}</p>
@@ -415,11 +433,13 @@ const OurWorkManagement = ({
                     ) : (
                       <div className="image-placeholder">📷 No image</div>
                     )}
+
                     <div className="item-content">
                       <h4>{item.title || "Untitled"}</h4>
                       <p className="item-description">
                         {item.description || "No description"}
                       </p>
+
                       <div className="item-meta">
                         <span
                           className={`status ${
@@ -428,14 +448,13 @@ const OurWorkManagement = ({
                         >
                           {item.is_active ? "Active" : "Inactive"}
                         </span>
+
                         <span className="order">
                           Order: {item.display_order || 0}
                         </span>
                       </div>
 
-                      {/* Add last modified info */}
                       {renderLastModifiedInfo(item)}
-
                       {renderItemActions(item)}
                     </div>
                   </div>
@@ -448,17 +467,22 @@ const OurWorkManagement = ({
     );
   };
 
-  // Render Add/Update Mode
+  // FORM MODE (Updated UI)
   const renderFormMode = () => {
     return (
       <div className="our-work-manager">
         <div className="our-work-header">
-          <button onClick={cancelAction} className="close-btn">
-            ← Back to View {categoryLabels[category]}
-          </button>
-          <h2>
-            {editingItem ? "Edit" : "Add New"} {categoryLabels[category]}
-          </h2>
+          <div className="header-left">
+            <h2>
+              {editingItem ? "Edit" : "Add New"} {categoryLabels[category]}
+            </h2>
+          </div>
+
+          <div className="header-right">
+            <button onClick={cancelAction} className="btn-back-right">
+              ← Back to View {categoryLabels[category]}
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="our-work-form">
@@ -554,6 +578,7 @@ const OurWorkManagement = ({
             <button type="submit" disabled={loading}>
               {loading ? "Saving..." : editingItem ? "Update" : "Create"} Item
             </button>
+
             <button type="button" onClick={cancelAction}>
               Cancel
             </button>
@@ -563,12 +588,8 @@ const OurWorkManagement = ({
     );
   };
 
-  // Render based on current action
-  if (action === "view") {
-    return renderViewMode();
-  } else if (action === "add" || action === "update") {
-    return renderFormMode();
-  }
+  if (action === "view") return renderViewMode();
+  if (action === "add" || action === "update") return renderFormMode();
 
   return null;
 };

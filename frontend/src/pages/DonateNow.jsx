@@ -1,35 +1,47 @@
-// src/pages/DonateNow.jsx
 import React, { useState, useEffect } from "react";
-import { UPLOADS_BASE } from "../config/api";
 import "./DonateNow.css";
 import { getBanners } from "../services/api.jsx";
+import { API_BASE, UPLOADS_BASE } from "../config/api";
 
 const DonateNow = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     amount: "",
-    pan: "", // new field for PAN
+    pan: "",
     message: "",
   });
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [donateBanners, setDonateBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
 
   const suggestedAmounts = [500, 1000, 2000, 5000];
 
-  // Fetch donate page banners
+  /*  SAFE ENV VARIABLE DETECTION*/
+  const RAZORPAY_KEY =
+    process.env.development.REACT_APP_RAZORPAY_KEY_ID || null;
+
+  useEffect(() => {
+    if (!RAZORPAY_KEY) {
+      console.error(
+        "❌ Razorpay key missing. Add REACT_APP_RAZORPAY_KEY_ID in your .env file"
+      );
+    }
+  }, []);
+
+  /* Fetch Donate Banners*/
   useEffect(() => {
     const fetchDonateBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching donate page banners...');
-        const bannersData = await getBanners('donate', 'hero');
-        console.log('✅ Donate banners received:', bannersData);
-        setDonateBanners(bannersData);
+        const bannersData = await getBanners("donate", "hero");
+        setDonateBanners(bannersData || []);
       } catch (error) {
-        console.error('❌ Error fetching donate banners:', error);
-        setDonateBanners([]);
+        console.error("❌ Error fetching banners:", error);
       } finally {
         setBannersLoading(false);
       }
@@ -38,58 +50,189 @@ const DonateNow = () => {
     fetchDonateBanners();
   }, []);
 
+  /* Input Handler*/
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Automatically convert PAN input to uppercase
-    if (name === "pan") {
-      setFormData({ ...formData, [name]: value.toUpperCase() });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData({
+      ...formData,
+      [name]: name === "pan" ? value.toUpperCase() : value,
+    });
   };
 
-  const loadRazorpay = (amount) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onerror = () =>
-      alert("Razorpay SDK failed to load. Are you online?");
-    script.onload = async () => {
+  /* Enhanced Validation */
+  const validateForm = () => {
+    const { name, email, amount, pan } = formData;
+
+    if (!name.trim() || name.length < 2)
+      return "Name must be at least 2 characters";
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.trim() || !emailPattern.test(email))
+      return "Enter a valid email address";
+
+    const donationAmount = Number(amount);
+    if (!donationAmount || donationAmount <= 0)
+      return "Enter a valid donation amount";
+
+    if (donationAmount > 1000000)
+      return "Maximum donation amount is ₹10,00,000";
+
+    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+    if (!panPattern.test(pan)) return "Invalid PAN (Format: ABCDE1234F)";
+
+    return null;
+  };
+
+  /* Load Razorpay Script Once */
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (document.getElementById("razorpay-script")) {
+        return resolve(true);
+      }
+
+      const script = document.createElement("script");
+      script.id = "razorpay-script";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+
+      document.body.appendChild(script);
+    });
+  };
+
+  /* Razorpay Checkout Logic*/
+  const loadRazorpay = async () => {
+    if (!RAZORPAY_KEY) {
+      alert("Payment setup incomplete. Please contact support.");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        alert("Payment gateway failed to load. Check your connection.");
+        return;
+      }
+
+      // Step 1 — Create Order
+      const orderRes = await fetch(`${API_BASE}/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!orderRes.ok) {
+        throw new Error(`Server Error: ${orderRes.status}`);
+      }
+
+      const orderData = await orderRes.json();
+
+      if (!orderData.success) {
+        alert(orderData.message || "Order creation failed. Try again.");
+        return;
+      }
+
+      const { order } = orderData;
+
+      // Razorpay Options
       const options = {
-        key: "YOUR_RAZORPAY_KEY", // Replace with your Razorpay Key
-        amount: amount * 100, // in paise
+        key: RAZORPAY_KEY,
+        amount: order.amount,
         currency: "INR",
         name: "Y4D Foundation",
         description: "Donation",
-        handler: function (response) {
-          alert(
-            `Payment successful! Payment ID: ${response.razorpay_payment_id}`
-          );
-        },
+        order_id: order.id,
+
         prefill: {
           name: formData.name,
           email: formData.email,
         },
-        theme: {
-          color: "#007bff",
+
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(
+              `${API_BASE}/payment/verify-payment`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response),
+              }
+            );
+
+            if (!verifyRes.ok) {
+              throw new Error("Verification failed");
+            }
+
+            const verifyJson = await verifyRes.json();
+
+            if (verifyJson.success) {
+              setSuccessMessage(
+                "Thank you! Your donation receipt will be sent to your email."
+              );
+              setShowSuccessPopup(true);
+
+              // Reset form
+              setFormData({
+                name: "",
+                email: "",
+                amount: "",
+                pan: "",
+                message: "",
+              });
+
+              setTimeout(() => setShowSuccessPopup(false), 5000);
+            } else {
+              alert("Payment verification failed.");
+            }
+          } catch (error) {
+            alert("Verification error. Contact support with your Payment ID.");
+          }
+        },
+
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+          },
         },
       };
+
       const rzp = new window.Razorpay(options);
+
+      // Payment failure
+      rzp.on("payment.failed", function (response) {
+        console.error("Payment failed:", response.error);
+        alert(`Payment failed: ${response.error.description}`);
+        setIsProcessing(false);
+      });
+
       rzp.open();
-    };
-    document.body.appendChild(script);
+    } catch (error) {
+      console.error("Payment Error:", error);
+      alert("Payment initialization failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
+  /*  Submit Handler*/
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.amount || formData.amount <= 0) {
-      alert("Please enter a valid amount.");
+    if (isProcessing) return;
+
+    const validationError = validateForm();
+    if (validationError) {
+      alert(validationError);
       return;
     }
-    loadRazorpay(formData.amount);
+
+    setIsProcessing(true);
+    loadRazorpay();
   };
 
-  // Render dynamic banner
+  /* Banner Rendering */
   const renderBanner = () => {
     if (bannersLoading) {
       return (
@@ -102,9 +245,7 @@ const DonateNow = () => {
     if (donateBanners.length === 0) {
       return (
         <div className="donate-banner">
-          <div className="no-banner-message">
-            <p>Donate page banner will appear here once added from dashboard</p>
-          </div>
+          <p>No banner added yet</p>
         </div>
       );
     }
@@ -113,22 +254,21 @@ const DonateNow = () => {
       <div className="donate-banner">
         {donateBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Donate Banner - ${banner.page}`}
-                className="donate-banner-image"
+                alt="Donate Banner"
               />
             ) : (
               <video
                 src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="donate-banner-video"
                 autoPlay
                 muted
                 loop
                 playsInline
               />
             )}
+
             {(banner.title || banner.description) && (
               <div className="banner-overlay">
                 <div className="banner-content">
@@ -143,61 +283,45 @@ const DonateNow = () => {
     );
   };
 
+  /* RETURN JSX (Final UI) */
   return (
     <div className="donate-page">
-      {/* Dynamic Banner Section */}
       {renderBanner()}
 
-      {/* Main Content Section */}
       <div className="donate-content">
+        {/* LEFT SECTION */}
         <div className="donate-left">
           <h2>Why Donate to Y4D Foundation?</h2>
           <p>
-            Your contribution helps us empower underprivileged communities through 
-            education, healthcare, livelihood programs, and environmental sustainability 
-            initiatives. Every donation counts and brings hope to countless lives.
+            Empower underprivileged communities with education, healthcare,
+            livelihood, and sustainable development.
           </p>
+
           <ul>
-            <li>📚 Empower through Quality Education</li>
-            <li>💼 Create Sustainable Livelihood Opportunities</li>
-            <li>🏥 Improve Healthcare Access</li>
-            <li>🌱 Protect and Sustain Our Environment</li>
-            <li>🤝 Support Integrated Community Development</li>
+            <li>📚 Education Support</li>
+            <li>💼 Livelihood Opportunities</li>
+            <li>🏥 Healthcare Access</li>
+            <li>🌱 Environmental Protection</li>
+            <li>🤝 Community Development</li>
           </ul>
-          <p>
-            Join our mission today and help us create a better, more equitable world. 
-            Together, we can transform lives and build sustainable communities.
-          </p>
-          
-          <div className="impact-stats">
-            <div className="impact-stat">
-              <h3>10+ Years</h3>
-              <p>Of dedicated service</p>
-            </div>
-            <div className="impact-stat">
-              <h3>20+ States</h3>
-              <p>Across India</p>
-            </div>
-            <div className="impact-stat">
-              <h3>50K+ Lives</h3>
-              <p>Impacted annually</p>
-            </div>
-          </div>
         </div>
 
+        {/* DONATION FORM */}
         <div className="donate-right">
           <h2>Make a Donation</h2>
           <p className="donation-subtitle">
-            Your donation is eligible for tax exemption under Section 80G of Income Tax Act
+            Your donation is eligible for tax exemption under Section 80G.
           </p>
-          
+
           <div className="suggested-amounts">
             <p>Quick Select Amount:</p>
             <div className="amount-buttons">
               {suggestedAmounts.map((amt) => (
                 <button
                   key={amt}
-                  className={`suggest-btn ${formData.amount == amt ? 'active' : ''}`}
+                  className={`suggest-btn ${
+                    formData.amount == amt ? "active" : ""
+                  }`}
                   onClick={() => setFormData({ ...formData, amount: amt })}
                 >
                   ₹{amt}
@@ -208,87 +332,92 @@ const DonateNow = () => {
 
           <form onSubmit={handleSubmit} className="donation-form">
             <div className="form-group">
-              <label htmlFor="name">Full Name *</label>
+              <label>Full Name *</label>
               <input
-                id="name"
-                type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Enter your full name"
                 required
+                minLength="2"
+                maxLength="100"
+                placeholder="Enter your full name"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="email">Email Address *</label>
+              <label>Email Address *</label>
               <input
-                id="email"
-                type="email"
                 name="email"
+                type="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
                 required
+                placeholder="Enter your email"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="amount">Donation Amount (₹) *</label>
+              <label>Donation Amount (₹) *</label>
               <input
-                id="amount"
-                type="number"
                 name="amount"
+                type="number"
+                min="1"
+                max="1000000"
                 value={formData.amount}
                 onChange={handleChange}
-                placeholder="Enter amount"
                 required
-                min="1"
+                placeholder="Enter amount"
               />
             </div>
 
-            {/* PAN Card Input for Tax Exemption */}
             <div className="form-group">
-              <label htmlFor="pan">
-                PAN Card Number *
-                <span className="help-text">(For 80G tax exemption certificate)</span>
-              </label>
+              <label>PAN Card Number *</label>
               <input
-                id="pan"
-                type="text"
                 name="pan"
                 value={formData.pan}
                 onChange={handleChange}
-                placeholder="ABCDE1234F"
                 maxLength="10"
-                pattern="[A-Z]{5}[0-9]{4}[A-Z]{1}"
-                title="Enter valid PAN format: ABCDE1234F"
+                pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+                title="Format: ABCDE1234F"
                 required
+                placeholder="ABCDE1234F"
               />
-              <small className="pan-help">
-                Format: 5 letters + 4 numbers + 1 letter (e.g., ABCDE1234F)
-              </small>
             </div>
 
             <div className="form-group">
-              <label htmlFor="message">Message (Optional)</label>
+              <label>Message (Optional)</label>
               <textarea
-                id="message"
                 name="message"
+                rows="3"
+                maxLength="500"
                 value={formData.message}
                 onChange={handleChange}
-                placeholder="Any specific cause you'd like to support or message for us..."
-                rows="3"
-              />
+                placeholder="Any specific cause you'd like to support?"
+              ></textarea>
             </div>
 
-            
-            <button type="submit" className="submit-btn">
-              Donate Now
+            <button className="submit-btn" disabled={isProcessing}>
+              {isProcessing ? "Processing..." : "Donate Now"}
             </button>
           </form>
         </div>
       </div>
+
+      {/* SUCCESS POPUP */}
+      {showSuccessPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>Thank You! 🎉</h2>
+            <p>{successMessage}</p>
+            <button
+              className="ok-btn"
+              onClick={() => setShowSuccessPopup(false)}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

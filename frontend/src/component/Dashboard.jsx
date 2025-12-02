@@ -39,6 +39,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     content: "",
     image: null,
     pdf: null,
+    date: "",
+    time: "",
+    location: "",
     video_url: "",
     video_file: null,
     is_active: true,
@@ -1050,7 +1053,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const renderMediaForm = () => {
     return (
       <div className="content-list">
-        <div className="content-header">
+        {/* <div className="content-header">
           <div className="header-row">
             <button
               className="btn-back"
@@ -1083,7 +1086,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 : " Media"}
             </h3>
           </div>
-        </div>
+        </div> */}
 
         <form onSubmit={(e) => handleMediaSubmit(e)} className="dashboard-form">
           <div className="form-group">
@@ -2042,33 +2045,37 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-  const handleMediaSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleMediaSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const formData = new FormData();
-      const token = localStorage.getItem("token");
+  try {
+    const formData = new FormData();
+    const token = localStorage.getItem("token");
 
-      console.log("Current media type:", currentMediaType);
-      console.log("Form data:", mediaForm);
+    // Append basic fields
+    formData.append("title", mediaForm.title || "");
+    formData.append("description", mediaForm.description || "");
 
-      // Append basic fields
-      formData.append("title", mediaForm.title || "");
-      formData.append("description", mediaForm.description || "");
+    // Handle different media types
+    if (["stories", "blogs"].includes(currentMediaType)) {
+      formData.append("content", mediaForm.content || "");
+    }
 
-      // Handle different media types
-      if (["stories", "blogs"].includes(currentMediaType)) {
-        formData.append("content", mediaForm.content || "");
+    // Add event-specific fields
+    if (currentMediaType === "events") {
+      formData.append("event_date", mediaForm.event_date || "");
+      formData.append("event_time", mediaForm.event_time || "");
+      formData.append("location", mediaForm.location || "");
+    }
+
+    if (currentMediaType === "documentaries") {
+      formData.append("video_url", mediaForm.video_url || "");
+      formData.append("duration", mediaForm.duration || "0:00");
+      if (mediaForm.video_file) {
+        formData.append("video_file", mediaForm.video_file);
       }
-
-      if (currentMediaType === "documentaries") {
-        formData.append("video_url", mediaForm.video_url || "");
-        formData.append("duration", mediaForm.duration || "0:00");
-        if (mediaForm.video_file) {
-          formData.append("video_file", mediaForm.video_file);
-        }
-      }
+    }
 
       // Handle file uploads
       if (mediaForm.image) {
@@ -2164,26 +2171,29 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(false);
   };
 
-  const handleMediaEdit = (item) => {
-    setEditingMediaId(item.id);
-    setMediaAction("update");
-    setMediaForm({
-      title: item.title || "",
-      description: item.description || "",
-      content: item.content || "",
-      image: null,
-      pdf: null,
-      video_url: item.video_url || "",
-      video_file: null,
-      duration: item.duration || "",
-      is_active: item.is_published !== undefined ? item.is_published : true,
-    });
-    if (item.image) {
-      setImagePreview(
-        `${API_BASE}/uploads/media/${currentMediaType}/${item.image}`
-      );
-    }
-  };
+const handleMediaEdit = (item) => {
+  setEditingMediaId(item.id);
+  setMediaAction("update");
+  setMediaForm({
+    title: item.title || "",
+    description: item.description || "",
+    content: item.content || "",
+    image: null,
+    pdf: null,
+    video_url: item.video_url || "",
+    video_file: null,
+    duration: item.duration || "",
+    event_date: item.date || "", // NEW
+    event_time: item.time || "", // NEW
+    location: item.location || "",     // NEW
+    is_active: item.is_published !== undefined ? item.is_published : true,
+  });
+    setImagePreview(null);
+
+  if (item.image) {
+    setImagePreview(`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`);
+  }
+};
 
   const handleMediaStatusToggle = async (id, newStatus) => {
     if (
