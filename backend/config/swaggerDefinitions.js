@@ -903,7 +903,343 @@ module.exports = {
           '401': { $ref: '#/components/responses/UnauthorizedError' }
         }
       }
-    }
-  }
-};
+    },
+     // ==================== Payments ==================== 
+    "/api/payment/create-order": {
+      post: {
+        summary: "Create Razorpay order",
+        description:
+          "Creates a new Razorpay order. Accepts amount and optional donor details.",
+        tags: ["Payments"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["amount"],
+                properties: {
+                  amount: { type: "integer", example: 500 },
+                  name: { type: "string", example: "John Doe" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "john@example.com",
+                  },
+                  pan: { type: "string", example: "ABCDE1234F" },
+                  message: {
+                    type: "string",
+                    example: "Keep up the good work!",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Order created successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    order: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        amount: { type: "integer" },
+                        currency: { type: "string" },
+                        receipt: { type: "string" },
+                        status: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: {
+            description: "Failed to create order",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    "/api/payment/verify-payment": {
+      post: {
+        summary: "Verify Razorpay payment",
+        description: "Verifies the payment signature returned by Razorpay.",
+        tags: ["Payments"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: [
+                  "razorpay_payment_id",
+                  "razorpay_order_id",
+                  "razorpay_signature",
+                ],
+                properties: {
+                  razorpay_payment_id: { type: "string" },
+                  razorpay_order_id: { type: "string" },
+                  razorpay_signature: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Payment verified successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                    paymentId: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: {
+            description: "Verification failed",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    // ==================== Contact Forms ====================
+    "/api/contact/corporate-partnership": {
+      post: {
+        summary: "Corporate partnership submission",
+        description: "Send corporate partnership details to the HR email.",
+        tags: ["Contact Forms"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["companyName", "email", "contact"],
+                properties: {
+                  companyName: { type: "string", example: "ABC Pvt Ltd" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "hr@company.com",
+                  },
+                  contact: { type: "string", example: "9876543210" },
+                  details: {
+                    type: "string",
+                    example: "Looking for CSR collaboration.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Form submitted successfully" },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: { $ref: "#/components/schemas/Error" },
+        },
+      },
+    },
+
+    "/api/contact/internship": {
+      post: {
+        summary: "Internship application",
+        description: "Submit internship application details.",
+        tags: ["Contact Forms"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["fullName", "email", "phone"],
+                properties: {
+                  fullName: { type: "string", example: "John Doe" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "john@example.com",
+                  },
+                  phone: { type: "string", example: "9876543210" },
+                  field: { type: "string", example: "Web Development" },
+                  message: {
+                    type: "string",
+                    example: "I want to apply for internship.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Internship form sent successfully" },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: { $ref: "#/components/schemas/Error" },
+        },
+      },
+    },
+
+    "/api/contact/volunteer": {
+      post: {
+        summary: "Volunteer registration",
+        description: "Submit volunteer form details.",
+        tags: ["Contact Forms"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["fullName", "email", "phone"],
+                properties: {
+                  fullName: { type: "string", example: "John Doe" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "john@example.com",
+                  },
+                  phone: { type: "string", example: "9876543210" },
+                  reason: {
+                    type: "string",
+                    example: "I want to help society.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Volunteer form sent successfully" },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: { $ref: "#/components/schemas/Error" },
+        },
+      },
+    },
+
+    "/api/contact/enquiry": {
+      post: {
+        summary: "General enquiry",
+        description: "Submit general enquiry form.",
+        tags: ["Contact Forms"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["firstName", "lastName", "email", "phone"],
+                properties: {
+                  firstName: { type: "string", example: "John" },
+                  lastName: { type: "string", example: "Doe" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "john@example.com",
+                  },
+                  phone: { type: "string", example: "9876543210" },
+                  message: {
+                    type: "string",
+                    example: "I want to know more about Y4D.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Enquiry sent successfully" },
+          400: { $ref: "#/components/responses/ValidationError" },
+          500: { $ref: "#/components/schemas/Error" },
+        },
+      },
+    },
+    // ==================== Contact Forms ====================
+    "/api/contact/corporate-partnership": {
+      post: {
+        summary: "Corporate partnership form submission",
+        description:
+          "Sends corporate partnership enquiry to the organization via email.",
+        tags: ["Contact Forms"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["companyName", "email", "contact"],
+                properties: {
+                  companyName: { type: "string", example: "ABC Pvt Ltd" },
+                  email: {
+                    type: "string",
+                    format: "email",
+                    example: "info@abc.com",
+                  },
+                  contact: { type: "string", example: "9876543210" },
+                  details: {
+                    type: "string",
+                    example: "We want to discuss CSR partnership.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Email sent successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Failed to send email",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                    error: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  };
 
