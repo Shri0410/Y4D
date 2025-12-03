@@ -6,6 +6,7 @@ import "./Healthcare.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const Healthcare = () => {
   const [items, setItems] = useState([]);
@@ -19,12 +20,12 @@ const Healthcare = () => {
     const fetchHealthcareBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching healthcare page banners...');
+        logger.log('🔄 Fetching healthcare page banners...');
         const bannersData = await getBanners('our-work', 'healthcare');
-        console.log('✅ Healthcare banners received:', bannersData);
+        logger.log('✅ Healthcare banners received:', bannersData);
         setHealthcareBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching healthcare banners:', error);
+        logger.error('❌ Error fetching healthcare banners:', error);
         setHealthcareBanners([]);
       } finally {
         setBannersLoading(false);
@@ -54,7 +55,7 @@ const Healthcare = () => {
       );
       setItems(response.data);
     } catch (error) {
-      console.error("Error fetching healthcare initiatives:", error);
+      logger.error("Error fetching healthcare initiatives:", error);
       setError("Failed to load healthcare initiatives");
     } finally {
       setLoading(false);

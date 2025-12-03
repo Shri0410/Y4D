@@ -9,6 +9,7 @@ import ES from "../assets/Interventions/i/EnvironmentSustainibility.png";
 import IDP from "../assets/Interventions/i/IDP.png";
 
 import "./OurWork.css";
+import logger from "../utils/logger";
 
 const OurWork = () => {
   const [reports, setReports] = useState([]);
@@ -75,7 +76,7 @@ const OurWork = () => {
         setReports(reportsData);
       } catch (err) {
         setError("Failed to load our work data. Please try again later.");
-        console.error("Error fetching reports:", err);
+        logger.error("Error fetching reports:", err);
       }
     };
 

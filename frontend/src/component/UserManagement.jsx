@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import "./UserManagement.css";
+import logger from "../utils/logger";
 
 const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);
@@ -93,7 +94,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
 
       setUsers(response.data);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      logger.error("Error fetching users:", error);
 
       if (error.response) {
         setError(
@@ -120,7 +121,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
       );
       setPermissions(response.data);
     } catch (error) {
-      console.error("Error fetching permissions:", error);
+      logger.error("Error fetching permissions:", error);
       // If permissions API doesn't exist yet, set empty permissions
       setPermissions([]);
     } finally {
@@ -331,7 +332,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
         return;
       }
 
-      console.log("Saving permissions:", {
+      logger.log("Saving permissions:", {
         userId: selectedUserForPermissions.id,
         permissions: permissions,
       });
@@ -347,24 +348,24 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
         }
       );
 
-      console.log("Save response:", response.data);
+      logger.log("Save response:", response.data);
       alert("Permissions updated successfully!");
 
       // Refresh the permissions to ensure sync
       fetchUserPermissions(selectedUserForPermissions.id);
     } catch (error) {
-      console.error("Error saving permissions:", error);
+      logger.error("Error saving permissions:", error);
 
       let errorMessage = "Failed to save permissions";
 
       if (error.response) {
         // Server responded with error status
         errorMessage = error.response.data?.error || errorMessage;
-        console.error("Server error details:", error.response.data);
+        logger.error("Server error details:", error.response.data);
       } else if (error.request) {
         // Request was made but no response received
         errorMessage = "Network error: Could not connect to server";
-        console.error("Network error:", error.request);
+        logger.error("Network error:", error.request);
       } else {
         // Something else happened
         errorMessage = error.message || errorMessage;
@@ -410,7 +411,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
 
       setPermissions(newPermissions);
     } catch (error) {
-      console.error("Error resetting permissions:", error);
+      logger.error("Error resetting permissions:", error);
       // If API doesn't exist, use hardcoded defaults
       const defaultPerms = {
         viewer: {

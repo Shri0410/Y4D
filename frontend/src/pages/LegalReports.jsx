@@ -4,6 +4,7 @@ import "./LegalReports.css";
 import axios from "axios";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const LegalReports = () => {
   const [reports, setReports] = useState([]);
@@ -15,12 +16,12 @@ const LegalReports = () => {
     const fetchLegalBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching legal page banners...');
+        logger.log('🔄 Fetching legal page banners...');
         const bannersData = await getBanners('legal-status', 'hero');
-        console.log('✅ Legal banners received:', bannersData);
+        logger.log('✅ Legal banners received:', bannersData);
         setLegalBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching legal banners:', error);
+        logger.error('❌ Error fetching legal banners:', error);
         setLegalBanners([]);
       } finally {
         setBannersLoading(false);
@@ -37,7 +38,7 @@ const LegalReports = () => {
         const res = await axios.get(`${API_BASE}/reports`);
         setReports(res.data);
       } catch (err) {
-        console.error("Error fetching reports:", err);
+        logger.error("Error fetching reports:", err);
       }
     };
     fetchReports();

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
-
+import logger from "../utils/logger";
 import {
   canView,
   canCreate,
@@ -102,7 +102,7 @@ const AccreditationManagement = ({
 
       setAccreditations(accreditationsWithModifier);
     } catch (error) {
-      console.error("Error fetching accreditations:", error);
+      logger.error("Error fetching accreditations:", error);
       setError("Failed to fetch accreditations");
     }
     setLoading(false);
@@ -171,7 +171,7 @@ const AccreditationManagement = ({
         `Accreditation ${editingItem ? "updated" : "created"} successfully!`
       );
     } catch (error) {
-      console.error("Error saving accreditation:", error);
+      logger.error("Error saving accreditation:", error);
       const errorMessage =
         error.response?.data?.error ||
         error.response?.data?.details ||
@@ -217,7 +217,7 @@ const AccreditationManagement = ({
         fetchAccreditations();
         alert("Accreditation deleted successfully!");
       } catch (error) {
-        console.error("Error deleting accreditation:", error);
+        logger.error("Error deleting accreditation:", error);
         alert("Failed to delete accreditation");
       }
       setLoading(false);
@@ -253,7 +253,7 @@ const AccreditationManagement = ({
         } successfully!`
       );
     } catch (error) {
-      console.error("Error toggling status:", error);
+      logger.error("Error toggling status:", error);
       alert("Failed to update accreditation status");
     }
     setLoading(false);

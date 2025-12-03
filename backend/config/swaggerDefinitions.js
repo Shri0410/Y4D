@@ -1176,13 +1176,13 @@ module.exports = {
         },
       },
     },
-    // ==================== Contact Forms ====================
-    "/api/contact/corporate-partnership": {
+    // ==================== Corporate Partnership ====================
+    "/api/corporate-partnership/corporate-partnership": {
       post: {
         summary: "Corporate partnership form submission",
         description:
           "Sends corporate partnership enquiry to the organization via email.",
-        tags: ["Contact Forms"],
+        tags: ["Corporate Partnership"],
         requestBody: {
           required: true,
           content: {
@@ -1210,6 +1210,20 @@ module.exports = {
         responses: {
           200: {
             description: "Email sent successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean" },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Required fields missing",
             content: {
               "application/json": {
                 schema: {

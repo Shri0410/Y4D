@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { API_BASE } from '../config/api';
 import axios from 'axios';
+import logger from "../utils/logger";
 
 const RegistrationModal = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ const RegistrationModal = ({ onClose }) => {
         onClose();
       }, 2000);
     } catch (error) {
-      console.error('Registration error:', error);
+      logger.error('Registration error:', error);
       setError(error.response?.data?.error || 'Registration failed. Please try again.');
     }
     setLoading(false);

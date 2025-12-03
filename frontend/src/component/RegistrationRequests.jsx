@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./UserManagement.css"; // reuse the same styles
+import logger from "../utils/logger";
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -35,7 +36,7 @@ const RegistrationRequests = () => {
       const response = await axios.get(`${API_BASE}/registration/requests`);
       setRequests(response.data);
     } catch (error) {
-      console.error("Error fetching requests:", error);
+      logger.error("Error fetching requests:", error);
       setError("Failed to fetch registration requests");
     }
     setLoading(false);
@@ -46,7 +47,7 @@ const RegistrationRequests = () => {
       const response = await axios.get(`${API_BASE}/registration/stats`);
       setStats(response.data);
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      logger.error("Error fetching stats:", error);
     }
   };
 

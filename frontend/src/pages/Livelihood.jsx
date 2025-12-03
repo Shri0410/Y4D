@@ -6,6 +6,7 @@ import "./Livelihood.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const Livelihood = () => {
   const [items, setItems] = useState([]);
@@ -19,12 +20,12 @@ const Livelihood = () => {
     const fetchLivelihoodBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching livelihood page banners...');
+        logger.log('🔄 Fetching livelihood page banners...');
         const bannersData = await getBanners('our-work', 'livelihood');
-        console.log('✅ Livelihood banners received:', bannersData);
+        logger.log('✅ Livelihood banners received:', bannersData);
         setLivelihoodBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching livelihood banners:', error);
+        logger.error('❌ Error fetching livelihood banners:', error);
         setLivelihoodBanners([]);
       } finally {
         setBannersLoading(false);
@@ -54,7 +55,7 @@ const Livelihood = () => {
       );
       setItems(response.data);
     } catch (error) {
-      console.error("Error fetching livelihood programs:", error);
+      logger.error("Error fetching livelihood programs:", error);
       setError("Failed to load livelihood programs");
     } finally {
       setLoading(false);

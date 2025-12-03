@@ -10,7 +10,7 @@ import AccreditationManagement from "./AccreditationManagement";
 import BannerManagement from "./BannerManagement";
 import SanitizedHTML from "../components/SanitizedHTML";
 import "./Dashboard.css";
-
+import logger from "../utils/logger";
 import {
   canView,
   canCreate,
@@ -159,7 +159,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   }, [activeTab]);
 
   useEffect(() => {
-    console.log("Careers data updated:", careers);
+    logger.log("Careers data updated:", careers);
   }, [careers]);
 
   // Fetch user permissions when user changes
@@ -480,7 +480,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setManagement(managementRes.data);
       setBoardTrustees(trusteesRes.data);
     } catch (error) {
-      console.error("Error fetching team data:", error);
+      logger.error("Error fetching team data:", error);
       alert(`Error fetching team data: ${error.message}`);
     }
     setLoading(false);
@@ -512,7 +512,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         case "careers":
           response = await axios.get(`${API_BASE}/careers`);
           setCareers(response.data);
-          console.log("Fetched careers:", response.data);
+          logger.log("Fetched careers:", response.data);
           break;
         case "board-trustees":
           response = await axios.get(`${API_BASE}/board-trustees`);
@@ -522,7 +522,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           break;
       }
     } catch (error) {
-      console.error(`Error fetching ${type}:`, error);
+      logger.error(`Error fetching ${type}:`, error);
 
       // Handle 401 error specifically
       if (error.response?.status === 401) {
@@ -601,7 +601,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             fetchData("reports");
             alert(`Report ${editingId ? "updated" : "created"} successfully!`);
           } catch (error) {
-            console.error("Error saving report:", error);
+            logger.error("Error saving report:", error);
             alert(
               `Error saving report: ${
                 error.response?.data?.error || error.message
@@ -712,7 +712,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         } successfully!`
       );
     } catch (error) {
-      console.error(`Error saving ${type}:`, error);
+      logger.error(`Error saving ${type}:`, error);
       alert(`Error saving ${type}: ${error.message}`);
     }
     setLoading(false);
@@ -825,7 +825,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       );
       fetchData("careers");
     } catch (error) {
-      console.error("Error toggling career status:", error);
+      logger.error("Error toggling career status:", error);
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         handleLogout();
@@ -862,10 +862,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       });
 
       if (response.data) {
-        console.log("Delete successful:", response.data);
+        logger.log("Delete successful:", response.data);
         alert(`${type.slice(0, -1)} deleted successfully!`);
       } else {
-        console.log("Delete successful (no content returned)");
+        logger.log("Delete successful (no content returned)");
         alert(`${type.slice(0, -1)} deleted successfully!`);
       }
 
@@ -875,24 +875,24 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         fetchData(type);
       }
     } catch (error) {
-      console.error(`Error deleting ${type}:`, error);
+      logger.error(`Error deleting ${type}:`, error);
 
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         handleLogout();
       } else if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
+        logger.error("Error response data:", error.response.data);
+        logger.error("Error response status:", error.response.status);
         alert(
           `Error deleting ${type}: ${
             error.response.data?.error || error.message
           }`
         );
       } else if (error.request) {
-        console.error("Error request:", error.request);
+        logger.error("Error request:", error.request);
         alert(`Error deleting ${type}: No response from server`);
       } else {
-        console.error("Error message:", error.message);
+        logger.error("Error message:", error.message);
         alert(`Error deleting ${type}: ${error.message}`);
       }
     }
@@ -1813,7 +1813,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       );
       setMediaItems(response.data);
     } catch (error) {
-      console.error(`Error fetching ${currentMediaType}:`, error);
+      logger.error(`Error fetching ${currentMediaType}:`, error);
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         handleLogout();
@@ -2105,16 +2105,16 @@ const handleMediaSubmit = async (e) => {
       }
 
       // Debug: Log all form data entries
-      console.log("FormData entries:");
+      logger.log("FormData entries:");
       for (let [key, value] of formData.entries()) {
-        console.log(key, value);
+        logger.log(key, value);
       }
 
       const endpoint = editingMediaId
         ? `${API_BASE}/media/${currentMediaType}/${editingMediaId}`
         : `${API_BASE}/media/${currentMediaType}`;
 
-      console.log("API Endpoint:", endpoint);
+      logger.log("API Endpoint:", endpoint);
 
       const config = {
         headers: {
@@ -2127,7 +2127,7 @@ const handleMediaSubmit = async (e) => {
         ? await axios.put(endpoint, formData, config)
         : await axios.post(endpoint, formData, config);
 
-      console.log("API Response:", response.data);
+      logger.log("API Response:", response.data);
 
       alert(
         `${currentMediaType.slice(0, -1)} ${
@@ -2153,12 +2153,12 @@ const handleMediaSubmit = async (e) => {
       fetchMediaData();
       updateUrlPath("media", "view", currentMediaType);
     } catch (error) {
-      console.error("Error saving media:", error);
-      console.error("Full error response:", error.response);
+      logger.error("Error saving media:", error);
+      logger.error("Full error response:", error.response);
 
       // More detailed error message
       if (error.response?.data) {
-        console.error("Backend error details:", error.response.data);
+        logger.error("Backend error details:", error.response.data);
         alert(
           `Error: ${error.response.data.error || "Unknown error"}\nDetails: ${
             error.response.data.details || ""
@@ -2220,7 +2220,7 @@ const handleMediaEdit = (item) => {
       alert(`Item ${newStatus ? "published" : "unpublished"} successfully!`);
       fetchMediaData();
     } catch (error) {
-      console.error("Error toggling media status:", error);
+      logger.error("Error toggling media status:", error);
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         handleLogout();
@@ -2250,7 +2250,7 @@ const handleMediaEdit = (item) => {
       alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
       fetchMediaData();
     } catch (error) {
-      console.error("Error deleting media:", error);
+      logger.error("Error deleting media:", error);
       if (error.response?.status === 401) {
         alert("Session expired. Please login again.");
         handleLogout();

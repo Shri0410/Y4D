@@ -402,8 +402,8 @@ const swaggerConfig = {
         "Public form submissions (corporate, internship, volunteer, enquiry)",
     },
     {
-      name: "Contact Forms",
-      description: "Public form submission endpoints",
+      name: "Corporate Partnership",
+      description: "Corporate partnership form submission",
     },
   ],
   paths: swaggerDefinitions.paths,

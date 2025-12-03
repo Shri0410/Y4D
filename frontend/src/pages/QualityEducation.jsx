@@ -6,6 +6,7 @@ import "./QualityEducation.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
@@ -19,12 +20,12 @@ const QualityEducation = () => {
     const fetchEducationBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching quality education page banners...');
+        logger.log('🔄 Fetching quality education page banners...');
         const bannersData = await getBanners('our-work', 'quality-education');
-        console.log('✅ Quality education banners received:', bannersData);
+        logger.log('✅ Quality education banners received:', bannersData);
         setEducationBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching quality education banners:', error);
+        logger.error('❌ Error fetching quality education banners:', error);
         setEducationBanners([]);
       } finally {
         setBannersLoading(false);
@@ -57,7 +58,7 @@ const QualityEducation = () => {
       );
       setItems(response.data);
     } catch (error) {
-      console.error("Error fetching quality education programs:", error);
+      logger.error("Error fetching quality education programs:", error);
       setError("Failed to load quality education programs");
     } finally {
       setLoading(false);

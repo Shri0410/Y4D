@@ -4,6 +4,7 @@ import axios from "axios";
 import "./NewsLetters.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
@@ -16,12 +17,12 @@ const Newsletters = () => {
     const fetchNewsletterBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log("🔄 Fetching newsletter page banners...");
+        logger.log("🔄 Fetching newsletter page banners...");
         const bannersData = await getBanners("media-corner", "newsletters");
-        console.log("✅ Newsletter banners received:", bannersData);
+        logger.log("✅ Newsletter banners received:", bannersData);
         setNewsletterBanners(bannersData);
       } catch (error) {
-        console.error("❌ Error fetching newsletter banners:", error);
+        logger.error("❌ Error fetching newsletter banners:", error);
         setNewsletterBanners([]);
       } finally {
         setBannersLoading(false);
@@ -42,7 +43,7 @@ const Newsletters = () => {
       );
       setNewsletters(response.data);
     } catch (error) {
-      console.error("Error fetching newsletters:", error);
+      logger.error("Error fetching newsletters:", error);
     }
     setLoading(false);
   };

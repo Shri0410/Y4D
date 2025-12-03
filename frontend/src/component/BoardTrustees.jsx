@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_BASE } from '../config/api';
 import "./BoardTrustees.css";
+import logger from "../utils/logger";
 
 const BoardTrustees = () => {
   const [trustees, setTrustees] = useState([]);
@@ -24,7 +25,7 @@ const BoardTrustees = () => {
       const response = await axios.get(`${API_BASE}/board-trustees`);
       setTrustees(response.data);
     } catch (error) {
-      console.error('Error fetching trustees:', error);
+      logger.error('Error fetching trustees:', error);
     }
   };
 
@@ -52,7 +53,7 @@ const BoardTrustees = () => {
       setEditingId(null);
       fetchTrustees();
     } catch (error) {
-      console.error('Error saving trustee:', error);
+      logger.error('Error saving trustee:', error);
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +76,7 @@ const BoardTrustees = () => {
         await axios.delete(`${API_BASE}/board-trustees/${id}`);
         fetchTrustees();
       } catch (error) {
-        console.error('Error deleting trustee:', error);
+        logger.error('Error deleting trustee:', error);
       }
     }
   };

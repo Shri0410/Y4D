@@ -14,6 +14,7 @@ import {
   getBanners,
 } from "../services/api.jsx";
 import { UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
@@ -72,7 +73,7 @@ const Home = () => {
         setLoading(true);
         setBannersLoading(true);
         setAccreditationsError(false);
-        console.log("🚀 Starting to fetch home data...");
+        logger.log("🚀 Starting to fetch home data...");
 
         const [
           mentorsData,
@@ -84,38 +85,38 @@ const Home = () => {
           campaignBannersData,
         ] = await Promise.all([
           getMentors().catch((err) => {
-            console.error("❌ Error fetching mentors:", err);
+            logger.error("❌ Error fetching mentors:", err);
             return [];
           }),
           getManagement().catch((err) => {
-            console.error("❌ Error fetching management:", err);
+            logger.error("❌ Error fetching management:", err);
             return [];
           }),
           getReports().catch((err) => {
-            console.error("❌ Error fetching reports:", err);
+            logger.error("❌ Error fetching reports:", err);
             return [];
           }),
           getImpactData().catch((err) => {
-            console.error("❌ Error fetching impact data:", err);
+            logger.error("❌ Error fetching impact data:", err);
             return { beneficiaries: 0, states: 0, projects: 0 };
           }),
           getAccreditations().catch((err) => {
-            console.error("❌ Error fetching accreditations:", err);
+            logger.error("❌ Error fetching accreditations:", err);
             setAccreditationsError(true);
             return [];
           }),
           getBanners("home", "hero").catch((err) => {
-            console.error("❌ Error fetching hero banners:", err);
+            logger.error("❌ Error fetching hero banners:", err);
             return [];
           }),
           getBanners("home", "campaigns").catch((err) => {
-            console.error("❌ Error fetching campaign banners:", err);
+            logger.error("❌ Error fetching campaign banners:", err);
             return [];
           }),
         ]);
 
-        console.log("📊 Hero banners received:", heroBannersData);
-        console.log("📊 Campaign banners received:", campaignBannersData);
+        logger.log("📊 Hero banners received:", heroBannersData);
+        logger.log("📊 Campaign banners received:", campaignBannersData);
 
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
@@ -124,7 +125,7 @@ const Home = () => {
         setHeroBanners(heroBannersData);
         setCampaignBanners(campaignBannersData);
       } catch (err) {
-        console.error("💥 Error in fetchHomeData:", err);
+        logger.error("💥 Error in fetchHomeData:", err);
         setAccreditationsError(true);
       } finally {
         setLoading(false);

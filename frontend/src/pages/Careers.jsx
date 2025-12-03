@@ -4,6 +4,7 @@ import { getCareers, applyForJob } from "../services/api";
 import "./Careers.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const Careers = () => {
   const [careers, setCareers] = useState([]);
@@ -39,7 +40,7 @@ const Careers = () => {
         setError(
           "Failed to load career opportunities. Please try again later."
         );
-        console.error("Error fetching careers:", err);
+        logger.error("Error fetching careers:", err);
       } finally {
         setLoading(false);
       }
@@ -86,7 +87,7 @@ const Careers = () => {
         setSelectedCareer(null);
       }, 3000);
     } catch (error) {
-      console.error("Error applying for job:", error);
+      logger.error("Error applying for job:", error);
       alert("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);

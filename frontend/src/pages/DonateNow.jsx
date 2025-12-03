@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./DonateNow.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const DonateNow = () => {
   const [formData, setFormData] = useState({
@@ -22,12 +23,14 @@ const DonateNow = () => {
   const suggestedAmounts = [500, 1000, 2000, 5000];
 
   /*  SAFE ENV VARIABLE DETECTION*/
+  // In Vite, use import.meta.env instead of process.env
+  // Environment variables must be prefixed with VITE_
   const RAZORPAY_KEY =
-    process.env.development.REACT_APP_RAZORPAY_KEY_ID || null;
+    import.meta.env.VITE_RAZORPAY_KEY_ID || null;
 
   useEffect(() => {
     if (!RAZORPAY_KEY) {
-      console.error(
+      logger.error(
         "❌ Razorpay key missing. Add REACT_APP_RAZORPAY_KEY_ID in your .env file"
       );
     }
@@ -41,7 +44,7 @@ const DonateNow = () => {
         const bannersData = await getBanners("donate", "hero");
         setDonateBanners(bannersData || []);
       } catch (error) {
-        console.error("❌ Error fetching banners:", error);
+        logger.error("❌ Error fetching banners:", error);
       } finally {
         setBannersLoading(false);
       }
@@ -203,14 +206,14 @@ const DonateNow = () => {
 
       // Payment failure
       rzp.on("payment.failed", function (response) {
-        console.error("Payment failed:", response.error);
+        logger.error("Payment failed:", response.error);
         alert(`Payment failed: ${response.error.description}`);
         setIsProcessing(false);
       });
 
       rzp.open();
     } catch (error) {
-      console.error("Payment Error:", error);
+      logger.error("Payment Error:", error);
       alert("Payment initialization failed. Please try again.");
     } finally {
       setIsProcessing(false);

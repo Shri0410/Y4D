@@ -17,7 +17,7 @@ export const setToken = (token) => {
     const expiresAt = Date.now() + TOKEN_DURATION;
     localStorage.setItem(TOKEN_EXPIRES_KEY, expiresAt.toString());
   } catch (error) {
-    console.error('Error setting token:', error);
+    logger.error('Error setting token:', error);
   }
 };
 
@@ -41,7 +41,7 @@ export const getToken = () => {
 
     return token;
   } catch (error) {
-    console.error('Error getting token:', error);
+    logger.error('Error getting token:', error);
     return null;
   }
 };
@@ -62,7 +62,7 @@ export const clearToken = () => {
     localStorage.removeItem(TOKEN_EXPIRES_KEY);
     localStorage.removeItem(USER_KEY);
   } catch (error) {
-    console.error('Error clearing token:', error);
+    logger.error('Error clearing token:', error);
   }
 };
 
@@ -73,7 +73,7 @@ export const setUser = (user) => {
   try {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   } catch (error) {
-    console.error('Error setting user:', error);
+    logger.error('Error setting user:', error);
   }
 };
 
@@ -85,7 +85,7 @@ export const getUser = () => {
     const userStr = localStorage.getItem(USER_KEY);
     return userStr ? JSON.parse(userStr) : null;
   } catch (error) {
-    console.error('Error getting user:', error);
+    logger.error('Error getting user:', error);
     return null;
   }
 };

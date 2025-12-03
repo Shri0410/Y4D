@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config/api';
 import axios from 'axios';
+import logger from "../utils/logger";
 
 const ImpactDataEditor = () => {
   const [impactData, setImpactData] = useState({
@@ -20,7 +21,7 @@ const ImpactDataEditor = () => {
       const response = await axios.get(`${API_BASE}/impact-data`);
       setImpactData(response.data);
     } catch (error) {
-      console.error('Error fetching impact data:', error);
+      logger.error('Error fetching impact data:', error);
       setMessage('Error fetching data. Please check if the server is running.');
     }
   };
@@ -39,7 +40,7 @@ const ImpactDataEditor = () => {
       
       setTimeout(() => setMessage(''), 3000);
     } catch (error) {
-      console.error('Error updating impact data:', error);
+      logger.error('Error updating impact data:', error);
       if (error.response && error.response.status === 404) {
         setMessage('Error: API endpoint not found. Please check the server URL.');
       } else {

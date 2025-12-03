@@ -4,6 +4,7 @@ import axios from "axios";
 import "./Stories.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 
 const Stories = () => {
@@ -18,12 +19,12 @@ const Stories = () => {
     const fetchStoriesBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log("🔄 Fetching stories page banners...");
+        logger.log("🔄 Fetching stories page banners...");
         const bannersData = await getBanners("media-corner", "stories");
-        console.log("✅ Stories banners received:", bannersData);
+        logger.log("✅ Stories banners received:", bannersData);
         setStoriesBanners(bannersData);
       } catch (error) {
-        console.error("❌ Error fetching stories banners:", error);
+        logger.error("❌ Error fetching stories banners:", error);
         setStoriesBanners([]);
       } finally {
         setBannersLoading(false);
@@ -44,7 +45,7 @@ const Stories = () => {
       );
       setStories(response.data);
     } catch (error) {
-      console.error("Error fetching stories:", error);
+      logger.error("Error fetching stories:", error);
     } finally {
       setLoading(false);
     }

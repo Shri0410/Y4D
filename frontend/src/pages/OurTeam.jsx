@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "./OurTeam.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const OurTeam = () => {
   const [mentors, setMentors] = useState([]);
@@ -20,12 +21,12 @@ const OurTeam = () => {
     const fetchTeamBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching team page banners...');
+        logger.log('🔄 Fetching team page banners...');
         const bannersData = await getBanners('our-team', 'hero');
-        console.log('✅ Team banners received:', bannersData);
+        logger.log('✅ Team banners received:', bannersData);
         setTeamBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching team banners:', error);
+        logger.error('❌ Error fetching team banners:', error);
         setTeamBanners([]);
       } finally {
         setBannersLoading(false);
@@ -44,7 +45,7 @@ const OurTeam = () => {
         setMentors(data);
         setLoadingMentors(false);
       } catch (error) {
-        console.error("❌ Error fetching mentors:", error);
+        logger.error("❌ Error fetching mentors:", error);
         setLoadingMentors(false);
       }
     };
@@ -60,7 +61,7 @@ const OurTeam = () => {
         setManagement(data);
         setLoadingManagement(false);
       } catch (error) {
-        console.error("❌ Error fetching management:", error);
+        logger.error("❌ Error fetching management:", error);
         setLoadingManagement(false);
       }
     };
@@ -80,7 +81,7 @@ const OurTeam = () => {
         setTrustees(data);
         setLoadingTrustees(false);
       } catch (error) {
-        console.error("❌ Error fetching board trustees:", error);
+        logger.error("❌ Error fetching board trustees:", error);
         setLoadingTrustees(false);
       }
     };

@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import "./BlogDetails.css";
+import logger from "../utils/logger";
 
 const BlogDetails = () => {
   const { id } = useParams();
@@ -17,7 +18,7 @@ const BlogDetails = () => {
         const res = await axios.get(`${API_BASE}/media/blogs/${id}`);
         setBlog(res.data);
       } catch (err) {
-        console.error("Error fetching blog:", err);
+        logger.error("Error fetching blog:", err);
         setBlog(null);
       } finally {
         setLoading(false);

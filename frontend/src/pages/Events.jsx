@@ -4,6 +4,7 @@ import axios from "axios";
 import "./Events.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -17,12 +18,12 @@ const Events = () => {
     const fetchEventsBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log("🔄 Fetching events page banners...");
+        logger.log("🔄 Fetching events page banners...");
         const bannersData = await getBanners("media-corner", "events");
-        console.log("✅ Events banners received:", bannersData);
+        logger.log("✅ Events banners received:", bannersData);
         setEventsBanners(bannersData);
       } catch (error) {
-        console.error("❌ Error fetching events banners:", error);
+        logger.error("❌ Error fetching events banners:", error);
         setEventsBanners([]);
       } finally {
         setBannersLoading(false);
@@ -46,7 +47,7 @@ const Events = () => {
       );
       setEvents(sortedEvents);
     } catch (error) {
-      console.error("Error fetching events:", error);
+      logger.error("Error fetching events:", error);
     } finally {
       setLoading(false);
     }

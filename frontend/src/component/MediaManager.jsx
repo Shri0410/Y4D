@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config/api';
 import axios from 'axios';
+import logger from "../utils/logger";
 
 const MediaManager = ({ mediaType, onClose }) => {
   const [items, setItems] = useState([]);
@@ -25,7 +26,7 @@ const MediaManager = ({ mediaType, onClose }) => {
       const response = await axios.get(`${API_BASE}/media/${mediaType}`);
       setItems(response.data);
     } catch (error) {
-      console.error(`Error fetching ${mediaType}:`, error);
+      logger.error(`Error fetching ${mediaType}:`, error);
       setError('Failed to fetch items. Please check console for details.');
     }
     setLoading(false);
@@ -92,7 +93,7 @@ const MediaManager = ({ mediaType, onClose }) => {
       
       alert(message);
     } catch (error) {
-      console.error(`Error saving ${mediaType}:`, error);
+      logger.error(`Error saving ${mediaType}:`, error);
       const errorMessage = error.response?.data?.error || error.response?.data?.details || 'Failed to save. Please check console for details.';
       setError(errorMessage);
     }
@@ -109,7 +110,7 @@ const MediaManager = ({ mediaType, onClose }) => {
           parsedTags = [parsedTags];
         }
       } catch (error) {
-        console.warn('Error parsing tags:', error);
+        logger.warn('Error parsing tags:', error);
         parsedTags = [];
       }
     }
@@ -133,7 +134,7 @@ const MediaManager = ({ mediaType, onClose }) => {
         fetchItems();
         alert(`${mediaType.slice(0, -1)} deleted successfully!`);
       } catch (error) {
-        console.error(`Error deleting ${mediaType}:`, error);
+        logger.error(`Error deleting ${mediaType}:`, error);
         alert(`Error: ${error.response?.data?.error || 'Failed to delete'}`);
       }
     }
@@ -147,7 +148,7 @@ const MediaManager = ({ mediaType, onClose }) => {
       fetchItems();
       alert(`${mediaType.slice(0, -1)} ${!currentStatus ? 'published' : 'unpublished'} successfully!`);
     } catch (error) {
-      console.error(`Error toggling publish status:`, error);
+      logger.error(`Error toggling publish status:`, error);
       alert(`Error: ${error.response?.data?.error || 'Failed to update status'}`);
     }
   };

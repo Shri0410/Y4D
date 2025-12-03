@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import "./Blogs.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 
 const Blogs = () => {
@@ -18,12 +19,12 @@ const Blogs = () => {
     const fetchBlogsBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log("🔄 Fetching blogs page banners...");
+        logger.log("🔄 Fetching blogs page banners...");
         const bannersData = await getBanners("media-corner", "blogs");
-        console.log("✅ Blogs banners received:", bannersData);
+        logger.log("✅ Blogs banners received:", bannersData);
         setBlogsBanners(bannersData);
       } catch (error) {
-        console.error("❌ Error fetching blogs banners:", error);
+        logger.error("❌ Error fetching blogs banners:", error);
         setBlogsBanners([]);
       } finally {
         setBannersLoading(false);
@@ -42,7 +43,7 @@ const Blogs = () => {
       const response = await axios.get(`${API_BASE}/media/published/blogs`);
       setBlogs(response.data);
     } catch (error) {
-      console.error("Error fetching blogs:", error);
+      logger.error("Error fetching blogs:", error);
     } finally {
       setLoading(false);
     }

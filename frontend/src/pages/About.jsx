@@ -7,6 +7,7 @@ import "../pages/About.css";
 import pyramidImg from "../assets/Pyramid.png";
 import { getBanners } from "../services/api.jsx";
 import { UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const About = () => {
   const navigate = useNavigate();
@@ -17,12 +18,12 @@ const About = () => {
     const fetchAboutBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching about page banners...');
+        logger.log('🔄 Fetching about page banners...');
         const bannersData = await getBanners('about', 'hero');
-        console.log('✅ About banners received:', bannersData);
+        logger.log('✅ About banners received:', bannersData);
         setAboutBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching about banners:', error);
+        logger.error('❌ Error fetching about banners:', error);
         setAboutBanners([]);
       } finally {
         setBannersLoading(false);

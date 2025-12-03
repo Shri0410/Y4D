@@ -21,6 +21,9 @@ const reportRoutes = require('./reports');
 const accreditationRoutes = require('./accreditations');
 const impactDataRoutes = require('./impactData');
 const registrationRoutes = require('./registration');
+const paymentRoutes = require('./payment');
+const contactRoutes = require('./contact');
+const corporatePartnershipRoutes = require('./corporatePartnership');
 
 // Register all routes with their base paths
 router.use('/auth', authRoutes);
@@ -36,6 +39,9 @@ router.use('/our-work', ourWorkRoutes);
 router.use('/reports', reportRoutes);
 router.use('/accreditations', accreditationRoutes);
 router.use('/registration', registrationRoutes);
+router.use('/payment', paymentRoutes);
+router.use('/contact', contactRoutes);
+router.use('/corporate-partnership', corporatePartnershipRoutes);
 router.use('/', impactDataRoutes); // Impact data uses /api/impact-data
 
 module.exports = router;

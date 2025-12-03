@@ -1,8 +1,80 @@
-import React from "react";
+import React, { useState } from "react";
 import "./CorporatePartnership.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
+import { API_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const CorporatePartnership = () => {
+  const [formData, setFormData] = useState({
+    companyName: "",
+    email: "",
+    contact: "",
+    details: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setMessage({ type: "", text: "" });
+
+    // Validate required fields
+    if (!formData.companyName || !formData.email || !formData.contact) {
+      setMessage({
+        type: "error",
+        text: "Please fill in all required fields (Company Name, Email, Contact).",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/corporate-partnership/corporate-partnership`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await res.json();
+
+      if (result.success) {
+        setMessage({
+          type: "success",
+          text: "Your partnership form has been submitted successfully!",
+        });
+        // Reset form
+        setFormData({
+          companyName: "",
+          email: "",
+          contact: "",
+          details: "",
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: result.message || "Failed to submit form. Please try again.",
+        });
+      }
+    } catch (error) {
+      logger.error("Error submitting form:", error);
+      setMessage({
+        type: "error",
+        text: "An error occurred. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="corporate-page">
       {/* Banner */}
@@ -26,34 +98,69 @@ const CorporatePartnership = () => {
       {/* Form Section */}
       <section className="form-section">
         <h3>Partner With Us</h3>
-        <form className="partnership-form">
+        {message.text && (
+          <div
+            className={`message ${
+              message.type === "success" ? "success" : "error"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+        <form className="partnership-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Name</label>
-            <input type="text" placeholder="Enter your name" required />
+            <label>Company Name *</label>
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Enter company name"
+              value={formData.companyName}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Company Name</label>
-            <input type="text" placeholder="Enter company name" required />
+            <label>Email *</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="Enter your email" required />
+            <label>Contact Number *</label>
+            <input
+              type="tel"
+              name="contact"
+              placeholder="Enter phone number"
+              value={formData.contact}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>Phone</label>
-            <input type="tel" placeholder="Enter phone number" />
+            <label>Details / Message</label>
+            <textarea
+              name="details"
+              placeholder="Write your message here..."
+              rows="4"
+              value={formData.details}
+              onChange={handleChange}
+            />
           </div>
 
-          <div className="form-group">
-            <label>Message</label>
-            <textarea placeholder="Write your message here..." rows="4" />
-          </div>
-
-          <button type="submit" className="submit-btn">
-            Submit
+          <button
+            type="submit"
+            className="submit-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </form>
       </section>

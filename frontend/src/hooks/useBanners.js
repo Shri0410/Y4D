@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getBanners } from '../services/api';
+import logger from "../utils/logger";
 
 export const useBanners = (page, section = null) => {
   const [banners, setBanners] = useState([]);
@@ -17,7 +18,7 @@ export const useBanners = (page, section = null) => {
       } catch (err) {
         setError(err.message);
         if (import.meta.env.DEV) {
-          console.error('Error fetching banners:', err);
+          logger.error('Error fetching banners:', err);
         }
       } finally {
         setLoading(false);
@@ -38,7 +39,7 @@ export const getPageBanners = async (page, section = null) => {
     return await getBanners(page, section);
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error('Error fetching page banners:', error);
+      logger.error('Error fetching page banners:', error);
     }
     return [];
   }

@@ -1,13 +1,26 @@
 /**
- * Logger Utility
- * Environment-aware logging that only logs in development
+ * Centralized Logger Utility
+ * 
+ * In development: All logs are shown
+ * In production: Only errors are shown (console.error)
+ * 
+ * Usage:
+ *   import logger from '../utils/logger';
+ *   logger.log('Debug message');
+ *   logger.error('Error message');
  */
 
-const isDevelopment = import.meta.env.DEV;
+// Vite production detection:
+// - PROD is true when building for production (npm run build)
+// - MODE is 'production' when built with npm run build
+// - DEV is true when running npm run dev
+// Note: npm run dev always runs in development mode, regardless of NODE_ENV
+const isDevelopment = import.meta.env.DEV === true && import.meta.env.MODE !== 'production';
+const isProduction = import.meta.env.PROD === true || import.meta.env.MODE === 'production';
 
-export const logger = {
+const logger = {
   /**
-   * Log info messages (development only)
+   * Log message (only in development)
    */
   log: (...args) => {
     if (isDevelopment) {
@@ -16,20 +29,14 @@ export const logger = {
   },
 
   /**
-   * Log error messages
-   * In production, these should be sent to error tracking service
+   * Error message (always shown, even in production)
    */
   error: (...args) => {
-    if (isDevelopment) {
-      console.error(...args);
-    } else {
-      // In production, send to error tracking service (e.g., Sentry)
-      // errorTrackingService.captureException(...args);
-    }
+    console.error(...args);
   },
 
   /**
-   * Log warning messages (development only)
+   * Warning message (only in development)
    */
   warn: (...args) => {
     if (isDevelopment) {
@@ -38,7 +45,16 @@ export const logger = {
   },
 
   /**
-   * Log debug messages (development only)
+   * Info message (only in development)
+   */
+  info: (...args) => {
+    if (isDevelopment) {
+      console.info(...args);
+    }
+  },
+
+  /**
+   * Debug message (only in development)
    */
   debug: (...args) => {
     if (isDevelopment) {
@@ -47,14 +63,40 @@ export const logger = {
   },
 
   /**
-   * Log info messages (development only)
+   * Table output (only in development)
    */
-  info: (...args) => {
+  table: (...args) => {
     if (isDevelopment) {
-      console.info(...args);
+      console.table(...args);
     }
-  }
+  },
+
+  /**
+   * Group logs (only in development)
+   */
+  group: (...args) => {
+    if (isDevelopment) {
+      console.group(...args);
+    }
+  },
+
+  /**
+   * End group (only in development)
+   */
+  groupEnd: () => {
+    if (isDevelopment) {
+      console.groupEnd();
+    }
+  },
+
+  /**
+   * Group collapsed (only in development)
+   */
+  groupCollapsed: (...args) => {
+    if (isDevelopment) {
+      console.groupCollapsed(...args);
+    }
+  },
 };
 
 export default logger;
-

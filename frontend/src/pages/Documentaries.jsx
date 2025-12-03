@@ -4,6 +4,7 @@ import axios from "axios";
 import "./Documentaries.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
+import logger from "../utils/logger";
 
 const Documentaries = () => {
   const [documentaries, setDocumentaries] = useState([]);
@@ -20,7 +21,7 @@ const Documentaries = () => {
         const bannersData = await getBanners("media-corner", "documentaries");
         setDocsBanners(bannersData);
       } catch (error) {
-        console.error("❌ Error fetching documentaries banners:", error);
+        logger.error("❌ Error fetching documentaries banners:", error);
         setDocsBanners([]);
       } finally {
         setBannersLoading(false);
@@ -42,7 +43,7 @@ const Documentaries = () => {
       );
       setDocumentaries(response.data);
     } catch (error) {
-      console.error("Error fetching documentaries:", error);
+      logger.error("Error fetching documentaries:", error);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ const Documentaries = () => {
 
   // Open modal
   const openDocModal = (doc) => {
-    console.log("🎬 Opening documentary:", doc);
+    logger.log("🎬 Opening documentary:", doc);
     setSelectedDoc(doc);
   };
 
@@ -125,7 +126,7 @@ const Documentaries = () => {
 
   // Smart video rendering logic
   const renderVideoPlayer = (doc) => {
-    console.log("🎥 Rendering video:", doc);
+    logger.log("🎥 Rendering video:", doc);
 
     // 1) External video (YouTube/Vimeo)
     if (doc.video_url && isExternalVideo(doc.video_url)) {

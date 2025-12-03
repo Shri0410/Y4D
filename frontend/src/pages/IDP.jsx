@@ -7,6 +7,7 @@ import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import DonateButton from "../component/DonateButton";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const IDP = () => {
   const [items, setItems] = useState([]);
@@ -20,12 +21,12 @@ const IDP = () => {
     const fetchIdpBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching IDP page banners...');
+        logger.log('🔄 Fetching IDP page banners...');
         const bannersData = await getBanners('our-work', 'idp');
-        console.log('✅ IDP banners received:', bannersData);
+        logger.log('✅ IDP banners received:', bannersData);
         setIdpBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching IDP banners:', error);
+        logger.error('❌ Error fetching IDP banners:', error);
         setIdpBanners([]);
       } finally {
         setBannersLoading(false);
@@ -58,7 +59,7 @@ const IDP = () => {
       );
       setItems(response.data);
     } catch (error) {
-      console.error("Error fetching IDP programs:", error);
+      logger.error("Error fetching IDP programs:", error);
       setError("Failed to load integrated development programs");
     } finally {
       setLoading(false);

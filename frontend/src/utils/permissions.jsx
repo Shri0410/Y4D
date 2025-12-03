@@ -1,5 +1,6 @@
 import axios from "axios";
 import { API_BASE } from "../config/api";
+import logger from "./logger";
 
 // Cache for user permissions
 let userPermissionsCache = null;
@@ -17,7 +18,7 @@ export const fetchUserPermissions = async (currentUser) => {
     return userPermissionsCache;
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error("Error fetching user permissions:", error);
+      logger.error("Error fetching user permissions:", error);
     }
     // Fall back to role-based permissions
     return getRoleBasedPermissions(currentUser.role);

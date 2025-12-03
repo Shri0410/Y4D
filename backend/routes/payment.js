@@ -6,15 +6,26 @@ const { body, validationResult } = require("express-validator");
 const router = express.Router();
 
 /* Razorpay Instance (Secure) */
-if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_SECRET) {
-  console.error("❌ Razorpay ENV variables missing!");
-  process.exit(1);
-}
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID?.trim();
+const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET?.trim();
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_SECRET,
-});
+let razorpay = null;
+
+if (!RAZORPAY_KEY_ID || !RAZORPAY_SECRET || RAZORPAY_KEY_ID === '' || RAZORPAY_SECRET === '') {
+  console.warn("⚠️  Razorpay ENV variables missing or empty! Payment routes will be disabled.");
+  console.warn("   Set RAZORPAY_KEY_ID and RAZORPAY_SECRET in your .env file to enable payment functionality.");
+} else {
+  try {
+    razorpay = new Razorpay({
+      key_id: RAZORPAY_KEY_ID,
+      key_secret: RAZORPAY_SECRET,
+    });
+    console.log("✅ Razorpay initialized successfully");
+  } catch (error) {
+    console.error("❌ Error initializing Razorpay:", error.message);
+    razorpay = null;
+  }
+}
 
 /* ---------------------------
      1. Create Order (POST)
@@ -32,6 +43,14 @@ router.post(
   ],
   async (req, res) => {
     try {
+      // Check if Razorpay is initialized
+      if (!razorpay) {
+        return res.status(503).json({
+          success: false,
+          message: "Payment service is not configured. Please contact administrator.",
+        });
+      }
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res
@@ -73,6 +92,14 @@ router.post(
   ],
   async (req, res) => {
     try {
+      // Check if Razorpay is initialized
+      if (!razorpay || !RAZORPAY_SECRET) {
+        return res.status(503).json({
+          success: false,
+          message: "Payment service is not configured. Please contact administrator.",
+        });
+      }
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res
@@ -89,7 +116,7 @@ router.post(
       const signString = `${razorpay_order_id}|${razorpay_payment_id}`;
 
       const expectedSign = crypto
-        .createHmac("sha256", process.env.RAZORPAY_SECRET)
+        .createHmac("sha256", RAZORPAY_SECRET)
         .update(signString)
         .digest("hex");
 

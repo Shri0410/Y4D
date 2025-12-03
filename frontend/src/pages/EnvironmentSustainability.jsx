@@ -6,6 +6,7 @@ import "./EnvironmentSustainability.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../components/SanitizedHTML";
+import logger from "../utils/logger";
 
 const getImageUrl = (path) => {
   if (!path) return "";
@@ -31,12 +32,12 @@ const EnvironmentSustainability = () => {
     const fetchEnvironmentBanners = async () => {
       try {
         setBannersLoading(true);
-        console.log('🔄 Fetching environment sustainability page banners...');
+        logger.log('🔄 Fetching environment sustainability page banners...');
         const bannersData = await getBanners('our-work', 'environmental-sustainability');
-        console.log('✅ Environment sustainability banners received:', bannersData);
+        logger.log('✅ Environment sustainability banners received:', bannersData);
         setEnvironmentBanners(bannersData);
       } catch (error) {
-        console.error('❌ Error fetching environment sustainability banners:', error);
+        logger.error('❌ Error fetching environment sustainability banners:', error);
         setEnvironmentBanners([]);
       } finally {
         setBannersLoading(false);
@@ -57,7 +58,7 @@ const EnvironmentSustainability = () => {
       );
       setItems(response.data);
     } catch (err) {
-      console.error("Error fetching environment sustainability programs:", err);
+      logger.error("Error fetching environment sustainability programs:", err);
       setError("Failed to load environment sustainability programs");
     } finally {
       setLoading(false);

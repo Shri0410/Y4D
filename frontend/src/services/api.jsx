@@ -52,43 +52,43 @@ api.interceptors.response.use(
 
 /*CAREERS*/
 export const getCareers = async () => {
-  console.log("🔄 Fetching careers...");
+  logger.log("🔄 Fetching careers...");
   const response = await api.get("/careers");
-  console.log("✅ Careers loaded");
+  logger.log("✅ Careers loaded");
   return extractData(response);
 };
 
 // From File 2: multipart/form-data support
 export const applyForJob = async (formData) => {
-  console.log("📤 Submitting job application...");
+  logger.log("📤 Submitting job application...");
   const response = await api.post("/careers/apply", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  console.log("✅ Application submitted");
+  logger.log("✅ Application submitted");
   return extractData(response);
 };
 
 /* IMPACT / MANAGEMENT / MENTORS / REPORTS*/
 export const getImpactData = async () => {
-  console.log("🔄 Fetching impact data...");
+  logger.log("🔄 Fetching impact data...");
   const response = await api.get("/impact-data");
   return extractData(response);
 };
 
 export const getManagement = async () => {
-  console.log("🔄 Fetching management...");
+  logger.log("🔄 Fetching management...");
   const response = await api.get("/management");
   return extractData(response);
 };
 
 export const getMentors = async () => {
-  console.log("🔄 Fetching mentors...");
+  logger.log("🔄 Fetching mentors...");
   const response = await api.get("/mentors");
   return extractData(response);
 };
 
 export const getReports = async () => {
-  console.log("🔄 Fetching reports...");
+  logger.log("🔄 Fetching reports...");
   const response = await api.get("/reports");
   return extractData(response);
 };
@@ -96,17 +96,17 @@ export const getReports = async () => {
 /* BANNERS (Merged Improvements)*/
 export const getBanners = async (page = "home", section = null) => {
   try {
-    console.log(`🔄 Fetching banners for: page=${page}, section=${section}`);
+    logger.log(`🔄 Fetching banners for: page=${page}, section=${section}`);
 
     let url = `/banners/page/${page}`;
     if (section) url += `?section=${section}`;
 
     const response = await api.get(url);
 
-    console.log("✅ Banners response:", extractData(response));
+    logger.log("✅ Banners response:", extractData(response));
     return extractData(response);
   } catch (error) {
-    console.error("❌ Error fetching banners:", error.response?.data);
+    logger.error("❌ Error fetching banners:", error.response?.data);
     logger.error("Banner API Error:", error);
     return [];
   }
@@ -114,9 +114,9 @@ export const getBanners = async (page = "home", section = null) => {
 
 export const getAllBanners = async () => {
   try {
-    console.log("🔄 Fetching all banners...");
+    logger.log("🔄 Fetching all banners...");
     const response = await api.get("/banners");
-    console.log("✅ All banners received");
+    logger.log("✅ All banners received");
     return extractData(response);
   } catch (error) {
     logger.error("❌ Error fetching all banners:", error);
@@ -127,12 +127,12 @@ export const getAllBanners = async () => {
 /* ACCREDITATIONS */
 export const getAccreditations = async () => {
   try {
-    console.log("🔄 Fetching accreditations...");
+    logger.log("🔄 Fetching accreditations...");
     const response = await api.get("/accreditations");
-    console.log("✅ Accreditations loaded");
+    logger.log("✅ Accreditations loaded");
     return extractData(response);
   } catch (error) {
-    console.error("❌ Accreditations error:", error.response?.data);
+    logger.error("❌ Accreditations error:", error.response?.data);
     return [];
   }
 };

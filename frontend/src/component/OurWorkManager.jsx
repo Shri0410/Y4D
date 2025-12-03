@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE, UPLOADS_BASE } from '../config/api';
 import axios from 'axios';
+import logger from "../utils/logger";
 
 const OurWorkManager = ({ category, onClose }) => {
   const [items, setItems] = useState([]);
@@ -49,7 +50,7 @@ const OurWorkManager = ({ category, onClose }) => {
       });
       setItems(response.data);
     } catch (error) {
-      console.error('Error fetching items:', error);
+      logger.error('Error fetching items:', error);
       setError('Failed to load items. Please check console for details.');
     }
     setLoading(false);
@@ -96,7 +97,7 @@ const OurWorkManager = ({ category, onClose }) => {
       
       alert(`Item ${editingItem ? 'updated' : 'created'} successfully!`);
     } catch (error) {
-      console.error('Error saving item:', error);
+      logger.error('Error saving item:', error);
       const errorMessage = error.response?.data?.error || error.response?.data?.details || 'Failed to save. Please check console for details.';
       setError(errorMessage);
     }
@@ -129,7 +130,7 @@ const OurWorkManager = ({ category, onClose }) => {
         fetchItems();
         alert('Item deleted successfully!');
       } catch (error) {
-        console.error('Error deleting item:', error);
+        logger.error('Error deleting item:', error);
         alert(`Error: ${error.response?.data?.error || 'Failed to delete'}`);
       }
     }
@@ -148,7 +149,7 @@ const OurWorkManager = ({ category, onClose }) => {
       fetchItems();
       alert(`Item ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
     } catch (error) {
-      console.error('Error toggling status:', error);
+      logger.error('Error toggling status:', error);
       alert(`Error: ${error.response?.data?.error || 'Failed to update status'}`);
     }
   };

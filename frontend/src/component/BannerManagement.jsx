@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./BannerManagement.css";
+import logger from "../utils/logger";
 import {
   canView,
   canCreate,
@@ -176,7 +177,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       const response = await axios.get(`${API_BASE}/banners/pages/list`);
       setAvailablePages(response.data);
     } catch (error) {
-      console.error("Error fetching pages list:", error);
+      logger.error("Error fetching pages list:", error);
     }
   };
 
@@ -193,12 +194,12 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
         url += `?${params.toString()}`;
       }
 
-      console.log("📋 Fetching banners with filters:", {
+      logger.log("📋 Fetching banners with filters:", {
         filterPage,
         filterSection,
       });
       const response = await axios.get(url);
-      console.log("✅ Banners fetched:", response.data);
+      logger.log("✅ Banners fetched:", response.data);
 
       // Enhanced data handling for last modified info
       const bannersWithModifier = response.data.map((banner) => ({
@@ -210,7 +211,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
 
       setBanners(bannersWithModifier);
     } catch (error) {
-      console.error("❌ Error fetching banners:", error);
+      logger.error("❌ Error fetching banners:", error);
       setError(
         `Error fetching banners: ${
           error.response?.data?.error || error.message
@@ -223,7 +224,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      console.log("📁 Media selected:", file.name, file.size, file.type);
+      logger.log("📁 Media selected:", file.name, file.size, file.type);
       setBannerForm((prev) => ({ ...prev, media: file }));
 
       const reader = new FileReader();
@@ -246,7 +247,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
     setError("");
 
     try {
-      console.log("📤 Submitting banner form...");
+      logger.log("📤 Submitting banner form...");
 
       const formDataToSend = new FormData();
       formDataToSend.append("media_type", bannerForm.media_type);
@@ -283,7 +284,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
         ? await axios.put(endpoint, formDataToSend, config)
         : await axios.post(endpoint, formDataToSend, config);
 
-      console.log("✅ Banner saved successfully:", response.data);
+      logger.log("✅ Banner saved successfully:", response.data);
 
       alert(`Banner ${editingId ? "updated" : "created"} successfully!`);
 
@@ -297,7 +298,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       fetchAvailablePages();
       onActionChange("view");
     } catch (error) {
-      console.error("❌ Error saving banner:", error);
+      logger.error("❌ Error saving banner:", error);
       const errorMessage =
         error.response?.data?.error ||
         error.response?.data?.details ||
@@ -313,7 +314,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       return;
     }
 
-    console.log("✏ Editing banner:", banner);
+    logger.log("✏ Editing banner:", banner);
     setEditingId(banner.id);
     setBannerForm({
       media_type: banner.media_type || "image",
@@ -346,7 +347,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       fetchBanners();
       fetchAvailablePages();
     } catch (error) {
-      console.error("❌ Error deleting banner:", error);
+      logger.error("❌ Error deleting banner:", error);
       alert(
         `Error: ${error.response?.data?.error || "Failed to delete banner"}`
       );
@@ -402,7 +403,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
       alert(`Banner ${newStatus ? "activated" : "deactivated"} successfully!`);
       fetchBanners();
     } catch (error) {
-      console.error("❌ Error toggling banner status:", error);
+      logger.error("❌ Error toggling banner status:", error);
       alert(
         `Error: ${
           error.response?.data?.error || "Failed to update banner status"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ReachPresence.css";
 import IndiaMapHover from "./IndiaMapHover";
 import map from "../assets/Imap.png";
+import logger from "../utils/logger";
 
 export default function ReachPresence() {
   const [teamCount, setTeamCount] = useState(0);
@@ -37,7 +38,7 @@ export default function ReachPresence() {
         setReportsCount(reportsData.length);
         setImpact(impactData);
       } catch (err) {
-        console.error("Error fetching home data:", err);
+        logger.error("Error fetching home data:", err);
       } finally {
         setLoading(false);
       }
