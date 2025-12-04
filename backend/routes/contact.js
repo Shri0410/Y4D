@@ -10,6 +10,8 @@ require("dotenv").config();
 // --------------------------------------------------
 const HR_EMAIL = process.env.HR_EMAIL;
 const HR_EMAIL_PASSWORD = process.env.HR_EMAIL_PASSWORD;
+const CORP_MAIL = process.env.CORP_MAIL;
+const CORP_MAIL_PASSWORD = process.env.CORP_MAIL_PASSWORD;
 
 if (!HR_EMAIL || !HR_EMAIL_PASSWORD) {
   console.error("❌ ERROR: HR_EMAIL or HR_EMAIL_PASSWORD missing in environment");
@@ -75,7 +77,7 @@ router.post("/corporate-partnership", async (req, res) => {
   return sendMailSafe(
     {
       from: email,
-      to: HR_EMAIL,
+      to: CORP_MAIL,
       subject: "New Corporate Partnership Submission",
       html: `
         <h3>Corporate Partnership Inquiry</h3>
