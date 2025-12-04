@@ -713,20 +713,20 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
               <h2>Banner Management</h2>
             </div>
             <div className="header-right">
-            {canUserPerformAction("create") && (
-              <button
-                onClick={() => {
-                  setEditingId(null);
-                  setBannerForm(bannerFormInitialState);
-                  setMediaPreview(null);
-                  onActionChange("add");
-                }}
-                className="btn-primary"
-                disabled={loading}
-              >
-                + Add New Banner
-              </button>
-            )}
+              {canUserPerformAction("create") && (
+                <button
+                  onClick={() => {
+                    setEditingId(null);
+                    setBannerForm(bannerFormInitialState);
+                    setMediaPreview(null);
+                    onActionChange("add");
+                  }}
+                  className="btn-primary"
+                  disabled={loading}
+                >
+                  + Add New Banner
+                </button>
+              )}
 
               {/* Back button moved to right side */}
               <button onClick={onClose} className="btn-back-right">

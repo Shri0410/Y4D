@@ -3,11 +3,16 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import { setToken, setUser } from "../utils/tokenManager";
-import { extractData, extractErrorMessage, handleApiError } from "../utils/apiResponse";
+import {
+  extractData,
+  extractErrorMessage,
+  handleApiError,
+} from "../utils/apiResponse";
 import RegistrationModal from "./RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
 import logo from "../assets/Y4D LOGO LOADING.png";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 
 const LoginPage = ({ onLogin, onAdminLogin }) => {
   const [showRegistration, setShowRegistration] = useState(false);
@@ -15,6 +20,7 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
   const [loginData, setLoginData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
   const navigate = useNavigate();
 
@@ -24,11 +30,8 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
     setError("");
 
     try {
-      const response = await axios.post(
-        `${API_BASE}/auth/login`,
-        loginData
-      );
-      
+      const response = await axios.post(`${API_BASE}/auth/login`, loginData);
+
       // Handle standardized response - login returns token and user directly
       const data = extractData(response) || response.data;
       setToken(data.token || response.data.token);
@@ -45,6 +48,11 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
   const handleAdminLogin = () => {
     // This would open admin-specific login modal or redirect
     onAdminLogin();
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -66,19 +74,32 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
                 setLoginData({ ...loginData, username: e.target.value })
               }
               required
+              placeholder="Enter your email"
             />
           </div>
 
-          <div className="form-group">
+          <div className="form-group password-input-group">
             <label>Password:</label>
-            <input
-              type="password"
-              value={loginData.password}
-              onChange={(e) =>
-                setLoginData({ ...loginData, password: e.target.value })
-              }
-              required
-            />
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={loginData.password}
+                onChange={(e) =>
+                  setLoginData({ ...loginData, password: e.target.value })
+                }
+                required
+                placeholder="Enter your password"
+                className="password-input"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={togglePasswordVisibility}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn-login" disabled={loading}>
