@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
-import "./RegistrationForm.css"; // We'll create this CSS
+import "./RegistrationForm.css";
+import logo from "../assets/Y4D LOGO LOADING.png";
 
 const PublicRegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +17,6 @@ const PublicRegistrationForm = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -75,28 +75,27 @@ const PublicRegistrationForm = () => {
   };
 
   return (
-    <div className="registration-form-container">
-      <div className="registration-header">
-        <h2>Create Your Account</h2>
-        <p>Fill out the form below to request access to the dashboard</p>
-      </div>
+    <div className="registration-page">
+      <div className="registration-container">
+        <img src={logo} alt="Youth4Development" className="registration-logo" />
 
-      {message && (
-        <div className="alert alert-success">
-          <i className="fas fa-check-circle"></i>
-          {message}
-        </div>
-      )}
+        <form onSubmit={handleSubmit} className="registration-form">
+          <h3>Create Your Account</h3>
 
-      {error && (
-        <div className="alert alert-error">
-          <i className="fas fa-exclamation-circle"></i>
-          {error}
-        </div>
-      )}
+          {message && (
+            <div className="alert alert-success">
+              <i className="fas fa-check-circle"></i>
+              {message}
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit} className="registration-form">
-        <div className="form-row">
+          {error && (
+            <div className="alert alert-error">
+              <i className="fas fa-exclamation-circle"></i>
+              {error}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="name">Full Name *</label>
             <input
@@ -122,9 +121,7 @@ const PublicRegistrationForm = () => {
               placeholder="Enter your email address"
             />
           </div>
-        </div>
 
-        <div className="form-row">
           <div className="form-group">
             <label htmlFor="mobile_number">Mobile Number *</label>
             <input
@@ -137,9 +134,7 @@ const PublicRegistrationForm = () => {
               placeholder="Enter your mobile number"
             />
           </div>
-        </div>
 
-        <div className="form-row">
           <div className="form-group">
             <label htmlFor="password">Password *</label>
             <input
@@ -150,7 +145,7 @@ const PublicRegistrationForm = () => {
               onChange={handleChange}
               required
               minLength={6}
-              placeholder="Create a password "
+              placeholder="Create a password (min. 6 characters)"
             />
           </div>
 
@@ -168,26 +163,20 @@ const PublicRegistrationForm = () => {
             />
           </div>
 
-        </div>
-        <div className="form-group">
-          <label htmlFor="address">Address *</label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            required
-            placeholder="Enter your complete address"
-            rows="3"
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="address">Address *</label>
+            <textarea
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+              placeholder="Enter your complete address"
+              rows="3"
+            />
+          </div>
 
-        <div className="form-actions">
-          <button
-            type="submit"
-            className="btn btn-primary btn-large"
-            disabled={loading}
-          >
+          <button type="submit" className="btn-register" disabled={loading}>
             {loading ? (
               <>
                 <div className="spinner-small"></div>
@@ -197,18 +186,18 @@ const PublicRegistrationForm = () => {
               "Submit Registration Request"
             )}
           </button>
-        </div>
 
-        <div className="registration-footer">
-          <p>
-            <small>
-              After submission, your request will be reviewed by an
-              administrator. You will receive an email notification once your
-              account is approved.
-            </small>
-          </p>
-        </div>
-      </form>
+          <div className="registration-footer">
+            <p>
+              <small>
+                After submission, your request will be reviewed by an
+                administrator. You will receive an email notification once your
+                account is approved.
+              </small>
+            </p>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

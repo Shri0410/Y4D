@@ -448,16 +448,26 @@ const AccreditationManagement = ({
   const renderFormMode = () => {
     return (
       <div className="accreditation-management">
-        <div className="accreditation-header">
-          <button onClick={cancelAction} className="close-btn">
-            ← Back to Accreditations
-          </button>
-          <h2>{editingItem ? "Edit" : "Add New"} Accreditation</h2>
+        <div className="accreditation-form-header">
+          <div className="form-header-top">
+            <button
+              onClick={cancelAction}
+              className="back-to-accreditations-btn"
+            >
+              <span className="back-arrow">←</span>
+              <span>Back to Accreditations</span>
+            </button>
+          </div>
+
+          <div className="form-header-title">
+            <h2>{editingItem ? "Edit" : "Add New"} Accreditation</h2>
+          </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit} className="accreditation-form">
+          {/* Form fields remain the same */}
           <div className="form-group">
             <label>Title:</label>
             <input
