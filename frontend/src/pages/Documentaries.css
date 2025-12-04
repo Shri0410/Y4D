@@ -228,11 +228,15 @@
   border-radius: 12px;
   max-width: 800px;
   width: 95%;
-  padding: 1.5rem;
+  padding: 1.5rem 1.75rem 1.5rem 1.5rem;
   position: relative;
   animation: fadeIn 0.3s ease;
   word-break: break-word;
   overflow-wrap: break-word;
+  /* Prevent the popup from becoming too tall */
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -240,6 +244,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  /* Add right padding so text doesn't clash with the close button */
+  padding-right: 2.5rem;
 }
 
 .modal-header h2 {
@@ -251,17 +257,31 @@
 .close-btn {
   background: none;
   border: none;
-  font-size: 1.8rem;
-  color: #555;
+  font-size: 2.5rem;
+  color: #333;
   cursor: pointer;
+  /* Ensure the close button is neatly aligned at the top-right corner */
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .close-btn:hover {
   color: #000;
+  background: rgba(0, 0, 0, 0.07);
 }
 
 .modal-body {
-  max-height: 70vh;
+  flex: 1;
+  max-height: 100%;
   overflow-y: auto;
 }
 

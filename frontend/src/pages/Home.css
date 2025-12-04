@@ -685,7 +685,8 @@
 
 .accreditation-card {
   max-width: 270px;
-  height: 320px;
+  /* Let the card grow with content instead of clipping long text */
+  min-height: 320px;
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 15px;
@@ -716,6 +717,20 @@
   color: #333;
   margin-top: auto; /* pushes text down for alignment */
   text-align: center;
+  /* Make sure very long words (or text without spaces) wrap inside the card */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Description text inside accreditation cards */
+.accreditation-card p {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 8px;
+  text-align: center;
+  /* Prevent long continuous text from overflowing the card horizontally */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .Media-section {

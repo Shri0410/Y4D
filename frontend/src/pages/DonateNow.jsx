@@ -22,16 +22,16 @@ const DonateNow = () => {
 
   const suggestedAmounts = [500, 1000, 2000, 5000];
 
-  /*  SAFE ENV VARIABLE DETECTION*/
-  // In Vite, use import.meta.env instead of process.env
-  // Environment variables must be prefixed with VITE_
-  const RAZORPAY_KEY =
-    import.meta.env.VITE_RAZORPAY_KEY_ID || null;
+  /*  SAFE ENV VARIABLE DETECTION
+   * In Vite, environment variables must be prefixed with VITE_
+   * Frontend only needs the public key (not the secret)
+   */
+  const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || null;
 
   useEffect(() => {
     if (!RAZORPAY_KEY) {
       logger.error(
-        "❌ Razorpay key missing. Add REACT_APP_RAZORPAY_KEY_ID in your .env file"
+        "❌ Razorpay key missing. Add VITE_RAZORPAY_KEY_ID in your frontend .env file"
       );
     }
   }, []);
@@ -165,32 +165,34 @@ const DonateNow = () => {
               }
             );
 
-            if (!verifyRes.ok) {
-              throw new Error("Verification failed");
-            }
-
             const verifyJson = await verifyRes.json();
 
-            if (verifyJson.success) {
-              setSuccessMessage(
-                "Thank you! Your donation receipt will be sent to your email."
-              );
-              setShowSuccessPopup(true);
-
-              // Reset form
-              setFormData({
-                name: "",
-                email: "",
-                amount: "",
-                pan: "",
-                message: "",
-              });
-
-              setTimeout(() => setShowSuccessPopup(false), 5000);
-            } else {
-              alert("Payment verification failed.");
+            if (!verifyRes.ok || !verifyJson.success) {
+              const msg =
+                verifyJson?.message || "Payment verification failed. Please contact support.";
+              alert(msg);
+              return;
             }
+
+            // Success
+            const paymentId = verifyJson.paymentId || response.razorpay_payment_id;
+            setSuccessMessage(
+              `Thank you for your donation! Your payment was successful.\nPayment ID: ${paymentId}\nA receipt will be sent to your email shortly.`
+            );
+            setShowSuccessPopup(true);
+
+            // Reset form
+            setFormData({
+              name: "",
+              email: "",
+              amount: "",
+              pan: "",
+              message: "",
+            });
+
+            setTimeout(() => setShowSuccessPopup(false), 8000);
           } catch (error) {
+            logger.error("Payment verification error:", error);
             alert("Verification error. Contact support with your Payment ID.");
           }
         },
@@ -408,16 +410,29 @@ const DonateNow = () => {
 
       {/* SUCCESS POPUP */}
       {showSuccessPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>Thank You! 🎉</h2>
-            <p>{successMessage}</p>
-            <button
-              className="ok-btn"
-              onClick={() => setShowSuccessPopup(false)}
-            >
-              OK
-            </button>
+        <div className="popup-overlay donate-popup-overlay">
+          <div className="popup-box donate-success-box">
+            <div className="donate-success-icon">✔</div>
+            <h2 className="donate-success-title">Payment Successful</h2>
+            <p className="donate-success-text">
+              {successMessage.split("\n").map((line, idx) => (
+                <span key={idx}>
+                  {line}
+                  <br />
+                </span>
+              ))}
+            </p>
+            <div className="donate-success-footer">
+              <p className="donate-success-note">
+                You will also receive a confirmation email with your receipt.
+              </p>
+              <button
+                className="ok-btn donate-success-btn"
+                onClick={() => setShowSuccessPopup(false)}
+              >
+                Back to Donation Page
+              </button>
+            </div>
           </div>
         </div>
       )}

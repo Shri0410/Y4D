@@ -88,6 +88,9 @@
   font-size: 24px;
   margin-bottom: 15px;
   color: #ef6022;
+  /* Prevent very long titles from breaking layout */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .work-text p {
@@ -95,6 +98,9 @@
   margin-bottom: 15px;
   text-align: justify;
   line-height: 1.8;
+  /* Handle long continuous text */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Reports */
@@ -202,6 +208,8 @@
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .education-extra-text-full ul {
@@ -233,6 +241,8 @@
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .livelihood-extra-text-full ul {
@@ -264,6 +274,8 @@
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .healthcare-extra-text-full ul {
@@ -295,6 +307,8 @@
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .environment-extra-text-full ul {
@@ -326,6 +340,8 @@
   line-height: 1.8;
   color: #333;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .idp-extra-text-full ul {

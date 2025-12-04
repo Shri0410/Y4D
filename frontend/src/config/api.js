@@ -17,8 +17,12 @@ const getEnvVar = (key, fallback) => {
   return (value && value.trim() !== '') ? value.trim() : fallback;
 };
 
-const API_BASE_URL = getEnvVar('VITE_API_BASE_URL', 'localhost:5000/api');
-const UPLOADS_BASE_URL = getEnvVar('VITE_UPLOADS_BASE_URL', 'localhost:5000/api/uploads');
+// Provide sensible local defaults with protocol so fetch() works correctly
+const API_BASE_URL = getEnvVar('VITE_API_BASE_URL', 'http://localhost:5000/api');
+const UPLOADS_BASE_URL = getEnvVar(
+  'VITE_UPLOADS_BASE_URL',
+  'http://localhost:5000/api/uploads'
+);
 
 // Debug logging (only in development)
 import logger from '../utils/logger';

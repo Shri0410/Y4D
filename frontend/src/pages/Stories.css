@@ -140,6 +140,9 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Handle long unbroken text safely inside the card */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .st-card-meta {
@@ -230,6 +233,9 @@
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
+  /* Prevent very long story titles from breaking the modal layout */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .st-close-btn {

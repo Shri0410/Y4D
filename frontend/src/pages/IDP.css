@@ -154,6 +154,8 @@
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: #222;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .idp-card-description {
@@ -167,6 +169,8 @@
   font-size: 14px;
   color: #555;
   margin-bottom: 10px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .idp-card-details {
   display: -webkit-box;
@@ -177,6 +181,8 @@
   text-overflow: ellipsis;
   font-size: 13px;
   color: #666;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Video */

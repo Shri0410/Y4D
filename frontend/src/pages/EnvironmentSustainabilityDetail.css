@@ -79,6 +79,8 @@
   color: #222;
   font-weight: 600;
   text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .es-detail-description {
@@ -92,6 +94,8 @@
 .es-detail-html {
   margin-top: 20px;
   text-align: left;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .es-detail-html h2,

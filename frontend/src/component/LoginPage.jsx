@@ -93,7 +93,7 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
               onClick={() => navigate("/register")}
               className="option-btn"
             >
-              New User Registration
+              Registration
             </button>
             <button
               onClick={() => setShowPasswordReset(true)}

@@ -81,10 +81,14 @@
   color: #222;
   font-weight: 600;
   text-align: left;
+  /* Prevent very long words / strings without spaces from overflowing */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* Description */
 .qe-detail-description {
+  /* Handle long continuous text gracefully */
   overflow-wrap: break-word;
   word-break: break-word;
   white-space: normal;
@@ -95,6 +99,9 @@
 .qe-detail-html {
   margin-top: 20px;
   text-align: left;
+  /* Ensure any nested text also wraps inside the content container */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .qe-detail-html h2,

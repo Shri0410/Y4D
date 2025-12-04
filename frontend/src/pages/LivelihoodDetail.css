@@ -77,6 +77,9 @@
   color: #222;
   font-weight: 600;
   text-align: left;
+  /* Prevent long titles from overflowing container */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .lv-detail-description {
@@ -90,6 +93,9 @@
 .lv-detail-html {
   margin-top: 20px;
   text-align: left;
+  /* Ensure nested rich-text content wraps safely */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .lv-detail-html h2,
