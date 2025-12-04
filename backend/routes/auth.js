@@ -1,51 +1,61 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const crypto = require("crypto");
-const db = require('../config/database');
-const logger = require('../services/logger');
-const consoleLogger = require('../utils/logger');
-const { authLimiter } = require('../middleware/rateLimiter');
-const { sendError, sendSuccess, sendUnauthorized, sendInternalError } = require('../utils/response');
-const { validateLogin, validateRegistration } = require('../middleware/validation');
-const nodemailer = require("nodemailer");
+const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const db = require("../config/database");
+const logger = require("../services/logger");
+const consoleLogger = require("../utils/logger");
+const { authLimiter } = require("../middleware/rateLimiter");
+const {
+  sendError,
+  sendSuccess,
+  sendUnauthorized,
+  sendInternalError,
+} = require("../utils/response");
+const {
+  validateLogin,
+  validateRegistration,
+} = require("../middleware/validation");
 
 const router = express.Router();
 
 // ===============================
 // LOGIN
 // ===============================
-router.post('/login', authLimiter, validateLogin, async (req, res) => {
+router.post("/login", authLimiter, validateLogin, async (req, res) => {
   const { username, password } = req.body;
-  consoleLogger.log('🔐 Login attempt:', { username, password: password ? '***' : 'missing' });
+  consoleLogger.log("🔐 Login attempt:", {
+    username,
+    password: password ? "***" : "missing",
+  });
 
   try {
     // Optimized: Select only needed fields
-    const query = 'SELECT id, username, email, password, role, status, created_at FROM users WHERE username = ? OR email = ?';
-    consoleLogger.log('🔍 Searching for user:', username);
+    const query =
+      "SELECT id, username, email, password, role, status, created_at FROM users WHERE username = ? OR email = ?";
+    consoleLogger.log("🔍 Searching for user:", username);
 
     const [results] = await db.query(query, [username, username]);
     consoleLogger.log(`📊 Found ${results.length} users matching: ${username}`);
 
     if (results.length === 0) {
       const attemptQuery =
-        'INSERT INTO login_attempts (ip_address, user_agent, success) VALUES (?, ?, FALSE)';
-      await db.query(attemptQuery, [req.ip, req.get('User-Agent')]);
+        "INSERT INTO login_attempts (ip_address, user_agent, success) VALUES (?, ?, FALSE)";
+      await db.query(attemptQuery, [req.ip, req.get("User-Agent")]);
 
       await logger.logLogin(
         null,
         username,
         req.ip || req.connection.remoteAddress,
-        req.get('User-Agent'),
+        req.get("User-Agent"),
         false,
-        'User not found'
+        "User not found"
       );
 
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const user = results[0];
-    consoleLogger.log('👤 User found:', {
+    consoleLogger.log("👤 User found:", {
       id: user.id,
       username: user.username,
       status: user.status,
@@ -53,64 +63,68 @@ router.post('/login', authLimiter, validateLogin, async (req, res) => {
     });
 
     // Check approval
-    if (user.status !== 'approved') {
+    if (user.status !== "approved") {
       await logger.warning(
-        'authentication',
+        "authentication",
         `Login attempt by unapproved user: ${user.username}`,
         {
           type: logger.LogType.LOGIN,
           user_id: user.id,
           ip_address: req.ip || req.connection.remoteAddress,
-          metadata: { status: user.status }
+          metadata: { status: user.status },
         }
       );
 
-      return sendError(res, 401, 'Account not approved. Please contact administrator.');
+      return sendError(
+        res,
+        401,
+        "Account not approved. Please contact administrator."
+      );
     }
 
     // Check password
-    consoleLogger.log('🔑 Checking password...');
+    consoleLogger.log("🔑 Checking password...");
     const validPassword = await bcrypt.compare(password, user.password);
-    consoleLogger.log('Password valid:', validPassword);
+    consoleLogger.log("Password valid:", validPassword);
 
     if (!validPassword) {
       const attemptQuery =
-        'INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, FALSE)';
-      await db.query(attemptQuery, [user.id, req.ip, req.get('User-Agent')]);
+        "INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, FALSE)";
+      await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
 
       await logger.logLogin(
         user.id,
         user.username,
         req.ip || req.connection.remoteAddress,
-        req.get('User-Agent'),
+        req.get("User-Agent"),
         false,
-        'Invalid password'
+        "Invalid password"
       );
 
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const attemptQuery =
-      'INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, TRUE)';
-    await db.query(attemptQuery, [user.id, req.ip, req.get('User-Agent')]);
+      "INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, TRUE)";
+    await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
 
     // Create token
     const token = jwt.sign(
       { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET || 'your_jwt_secret_here',
-      { expiresIn: '24h' }
+      process.env.JWT_SECRET || "your_jwt_secret_here",
+      { expiresIn: "24h" }
     );
 
     await logger.logLogin(
       user.id,
       user.username,
       req.ip || req.connection.remoteAddress,
-      req.get('User-Agent'),
+      req.get("User-Agent"),
       true
     );
 
     res.json({
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: user.id,
@@ -121,155 +135,367 @@ router.post('/login', authLimiter, validateLogin, async (req, res) => {
       },
     });
   } catch (error) {
-    consoleLogger.error('❌ Login error:', error);
-    return sendInternalError(res, error, 'Login failed');
+    consoleLogger.error("❌ Login error:", error);
+    return sendInternalError(res, error, "Login failed");
   }
 });
 
 // ===============================
 // REGISTER
 // ===============================
-router.post('/register', authLimiter, validateRegistration, async (req, res) => {
-  const { username, email, password, role } = req.body;
+router.post(
+  "/register",
+  authLimiter,
+  validateRegistration,
+  async (req, res) => {
+    const { username, email, password, role } = req.body;
 
-  try {
-    const checkQuery = 'SELECT id FROM users WHERE username = ? OR email = ?';
-    const [existing] = await db.query(checkQuery, [username, email]);
+    try {
+      const checkQuery = "SELECT id FROM users WHERE username = ? OR email = ?";
+      const [existing] = await db.query(checkQuery, [username, email]);
 
-    if (existing.length > 0) {
-      return sendError(res, 409, 'Username or email already exists');
+      if (existing.length > 0) {
+        return sendError(res, 409, "Username or email already exists");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const userRole = role || "viewer";
+
+      const insertQuery =
+        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+      const [result] = await db.query(insertQuery, [
+        username,
+        email,
+        hashedPassword,
+        userRole,
+      ]);
+
+      return sendSuccess(
+        res,
+        {
+          userId: result.insertId,
+        },
+        "User registered successfully. Waiting for admin approval.",
+        201
+      );
+    } catch (error) {
+      return sendInternalError(res, error, "Registration failed");
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userRole = role || 'viewer';
-
-    const insertQuery =
-      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)';
-    const [result] = await db.query(insertQuery, [
-      username,
-      email,
-      hashedPassword,
-      userRole,
-    ]);
-
-    return sendSuccess(
-      res,
-      { userId: result.insertId },
-      'User registered successfully. Waiting for admin approval.',
-      201
-    );
-  } catch (error) {
-    return sendInternalError(res, error, 'Registration failed');
   }
-});
+);
 
 // ===============================
 // VERIFY TOKEN
 // ===============================
-router.get('/verify', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1];
+router.get("/verify", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) return res.status(401).json({ error: 'Token required' });
+  if (!token) {
+    return res.status(401).json({ error: "Token required" });
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_here');
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your_jwt_secret_here"
+    );
 
     const query =
       'SELECT id, username, email, role, status FROM users WHERE id = ? AND status = "approved"';
     const [results] = await db.query(query, [decoded.id]);
 
     if (results.length === 0) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: "Invalid token" });
     }
 
     res.json({ valid: true, user: results[0] });
   } catch (error) {
-    consoleLogger.error('❌ Token verification error:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    consoleLogger.error("❌ Token verification error:", error);
+    res.status(401).json({ error: "Invalid token" });
   }
 });
 
-
-// ===================================================================
-// 🔵 NEW SECTION: PASSWORD RESET WITH EMAIL OTP (NO WORKFLOW CHANGED)
-// ===================================================================
-
-// Email transporter
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-});
-
-// ============ SEND OTP ============
-router.post("/send-reset-otp", async (req, res) => {
+// ===============================
+// PASSWORD RESET REQUEST (Send OTP)
+// ===============================
+router.post("/request-password-reset", authLimiter, async (req, res) => {
   const { email } = req.body;
 
   try {
-    const [user] = await db.query("SELECT id FROM users WHERE email = ?", [email]);
-
-    if (user.length === 0)
-      return sendError(res, 404, "Email not found");
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
-
-    await db.query(
-      "UPDATE users SET reset_otp=?, reset_otp_expiry=DATE_ADD(NOW(), INTERVAL 10 MINUTE) WHERE email=?",
-      [otpHash, email]
+    // Check if user exists
+    const [users] = await db.query(
+      "SELECT id, username, email, status FROM users WHERE email = ?",
+      [email]
     );
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Your Password Reset OTP",
-      text: `Your OTP is: ${otp}. It is valid for 10 minutes.`,
-    });
+    if (users.length === 0) {
+      // For security, don't reveal if email exists
+      return sendSuccess(
+        res,
+        {},
+        "If the email exists, reset instructions will be sent"
+      );
+    }
 
-    sendSuccess(res, { otpToken: otpHash }, "OTP sent successfully");
-  } catch (err) {
-    console.log(err);
-    sendInternalError(res, err, "Failed to send OTP");
+    const user = users[0];
+
+    // Check if user is approved
+    if (user.status !== "approved") {
+      return sendError(res, 403, "Account not approved");
+    }
+
+    // Generate reset token (6-digit OTP)
+    const resetToken = Math.floor(100000 + Math.random() * 900000).toString();
+    const tokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes from now
+
+    // Store reset token in database
+    await db.query(
+      "INSERT INTO password_resets (user_id, reset_token, token_expiry) VALUES (?, ?, ?)",
+      [user.id, resetToken, tokenExpiry]
+    );
+
+    // Send email with OTP
+    await sendResetEmail(user.email, user.username, resetToken);
+
+    // Log the reset request
+    await logger.info(
+      "authentication",
+      `Password reset requested for user: ${user.username}`,
+      {
+        type: logger.LogType.PASSWORD_RESET,
+        user_id: user.id,
+        ip_address: req.ip,
+      }
+    );
+
+    return sendSuccess(res, {
+      success: true,
+      message: "Password reset email sent",
+    });
+  } catch (error) {
+    consoleLogger.error("❌ Password reset request error:", error);
+    return sendInternalError(res, error, "Failed to process reset request");
   }
 });
 
-// ============ VERIFY OTP ============
-router.post("/verify-reset-otp", async (req, res) => {
-  const { email, otp } = req.body;
+// ===============================
+// VERIFY RESET TOKEN
+// ===============================
+router.post("/verify-reset-token", authLimiter, async (req, res) => {
+  const { email, token } = req.body;
 
-  const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
+  try {
+    // Find user
+    const [users] = await db.query(
+      'SELECT id FROM users WHERE email = ? AND status = "approved"',
+      [email]
+    );
 
-  const [rows] = await db.query(
-    "SELECT reset_otp, reset_otp_expiry FROM users WHERE email=?",
-    [email]
-  );
+    if (users.length === 0) {
+      return sendError(res, 404, "User not found or not approved");
+    }
 
-  if (rows.length === 0) return sendError(res, 404, "User not found");
+    const user = users[0];
 
-  if (rows[0].reset_otp !== hashedOtp)
-    return sendError(res, 400, "Invalid OTP");
+    // Check if token is valid and not expired
+    const [tokens] = await db.query(
+      "SELECT id, token_expiry FROM password_resets WHERE user_id = ? AND reset_token = ? AND used = FALSE",
+      [user.id, token]
+    );
 
-  if (new Date() > new Date(rows[0].reset_otp_expiry))
-    return sendError(res, 400, "OTP expired");
+    if (tokens.length === 0) {
+      return sendError(res, 401, "Invalid or expired token");
+    }
 
-  sendSuccess(res, {}, "OTP verified");
+    const resetToken = tokens[0];
+
+    // Check if token is expired
+    if (new Date(resetToken.token_expiry) < new Date()) {
+      await db.query("UPDATE password_resets SET used = TRUE WHERE id = ?", [
+        resetToken.id,
+      ]);
+      return sendError(res, 401, "Token has expired");
+    }
+
+    return sendSuccess(res, {
+      valid: true,
+      success: true,
+      message: "Token is valid",
+    });
+  } catch (error) {
+    consoleLogger.error("❌ Token verification error:", error);
+    return sendInternalError(res, error, "Failed to verify token");
+  }
 });
 
-// ============ FINAL PASSWORD RESET ============
-router.post("/reset-password-final", async (req, res) => {
-  const { email, newPassword } = req.body;
+// ===============================
+// RESET PASSWORD
+// ===============================
+// In routes/auth.js, update the reset-password endpoint:
 
-  const hash = await bcrypt.hash(newPassword, 10);
+router.post("/reset-password", authLimiter, async (req, res) => {
+  const { email, token, newPassword } = req.body;
 
-  await db.query(
-    "UPDATE users SET password=?, reset_otp=NULL, reset_otp_expiry=NULL WHERE email=?",
-    [hash, email]
-  );
+  try {
+    // Find user
+    const [users] = await db.query(
+      'SELECT id FROM users WHERE email = ? AND status = "approved"',
+      [email]
+    );
 
-  sendSuccess(res, {}, "Password updated successfully");
+    if (users.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found or account not approved",
+      });
+    }
+
+    const user = users[0];
+
+    // Verify token is valid and not expired
+    const [tokens] = await db.query(
+      `SELECT id FROM password_resets 
+       WHERE user_id = ? 
+       AND reset_token = ? 
+       AND used = FALSE 
+       AND token_expiry > NOW()`,
+      [user.id, token]
+    );
+
+    if (tokens.length === 0) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid or expired OTP. Please request a new one.",
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password in users table
+    await db.query("UPDATE users SET password = ? WHERE id = ?", [
+      hashedPassword,
+      user.id,
+    ]);
+
+    // Mark token as used
+    await db.query("UPDATE password_resets SET used = TRUE WHERE id = ?", [
+      tokens[0].id,
+    ]);
+
+    // Log password reset
+    await logger.info(
+      "authentication",
+      `Password reset successful for user: ${email}`,
+      {
+        type: logger.LogType.PASSWORD_RESET,
+        user_id: user.id,
+        ip_address: req.ip,
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully",
+    });
+  } catch (error) {
+    consoleLogger.error("❌ Password reset error:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Failed to reset password. Please try again.",
+    });
+  }
 });
 
+// ===============================
+// EMAIL SERVICE FUNCTION
+// ===============================
+const sendResetEmail = async (email, username, token) => {
+  try {
+    const nodemailer = require("nodemailer");
+
+    // Create transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: process.env.SMTP_PORT || 587,
+      secure: process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    // Email content
+    const resetLink = `${
+      process.env.FRONTEND_URL || "http://localhost:5173"
+    }/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: `"Youth4Development" <${
+        process.env.SMTP_FROM || process.env.SMTP_USER
+      }>`,
+      to: email,
+      subject: "Password Reset Request - Youth4Development",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Youth4Development</h1>
+          </div>
+          
+          <div style="padding: 30px; background-color: #f9f9f9;">
+            <h2 style="color: #333;">Password Reset Request</h2>
+            
+            <p>Hello ${username},</p>
+            
+            <p>We received a request to reset your password for your Youth4Development account.</p>
+            
+            <div style="background-color: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+              <h3 style="color: #667eea; margin: 0 0 10px 0;">Your OTP Code:</h3>
+              <div style="font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #764ba2; margin: 15px 0;">
+                ${token}
+              </div>
+              <p style="color: #666; font-size: 14px; margin: 10px 0;">
+                This code will expire in 15 minutes
+              </p>
+            </div>
+            
+            <p>Alternatively, you can click the button below to reset your password:</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${resetLink}" 
+                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                        color: white; 
+                        padding: 12px 30px; 
+                        text-decoration: none; 
+                        border-radius: 5px; 
+                        font-weight: bold;
+                        display: inline-block;">
+                Reset Password
+              </a>
+            </div>
+            
+            <p style="color: #666; font-size: 12px; margin-top: 30px;">
+              If you didn't request this password reset, please ignore this email or contact support if you have concerns.
+            </p>
+            
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+            
+            <p style="color: #999; font-size: 12px; text-align: center;">
+              © ${new Date().getFullYear()} Youth4Development. All rights reserved.
+            </p>
+          </div>
+        </div>
+      `,
+      text: `Password Reset Request\n\nHello ${username},\n\nWe received a request to reset your password for your Youth4Development account.\n\nYour OTP Code: ${token}\nThis code will expire in 15 minutes.\n\nIf you didn't request this password reset, please ignore this email.\n\nBest regards,\nYouth4Development Team`,
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    consoleLogger.log(`📧 Password reset email sent to ${email}`);
+  } catch (error) {
+    consoleLogger.error("❌ Email sending error:", error);
+    throw new Error("Failed to send reset email");
+  }
+};
 
 module.exports = router;

@@ -231,6 +231,26 @@
   margin-top: 20px;
 }
 
+/* Media cards with grid layout (Newsletters, Stories, Events, Blogs, Documentaries) */
+.items-list.media-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+@media (max-width: 1200px) {
+  .items-list.media-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .items-list.media-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .item-card {
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -252,12 +272,28 @@
 .item-content h4 {
   margin: 0 0 10px 0;
   color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 2.6em;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 .item-content p {
   margin: 0 0 15px 0;
   color: #666;
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Media Specific */
@@ -297,6 +333,16 @@
 }
 
 .media-header h4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  max-height: 2.6em;
+  word-wrap: break-word;
+  hyphens: auto;
   margin: 0;
   flex: 1;
 }
@@ -781,4 +827,332 @@
   .team-table {
     font-size: 14px;
   }
+}
+
+.accreditation-content-section {
+  padding: 30px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* In your CSS file */
+.accreditation-form-header {
+  margin-bottom: 20px;
+}
+
+.form-header-top {
+  margin-bottom: 10px;
+}
+
+.back-to-accreditations-btn {
+  background: #6c757d;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: color 0.2s;
+}
+
+.back-to-accreditations-btn:hover {
+  background: #5a6268;
+}
+
+.back-arrow {
+  margin-right: 5px;
+  font-size: 16px;
+}
+
+.form-header-title {
+  margin-bottom: 20px;
+}
+
+.form-header-title h2 {
+  margin: 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* For the view mode header */
+.accreditation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+/* Team Type Selection Styles */
+.team-type-selection {
+  padding: 30px 20px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.team-type-selection h3 {
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.team-type-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+@media (max-width: 1024px) {
+  .team-type-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .team-type-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.team-type-btn {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  min-height: 120px;
+}
+
+.team-type-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-color: #007bff;
+}
+
+.team-type-btn span {
+  font-size: 36px;
+  background: #f0f7ff;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.team-type-btn:hover span {
+  background: #007bff;
+  color: white;
+  transform: scale(1.1);
+}
+
+.team-type-btn div {
+  flex: 1;
+  text-align: left;
+}
+
+.team-type-btn h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.team-type-btn p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Specific styles for each team type */
+.team-type-btn:nth-child(1) span {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.team-type-btn:nth-child(1):hover span {
+  background: #1976d2;
+  color: white;
+}
+
+.team-type-btn:nth-child(2) span {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.team-type-btn:nth-child(2):hover span {
+  background: #388e3c;
+  color: white;
+}
+
+.team-type-btn:nth-child(3) span {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.team-type-btn:nth-child(3):hover span {
+  background: #f57c00;
+  color: white;
+}
+
+/* For team types that might have permissions disabled */
+.team-type-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.team-type-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: #e0e0e0;
+}
+
+.team-type-btn:disabled:hover span {
+  transform: none;
+  background: initial;
+  color: initial;
+}
+
+/* Career Items Grid */
+.content-list .items-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Career Card Styles */
+.content-list .items-list .item-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 300px;
+}
+
+.content-list .items-list .item-card .item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-list .items-list .item-content .item-actions {
+  margin-top: auto;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+/* Career Header */
+.career-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.career-header h4 {
+  margin: 0;
+  flex: 1;
+  min-width: 60%;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.career-header .status-badge {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Career Description */
+.career-description {
+  margin: 10px 0;
+  flex-grow: 1;
+}
+
+.career-description div {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 4.2em;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .content-list .items-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .content-list .items-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Ensure last modified info is properly sized */
+.content-list .items-list .last-modified-info {
+  font-size: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+/* Action buttons container */
+.content-list .items-list .item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.content-list .items-list .item-actions button {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+  padding: 6px 10px;
+}
+
+.content-list .items-list .item-actions .view-only-badge {
+  flex: 1;
+  text-align: center;
 }

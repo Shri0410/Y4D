@@ -146,3 +146,94 @@
     width: 100%;
   }
 }
+
+/* Password input group styles */
+.password-input-group {
+  position: relative;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input {
+  width: 100%;
+  padding-right: 40px; /* Make space for the eye icon */
+  box-sizing: border-box;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
+.password-toggle-btn:hover {
+  color: #333;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid #4caf50;
+  outline-offset: 2px;
+}
+
+.password-toggle-btn:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Form group adjustments */
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+/* Error message styles */
+.error-message {
+  background-color: #fee;
+  color: #c00;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border: 1px solid #fcc;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .password-toggle-btn {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .password-input {
+    padding-right: 35px;
+  }
+}

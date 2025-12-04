@@ -21,6 +21,14 @@ import {
   clearPermissionsCache,
 } from "../utils/permissions";
 
+const GRID_MEDIA_TYPES = [
+  "newsletters",
+  "stories",
+  "events",
+  "blogs",
+  "documentaries",
+];
+
 const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [activeTab, setActiveTab] = useState("ourWork");
   const [reports, setReports] = useState([]);
@@ -102,7 +110,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
-
 
   // Permission check functions
   const canUserPerformAction = (
@@ -319,11 +326,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     if (!canCreateItem) return null;
 
     return (
-      <button
-        className="btn-primary"
-        onClick={() => {
-        }}
-      >
+      <button className="btn-primary" onClick={() => {}}>
         + Add {section.slice(0, -1)}
       </button>
     );
@@ -1053,41 +1056,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const renderMediaForm = () => {
     return (
       <div className="content-list">
-        {/* <div className="content-header">
-          <div className="header-row">
-            <button
-              className="btn-back"
-              onClick={() => {
-                setMediaAction("view");
-                setEditingMediaId(null);
-                setMediaForm({
-                  title: "",
-                  description: "",
-                  content: "",
-                  image: null,
-                  pdf: null,
-                  is_active: true,
-                });
-                updateUrlPath("media", "view", currentMediaType);
-              }}
-            >
-              ← Back to{" "}
-              {currentMediaType
-                ? currentMediaType.charAt(0).toUpperCase() +
-                  currentMediaType.slice(1)
-                : "Media"}
-            </button>
-            <h3>
-              {editingMediaId ? "Edit" : "Add New"}
-              {currentMediaType
-                ? " " +
-                  currentMediaType.slice(0, -1).charAt(0).toUpperCase() +
-                  currentMediaType.slice(0, -1).slice(1)
-                : " Media"}
-            </h3>
-          </div>
-        </div> */}
-
         <form onSubmit={(e) => handleMediaSubmit(e)} className="dashboard-form">
           <div className="form-group">
             <label>Title:</label>
@@ -1127,18 +1095,74 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           )}
 
+          {/* EVENT SPECIFIC FIELDS */}
+          {currentMediaType === "events" && (
+            <>
+              <div className="form-group">
+                <label>Event Date:</label>
+                <input
+                  type="date"
+                  value={mediaForm.event_date || ""}
+                  onChange={(e) =>
+                    setMediaForm({ ...mediaForm, event_date: e.target.value })
+                  }
+                  required={currentMediaType === "events"}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Event Time:</label>
+                <input
+                  type="time"
+                  value={mediaForm.event_time || ""}
+                  onChange={(e) =>
+                    setMediaForm({ ...mediaForm, event_time: e.target.value })
+                  }
+                  required={currentMediaType === "events"}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Location:</label>
+                <input
+                  type="text"
+                  value={mediaForm.location || ""}
+                  onChange={(e) =>
+                    setMediaForm({ ...mediaForm, location: e.target.value })
+                  }
+                  required={currentMediaType === "events"}
+                  placeholder="Enter event location"
+                />
+              </div>
+            </>
+          )}
+
           {/* Show image upload for all types except newsletters */}
-          {currentMediaType !== "newsletters" && (
+          {currentMediaType !== "newsletters" &&
+            currentMediaType !== "events" && <div className="form-group"></div>}
+
+          {/* EVENT IMAGE FIELD - With different label */}
+          {currentMediaType === "events" && (
             <div className="form-group">
-              <label>Featured Image:</label>
+              <label>Event Image/Banner:</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   setMediaForm({ ...mediaForm, image: file });
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                  };
+                  if (file) reader.readAsDataURL(file);
                 }}
               />
+              {imagePreview && (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                </div>
+              )}
             </div>
           )}
 
@@ -1165,9 +1189,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           )}
 
           {/* Show image upload for other types that need images */}
-          {["events", "blogs", "stories", "documentaries"].includes(
-            currentMediaType
-          ) && (
+          {["blogs", "stories", "documentaries"].includes(currentMediaType) && (
             <div className="form-group">
               <label>
                 {currentMediaType === "documentaries"
@@ -1870,7 +1892,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </p>
           </div>
         ) : (
-          <div className="items-list">
+          <div
+            className={`items-list ${
+              GRID_MEDIA_TYPES.includes(currentMediaType) ? "media-grid" : ""
+            }`}
+          >
             {mediaItems.map((item) => (
               <div
                 key={item.id}
@@ -1903,7 +1929,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   )}
 
                   <p>
-                    <strong>Description:</strong> {item.description}
+                    <strong>Content:</strong> {item.content}
                   </p>
                   <p>
                     <strong>Created:</strong>{" "}
@@ -2045,37 +2071,37 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     );
   };
 
-const handleMediaSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleMediaSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const formData = new FormData();
-    const token = localStorage.getItem("token");
+    try {
+      const formData = new FormData();
+      const token = localStorage.getItem("token");
 
-    // Append basic fields
-    formData.append("title", mediaForm.title || "");
-    formData.append("description", mediaForm.description || "");
+      // Append basic fields
+      formData.append("title", mediaForm.title || "");
+      formData.append("description", mediaForm.description || "");
 
-    // Handle different media types
-    if (["stories", "blogs"].includes(currentMediaType)) {
-      formData.append("content", mediaForm.content || "");
-    }
-
-    // Add event-specific fields
-    if (currentMediaType === "events") {
-      formData.append("event_date", mediaForm.event_date || "");
-      formData.append("event_time", mediaForm.event_time || "");
-      formData.append("location", mediaForm.location || "");
-    }
-
-    if (currentMediaType === "documentaries") {
-      formData.append("video_url", mediaForm.video_url || "");
-      formData.append("duration", mediaForm.duration || "0:00");
-      if (mediaForm.video_file) {
-        formData.append("video_file", mediaForm.video_file);
+      // Handle different media types
+      if (["stories", "blogs"].includes(currentMediaType)) {
+        formData.append("content", mediaForm.content || "");
       }
-    }
+
+      // Add event-specific fields
+      if (currentMediaType === "events") {
+        formData.append("date", mediaForm.event_date || "");
+        formData.append("time", mediaForm.event_time || "");
+        formData.append("location", mediaForm.location || "");
+      }
+
+      if (currentMediaType === "documentaries") {
+        formData.append("video_url", mediaForm.video_url || "");
+        formData.append("duration", mediaForm.duration || "0:00");
+        if (mediaForm.video_file) {
+          formData.append("video_file", mediaForm.video_file);
+        }
+      }
 
       // Handle file uploads
       if (mediaForm.image) {
@@ -2089,20 +2115,9 @@ const handleMediaSubmit = async (e) => {
         formData.append("pdf", mediaForm.pdf);
       }
 
-      // For newsletters, we might need additional fields
-      if (currentMediaType === "newsletters") {
-        formData.append(
-          "published_date",
-          new Date().toISOString().split("T")[0]
-        );
-        formData.append("is_published", mediaForm.is_active);
-      } else {
-        formData.append(
-          "published_date",
-          new Date().toISOString().split("T")[0]
-        );
-        formData.append("is_published", mediaForm.is_active);
-      }
+      // Add published_date and is_published
+      formData.append("published_date", new Date().toISOString().split("T")[0]);
+      formData.append("is_published", mediaForm.is_active);
 
       // Debug: Log all form data entries
       logger.log("FormData entries:");
@@ -2147,6 +2162,9 @@ const handleMediaSubmit = async (e) => {
         video_url: "",
         video_file: null,
         duration: "",
+        event_date: "",
+        event_time: "",
+        location: "",
         is_active: true,
       });
       setImagePreview(null);
@@ -2171,29 +2189,32 @@ const handleMediaSubmit = async (e) => {
     setLoading(false);
   };
 
-const handleMediaEdit = (item) => {
-  setEditingMediaId(item.id);
-  setMediaAction("update");
-  setMediaForm({
-    title: item.title || "",
-    description: item.description || "",
-    content: item.content || "",
-    image: null,
-    pdf: null,
-    video_url: item.video_url || "",
-    video_file: null,
-    duration: item.duration || "",
-    event_date: item.date || "", // NEW
-    event_time: item.time || "", // NEW
-    location: item.location || "",     // NEW
-    is_active: item.is_published !== undefined ? item.is_published : true,
-  });
+  const handleMediaEdit = (item) => {
+    setEditingMediaId(item.id);
+    setMediaAction("update");
+    setMediaForm({
+      title: item.title || "",
+      description: item.description || "",
+      content: item.content || "",
+      image: null,
+      pdf: null,
+      video_url: item.video_url || "",
+      video_file: null,
+      duration: item.duration || "",
+      // Event specific fields
+      event_date: item.date || "", // Maps to database 'date' column
+      event_time: item.time || "", // Maps to database 'time' column
+      location: item.location || "", // Maps to database 'location' column
+      is_active: item.is_published !== undefined ? item.is_published : true,
+    });
     setImagePreview(null);
 
-  if (item.image) {
-    setImagePreview(`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`);
-  }
-};
+    if (item.image) {
+      setImagePreview(
+        `${API_BASE}/uploads/media/${currentMediaType}/${item.image}`
+      );
+    }
+  };
 
   const handleMediaStatusToggle = async (id, newStatus) => {
     if (

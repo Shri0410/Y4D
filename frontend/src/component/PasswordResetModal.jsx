@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import { extractErrorMessage } from "../utils/apiResponse";
-// import "./PasswordResetModal.css";
+import "./PasswordResetModal.css";
 
 const PasswordResetModal = ({ onClose }) => {
   const [email, setEmail] = useState("");
