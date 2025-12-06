@@ -26,12 +26,12 @@ const DonateNow = () => {
    * In Vite, environment variables must be prefixed with VITE_
    * Frontend only needs the public key (not the secret)
    */
-  const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || null;
+  const RAZORPAY_KEY = import.meta.env.RAZORPAY_KEY_ID || null;
 
   useEffect(() => {
     if (!RAZORPAY_KEY) {
       logger.error(
-        "❌ Razorpay key missing. Add VITE_RAZORPAY_KEY_ID in your frontend .env file"
+        "❌ Razorpay key missing. Add RAZORPAY_KEY_ID in your frontend .env file"
       );
     }
   }, []);
