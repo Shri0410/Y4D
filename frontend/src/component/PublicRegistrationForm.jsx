@@ -77,7 +77,7 @@ const PublicRegistrationForm = () => {
   return (
     <div className="registration-page">
       <div className="registration-container">
-        <img src={logo} alt="Youth4Development" className="registration-logo" />
+        <img src={logo} alt="Y4D Foundation" className="registration-logo" />
 
         <form onSubmit={handleSubmit} className="registration-form">
           <h3>Create Your Account</h3>

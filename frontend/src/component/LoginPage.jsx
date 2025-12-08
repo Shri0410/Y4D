@@ -58,7 +58,7 @@ const LoginPage = ({ onLogin, onAdminLogin }) => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <img src={logo} alt="Youth4Development" className="login-logo" />
+        <img src={logo} alt="Y4D Foundation" className="login-logo" />
 
         {/* User Login Form */}
         <form onSubmit={handleUserLogin} className="login-form">

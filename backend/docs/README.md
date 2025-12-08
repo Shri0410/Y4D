@@ -1,6 +1,5 @@
 # Y4D Backend API
-
-Backend API for Y4D (Youth 4 Development) Dashboard built with Node.js, Express, and MySQL.
+Backend API for Y4D (Y4D Foundation) Dashboard built with Node.js, Express, and MySQL.
 
 ## 📁 Project Structure
 

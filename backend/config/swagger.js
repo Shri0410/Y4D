@@ -85,7 +85,7 @@ const swaggerConfig = {
     title: "Y4D Backend API",
     version: "1.0.0",
     description:
-      "RESTful API documentation for Y4D (Youth 4 Development) Dashboard",
+      "RESTful API documentation for Y4D (Y4D Foundation) Dashboard",
     contact: {
       name: "Y4D API Support",
       email: "support@y4d.org",
