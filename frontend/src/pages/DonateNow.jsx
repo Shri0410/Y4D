@@ -58,24 +58,37 @@ const DonateNow = () => {
 
   /* Enhanced Validation */
   const validateForm = () => {
-    const { name, email, amount, pan } = formData;
+    const { name, email, amount, pan, message } = formData;
 
-    if (!name.trim() || name.length < 2)
+    if (!name || !name.trim() || name.trim().length < 2)
       return "Name must be at least 2 characters";
 
+    if (name.trim().length > 255)
+      return "Name must be less than 255 characters";
+
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim() || !emailPattern.test(email))
+    if (!email || !email.trim() || !emailPattern.test(email.trim()))
       return "Enter a valid email address";
 
     const donationAmount = Number(amount);
-    if (!donationAmount || donationAmount <= 0)
-      return "Enter a valid donation amount";
+    if (!donationAmount || donationAmount <= 0 || isNaN(donationAmount))
+      return "Enter a valid donation amount (minimum ₹1)";
 
-    if (donationAmount > 1000000)
-      return "Maximum donation amount is ₹10,00,000";
+    // Match backend limit: 1 crore (10000000)
+    const MAX_AMOUNT = 10000000;
+    if (donationAmount > MAX_AMOUNT)
+      return `Maximum donation amount is ₹${MAX_AMOUNT.toLocaleString("en-IN")}`;
 
-    const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (!panPattern.test(pan)) return "Invalid PAN (Format: ABCDE1234F)";
+    // PAN is optional but if provided, must be valid
+    if (pan && pan.trim()) {
+      const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (!panPattern.test(pan.trim()))
+        return "Invalid PAN format (Format: ABCDE1234F)";
+    }
+
+    // Message length validation
+    if (message && message.trim().length > 1000)
+      return "Message must be less than 1000 characters";
 
     return null;
   };
@@ -99,85 +112,183 @@ const DonateNow = () => {
 
   /* Razorpay Checkout Logic*/
   const loadRazorpay = async () => {
-  try {
-    setIsProcessing(true);
+    try {
+      setIsProcessing(true);
 
-    const loaded = await loadRazorpayScript();
-    if (!loaded) return alert("Payment gateway failed to load");
+      // Load Razorpay script
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        alert("Payment gateway failed to load. Please check your internet connection and try again.");
+        setIsProcessing(false);
+        return;
+      }
 
-    // Get Razorpay Key from backend instead of .env
-    const keyRes = await fetch(`${API_BASE}/payment/key`);
-    const { key } = await keyRes.json();
+      // Get Razorpay Key from backend
+      let keyRes;
+      try {
+        keyRes = await fetch(`${API_BASE}/payment/key`);
+        if (!keyRes.ok) {
+          throw new Error(`Failed to get payment key: ${keyRes.status}`);
+        }
+      } catch (error) {
+        logger.error("Error fetching Razorpay key:", error);
+        alert("Unable to connect to payment service. Please try again later.");
+        setIsProcessing(false);
+        return;
+      }
 
-    if (!key) return alert("Payment key missing from server");
+      const keyData = await keyRes.json();
+      if (!keyData.success || !keyData.key) {
+        alert(keyData.message || "Payment service is not configured. Please contact support.");
+        setIsProcessing(false);
+        return;
+      }
 
-    // Create order
-    const orderRes = await fetch(`${API_BASE}/payment/create-order`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    const { success, order } = await orderRes.json();
-    if (!success) return alert("Order failed");
-
-    const options = {
-      key,
-      amount: order.amount,
-      currency: "INR",
-      name: "Y4D Foundation",
-      description: "Donation",
-      order_id: order.id,
-      prefill: {
-        name: formData.name,
-        email: formData.email,
-      },
-      handler: async function (response) {
-        // Show success immediately
-        setShowSuccessPopup(true);
-        setSuccessMessage("Verifying payment...");
-
-        // Disable form instantly
-        setIsProcessing(true);
-
-        const verifyRes = await fetch(`${API_BASE}/payment/verify-payment`, {
+      // Create order
+      let orderRes;
+      try {
+        orderRes = await fetch(`${API_BASE}/payment/create-order`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(response),
+          body: JSON.stringify({
+            amount: Number(formData.amount),
+            name: formData.name.trim(),
+            email: formData.email.trim(),
+            pan: formData.pan?.trim() || "",
+            message: formData.message?.trim() || "",
+          }),
         });
 
-        const data = await verifyRes.json();
-
-        if (!data.success) {
-          setSuccessMessage("Payment verified but processing failed.");
-          return;
+        if (!orderRes.ok) {
+          const errorData = await orderRes.json();
+          throw new Error(errorData.message || `Order creation failed: ${orderRes.status}`);
         }
-
-        // 🌟 Update message now that verification is complete
-        setSuccessMessage(`Thank you for your contribution!`);
-
-        // 🌟 Clear form so old data is not visible
-        setFormData({
-          name: "",
-          email: "",
-          amount: "",
-          pan: "",
-          message: "",
-        });
-
-        // Allow user to interact again if needed
+      } catch (error) {
+        logger.error("Error creating order:", error);
+        alert(error.message || "Failed to create payment order. Please check your details and try again.");
         setIsProcessing(false);
-      },
+        return;
+      }
 
-    };
+      const orderData = await orderRes.json();
+      if (!orderData.success || !orderData.order) {
+        const errorMsg = orderData.message || orderData.errors?.[0]?.msg || "Order creation failed";
+        alert(errorMsg);
+        setIsProcessing(false);
+        return;
+      }
 
-    new window.Razorpay(options).open();
-  } catch {
-    alert("Payment error");
-  } finally {
-    setIsProcessing(false);
-  }
-};
+      const { order } = orderData;
+
+      // Configure Razorpay options
+      const options = {
+        key: keyData.key,
+        amount: order.amount,
+        currency: "INR",
+        name: "Y4D Foundation",
+        description: "Donation to Y4D Foundation",
+        order_id: order.id,
+        prefill: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+        },
+        theme: {
+          color: "#4CAF50",
+        },
+        handler: async function (response) {
+          try {
+            // Show success immediately
+            setShowSuccessPopup(true);
+            setSuccessMessage("Verifying payment...");
+            setIsProcessing(true);
+
+            // Verify payment with backend
+            let verifyRes;
+            try {
+              verifyRes = await fetch(`${API_BASE}/payment/verify-payment`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                }),
+              });
+
+              if (!verifyRes.ok) {
+                throw new Error(`Verification failed: ${verifyRes.status}`);
+              }
+            } catch (error) {
+              logger.error("Error verifying payment:", error);
+              setSuccessMessage(
+                "Payment completed but verification failed. Please contact support with Payment ID: " +
+                response.razorpay_payment_id
+              );
+              setIsProcessing(false);
+              return;
+            }
+
+            const verifyData = await verifyRes.json();
+
+            if (!verifyData.success) {
+              setSuccessMessage(
+                verifyData.message ||
+                "Payment verification failed. Please contact support with Payment ID: " +
+                response.razorpay_payment_id
+              );
+              setIsProcessing(false);
+              return;
+            }
+
+            // Payment verified successfully
+            setSuccessMessage(
+              `Thank you for your generous contribution of ₹${Number(formData.amount).toLocaleString("en-IN")}!`
+            );
+
+            // Clear form
+            setFormData({
+              name: "",
+              email: "",
+              amount: "",
+              pan: "",
+              message: "",
+            });
+
+            setIsProcessing(false);
+          } catch (error) {
+            logger.error("Error in payment handler:", error);
+            setSuccessMessage(
+              "Payment completed but there was an error processing it. Please contact support with Payment ID: " +
+              response.razorpay_payment_id
+            );
+            setIsProcessing(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            // User closed the payment modal
+            setIsProcessing(false);
+          },
+        },
+      };
+
+      // Open Razorpay checkout
+      const razorpayInstance = new window.Razorpay(options);
+      razorpayInstance.on("payment.failed", function (response) {
+        logger.error("Payment failed:", response);
+        alert(
+          `Payment failed: ${response.error?.description || "Unknown error"}. Please try again.`
+        );
+        setIsProcessing(false);
+      });
+
+      razorpayInstance.open();
+    } catch (error) {
+      logger.error("Payment error:", error);
+      alert("An unexpected error occurred. Please try again or contact support.");
+      setIsProcessing(false);
+    }
+  };
 
   /*  Submit Handler*/
   const handleSubmit = (e) => {
@@ -324,26 +435,32 @@ const DonateNow = () => {
                 name="amount"
                 type="number"
                 min="1"
-                max="1000000"
+                max="10000000"
+                step="1"
                 value={formData.amount}
                 onChange={handleChange}
                 required
-                placeholder="Enter amount"
+                placeholder="Enter amount (min ₹1, max ₹1,00,00,000)"
               />
+              <small className="form-hint">
+                Minimum: ₹1 | Maximum: ₹1,00,00,000
+              </small>
             </div>
 
             <div className="form-group">
-              <label>PAN Card Number *</label>
+              <label>PAN Card Number (Optional)</label>
               <input
                 name="pan"
                 value={formData.pan}
                 onChange={handleChange}
                 maxLength="10"
                 pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-                title="Format: ABCDE1234F"
-                required
-                placeholder="ABCDE1234F"
+                title="Format: ABCDE1234F (optional)"
+                placeholder="ABCDE1234F (for tax exemption)"
               />
+              <small className="form-hint">
+                Optional: Required for tax exemption under Section 80G
+              </small>
             </div>
 
             <div className="form-group">
@@ -351,11 +468,14 @@ const DonateNow = () => {
               <textarea
                 name="message"
                 rows="3"
-                maxLength="500"
+                maxLength="1000"
                 value={formData.message}
                 onChange={handleChange}
                 placeholder="Any specific cause you'd like to support?"
               ></textarea>
+              <small className="form-hint">
+                {formData.message.length}/1000 characters
+              </small>
             </div>
 
             <button className="submit-btn" disabled={isProcessing}>

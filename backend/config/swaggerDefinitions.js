@@ -907,9 +907,9 @@ module.exports = {
      // ==================== Payments ==================== 
     "/api/payment/create-order": {
       post: {
-        summary: "Create Razorpay order",
+        summary: "Create Razorpay payment order",
         description:
-          "Creates a new Razorpay order. Accepts amount and optional donor details.",
+          "Creates a new Razorpay order for donation payment. Returns order details and Razorpay key for frontend integration. Amount must be at least ₹1 and maximum ₹1,00,00,000.",
         tags: ["Payments"],
         requestBody: {
           required: true,
@@ -919,17 +919,37 @@ module.exports = {
                 type: "object",
                 required: ["amount"],
                 properties: {
-                  amount: { type: "integer", example: 500 },
-                  name: { type: "string", example: "John Doe" },
+                  amount: { 
+                    type: "number",
+                    format: "float",
+                    minimum: 1,
+                    maximum: 10000000,
+                    example: 500,
+                    description: "Donation amount in INR (minimum ₹1, maximum ₹1,00,00,000)"
+                  },
+                  name: { 
+                    type: "string",
+                    maxLength: 255,
+                    example: "John Doe",
+                    description: "Donor name (optional)"
+                  },
                   email: {
                     type: "string",
                     format: "email",
                     example: "john@example.com",
+                    description: "Donor email address (optional)"
                   },
-                  pan: { type: "string", example: "ABCDE1234F" },
+                  pan: { 
+                    type: "string",
+                    pattern: "^[A-Z]{5}[0-9]{4}[A-Z]{1}$",
+                    example: "ABCDE1234F",
+                    description: "PAN number in format ABCDE1234F (optional)"
+                  },
                   message: {
                     type: "string",
+                    maxLength: 1000,
                     example: "Keep up the good work!",
+                    description: "Donor message (optional, max 1000 characters)"
                   },
                 },
               },
@@ -944,15 +964,45 @@ module.exports = {
                 schema: {
                   type: "object",
                   properties: {
-                    success: { type: "boolean" },
+                    success: { type: "boolean", example: true },
+                    key: { 
+                      type: "string",
+                      example: "rzp_test_1234567890",
+                      description: "Razorpay public key for frontend integration"
+                    },
                     order: {
                       type: "object",
                       properties: {
-                        id: { type: "string" },
-                        amount: { type: "integer" },
-                        currency: { type: "string" },
-                        receipt: { type: "string" },
-                        status: { type: "string" },
+                        id: { 
+                          type: "string",
+                          example: "order_1234567890",
+                          description: "Razorpay order ID"
+                        },
+                        amount: { 
+                          type: "integer",
+                          example: 50000,
+                          description: "Order amount in paise (50000 = ₹500)"
+                        },
+                        currency: { 
+                          type: "string",
+                          example: "INR",
+                          description: "Currency code"
+                        },
+                        receipt: { 
+                          type: "string",
+                          example: "receipt_1234567890_abc123",
+                          description: "Unique receipt identifier"
+                        },
+                        status: { 
+                          type: "string",
+                          example: "created",
+                          description: "Order status"
+                        },
+                        created_at: { 
+                          type: "integer",
+                          example: 1234567890,
+                          description: "Order creation timestamp"
+                        },
                       },
                     },
                   },
@@ -960,7 +1010,45 @@ module.exports = {
               },
             },
           },
-          400: { $ref: "#/components/responses/ValidationError" },
+          400: { 
+            description: "Validation error or invalid amount",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: false },
+                    errors: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          msg: { type: "string" },
+                          param: { type: "string" },
+                          location: { type: "string" },
+                        },
+                      },
+                    },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          503: {
+            description: "Payment service not configured",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: false },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
           500: {
             description: "Failed to create order",
             content: {
@@ -976,7 +1064,7 @@ module.exports = {
     "/api/payment/verify-payment": {
       post: {
         summary: "Verify Razorpay payment",
-        description: "Verifies the payment signature returned by Razorpay.",
+        description: "Verifies the payment signature returned by Razorpay and stores transaction details in the database.",
         tags: ["Payments"],
         requestBody: {
           required: true,
@@ -990,9 +1078,21 @@ module.exports = {
                   "razorpay_signature",
                 ],
                 properties: {
-                  razorpay_payment_id: { type: "string" },
-                  razorpay_order_id: { type: "string" },
-                  razorpay_signature: { type: "string" },
+                  razorpay_payment_id: { 
+                    type: "string",
+                    example: "pay_1234567890",
+                    description: "Razorpay payment ID"
+                  },
+                  razorpay_order_id: { 
+                    type: "string",
+                    example: "order_1234567890",
+                    description: "Razorpay order ID"
+                  },
+                  razorpay_signature: { 
+                    type: "string",
+                    example: "abc123def456...",
+                    description: "Payment signature for verification"
+                  },
                 },
               },
             },
@@ -1006,20 +1106,87 @@ module.exports = {
                 schema: {
                   type: "object",
                   properties: {
-                    success: { type: "boolean" },
-                    message: { type: "string" },
-                    paymentId: { type: "string" },
+                    success: { type: "boolean", example: true },
+                    paymentId: { type: "string", example: "pay_1234567890" },
                   },
                 },
               },
             },
           },
-          400: { $ref: "#/components/responses/ValidationError" },
+          400: { 
+            description: "Invalid signature or missing required fields",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: false },
+                    message: { type: "string", example: "Signature mismatch" },
+                  },
+                },
+              },
+            },
+          },
+          503: {
+            description: "Payment service not configured",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: false },
+                    message: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
           500: {
             description: "Verification failed",
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/api/payment/key": {
+      get: {
+        summary: "Get Razorpay public key",
+        description: "Retrieves the Razorpay public key (key_id) for frontend payment integration. This key is safe to expose to clients.",
+        tags: ["Payments"],
+        responses: {
+          200: {
+            description: "Razorpay key retrieved successfully",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    key: { 
+                      type: "string",
+                      example: "rzp_test_1234567890",
+                      description: "Razorpay public key (key_id)"
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Razorpay key not configured",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: false },
+                    message: { type: "string", example: "Razorpay key not configured" },
+                  },
+                },
               },
             },
           },

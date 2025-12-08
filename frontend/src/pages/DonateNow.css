@@ -101,6 +101,14 @@
   border-color: #007bff;
 }
 
+.form-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
 .submit-btn {
   display: inline-block;
   width: 250px;
