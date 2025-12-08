@@ -3,16 +3,16 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const { body, validationResult } = require("express-validator");
-
+const db = require("../config/database");
 const router = express.Router();
-
+const { sendDonationMail } = require("../services/donationMail");
 /* Razorpay Instance (Secure)
  * Use backend-only environment variables (do NOT expose secret to frontend)
  */
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID?.trim();
 const RAZORPAY_SECRET = process.env.RAZORPAY_SECRET?.trim();
-const HR_EMAIL = process.env.HR_EMAIL;
-const HR_EMAIL_PASSWORD = process.env.HR_EMAIL_PASSWORD;
+const CORP_MAIL = process.env.CORP_MAIL;
+const CORP_MAIL_PASSWORD = process.env.CORP_MAIL_PASSWORD;
 
 let razorpay = null;
 
@@ -39,16 +39,15 @@ if (
   }
 }
 
-// Reuse HR mailbox for sending donation receipts
 let mailTransporter = null;
-if (!HR_EMAIL || !HR_EMAIL_PASSWORD) {
-  console.warn("⚠️ HR_EMAIL or HR_EMAIL_PASSWORD missing. Donation receipts will not be emailed.");
+if (!CORP_MAIL || !CORP_MAIL_PASSWORD) {
+  console.warn("⚠️ CORP_MAIL or CORP_MAIL_PASSWORD missing. Donation receipts will not be emailed.");
 } else {
   mailTransporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
-      user: HR_EMAIL,
-      pass: HR_EMAIL_PASSWORD,
+      user: CORP_MAIL,
+      pass: CORP_MAIL_PASSWORD,
     },
   });
 }
@@ -60,8 +59,10 @@ router.post(
   "/create-order",
   [
     body("amount")
-      .isInt({ min: 1 })
-      .withMessage("Amount must be a valid number greater than 0"),
+      .trim()
+      .toFloat()
+      .isFloat({ min: 1 })
+      .withMessage("Enter valid donation amount"),
     body("name").optional().isString().trim(),
     body("email").optional().isEmail(),
     body("pan").optional().isString().trim(),
@@ -86,8 +87,16 @@ router.post(
 
       const { amount } = req.body;
 
+      const cleanAmount = parseFloat(amount);
+      if (isNaN(cleanAmount) || cleanAmount <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid donation amount",
+        });
+      }
+
       const options = {
-        amount: Number(amount) * 100, 
+        amount: Math.round(cleanAmount * 100),
         currency: "INR",
         receipt: "receipt_" + Date.now(),
         notes: { ...req.body }, 
@@ -97,6 +106,7 @@ router.post(
 
       return res.status(201).json({
         success: true,
+        key: RAZORPAY_KEY_ID,
         order,
       });
     } catch (error) {
@@ -108,104 +118,82 @@ router.post(
   }
 );
 
-/* Verify Payment (POST)*/
-router.post(
-  "/verify-payment",
-  [
-    body("razorpay_payment_id").notEmpty().withMessage("Payment ID missing"),
-    body("razorpay_order_id").notEmpty().withMessage("Order ID missing"),
-    body("razorpay_signature").notEmpty().withMessage("Signature missing"),
-  ],
-  async (req, res) => {
-    try {
-      // Check if Razorpay is initialized
-      if (!razorpay || !RAZORPAY_SECRET) {
-        return res.status(503).json({
-          success: false,
-          message: "Payment service is not configured. Please contact administrator.",
-        });
-      }
+router.post("/verify-payment", async (req, res) => {
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+      req.body;
 
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res
-          .status(400)
-          .json({ success: false, errors: errors.array() });
-      }
+    const sign = `${razorpay_order_id}|${razorpay_payment_id}`;
+    const expectedSign = crypto
+      .createHmac("sha256", RAZORPAY_SECRET)
+      .update(sign)
+      .digest("hex");
 
-      const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
-        req.body;
-
-      const signString = `${razorpay_order_id}|${razorpay_payment_id}`;
-
-      const expectedSign = crypto
-        .createHmac("sha256", RAZORPAY_SECRET)
-        .update(signString)
-        .digest("hex");
-
-      const isValid = expectedSign === razorpay_signature;
-
-      if (!isValid) {
-        return res.status(400).json({
-          success: false,
-          message: "Invalid signature, payment verification failed",
-        });
-      }
-
-      // Optionally fetch order to read donor details from notes
-      let donorEmail = null;
-      let donorName = null;
-      let donorAmount = null;
-
-      try {
-        const order = await razorpay.orders.fetch(razorpay_order_id);
-        if (order && order.notes) {
-          donorEmail = order.notes.email || null;
-          donorName = order.notes.name || null;
-          donorAmount =
-            typeof order.amount === "number" ? order.amount / 100 : null;
-        }
-      } catch (err) {
-        console.warn("⚠️ Could not fetch Razorpay order for receipt:", err.message);
-      }
-
-      // Send email receipt to donor if we have details and mail is configured
-      if (mailTransporter && donorEmail) {
-        try {
-          const subject = "Thank you for your donation to Y4D Foundation";
-          const amountText = donorAmount ? `₹${donorAmount.toLocaleString("en-IN")}` : "your generous";
-          const nameText = donorName || "Friend";
-
-          await mailTransporter.sendMail({
-            from: HR_EMAIL,
-            to: donorEmail,
-            subject,
-            html: `
-              <h2>Dear ${nameText},</h2>
-              <p>Thank you for your donation of <strong>${amountText}</strong> to Y4D Foundation.</p>
-              <p>Your payment has been received successfully.</p>
-              <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
-              <p>We truly appreciate your support in empowering communities.</p>
-              <p>Warm regards,<br/>Y4D Foundation</p>
-            `,
-          });
-        } catch (mailError) {
-          console.error("❌ Failed to send donation receipt email:", mailError.message);
-        }
-      }
-
-      return res.json({
-        success: true,
-        message: "Payment verified successfully",
-        paymentId: razorpay_payment_id,
-      });
-    } catch (error) {
-      console.error("❌ Error verifying payment:", error.message);
-      res
-        .status(500)
-        .json({ success: false, message: "Payment verification failed" });
+    if (expectedSign !== razorpay_signature) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Signature mismatch" });
     }
-  }
-);
 
+    // Razorpay Order Fetch → Includes donor notes
+    const order = await razorpay.orders.fetch(razorpay_order_id);
+    const donor = order.notes;
+    const amount = Number(order.amount) / 100;
+
+    // 🌟 Insert Into DB
+    const insertQuery = `
+      INSERT INTO transaction_logs
+      (user_name, email, pan_number, amount, message, payment_method, status, payment_id, transaction_id, utr, masked_card_number, card_expiry)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    await db.query(insertQuery, [
+      donor?.name || "",
+      donor?.email || "",
+      donor?.pan || "",
+      amount,
+      donor?.message || "",
+      "Razorpay",          // payment_method
+      "success",           // status
+      razorpay_payment_id, // payment_id
+      razorpay_order_id,   // transaction_id
+      null,                // utr (need webhook for UPI)
+      null,                // masked_card_number (also webhook)
+      null,                // card_expiry (also webhook)
+    ]);
+
+    // Send Email Receipt
+    await sendDonationMail({
+      name: donor?.name,
+      email: donor?.email,
+      amount,
+      paymentId: razorpay_payment_id,
+    });
+
+    return res.json({
+      success: true,
+      paymentId: razorpay_payment_id,
+    });
+
+  } catch (error) {
+    console.error("❌ Payment verification error:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Verification failed" });
+  }
+});
+
+router.get("/key", (req, res) => {
+  if (!RAZORPAY_KEY_ID) {
+    return res.status(500).json({
+      success: false,
+      message: "Razorpay key not configured",
+    });
+  }
+
+  return res.json({
+    success: true,
+    key: RAZORPAY_KEY_ID,
+  });
+});
 module.exports = router;

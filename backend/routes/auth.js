@@ -427,7 +427,7 @@ const sendResetEmail = async (email, username, token) => {
 
     // Email content
     const resetLink = `${
-      process.env.FRONTEND_URL || "http://localhost:5173"
+      process.env.FRONTEND_URL
     }/reset-password?token=${token}`;
 
     const mailOptions = {
