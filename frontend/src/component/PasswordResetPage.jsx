@@ -129,7 +129,7 @@ const PasswordResetPage = () => {
       <div className="password-reset-page-container">
         <img
           src={logo}
-          alt="Youth4Development"
+          alt="Y4D Foundation"
           className="password-reset-page-logo"
         />
 

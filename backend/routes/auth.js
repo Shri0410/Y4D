@@ -431,15 +431,15 @@ const sendResetEmail = async (email, username, token) => {
     }/reset-password?token=${token}`;
 
     const mailOptions = {
-      from: `"Youth4Development" <${
+      from: `"Y4D Foundation" <${
         process.env.SMTP_FROM || process.env.SMTP_USER
       }>`,
       to: email,
-      subject: "Password Reset Request - Youth4Development",
+      subject: "Password Reset Request - Y4D Foundation",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">Youth4Development</h1>
+          <div style="background: linear-gradient(135deg, #fb6401 0%, #fc7c27ff 100%); padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Y4D Foundation</h1>
           </div>
           
           <div style="padding: 30px; background-color: #f9f9f9;">
@@ -447,11 +447,11 @@ const sendResetEmail = async (email, username, token) => {
             
             <p>Hello ${username},</p>
             
-            <p>We received a request to reset your password for your Youth4Development account.</p>
+            <p>We received a request to reset your password for your Y4D Foundation account.</p>
             
-            <div style="background-color: white; border: 2px solid #667eea; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
-              <h3 style="color: #667eea; margin: 0 0 10px 0;">Your OTP Code:</h3>
-              <div style="font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #764ba2; margin: 15px 0;">
+            <div style="background-color: white; border: 2px solid #fb6401; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+              <h3 style="color: #004715ff; margin: 0 0 10px 0;">Your OTP Code:</h3>
+              <div style="font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #fb6401; margin: 15px 0;">
                 ${token}
               </div>
               <p style="color: #666; font-size: 14px; margin: 10px 0;">
@@ -463,7 +463,7 @@ const sendResetEmail = async (email, username, token) => {
             
             <div style="text-align: center; margin: 30px 0;">
               <a href="${resetLink}" 
-                 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                 style="background: linear-gradient(135deg, #fb6401 0%, #fb6401 100%); 
                         color: white; 
                         padding: 12px 30px; 
                         text-decoration: none; 
@@ -481,12 +481,12 @@ const sendResetEmail = async (email, username, token) => {
             <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
             
             <p style="color: #999; font-size: 12px; text-align: center;">
-              © ${new Date().getFullYear()} Youth4Development. All rights reserved.
+              © ${new Date().getFullYear()} Y4D Foundation. All rights reserved.
             </p>
           </div>
         </div>
       `,
-      text: `Password Reset Request\n\nHello ${username},\n\nWe received a request to reset your password for your Youth4Development account.\n\nYour OTP Code: ${token}\nThis code will expire in 15 minutes.\n\nIf you didn't request this password reset, please ignore this email.\n\nBest regards,\nYouth4Development Team`,
+      text: `Password Reset Request\n\nHello ${username},\n\nWe received a request to reset your password for your Y4D Foundation account.\n\nYour OTP Code: ${token}\nThis code will expire in 15 minutes.\n\nIf you didn't request this password reset, please ignore this email.\n\nBest regards,\nY4D Foundation Team`,
     };
 
     // Send email
