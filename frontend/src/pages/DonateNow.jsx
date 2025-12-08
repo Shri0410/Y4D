@@ -26,15 +26,8 @@ const DonateNow = () => {
    * In Vite, environment variables must be prefixed with VITE_
    * Frontend only needs the public key (not the secret)
    */
-  const RAZORPAY_KEY = import.meta.env.RAZORPAY_KEY_ID || null;
 
-  useEffect(() => {
-    if (!RAZORPAY_KEY) {
-      logger.error(
-        "❌ Razorpay key missing. Add RAZORPAY_KEY_ID in your frontend .env file"
-      );
-    }
-  }, []);
+
 
   /* Fetch Donate Banners*/
   useEffect(() => {
@@ -106,121 +99,85 @@ const DonateNow = () => {
 
   /* Razorpay Checkout Logic*/
   const loadRazorpay = async () => {
-    if (!RAZORPAY_KEY) {
-      alert("Payment setup incomplete. Please contact support.");
-      return;
-    }
+  try {
+    setIsProcessing(true);
 
-    try {
-      setIsProcessing(true);
+    const loaded = await loadRazorpayScript();
+    if (!loaded) return alert("Payment gateway failed to load");
 
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
-        alert("Payment gateway failed to load. Check your connection.");
-        return;
-      }
+    // Get Razorpay Key from backend instead of .env
+    const keyRes = await fetch(`${API_BASE}/payment/key`);
+    const { key } = await keyRes.json();
 
-      // Step 1 — Create Order
-      const orderRes = await fetch(`${API_BASE}/payment/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    if (!key) return alert("Payment key missing from server");
 
-      if (!orderRes.ok) {
-        throw new Error(`Server Error: ${orderRes.status}`);
-      }
+    // Create order
+    const orderRes = await fetch(`${API_BASE}/payment/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const orderData = await orderRes.json();
+    const { success, order } = await orderRes.json();
+    if (!success) return alert("Order failed");
 
-      if (!orderData.success) {
-        alert(orderData.message || "Order creation failed. Try again.");
-        return;
-      }
+    const options = {
+      key,
+      amount: order.amount,
+      currency: "INR",
+      name: "Y4D Foundation",
+      description: "Donation",
+      order_id: order.id,
+      prefill: {
+        name: formData.name,
+        email: formData.email,
+      },
+      handler: async function (response) {
+        // Show success immediately
+        setShowSuccessPopup(true);
+        setSuccessMessage("Verifying payment...");
 
-      const { order } = orderData;
+        // Disable form instantly
+        setIsProcessing(true);
 
-      // Razorpay Options
-      const options = {
-        key: RAZORPAY_KEY,
-        amount: order.amount,
-        currency: "INR",
-        name: "Y4D Foundation",
-        description: "Donation",
-        order_id: order.id,
+        const verifyRes = await fetch(`${API_BASE}/payment/verify-payment`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(response),
+        });
 
-        prefill: {
-          name: formData.name,
-          email: formData.email,
-        },
+        const data = await verifyRes.json();
 
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch(
-              `${API_BASE}/payment/verify-payment`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(response),
-              }
-            );
+        if (!data.success) {
+          setSuccessMessage("Payment verified but processing failed.");
+          return;
+        }
 
-            const verifyJson = await verifyRes.json();
+        // 🌟 Update message now that verification is complete
+        setSuccessMessage(`Thank you for your contribution!`);
 
-            if (!verifyRes.ok || !verifyJson.success) {
-              const msg =
-                verifyJson?.message || "Payment verification failed. Please contact support.";
-              alert(msg);
-              return;
-            }
+        // 🌟 Clear form so old data is not visible
+        setFormData({
+          name: "",
+          email: "",
+          amount: "",
+          pan: "",
+          message: "",
+        });
 
-            // Success
-            const paymentId = verifyJson.paymentId || response.razorpay_payment_id;
-            setSuccessMessage(
-              `Thank you for your donation! Your payment was successful.\nPayment ID: ${paymentId}\nA receipt will be sent to your email shortly.`
-            );
-            setShowSuccessPopup(true);
-
-            // Reset form
-            setFormData({
-              name: "",
-              email: "",
-              amount: "",
-              pan: "",
-              message: "",
-            });
-
-            setTimeout(() => setShowSuccessPopup(false), 8000);
-          } catch (error) {
-            logger.error("Payment verification error:", error);
-            alert("Verification error. Contact support with your Payment ID.");
-          }
-        },
-
-        modal: {
-          ondismiss: function () {
-            setIsProcessing(false);
-          },
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-
-      // Payment failure
-      rzp.on("payment.failed", function (response) {
-        logger.error("Payment failed:", response.error);
-        alert(`Payment failed: ${response.error.description}`);
+        // Allow user to interact again if needed
         setIsProcessing(false);
-      });
+      },
 
-      rzp.open();
-    } catch (error) {
-      logger.error("Payment Error:", error);
-      alert("Payment initialization failed. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+    };
+
+    new window.Razorpay(options).open();
+  } catch {
+    alert("Payment error");
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   /*  Submit Handler*/
   const handleSubmit = (e) => {
