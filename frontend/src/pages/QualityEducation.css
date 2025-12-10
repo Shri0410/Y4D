@@ -1,123 +1,85 @@
+/* ===== BANNER STYLES FOR QualityEducation.jsx ===== */
 .qe-page {
+  margin-top: 80px; /* Adjust based on navbar */
   font-family: "Poppins", sans-serif;
-  margin: 80px auto;
 }
+
+/* Banner container */
 .qe-banner {
   width: 100%;
   height: auto;
   overflow: hidden;
   position: relative;
-}
-
-.qe-banner-video {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: cover;
-  border-radius: 0;
-}
-
-.qe-banner {
-  aspect-ratio: 16 / 9;
-}
-.qe-banner-video {
-  height: 100%;
-}
-
-.qe-banner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background-color: #f5f5f5;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 300px;
 }
 
-.qe-banner-overlay h1 {
-  color: #fff;
-  font-size: 2.5rem;
-  font-weight: 600;
-  text-align: center;
-  margin: 0;
+/* Image and video styling */
+.qe-banner-image,
+.qe-banner-video {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
+
+/* Videos can use cover if needed */
+.qe-banner-video {
+  object-fit: cover; /* Videos usually work better with cover */
+}
+
+/* Loading and no-banner states */
+.loading-banner,
+.no-banner-message {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  color: #666;
+  font-size: 18px;
+}
+
+/* ===== MAIN CONTENT SECTION ===== */
 .qe-section {
+  padding: 40px 20px;
+}
+
+.qe-container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
+.qe-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
 .qe-title {
   position: relative;
-  text-align: center;
-  font-family: "Poppins", sans-serif;
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 600;
   color: #333;
-  margin: 20px auto 30px auto;
-  padding: 0 70px;
-}
-
-/* Right top line */
-.qe-title::before {
-  content: "";
-  position: absolute;
-  right: 200px;
-  top: calc(50% - 6px);
-  width: 20px;
-  height: 2px;
-  background: #f15a29;
-}
-
-/* Right bottom line */
-.qe-title::after {
-  content: "";
-  position: absolute;
-  right: 180px;
-  top: calc(50% + 4px);
-  width: 40px;
-  height: 2px;
-  background: #f15a29;
-}
-
-/* Left side */
-.qe-title span::before {
-  content: "";
-  position: absolute;
-  left: 200px;
-  top: calc(50% - 6px);
-  width: 20px;
-  height: 2px;
-  background: #f15a29;
-}
-
-.qe-title span::after {
-  content: "";
-  position: absolute;
-  left: 180px;
-  top: calc(50% + 4px);
-  width: 40px;
-  height: 2px;
-  background: #f15a29;
+  margin-bottom: 15px;
 }
 
 .qe-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  justify-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
 }
 
 .qe-card {
-  width: 380px;
   background: #fff;
   border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease-in-out;
+  transition: transform 0.3s ease;
 }
 
 .qe-card:hover {
@@ -126,7 +88,8 @@
 
 .qe-card-image {
   position: relative;
-  height: 220px;
+  width: 100%;
+  height: 250px;
   overflow: hidden;
 }
 
@@ -134,181 +97,116 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.qe-card:hover .qe-card-image img {
+  transform: scale(1.05);
 }
 
 .qe-org-badge {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: #fff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  top: 15px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .qe-card-body {
-  padding: 1.2rem;
+  padding: 20px;
 }
 
 .qe-card-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-  color: #333;
-  /* Long titles stay within the card */
-  overflow-wrap: break-word;
-  word-break: break-word;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #222;
 }
 
 .qe-card-desc {
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* show 3 lines only */
-  line-clamp: 3; /* standard property for compatibility */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 10px;
-  /* Protect layout from long unbroken text */
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-.qe-card-details {
-  display: -webkit-box;
-  -webkit-line-clamp: 4; /* show 4 lines only */
-  line-clamp: 4; /* standard property for compatibility */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 13px;
   color: #666;
-  overflow-wrap: break-word;
-  word-break: break-word;
+  margin-bottom: 15px;
+  line-height: 1.6;
 }
 
-.qe-card-meta {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 1rem;
+.qe-card-details {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 15px;
 }
 
 .qe-card-footer {
-  margin-top: 1rem;
   text-align: right;
 }
 
 .qe-read-more {
-  display: flex;
-  justify-content: start;
-  background: none;
-  border: none;
+  display: inline-block;
+  padding: 8px 20px;
+  background: #1e88e5;
+  color: white;
   text-decoration: none;
-  color: #666;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0;
-  margin-top: 10px;
-  font-family: inherit;
-  transition: color 0.3s ease;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.3s;
 }
 
 .qe-read-more:hover {
-  color: #000;
+  background: #1565c0;
 }
 
-.qe-read-more::after {
-  content: "›";
-  font-size: 1.1rem;
-  margin-left: 5px;
-  transition: transform 0.3s ease;
-}
-.qe-read-more:hover::after {
-  transform: translateX(5px);
+.qe-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  background: #f8f9fa;
+  border-radius: 12px;
 }
 
-/* Force 3 cards on desktop screens */
-@media (min-width: 1025px) {
-  .qe-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
+/* Responsive adjustments for banner */
 @media (max-width: 1024px) {
-  .qe-title {
-    font-size: 2rem;
-    line-height: 34px;
-    margin-bottom: 3rem;
-    margin-top: 2.5rem;
+  .qe-banner-image,
+  .qe-banner-video {
+    max-height: 400px;
   }
-  .qe-title::before {
-    right: 90px;
-  }
-
-  /* Right bottom line */
-  .qe-title::after {
-    right: 70px;
-  }
-
-  /* Left side */
-  .qe-title span::before {
-    left: 90px;
-  }
-
-  .qe-title span::after {
-    left: 70px;
-  }
-  .qe-grid {
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 0px;
-  }
-
-  .qe-card {
-    width: 320px;
+  
+  .loading-banner,
+  .no-banner-message {
+    height: 300px;
   }
 }
 
 @media (max-width: 768px) {
-  .qe-page {
-    margin-top: 80px;
-    margin-bottom: 20px;
+  .qe-banner-image,
+  .qe-banner-video {
+    max-height: 300px;
   }
-  .qe-container {
-    padding: 0 1rem;
+  
+  .loading-banner,
+  .no-banner-message {
+    height: 200px;
+    font-size: 16px;
   }
+  
   .qe-title {
-    font-size: 1.8rem;
-    line-height: 34px;
-    margin-bottom: 2rem;
+    font-size: 2rem;
   }
-  .qe-title::before {
-    right: 40px;
-  }
-
-  /* Right bottom line */
-  .qe-title::after {
-    right: 20px;
-  }
-
-  /* Left side */
-  .qe-title span::before {
-    left: 40px;
-  }
-
-  .qe-title span::after {
-    left: 20px;
-  }
-
+  
   .qe-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
+}
 
-  .qe-card {
-    width: 100%;
-    max-width: 380px;
+@media (max-width: 480px) {
+  .qe-banner-image,
+  .qe-banner-video {
+    max-height: 250px;
+  }
+  
+  .loading-banner,
+  .no-banner-message {
+    height: 180px;
   }
 }

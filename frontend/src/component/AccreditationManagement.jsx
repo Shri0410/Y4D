@@ -337,9 +337,6 @@ const AccreditationManagement = ({
     return (
       <div className="accreditation-management">
         <div className="accreditation-header">
-          <button onClick={onClose} className="close-btn">
-            ← Back to Accreditations
-          </button>
           <h2>Accreditations Management</h2>
           {canUserPerformAction("create") && (
             <button

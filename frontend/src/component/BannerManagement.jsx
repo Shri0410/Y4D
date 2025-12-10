@@ -523,7 +523,6 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
                     {formatDisplayName(page)}
                   </option>
                 ))}
-                <option value="custom">Custom Page</option>
               </select>
             </div>
 
@@ -569,7 +568,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
                   </optgroup>
                 )}
 
-                <option value="custom">Custom Section</option>
+                
               </select>
 
               {/* Help text for Our Work sections */}

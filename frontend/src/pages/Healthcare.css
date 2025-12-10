@@ -2,27 +2,46 @@
   font-family: "Poppins", sans-serif;
   margin: 80px auto;
 }
+
+/* Add these styles for image banners */
+.hc-banner-image,
+.hc-banner-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-position: center;
+}
+
+.hc-banner-image {
+  object-fit: contain; /* Changed from cover to contain for images */
+}
+
+.hc-banner-video {
+  object-fit: cover; /* Videos can use cover */
+  height: 100%;
+}
+
+/* Update banner to support both images and videos */
 .hc-banner {
   width: 100%;
   height: auto;
   overflow: hidden;
   position: relative;
+  background-color: #f5f5f5;
 }
 
-.hc-banner-video {
+.hc-banner img {
   width: 100%;
   height: auto;
-  display: block;
-  object-fit: cover;
-  border-radius: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
-.hc-banner {
+.hc-banner video {
   aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
-.hc-banner-video {
-  height: 100%;
-}
+
 
 .hc-banner-overlay {
   position: absolute;

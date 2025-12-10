@@ -999,13 +999,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   // Helper functions
   const getMediaTypeIcon = (type) => {
     const icons = {
-      newsletters: "📰",
-      stories: "📖",
-      events: "🎉",
-      blogs: "✍️",
-      documentaries: "🎬",
+      newsletters: "",
+      stories: "",
+      events: "",
+      blogs: "",
+      documentaries: "",
     };
-    return icons[type] || "📁";
+    return icons[type] || "";
   };
 
   const getMediaTypeDescription = (type) => {

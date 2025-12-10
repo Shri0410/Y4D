@@ -73,6 +73,57 @@
 .footer-linkedin {
   min-width: 398px;
 }
+.linkedin-feed-widget {
+  margin-top: 10px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.footer-linkedin {
+  width: 350px; /* You can adjust this width */
+}
+
+.linkedin-feed-widget {
+  margin-top: 10px;
+  border-radius: 8px;
+  height: 350px; /* Fixed height */
+  overflow-y: auto; /* Enable vertical scroll */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  background: #ffffff;
+  padding-right: 5px; /* Space for scrollbar */
+  scrollbar-width: thin;
+  position: relative;
+}
+
+/* Smooth scroll + hide ugly scrollbar */
+.linkedin-feed-widget::-webkit-scrollbar {
+  width: 6px;
+}
+
+.linkedin-feed-widget::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.linkedin-feed-widget::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.linkedin-feed-widget iframe,
+.linkedin-feed-widget .elfsight-app-3b4f6f57-5208-4fa8-b529-eb60587c8051 {
+  width: 100% !important;
+  max-height: none !important; /* Let scrolling handle height */
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .footer-linkedin {
+    width: 100%;
+  }
+  .linkedin-feed-widget {
+    height: 280px; /* Slightly shorter on mobile */
+  }
+}
+
 
 .footer-linkedin h4 {
   margin-bottom: 10px;
