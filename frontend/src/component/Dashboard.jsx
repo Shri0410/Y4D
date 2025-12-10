@@ -20,6 +20,7 @@ import {
   fetchUserPermissions,
   clearPermissionsCache,
 } from "../utils/permissions";
+import toast from "../utils/toast";
 
 const GRID_MEDIA_TYPES = [
   "newsletters",
@@ -40,6 +41,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentUser, setCurrentUser] = useState(propCurrentUser || null);
   const [mediaAction, setMediaAction] = useState("view");
   const [editingMediaId, setEditingMediaId] = useState(null);
+
+  // Add confirmation modal state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState({
+    title: "",
+    message: "",
+    type: "", // 'delete', 'publish', 'unpublish', 'activate', 'deactivate', 'status'
+    itemId: null,
+    itemType: null,
+    itemName: "",
+    onConfirm: null,
+  });
 
   const [mediaForm, setMediaForm] = useState({
     title: "",
@@ -71,12 +84,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [currentBannerType, setCurrentBannerType] = useState(null);
   const [bannerAction, setBannerAction] = useState("view");
 
-  // Form states
+  // Form states - UPDATED: Added pdf field to reportForm
   const [reportForm, setReportForm] = useState({
     title: "",
     description: "",
     content: "",
     image: null,
+    pdf: null,
   });
   const [mentorForm, setMentorForm] = useState({
     name: "",
@@ -110,6 +124,40 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const [editingId, setEditingId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [mediaItems, setMediaItems] = useState([]);
+
+  // Confirmation Modal Functions
+  const showConfirmationModal = (title, message, type, itemId, itemType, itemName, onConfirm) => {
+    setConfirmationData({
+      title,
+      message,
+      type,
+      itemId,
+      itemType,
+      itemName,
+      onConfirm,
+    });
+    setShowConfirmation(true);
+  };
+
+  const hideConfirmationModal = () => {
+    setShowConfirmation(false);
+    setConfirmationData({
+      title: "",
+      message: "",
+      type: "",
+      itemId: null,
+      itemType: null,
+      itemName: "",
+      onConfirm: null,
+    });
+  };
+
+  const handleConfirmation = () => {
+    if (confirmationData.onConfirm) {
+      confirmationData.onConfirm();
+    }
+    hideConfirmationModal();
+  };
 
   // Permission check functions
   const canUserPerformAction = (
@@ -176,6 +224,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     }
   }, [currentUser]);
 
+  // Debug logging for reports
+  useEffect(() => {
+    if (activeTab === "reports") {
+      logger.log("Reports state:", reports);
+      logger.log("Legal report action:", legalReportAction);
+      logger.log("Editing ID:", editingId);
+      logger.log("Report form:", reportForm);
+    }
+  }, [activeTab, reports, legalReportAction, editingId, reportForm]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (openDropdown && !event.target.closest(".dashboard-sidebar")) {
@@ -234,6 +292,28 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     teamAction,
   ]);
 
+  // File handlers for reports - NEW FUNCTIONS
+  const handleReportImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setReportForm({ ...reportForm, image: file });
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleReportPdfChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setReportForm({ ...reportForm, pdf: file });
+    }
+  };
+
   const renderOurWorkManagement = () => {
     if (currentOurWorkCategory) {
       return (
@@ -247,6 +327,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setInterventionsAction(action)}
           currentUser={currentUser}
+          onShowConfirmation={showConfirmationModal}
+          onHideConfirmation={hideConfirmationModal}
         />
       );
     }
@@ -289,7 +371,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             className={`status-toggle-btn ${
               item.is_published ? "btn-inactive" : "btn-active"
             }`}
-            onClick={() => handleMediaStatusToggle(item.id, !item.is_published)}
+            onClick={() => {
+              showConfirmationModal(
+                item.is_published ? "Unpublish Item" : "Publish Item",
+                `Are you sure you want to ${item.is_published ? "unpublish" : "publish"} "${item.title}"?`,
+                item.is_published ? "unpublish" : "publish",
+                item.id,
+                currentMediaType,
+                item.title,
+                () => handleMediaStatusToggle(item.id, !item.is_published)
+              );
+            }}
           >
             {item.is_published ? "Unpublish" : "Publish"}
           </button>
@@ -310,7 +402,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         {canDeleteItem && (
           <button
             className="btn-delete"
-            onClick={() => handleMediaDelete(item.id)}
+            onClick={() => {
+              showConfirmationModal(
+                "Delete Item",
+                `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
+                "delete",
+                item.id,
+                currentMediaType,
+                item.title,
+                () => handleMediaDelete(item.id)
+              );
+            }}
           >
             Delete
           </button>
@@ -344,6 +446,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setAccreditationAction(action)}
           currentUser={currentUser}
+          onShowConfirmation={showConfirmationModal}
+          onHideConfirmation={hideConfirmationModal}
         />
       </div>
     );
@@ -361,6 +465,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setBannerAction(action)}
           currentUser={currentUser}
+          onShowConfirmation={showConfirmationModal}
+          onHideConfirmation={hideConfirmationModal}
         />
       </div>
     );
@@ -484,11 +590,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setBoardTrustees(trusteesRes.data);
     } catch (error) {
       logger.error("Error fetching team data:", error);
-      alert(`Error fetching team data: ${error.message}`);
+      toast.error(`Error fetching team data: ${error.message}`);
     }
     setLoading(false);
   };
 
+  // UPDATED: Improved fetchData function for reports
   const fetchData = async (type) => {
     setLoading(true);
     try {
@@ -497,13 +604,38 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       switch (type) {
         case "reports":
-          response = await axios.get(`${API_BASE}/reports`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setReports(response.data);
+          try {
+            const config = {};
+            
+            // Only add authorization if token exists and is valid
+            if (token) {
+              config.headers = {
+                Authorization: `Bearer ${token}`,
+              };
+            }
+            
+            response = await axios.get(`${API_BASE}/reports`, config);
+            setReports(response.data);
+            logger.log("Reports fetched successfully:", response.data);
+          } catch (error) {
+            logger.error(`Error fetching reports:`, error);
+            
+            // If token is invalid, try without auth
+            if (error.response?.status === 401) {
+              logger.log("Token invalid, trying without auth...");
+              try {
+                response = await axios.get(`${API_BASE}/reports`);
+                setReports(response.data);
+              } catch (noAuthError) {
+                logger.error("Error fetching reports without auth:", noAuthError);
+                toast.error(`Error fetching reports: ${noAuthError.message}`);
+              }
+            } else {
+              toast.error(`Error fetching reports: ${error.message}`);
+            }
+          }
           break;
+          
         case "mentors":
           response = await axios.get(`${API_BASE}/mentors`);
           setMentors(response.data);
@@ -526,14 +658,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       }
     } catch (error) {
       logger.error(`Error fetching ${type}:`, error);
-
-      // Handle 401 error specifically
-      if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
-        handleLogout();
-      } else {
-        alert(`Error fetching ${type}: ${error.message}`);
-      }
+      toast.error(`Error fetching ${type}: ${error.message}`);
     }
     setLoading(false);
   };
@@ -554,6 +679,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setFormFunction((prev) => ({ ...prev, pdf: file }));
   };
 
+  // UPDATED: Improved handleSubmit for reports
   const handleSubmit = async (e, type) => {
     e.preventDefault();
     setLoading(true);
@@ -564,34 +690,44 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       switch (type) {
         case "reports":
-          const reportFormData = new FormData();
-          reportFormData.append("title", reportForm.title);
-          reportFormData.append("description", reportForm.description);
-          reportFormData.append("content", reportForm.content);
-
-          if (reportForm.image) {
-            reportFormData.append("image", reportForm.image);
-          }
-          if (reportForm.pdf) {
-            reportFormData.append("pdf", reportForm.pdf);
-          }
-
-          endpoint = editingId
-            ? `${API_BASE}/reports/${editingId}`
-            : `${API_BASE}/reports`;
-
           try {
+            const reportFormData = new FormData();
+            reportFormData.append("title", reportForm.title);
+            reportFormData.append("description", reportForm.description);
+            reportFormData.append("content", reportForm.content);
+            reportFormData.append("is_published", "true");
+            
+            // IMPORTANT: Append files with the exact field names backend expects
+            if (reportForm.image && reportForm.image instanceof File) {
+              reportFormData.append("image", reportForm.image);
+            }
+            
+            if (reportForm.pdf && reportForm.pdf instanceof File) {
+              reportFormData.append("pdf", reportForm.pdf);
+            }
+            
+            endpoint = editingId
+              ? `${API_BASE}/reports/${editingId}`
+              : `${API_BASE}/reports`;
+            
             const config = {
               headers: {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
               },
             };
-
+            
+            // Debug: Log FormData contents
+            logger.log("FormData entries for report:");
+            for (let [key, value] of reportFormData.entries()) {
+              logger.log(`${key}:`, value);
+            }
+            
             await (editingId
               ? axios.put(endpoint, reportFormData, config)
               : axios.post(endpoint, reportFormData, config));
-
+            
+            // Reset form
             setReportForm({
               title: "",
               description: "",
@@ -601,13 +737,27 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             });
             setLegalReportAction("view");
             setImagePreview(null);
+            setEditingId(null);
+            
+            // Refresh reports
             fetchData("reports");
-            alert(`Report ${editingId ? "updated" : "created"} successfully!`);
+            
+            toast.success(`Report ${editingId ? "updated" : "created"} successfully!`);
           } catch (error) {
             logger.error("Error saving report:", error);
-            alert(
+            
+            // More detailed error logging
+            if (error.response) {
+              logger.error("Error response data:", error.response.data);
+              logger.error("Error response status:", error.response.status);
+              logger.error("Error response headers:", error.response.headers);
+            } else if (error.request) {
+              logger.error("Error request:", error.request);
+            }
+            
+            toast.error(
               `Error saving report: ${
-                error.response?.data?.error || error.message
+                error.response?.data?.error || error.response?.data?.message || error.message
               }`
             );
           }
@@ -674,7 +824,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             type: "full-time",
             status: "active",
           });
-          setCareerAction("current");
+          setCareerAction("all");
           break;
 
         case "board-trustees":
@@ -709,18 +859,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setTeamAction("view");
       fetchAllTeamData();
       fetchData(type);
-      alert(
+      toast.success(
         `${type.slice(0, -1)} ${
           editingId ? "updated" : "created"
         } successfully!`
       );
     } catch (error) {
       logger.error(`Error saving ${type}:`, error);
-      alert(`Error saving ${type}: ${error.message}`);
+      toast.error(`Error saving ${type}: ${error.message}`);
     }
     setLoading(false);
   };
 
+  // UPDATED: handleEdit for reports
   const handleEdit = (item, type) => {
     setEditingId(item.id);
 
@@ -740,11 +891,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           title: item.title,
           description: item.description,
           content: item.content,
-          image: null,
-          pdf: null,
+          image: null, // Reset to null when editing
+          pdf: null,   // Reset to null when editing
         });
-        if (item.image)
+        // Set image preview if exists
+        if (item.image) {
           setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
+        }
         break;
       case "careers":
         setCareerForm({
@@ -795,15 +948,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   };
 
   const handleStatusToggle = async (id, newStatus) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to ${
-          newStatus ? "activate" : "deactivate"
-        } this career opening?`
-      )
-    )
-      return;
-
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -821,7 +965,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         }
       );
 
-      alert(
+      toast.success(
         `Career opening ${
           newStatus ? "activated" : "deactivated"
         } successfully!`
@@ -830,23 +974,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     } catch (error) {
       logger.error("Error toggling career status:", error);
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
         handleLogout();
       } else {
-        alert(`Error updating career status: ${error.message}`);
+        toast.error(`Error updating career status: ${error.message}`);
       }
     }
     setLoading(false);
   };
 
   const handleDelete = async (id, type) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete this ${type.slice(0, -1)}?`
-      )
-    )
-      return;
-
     setLoading(true);
     try {
       let endpoint = `${API_BASE}/${type}`;
@@ -856,6 +993,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         endpoint = `${API_BASE}/board-trustees`;
       } else if (type === "careers") {
         endpoint = `${API_BASE}/careers`;
+      } else if (type === "reports") {
+        endpoint = `${API_BASE}/reports`;
       }
 
       const response = await axios.delete(`${endpoint}/${id}`, {
@@ -866,10 +1005,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       if (response.data) {
         logger.log("Delete successful:", response.data);
-        alert(`${type.slice(0, -1)} deleted successfully!`);
+        toast.success(`${type.slice(0, -1)} deleted successfully!`);
       } else {
         logger.log("Delete successful (no content returned)");
-        alert(`${type.slice(0, -1)} deleted successfully!`);
+        toast.success(`${type.slice(0, -1)} deleted successfully!`);
       }
 
       if (type === "our-team") {
@@ -881,22 +1020,22 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       logger.error(`Error deleting ${type}:`, error);
 
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
         handleLogout();
       } else if (error.response) {
         logger.error("Error response data:", error.response.data);
         logger.error("Error response status:", error.response.status);
-        alert(
+        toast.error(
           `Error deleting ${type}: ${
             error.response.data?.error || error.message
           }`
         );
       } else if (error.request) {
         logger.error("Error request:", error.request);
-        alert(`Error deleting ${type}: No response from server`);
+        toast.error(`Error deleting ${type}: No response from server`);
       } else {
         logger.error("Error message:", error.message);
-        alert(`Error deleting ${type}: ${error.message}`);
+        toast.error(`Error deleting ${type}: ${error.message}`);
       }
     }
     setLoading(false);
@@ -951,7 +1090,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     clearPermissionsCache();
-    window.location.href = "/admin";
+    toast.info("You have been logged out successfully.");
+    setTimeout(() => {
+      window.location.href = "/admin";
+    }, 1500);
   };
 
   // Media Corner dropdown handlers
@@ -999,13 +1141,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   // Helper functions
   const getMediaTypeIcon = (type) => {
     const icons = {
-      newsletters: "",
-      stories: "",
-      events: "",
-      blogs: "",
-      documentaries: "",
+      newsletters: "📰",
+      stories: "📖",
+      events: "🎪",
+      blogs: "✍️",
+      documentaries: "🎥",
     };
-    return icons[type] || "";
+    return icons[type] || "📄";
   };
 
   const getMediaTypeDescription = (type) => {
@@ -1021,13 +1163,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
   const getOurWorkCategoryIcon = (category) => {
     const icons = {
-      quality_education: "",
-      livelihood: "",
-      healthcare: "",
-      environment_sustainability: "",
-      integrated_development: "",
+      quality_education: "🎓",
+      livelihood: "💼",
+      healthcare: "🏥",
+      environment_sustainability: "🌱",
+      integrated_development: "🤝",
     };
-    return icons[category] || "";
+    return icons[category] || "📋";
   };
 
   const getOurWorkCategoryLabel = (category) => {
@@ -1612,9 +1754,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               ) && (
                                 <button
                                   className="btn-delete"
-                                  onClick={() =>
-                                    handleDelete(mentor.id, "mentors")
-                                  }
+                                  onClick={() => {
+                                    showConfirmationModal(
+                                      "Delete Mentor",
+                                      `Are you sure you want to delete "${mentor.name}"? This action cannot be undone.`,
+                                      "delete",
+                                      mentor.id,
+                                      "mentors",
+                                      mentor.name,
+                                      () => handleDelete(mentor.id, "mentors")
+                                    );
+                                  }}
                                 >
                                   Delete
                                 </button>
@@ -1691,9 +1841,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               ) && (
                                 <button
                                   className="btn-delete"
-                                  onClick={() =>
-                                    handleDelete(member.id, "management")
-                                  }
+                                  onClick={() => {
+                                    showConfirmationModal(
+                                      "Delete Management Member",
+                                      `Are you sure you want to delete "${member.name}"? This action cannot be undone.`,
+                                      "delete",
+                                      member.id,
+                                      "management",
+                                      member.name,
+                                      () => handleDelete(member.id, "management")
+                                    );
+                                  }}
                                 >
                                   Delete
                                 </button>
@@ -1790,9 +1948,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               ) && (
                                 <button
                                   className="btn-delete"
-                                  onClick={() =>
-                                    handleDelete(trustee.id, "board-trustees")
-                                  }
+                                  onClick={() => {
+                                    showConfirmationModal(
+                                      "Delete Board Trustee",
+                                      `Are you sure you want to delete "${trustee.name}"? This action cannot be undone.`,
+                                      "delete",
+                                      trustee.id,
+                                      "board-trustees",
+                                      trustee.name,
+                                      () => handleDelete(trustee.id, "board-trustees")
+                                    );
+                                  }}
                                 >
                                   Delete
                                 </button>
@@ -1837,10 +2003,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     } catch (error) {
       logger.error(`Error fetching ${currentMediaType}:`, error);
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
         handleLogout();
       } else {
-        alert(`Error fetching ${currentMediaType}: ${error.message}`);
+        toast.error(`Error fetching ${currentMediaType}: ${error.message}`);
       }
     }
     setLoading(false);
@@ -2144,7 +2310,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       logger.log("API Response:", response.data);
 
-      alert(
+      toast.success(
         `${currentMediaType.slice(0, -1)} ${
           editingMediaId ? "updated" : "created"
         } successfully!`
@@ -2177,13 +2343,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       // More detailed error message
       if (error.response?.data) {
         logger.error("Backend error details:", error.response.data);
-        alert(
-          `Error: ${error.response.data.error || "Unknown error"}\nDetails: ${
-            error.response.data.details || ""
-          }\nSQL: ${error.response.data.sqlMessage || ""}`
+        toast.error(
+          `Error: ${error.response.data.error || "Unknown error"}`
         );
       } else {
-        alert(`Error saving media: ${error.message}`);
+        toast.error(`Error saving media: ${error.message}`);
       }
     }
     setLoading(false);
@@ -2217,15 +2381,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   };
 
   const handleMediaStatusToggle = async (id, newStatus) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to ${
-          newStatus ? "publish" : "unpublish"
-        } this item?`
-      )
-    )
-      return;
-
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -2238,28 +2393,21 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           },
         }
       );
-      alert(`Item ${newStatus ? "published" : "unpublished"} successfully!`);
+      toast.success(`Item ${newStatus ? "published" : "unpublished"} successfully!`);
       fetchMediaData();
     } catch (error) {
       logger.error("Error toggling media status:", error);
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
         handleLogout();
       } else {
-        alert(`Error updating status: ${error.message}`);
+        toast.error(`Error updating status: ${error.message}`);
       }
     }
     setLoading(false);
   };
 
   const handleMediaDelete = async (id) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete this ${currentMediaType.slice(0, -1)}?`
-      )
-    )
-      return;
-
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -2268,20 +2416,21 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      alert(`${currentMediaType.slice(0, -1)} deleted successfully!`);
+      toast.success(`${currentMediaType.slice(0, -1)} deleted successfully!`);
       fetchMediaData();
     } catch (error) {
       logger.error("Error deleting media:", error);
       if (error.response?.status === 401) {
-        alert("Session expired. Please login again.");
+        toast.error("Session expired. Please login again.");
         handleLogout();
       } else {
-        alert(`Error deleting item: ${error.message}`);
+        toast.error(`Error deleting item: ${error.message}`);
       }
     }
     setLoading(false);
   };
 
+  // UPDATED: Improved legal report form with proper file handlers
   const renderLegalReportForm = () => {
     return (
       <div className="content-list">
@@ -2347,11 +2496,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <input
               type="file"
               accept="image/*"
-              onChange={(e) => handleImageChange(e, setReportForm)}
+              onChange={handleReportImageChange} // Use the dedicated handler
             />
             {imagePreview && (
               <div className="image-preview">
                 <img src={imagePreview} alt="Preview" />
+              </div>
+            )}
+            {/* Show current image if editing */}
+            {editingId && !imagePreview && reports.find(r => r.id === editingId)?.image && (
+              <div className="current-image">
+                <small>Current image: {reports.find(r => r.id === editingId).image}</small>
               </div>
             )}
           </div>
@@ -2361,12 +2516,18 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <input
               type="file"
               accept=".pdf"
-              onChange={(e) => handlePdfChange(e, setReportForm)}
+              onChange={handleReportPdfChange} // Use the dedicated handler
             />
             <small>Upload PDF document (optional)</small>
             {reportForm.pdf && (
               <div className="file-preview">
                 <span>📄 {reportForm.pdf.name}</span>
+              </div>
+            )}
+            {/* Show current PDF if editing */}
+            {editingId && !reportForm.pdf && reports.find(r => r.id === editingId)?.pdf && (
+              <div className="current-file">
+                <small>Current PDF: {reports.find(r => r.id === editingId).pdf}</small>
               </div>
             )}
           </div>
@@ -2552,7 +2713,15 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             ) : (
               <>
                 {reports.length === 0 ? (
-                  <p>No reports found</p>
+                  <div className="no-data-message">
+                    <p>No reports found</p>
+                    <button
+                      className="btn-refresh"
+                      onClick={() => fetchData("reports")}
+                    >
+                      Refresh
+                    </button>
+                  </div>
                 ) : (
                   <div className="items-grid">
                     {reports.map((report) => (
@@ -2622,9 +2791,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             ) && (
                               <button
                                 className="btn-delete"
-                                onClick={() =>
-                                  handleDelete(report.id, "reports")
-                                }
+                                onClick={() => {
+                                  showConfirmationModal(
+                                    "Delete Report",
+                                    `Are you sure you want to delete "${report.title}"? This action cannot be undone.`,
+                                    "delete",
+                                    report.id,
+                                    "reports",
+                                    report.title,
+                                    () => handleDelete(report.id, "reports")
+                                  );
+                                }}
                               >
                                 Delete
                               </button>
@@ -2848,9 +3025,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               className={`status-toggle-btn ${
                                 isActive ? "btn-inactive" : "btn-active"
                               }`}
-                              onClick={() =>
-                                handleStatusToggle(career.id, !isActive)
-                              }
+                              onClick={() => {
+                                showConfirmationModal(
+                                  isActive ? "Deactivate Career" : "Activate Career",
+                                  `Are you sure you want to ${isActive ? "deactivate" : "activate"} "${career.title}"?`,
+                                  isActive ? "deactivate" : "activate",
+                                  career.id,
+                                  "careers",
+                                  career.title,
+                                  () => handleStatusToggle(career.id, !isActive)
+                                );
+                              }}
                             >
                               {isActive ? "Deactivate" : "Activate"}
                             </button>
@@ -2874,7 +3059,17 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                           {canUserPerformAction("careers", null, "delete") && (
                             <button
                               className="btn-delete"
-                              onClick={() => handleDelete(career.id, "careers")}
+                              onClick={() => {
+                                showConfirmationModal(
+                                  "Delete Career Opening",
+                                  `Are you sure you want to delete "${career.title}"? This action cannot be undone.`,
+                                  "delete",
+                                  career.id,
+                                  "careers",
+                                  career.title,
+                                  () => handleDelete(career.id, "careers")
+                                );
+                              }}
                             >
                               Delete
                             </button>
@@ -2929,6 +3124,94 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setCurrentTeamType(null);
       updateUrlPath("team", "update");
     }
+  };
+
+  // Add Confirmation Modal Component
+  const ConfirmationModal = () => {
+    if (!showConfirmation) return null;
+
+    const getIcon = () => {
+      switch (confirmationData.type) {
+        case "delete":
+          return "🗑️";
+        case "publish":
+          return "📢";
+        case "unpublish":
+          return "📝";
+        case "activate":
+          return "✅";
+        case "deactivate":
+          return "⏸️";
+        default:
+          return "⚠️";
+      }
+    };
+
+    const getButtonColor = () => {
+      switch (confirmationData.type) {
+        case "delete":
+          return "btn-delete";
+        case "publish":
+          return "btn-active";
+        case "activate":
+          return "btn-active";
+        case "unpublish":
+        case "deactivate":
+          return "btn-inactive";
+        default:
+          return "btn-primary";
+      }
+    };
+
+    const getConfirmButtonText = () => {
+      switch (confirmationData.type) {
+        case "delete":
+          return "Delete";
+        case "publish":
+          return "Publish";
+        case "unpublish":
+          return "Unpublish";
+        case "activate":
+          return "Activate";
+        case "deactivate":
+          return "Deactivate";
+        default:
+          return "Confirm";
+      }
+    };
+
+    return (
+      <div className="confirmation-modal-overlay">
+        <div className="confirmation-modal">
+          <div className="confirmation-modal-header">
+            <div className="confirmation-icon">{getIcon()}</div>
+            <h3>{confirmationData.title}</h3>
+          </div>
+          <div className="confirmation-modal-body">
+            <p>{confirmationData.message}</p>
+            {confirmationData.itemName && (
+              <div className="confirmation-item-name">
+                <strong>Item:</strong> {confirmationData.itemName}
+              </div>
+            )}
+          </div>
+          <div className="confirmation-modal-footer">
+            <button
+              className="btn-cancel"
+              onClick={hideConfirmationModal}
+            >
+              Cancel
+            </button>
+            <button
+              className={`btn-confirm ${getButtonColor()}`}
+              onClick={handleConfirmation}
+            >
+              {getConfirmButtonText()}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -3644,19 +3927,37 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             renderBannerContent()
           ) : activeTab === "users" &&
             canUserPerformAction("users", "users", "view") ? (
-            <UserManagement activeSubTab="users" />
+            <UserManagement 
+              activeSubTab="users" 
+              onShowConfirmation={showConfirmationModal}
+              onHideConfirmation={hideConfirmationModal}
+            />
           ) : activeTab === "add-user" &&
             canUserPerformAction("users", "users", "create") ? (
-            <UserManagement activeSubTab="add-user" />
+            <UserManagement 
+              activeSubTab="add-user" 
+              onShowConfirmation={showConfirmationModal}
+              onHideConfirmation={hideConfirmationModal}
+            />
           ) : activeTab === "permissions" &&
             canUserPerformAction("users", "users", "edit") ? (
-            <UserManagement activeSubTab="permissions" />
+            <UserManagement 
+              activeSubTab="permissions" 
+              onShowConfirmation={showConfirmationModal}
+              onHideConfirmation={hideConfirmationModal}
+            />
           ) : activeTab === "registrations" &&
             canUserPerformAction("users", "registrations", "view") ? (
-            <RegistrationRequests />
+            <RegistrationRequests 
+              onShowConfirmation={showConfirmationModal}
+              onHideConfirmation={hideConfirmationModal}
+            />
           ) : activeTab === "impact" &&
             canUserPerformAction("impact", null, "view") ? (
-            <ImpactDataEditor />
+            <ImpactDataEditor 
+              onShowConfirmation={showConfirmationModal}
+              onHideConfirmation={hideConfirmationModal}
+            />
           ) : (
             <>
               {renderForm()}
@@ -3665,6 +3966,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           )}
         </main>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal />
     </div>
   );
 };

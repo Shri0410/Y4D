@@ -3,12 +3,16 @@
  * Centralized toast notification system using react-toastify
  */
 
-import { toast as toastify } from 'react-toastify';
+import { toast as toastify, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Configure toast defaults
 export const configureToast = () => {
   // This will be called in App.jsx
 };
+
+// Export ToastContainer for use in App.jsx
+export { ToastContainer };
 
 /**
  * Show success toast
@@ -22,6 +26,14 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
+      theme: 'colored',
+      style: {
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        borderRadius: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+      },
       ...options
     });
   },
@@ -37,6 +49,14 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
+      theme: 'colored',
+      style: {
+        backgroundColor: '#f44336',
+        color: 'white',
+        borderRadius: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+      },
       ...options
     });
   },
@@ -52,6 +72,14 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
+      theme: 'colored',
+      style: {
+        backgroundColor: '#ff9800',
+        color: 'white',
+        borderRadius: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+      },
       ...options
     });
   },
@@ -67,6 +95,14 @@ export const toast = {
       closeOnClick: true,
       pauseOnHover: true,
       draggable: true,
+      theme: 'colored',
+      style: {
+        backgroundColor: '#2196F3',
+        color: 'white',
+        borderRadius: '8px',
+        fontSize: '14px',
+        fontWeight: '500',
+      },
       ...options
     });
   },
@@ -75,9 +111,16 @@ export const toast = {
    * Show promise toast (for async operations)
    */
   promise: (promise, messages) => {
-    return toastify.promise(promise, messages);
+    return toastify.promise(promise, messages, {
+      position: 'top-right',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: 'colored',
+    });
   }
 };
 
 export default toast;
-
