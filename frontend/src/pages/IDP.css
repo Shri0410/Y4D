@@ -2,26 +2,44 @@
   font-family: "Poppins", sans-serif;
   margin: 80px auto 0 auto;
 }
+
+/* Add these styles for image banners */
+.idp-banner-image,
+.idp-banner-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-position: center;
+}
+
+.idp-banner-image {
+  object-fit: contain; /* Changed from cover to contain for images */
+}
+
+.idp-banner-video {
+  object-fit: cover; /* Videos can use cover */
+  height: 100%;
+}
+
+/* Update banner to support both images and videos */
 .idp-banner {
   width: 100%;
   height: auto;
   overflow: hidden;
   position: relative;
+  background-color: #f5f5f5;
 }
 
-.idp-banner-video {
+.idp-banner img {
   width: 100%;
   height: auto;
-  display: block;
-  object-fit: cover;
-  border-radius: 0;
+  object-fit: contain;
+  object-position: center;
 }
 
-.idp-banner {
+.idp-banner video {
   aspect-ratio: 16 / 9;
-}
-.idp-banner-video {
-  height: 100%;
+  object-fit: cover;
 }
 
 .idp-banner-overlay {

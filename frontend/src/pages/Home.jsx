@@ -1,5 +1,5 @@
 // src/pages/Home.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Link } from "react-router-dom";
@@ -19,22 +19,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
 
-// Remove static banner imports since we'll use dynamic ones
-// import first from "../assets/BannerImages/f.jpeg";
-// import Second from "../assets/BannerImages/s.jpeg";
-// import Third from "../assets/BannerImages/t.jpeg";
-// import Fourth from "../assets/BannerImages/fo.jpeg";
-
 import edu from "../assets/Interventions/Education.png";
 import livelihood from "../assets/Interventions/Livelihood.png";
 import healthcare from "../assets/Interventions/Healthcare.png";
 import environment from "../assets/Interventions/EnvironmentSustainibility.png";
 import idp from "../assets/Interventions/IDP.png";
-
-import accr1 from "../assets/Accredations/Purviz Shroff Social.jpg";
-import accr2 from "../assets/Accredations/Bhamashah Award RJ.jpg";
-import accr3 from "../assets/Accredations/CAF International Certificate.jpg";
-import accr4 from "../assets/Accredations/NGO Grading Certificate_Y4D_June23_Design.jpg";
 
 import Partners1 from "./Partners1";
 import Partners2 from "./Partners2";
@@ -43,8 +32,6 @@ import DonateButton from "../component/DonateButton";
 import fallbackBanner from "../assets/BannerImages/f.jpeg";
 
 import LogoSlider from "./LogoSlider.jsx";
-
-// ✅ Store your array here
 
 const Home = () => {
   const [teamCount, setTeamCount] = useState(0);
@@ -60,6 +47,10 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [accreditationsError, setAccreditationsError] = useState(false);
   const [bannersLoading, setBannersLoading] = useState(true);
+  
+  // New state for dynamic slider height
+  const [sliderHeight, setSliderHeight] = useState(0);
+  const sliderRef = useRef(null);
 
   useEffect(() => {
     AOS.init({
@@ -136,6 +127,61 @@ const Home = () => {
     fetchHomeData();
   }, []);
 
+  // Dynamic slider height adjustment
+  useEffect(() => {
+    const updateSliderHeight = () => {
+      if (sliderRef.current) {
+        const activeSlide = sliderRef.current.querySelector('.slick-active');
+        if (activeSlide) {
+          const mediaElement = activeSlide.querySelector('.slide-img');
+          if (mediaElement) {
+            // Get the actual height of the media element
+            const height = mediaElement.offsetHeight;
+            
+            // Add some buffer for overlay content if present
+            const overlay = activeSlide.querySelector('.slide-overlay');
+            const overlayHeight = overlay ? overlay.offsetHeight : 0;
+            
+            const totalHeight = Math.max(height, overlayHeight);
+            
+            // Smooth transition
+            setSliderHeight(totalHeight);
+          }
+        }
+      }
+    };
+
+    // Update on window resize
+    window.addEventListener('resize', updateSliderHeight);
+    
+    // Update when banners are loaded
+    if (!bannersLoading && heroBanners.length > 0) {
+      // Wait a bit for images to load
+      const timer = setTimeout(() => {
+        updateSliderHeight();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateSliderHeight);
+    };
+  }, [bannersLoading, heroBanners.length]);
+
+  // Handle image load to update height
+  const handleImageLoad = (e) => {
+    setTimeout(() => {
+      if (sliderRef.current) {
+        const activeSlide = sliderRef.current.querySelector('.slick-active');
+        if (activeSlide && activeSlide.contains(e.target)) {
+          const height = e.target.offsetHeight;
+          setSliderHeight(height);
+        }
+      }
+    }, 100);
+  };
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -145,6 +191,25 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 4000,
     arrows: false,
+    beforeChange: (current, next) => {
+      // Reset height temporarily during transition
+      setSliderHeight(0);
+    },
+    afterChange: (current) => {
+      // Update height after slide change
+      setTimeout(() => {
+        if (sliderRef.current) {
+          const activeSlide = sliderRef.current.querySelector('.slick-active');
+          if (activeSlide) {
+            const mediaElement = activeSlide.querySelector('.slide-img');
+            if (mediaElement) {
+              const height = mediaElement.offsetHeight;
+              setSliderHeight(height);
+            }
+          }
+        }
+      }, 100);
+    },
   };
 
   const useIsMobile = (breakpoint = 768) => {
@@ -198,14 +263,13 @@ const Home = () => {
   const renderHeroSlider = () => {
     if (bannersLoading) {
       return (
-        <section className="hero-slider">
+        <section className="hero-slider" style={{ height: '400px' }}>
           <div className="loading-slider">Loading banners...</div>
         </section>
       );
     }
 
     if (heroBanners.length === 0) {
-      // Fallback static banner when backend sends no banners
       return (
         <section className="hero-slider">
           <div className="slide-content">
@@ -213,23 +277,23 @@ const Home = () => {
               src={fallbackBanner}
               alt="Y4D Foundation"
               className="slide-img"
+              onLoad={handleImageLoad}
             />
-            {/* <div className="slide-overlay">
-              <div className="slide-text">
-                <h2>Empowering Communities for a Better Tomorrow</h2>
-                <p>Together, we can create sustainable and inclusive growth.</p>
-                <Link to="/our-work" className="slide-btn">
-                  Explore Our Work
-                </Link>
-              </div>
-            </div> */}
           </div>
         </section>
       );
     }
 
     return (
-      <section className="hero-slider">
+      <section 
+        className="hero-slider" 
+        ref={sliderRef}
+        style={{ 
+          height: sliderHeight > 0 ? `${sliderHeight}px` : 'auto',
+          transition: 'height 0.3s ease',
+          overflow: 'hidden'
+        }}
+      >
         <Slider {...sliderSettings}>
           {heroBanners.map((banner) => (
             <div key={banner.id} className="slide-content">
@@ -238,6 +302,7 @@ const Home = () => {
                   src={`${UPLOADS_BASE}/banners/${banner.media}`}
                   alt={banner.title}
                   className="slide-img"
+                  onLoad={handleImageLoad}
                   onError={handleImageError}
                 />
               ) : (
@@ -248,6 +313,7 @@ const Home = () => {
                   muted
                   loop
                   playsInline
+                  onLoadedData={handleImageLoad}
                 />
               )}
               {(banner.title || banner.description || banner.button_text) && (

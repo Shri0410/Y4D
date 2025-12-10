@@ -17,7 +17,7 @@ const Footer = () => {
                 <a href="/our-team">Our Team</a>
               </li>
               <li>
-                <a href="/legal-status">Legal Status</a>
+                <a href="/LegalReports">Legal Status</a>
               </li>
             </ul>
           </div>
@@ -55,7 +55,7 @@ const Footer = () => {
                 <a href="#">Washim</a>
               </li>
               <li>
-                <a href="#">chennai</a>
+                <a href="#">Chennai</a>
               </li>
             </ul>
           </div>
@@ -136,7 +136,6 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* X Logo SVG */}
                 <svg
                   width="25"
                   height="24"
@@ -171,23 +170,16 @@ const Footer = () => {
           </div>
         </div>
 
-         <div className="footer-linkedin">
+        <div className="footer-linkedin">
           <h4>LinkedIn</h4>
 
-          <iframe
-            src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7398713869050978304"
-            height="350"
-            width="100%"
-            frameBorder="0"
-            allowFullScreen
-            title="Latest LinkedIn Post"
-            style={{
-              background: "#fff",
-              borderRadius: "8px",
-              border: "none",
-              marginTop: "10px",
-            }}
-          ></iframe>
+          {/* 🔥 Elfsight LinkedIn Feed Widget */}
+          <div className="linkedin-feed-widget">
+            <div
+              className="elfsight-app-3b4f6f57-5208-4fa8-b529-eb60587c8051"
+              data-elfsight-app-lazy
+            ></div>
+          </div>
         </div>
       </div>
     </footer>

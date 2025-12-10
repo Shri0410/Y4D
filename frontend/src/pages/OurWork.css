@@ -5,11 +5,46 @@
 }
 
 /* Banner */
-.work-banner img {
+.work-banner {
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.work-banner img,
+.work-banner video {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+.work-banner video {
   width: 100%;
   height: auto;
   object-fit: cover;
+  object-position: center;
   display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .work-banner img,
+  .work-banner video {
+    max-height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .work-banner img,
+  .work-banner video {
+    max-height: 300px;
+  }
 }
 
 /* Tabs Bar */

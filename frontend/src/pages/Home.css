@@ -1,17 +1,77 @@
+/* Update these styles in Home.css */
+
 .hero-slider {
   position: relative;
   width: 100%;
-  height: auto;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+.slide-content {
+  position: relative;
+  width: 100%;
   overflow: hidden;
 }
 
 .slide-img {
   width: 100%;
   height: auto;
-  object-fit: cover;
+  display: block;
+  object-fit: contain;
   margin-top: 80px;
 }
 
+/* For videos */
+.slide-img[src*=".mp4"], 
+.slide-img[src*=".webm"],
+.slide-img[src*=".ogg"],
+.slide-content video {
+  object-fit: cover;
+  aspect-ratio: 16/9;
+  height: auto;
+}
+
+/* Overlay positioning */
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.slide-text {
+  pointer-events: auto;
+  text-align: center;
+  color: white;
+  padding: 20px;
+  max-width: 800px;
+}
+
+/* Remove margin-top from home since we handle it in slider */
+.home {
+  margin-top: 0;
+}
+
+/* Ensure slick slider doesn't interfere with our height calculations */
+.hero-slider .slick-slider,
+.hero-slider .slick-list,
+.hero-slider .slick-track {
+  height: 100% !important;
+}
+
+.hero-slider .slick-slide {
+  height: auto !important;
+}
+
+.hero-slider .slick-slide > div {
+  height: 100%;
+}
 .about-title {
   position: relative;
   text-align: center;
