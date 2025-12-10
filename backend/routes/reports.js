@@ -16,9 +16,10 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,
-      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
     );
   },
 });
@@ -40,81 +41,115 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, 
 });
 
-// Get all reports - Public endpoint (optional auth for admin access)
+// ✅ FIXED: Get ALL reports - Public endpoint returns ONLY published reports
 router.get("/", async (req, res) => {
   try {
+    console.log("🔍 [REPORTS] GET / - Fetching reports");
+    console.log("📝 Auth header present:", !!req.headers["authorization"]);
+    
+    // For LegalReports.jsx frontend - ALWAYS return only published reports
+    const query = `SELECT * FROM reports WHERE is_published = TRUE ORDER BY created_at DESC`;
+    const [rows] = await db.query(query);
+    
+    console.log(`✅ [REPORTS] Returning ${rows.length} published reports to frontend`);
+    
+    // Log sample for debugging
+    if (rows.length > 0) {
+      console.log(`📄 Sample report: ${rows[0].title} (ID: ${rows[0].id}, Published: ${rows[0].is_published})`);
+    }
+    
+    res.json(rows);
+  } catch (err) {
+    console.error("❌ [REPORTS] Error fetching reports:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ NEW: Get reports for Admin Dashboard (with auth, includes all reports)
+router.get("/admin/all", authenticateToken, async (req, res) => {
+  try {
+    console.log(`🔍 [REPORTS-ADMIN] GET /admin/all - User: ${req.user.username}, Role: ${req.user.role}`);
+    
+    let query;
+    
+    if (req.user.role === "admin" || req.user.role === "super_admin") {
+      // Admins see all reports with last modified info
+      query = `
+        SELECT r.*, u.username as last_modified_by_name 
+        FROM reports r 
+        LEFT JOIN users u ON r.last_modified_by = u.id 
+        ORDER BY r.created_at DESC
+      `;
+    } else {
+      // Regular users see only their own reports + published ones
+      query = `SELECT * FROM reports WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
+    }
+    
+    const params = req.user.role === "admin" || req.user.role === "super_admin" ? [] : [req.user.id];
+    const [rows] = await db.query(query, params);
+    
+    console.log(`✅ [REPORTS-ADMIN] Returning ${rows.length} reports to admin dashboard`);
+    res.json(rows);
+  } catch (err) {
+    console.error("❌ [REPORTS-ADMIN] Error fetching admin reports:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get single report - FILTERED by role
+router.get("/:id", async (req, res) => {
+  try {
+    console.log(`🔍 [REPORTS] GET /${req.params.id} - Fetching single report`);
+    
+    // Check auth for admin access
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
+    
     let query;
-
-    // If token is provided, try to authenticate (optional auth)
+    
     if (token) {
       try {
         const jwt = require("jsonwebtoken");
         const decoded = jwt.verify(token, JWT_SECRET);
-
-        // Check if user exists and is approved
+        
         const [userResults] = await db.query(
           "SELECT id, username, role, status FROM users WHERE id = ?",
           [decoded.id]
         );
-
+        
         if (userResults && userResults.length > 0 && userResults[0].status === "approved") {
           const user = userResults[0];
-          req.user = user;
-
-          // Authenticated users get role-based access
+          
           if (user.role === "admin" || user.role === "super_admin") {
-            query = `
-              SELECT r.*, u.username as last_modified_by_name 
-              FROM reports r 
-              LEFT JOIN users u ON r.last_modified_by = u.id 
-              ORDER BY r.created_at DESC
-            `;
-            const [rows] = await db.query(query);
-            return res.json(rows);
+            // Admins can see any report
+            query = `SELECT * FROM reports WHERE id = ?`;
           } else {
-            // Regular users see their own reports + published reports
-            query = `SELECT * FROM reports WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
-            const [rows] = await db.query(query, [user.id]);
-            return res.json(rows);
+            // Regular users can see published reports or their own
+            query = `SELECT * FROM reports WHERE id = ? AND (is_published = TRUE OR last_modified_by = ?)`;
           }
         }
       } catch (authError) {
         // Invalid token, fall through to public access
       }
     }
-
-    // Public access: return only published reports
-    query = `SELECT * FROM reports WHERE is_published = TRUE ORDER BY created_at DESC`;
-    const [rows] = await db.query(query);
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Get single report - FILTERED by role
-router.get("/:id", authenticateToken, async (req, res) => {
-  try {
-    let query;
-
-    if (req.user.role === "admin" || req.user.role === "super_admin") {
-      query = `
-        SELECT r.*, u.username as last_modified_by_name 
-        FROM reports r 
-        LEFT JOIN users u ON r.last_modified_by = u.id 
-        WHERE r.id = ?
-      `;
-    } else {
-      query = `SELECT * FROM reports WHERE id = ?`;
+    
+    // Public access (or invalid token): only published reports
+    if (!query) {
+      query = `SELECT * FROM reports WHERE id = ? AND is_published = TRUE`;
     }
-
-    const [rows] = await db.query(query, [req.params.id]);
-    if (rows.length === 0)
-      return res.status(404).json({ error: "Report not found" });
+    
+    const params = query.includes("last_modified_by = ?") ? [req.params.id, decoded.id] : [req.params.id];
+    const [rows] = await db.query(query, params);
+    
+    if (rows.length === 0) {
+      console.log(`❌ [REPORTS] Report ${req.params.id} not found or not published`);
+      return res.status(404).json({ error: "Report not found or not published" });
+    }
+    
+    console.log(`✅ [REPORTS] Returning report ${req.params.id}`);
     res.json(rows[0]);
   } catch (err) {
+    console.error("❌ [REPORTS] Error fetching single report:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -123,10 +158,27 @@ router.get("/:id", authenticateToken, async (req, res) => {
 router.post(
   "/",
   authenticateToken,
-  upload.fields([{ name: "image" }, { name: "pdf" }]),
+  (req, res, next) => {
+    upload.fields([{ name: "image" }, { name: "pdf" }])(req, res, (err) => {
+      if (err) {
+        console.error("❌ [REPORTS] Multer error during upload:", err.message);
+        return res.status(400).json({ 
+          error: "File upload error", 
+          details: err.message 
+        });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
-      const { title, description, content } = req.body;
+      const { title, description, content, is_published = true } = req.body;
+      
+      console.log("📝 [REPORTS] Creating report:", {
+        title,
+        description: description?.substring(0, 50) + "...",
+        is_published
+      });
 
       const image =
         req.files && req.files["image"] ? req.files["image"][0].filename : null;
@@ -134,11 +186,13 @@ router.post(
         req.files && req.files["pdf"] ? req.files["pdf"][0].filename : null;
 
       const [result] = await db.query(
-        "INSERT INTO reports (title, description, content, image, pdf, last_modified_by) VALUES (?, ?, ?, ?, ?, ?)",
-        [title, description, content, image, pdf, req.user.id]
+        "INSERT INTO reports (title, description, content, image, pdf, last_modified_by, is_published) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [title, description, content, image, pdf, req.user.id, is_published]
       );
 
-      res.json({
+      console.log(`✅ [REPORTS] Report created successfully with ID: ${result.insertId}, Published: ${is_published}`);
+
+      res.status(201).json({
         id: result.insertId,
         message: "Report created successfully",
         report: {
@@ -148,11 +202,16 @@ router.post(
           content,
           image,
           pdf,
+          last_modified_by: req.user.id,
+          is_published: is_published === true || is_published === "true"
         },
       });
     } catch (err) {
-      console.error("Error creating report:", err);
-      res.status(500).json({ error: err.message });
+      console.error("❌ [REPORTS] Error creating report:", err);
+      res.status(500).json({ 
+        error: "Failed to create report", 
+        details: err.message 
+      });
     }
   }
 );
@@ -161,38 +220,62 @@ router.post(
 router.put(
   "/:id",
   authenticateToken,
-  upload.fields([{ name: "image" }, { name: "pdf" }]),
+  (req, res, next) => {
+    upload.fields([{ name: "image" }, { name: "pdf" }])(req, res, (err) => {
+      if (err) {
+        console.error("❌ [REPORTS] Multer error during update:", err.message);
+        return res.status(400).json({ 
+          error: "File upload error", 
+          details: err.message 
+        });
+      }
+      next();
+    });
+  },
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { title, description, content } = req.body;
+      const { title, description, content, is_published } = req.body;
+
+      console.log(`📝 [REPORTS] Updating report ${id}:`, {
+        title,
+        is_published
+      });
 
       const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [id]);
-      if (rows.length === 0)
+      if (rows.length === 0) {
+        console.log(`❌ [REPORTS] Report ${id} not found`);
         return res.status(404).json({ error: "Report not found" });
+      }
 
       const currentReport = rows[0];
 
       let image = currentReport.image;
       let pdf = currentReport.pdf;
 
+      // Handle image update
       if (req.files && req.files["image"]) {
+        console.log("🔄 [REPORTS] New image uploaded:", req.files["image"][0].filename);
         if (currentReport.image) {
           const oldImagePath = path.join(
             "uploads/reports/",
             currentReport.image
           );
           if (fs.existsSync(oldImagePath)) {
+            console.log("🗑️ [REPORTS] Deleting old image");
             fs.unlinkSync(oldImagePath);
           }
         }
         image = req.files["image"][0].filename;
       }
 
+      // Handle PDF update
       if (req.files && req.files["pdf"]) {
+        console.log("🔄 [REPORTS] New PDF uploaded:", req.files["pdf"][0].filename);
         if (currentReport.pdf) {
           const oldPdfPath = path.join("uploads/reports/", currentReport.pdf);
           if (fs.existsSync(oldPdfPath)) {
+            console.log("🗑️ [REPORTS] Deleting old PDF");
             fs.unlinkSync(oldPdfPath);
           }
         }
@@ -200,14 +283,30 @@ router.put(
       }
 
       await db.query(
-        "UPDATE reports SET title = ?, description = ?, content = ?, image = ?, pdf = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?",
-        [title, description, content, image, pdf, req.user.id, id]
+        "UPDATE reports SET title = ?, description = ?, content = ?, image = ?, pdf = ?, is_published = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?",
+        [title, description, content, image, pdf, is_published, req.user.id, id]
       );
 
-      res.json({ message: "Report updated successfully" });
+      console.log(`✅ [REPORTS] Report ${id} updated successfully`);
+
+      res.json({ 
+        message: "Report updated successfully",
+        report: {
+          id,
+          title,
+          description,
+          content,
+          image,
+          pdf,
+          is_published
+        }
+      });
     } catch (err) {
-      console.error("Error updating report:", err);
-      res.status(500).json({ error: err.message });
+      console.error("❌ [REPORTS] Error updating report:", err);
+      res.status(500).json({ 
+        error: "Failed to update report", 
+        details: err.message 
+      });
     }
   }
 );
@@ -215,17 +314,22 @@ router.put(
 // Delete report - Delete associated files
 router.delete("/:id", authenticateToken, async (req, res) => {
   try {
+    console.log(`🗑️ [REPORTS] Deleting report ${req.params.id}`);
+    
     const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [
       req.params.id,
     ]);
-    if (rows.length === 0)
+    if (rows.length === 0) {
+      console.log(`❌ [REPORTS] Report ${req.params.id} not found`);
       return res.status(404).json({ error: "Report not found" });
+    }
 
     const report = rows[0];
 
     if (report.image) {
       const imagePath = path.join("uploads/reports/", report.image);
       if (fs.existsSync(imagePath)) {
+        console.log("🗑️ [REPORTS] Deleting image file");
         fs.unlinkSync(imagePath);
       }
     }
@@ -233,6 +337,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     if (report.pdf) {
       const pdfPath = path.join("uploads/reports/", report.pdf);
       if (fs.existsSync(pdfPath)) {
+        console.log("🗑️ [REPORTS] Deleting PDF file");
         fs.unlinkSync(pdfPath);
       }
     }
@@ -241,10 +346,18 @@ router.delete("/:id", authenticateToken, async (req, res) => {
       req.params.id,
     ]);
 
-    res.json({ message: "Report deleted successfully" });
+    console.log(`✅ [REPORTS] Report ${req.params.id} deleted successfully`);
+
+    res.json({ 
+      message: "Report deleted successfully",
+      deletedId: req.params.id
+    });
   } catch (err) {
-    console.error("Error deleting report:", err);
-    res.status(500).json({ error: err.message });
+    console.error("❌ [REPORTS] Error deleting report:", err);
+    res.status(500).json({ 
+      error: "Failed to delete report", 
+      details: err.message 
+    });
   }
 });
 
@@ -254,13 +367,19 @@ router.patch("/:id/publish", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { is_published } = req.body;
 
+    console.log(`📢 [REPORTS] ${is_published ? 'Publishing' : 'Unpublishing'} report ${id}`);
+
     const [result] = await db.query(
       "UPDATE reports SET is_published = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?",
       [is_published, req.user.id, id]
     );
 
-    if (result.affectedRows === 0)
+    if (result.affectedRows === 0) {
+      console.log(`❌ [REPORTS] Report ${id} not found for publish/unpublish`);
       return res.status(404).json({ error: "Report not found" });
+    }
+
+    console.log(`✅ [REPORTS] Report ${id} ${is_published ? 'published' : 'unpublished'} successfully`);
 
     res.json({
       message: `Report ${
@@ -269,7 +388,22 @@ router.patch("/:id/publish", authenticateToken, async (req, res) => {
       is_published,
     });
   } catch (err) {
-    console.error("Error updating report status:", err);
+    console.error("❌ [REPORTS] Error updating report status:", err);
+    res.status(500).json({ 
+      error: "Failed to update report status", 
+      details: err.message 
+    });
+  }
+});
+
+// ✅ NEW: Get only published reports count (for frontend display)
+router.get("/count/published", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT COUNT(*) as count FROM reports WHERE is_published = TRUE");
+    console.log(`📊 [REPORTS] Published reports count: ${rows[0].count}`);
+    res.json({ count: rows[0].count });
+  } catch (err) {
+    console.error("❌ [REPORTS] Error counting published reports:", err);
     res.status(500).json({ error: err.message });
   }
 });
