@@ -33,14 +33,35 @@ const LegalReports = () => {
 
   // Fetch reports from backend
   useEffect(() => {
-    const fetchReports = async () => {
+// Update the fetchReports function
+const fetchReports = async () => {
+  try {
+    // Try to get token from localStorage (if admin is logged in)
+    const token = localStorage.getItem("token");
+    
+    const config = {};
+    if (token) {
+      config.headers = {
+        Authorization: `Bearer ${token}`
+      };
+    }
+    
+    const res = await axios.get(`${API_BASE}/reports`, config);
+    setReports(res.data);
+    logger.log("📊 Reports fetched:", res.data.length);
+  } catch (err) {
+    logger.error("Error fetching reports:", err);
+    // If error with auth, try without
+    if (err.response?.status === 401) {
       try {
-        const res = await axios.get(`${API_BASE}/reports`);
-        setReports(res.data);
-      } catch (err) {
-        logger.error("Error fetching reports:", err);
+        const publicRes = await axios.get(`${API_BASE}/reports`);
+        setReports(publicRes.data);
+      } catch (publicErr) {
+        logger.error("Error fetching public reports:", publicErr);
       }
-    };
+    }
+  }
+};
     fetchReports();
   }, []);
 
