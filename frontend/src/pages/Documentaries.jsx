@@ -247,7 +247,7 @@ const Documentaries = () => {
             >
               <div className="modal-header">
                 <h2>{selectedDoc.title}</h2>
-                <button className="close-btn" onClick={closeDocModal}>
+                <button className="dc-close-btn" onClick={closeDocModal}>
                   &times;
                 </button>
               </div>

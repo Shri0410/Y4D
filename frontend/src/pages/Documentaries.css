@@ -253,30 +253,16 @@
   font-weight: 600;
   color: #222;
 }
-
-.close-btn {
+.dc-close-btn {
   background: none;
   border: none;
-  font-size: 2.5rem;
-  color: #333;
+  font-size: 1.8rem;
+  color: #555;
   cursor: pointer;
-  /* Ensure the close button is neatly aligned at the top-right corner */
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  line-height: 1;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.03);
 }
 
-.close-btn:hover {
+.dc-close-btn:hover {
   color: #000;
-  background: rgba(0, 0, 0, 0.07);
 }
 
 .modal-body {
