@@ -414,6 +414,62 @@
   background: #0056b3;
 }
 
+.btn-back-career {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+.btn-back-career:hover {
+  background: #545b62;
+  color: white;
+}
+.btn-back-media {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-back-media:hover {
+  background: #545b62;
+  color: white;
+}
+.btn-back-legal {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-back-legal:hover {
+  background: #545b62;
+  color: white;
+}
 .btn-back {
   background: #6c757d;
   color: white;

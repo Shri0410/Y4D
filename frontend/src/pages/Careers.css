@@ -14,8 +14,9 @@
 }
 
 .careers-section {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
 .careers-title {
@@ -135,17 +136,55 @@
 
 /* Careers List */
 .careers-list {
-  margin-top: 40px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+  align-items: stretch;
+}
+
+.careers-list {
+  width: 100%;
+  max-width: 1200px;
+  margin: 40px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  align-items: stretch;
 }
 
 .careers-card {
-  background: #fff;
+
+  background: #ffffff;
   padding: 25px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e6e6e6;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: 0.3s ease;
+}
+
+.careers-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 1024px) {
+  .careers-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .careers-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+.careers-card-actions {
+  margin-top: auto;
 }
 
 .careers-list h3 {
@@ -173,7 +212,11 @@
   color: #444;
   line-height: 1.6;
   font-size: 0.95rem;
+  max-height: 70px; /* adjust as needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 /* ---------------- RESPONSIVE ---------------- */
 
@@ -256,11 +299,16 @@
 }
 
 .career-modal-description {
-  margin: 20px 0;
+    white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-word;
   line-height: 1.6;
-  color: #444;
 }
-
+.career-modal-content {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 .career-modal button.careers-btn {
   margin-top: 20px;
   width: 100%;

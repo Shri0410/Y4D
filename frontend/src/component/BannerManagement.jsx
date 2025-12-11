@@ -1,9 +1,10 @@
-// Updated BannerManagement.jsx file with last modified info
+// Updated BannerManagement.jsx file with toast integration
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./BannerManagement.css";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 import {
   canView,
   canCreate,
@@ -12,7 +13,14 @@ import {
   canPublish,
 } from "../utils/permissions";
 
-const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
+const BannerManagement = ({ 
+  action, 
+  onClose, 
+  onActionChange, 
+  currentUser,
+  onShowConfirmation,
+  onHideConfirmation 
+}) => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -217,6 +225,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
           error.response?.data?.error || error.message
         }`
       );
+      toast.error(`Error fetching banners: ${error.message}`);
     }
     setLoading(false);
   };
@@ -239,7 +248,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
     e.preventDefault();
 
     if (!canUserPerformAction(editingId ? "edit" : "create")) {
-      alert("You don't have permission to perform this action");
+      toast.warning("You don't have permission to perform this action");
       return;
     }
 
@@ -286,7 +295,7 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
 
       logger.log("✅ Banner saved successfully:", response.data);
 
-      alert(`Banner ${editingId ? "updated" : "created"} successfully!`);
+      toast.success(`Banner ${editingId ? "updated" : "created"} successfully!`);
 
       // Reset form
       setBannerForm(bannerFormInitialState);
@@ -304,13 +313,14 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
         error.response?.data?.details ||
         "Failed to save banner. Please check console for details.";
       setError(errorMessage);
+      toast.error(`Error saving banner: ${errorMessage}`);
     }
     setLoading(false);
   };
 
   const handleEdit = (banner) => {
     if (!canUserPerformAction("edit")) {
-      alert("You don't have permission to edit banners");
+      toast.warning("You don't have permission to edit banners");
       return;
     }
 
@@ -332,43 +342,30 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
 
   const handleDelete = async (id) => {
     if (!canUserPerformAction("delete")) {
-      alert("You don't have permission to delete banners");
+      toast.warning("You don't have permission to delete banners");
       return;
     }
-
-    if (!window.confirm("Are you sure you want to delete this banner?")) return;
 
     setLoading(true);
     try {
       await axios.delete(`${API_BASE}/banners/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      alert("Banner deleted successfully!");
+      toast.success("Banner deleted successfully!");
       fetchBanners();
       fetchAvailablePages();
     } catch (error) {
       logger.error("❌ Error deleting banner:", error);
-      alert(
-        `Error: ${error.response?.data?.error || "Failed to delete banner"}`
-      );
+      toast.error(`Error deleting banner: ${error.message}`);
     }
     setLoading(false);
   };
 
   const handleStatusToggle = async (id, newStatus) => {
     if (!canUserPerformAction("publish")) {
-      alert("You don't have permission to change banner status");
+      toast.warning("You don't have permission to change banner status");
       return;
     }
-
-    if (
-      !window.confirm(
-        `Are you sure you want to ${
-          newStatus ? "activate" : "deactivate"
-        } this banner?`
-      )
-    )
-      return;
 
     setLoading(true);
     try {
@@ -400,15 +397,11 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
         },
       });
 
-      alert(`Banner ${newStatus ? "activated" : "deactivated"} successfully!`);
+      toast.success(`Banner ${newStatus ? "activated" : "deactivated"} successfully!`);
       fetchBanners();
     } catch (error) {
       logger.error("❌ Error toggling banner status:", error);
-      alert(
-        `Error: ${
-          error.response?.data?.error || "Failed to update banner status"
-        }`
-      );
+      toast.error(`Error updating banner status: ${error.message}`);
     }
     setLoading(false);
   };
@@ -450,7 +443,17 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
             className={`status-toggle-btn ${
               banner.is_active ? "btn-inactive" : "btn-active"
             }`}
-            onClick={() => handleStatusToggle(banner.id, !banner.is_active)}
+            onClick={() => {
+              onShowConfirmation(
+                banner.is_active ? "Deactivate Banner" : "Activate Banner",
+                `Are you sure you want to ${banner.is_active ? "deactivate" : "activate"} "${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}" banner?`,
+                banner.is_active ? "deactivate" : "activate",
+                banner.id,
+                "banners",
+                `${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}`,
+                () => handleStatusToggle(banner.id, !banner.is_active)
+              );
+            }}
             disabled={loading}
           >
             {banner.is_active ? "Deactivate" : "Activate"}
@@ -470,7 +473,17 @@ const BannerManagement = ({ action, onClose, onActionChange, currentUser }) => {
         {canDeleteItem && (
           <button
             className="btn-delete"
-            onClick={() => handleDelete(banner.id)}
+            onClick={() => {
+              onShowConfirmation(
+                "Delete Banner",
+                `Are you sure you want to delete "${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}" banner? This action cannot be undone.`,
+                "delete",
+                banner.id,
+                "banners",
+                `${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}`,
+                () => handleDelete(banner.id)
+              );
+            }}
             disabled={loading}
           >
             Delete

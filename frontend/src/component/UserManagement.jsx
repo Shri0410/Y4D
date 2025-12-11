@@ -3,6 +3,7 @@ import axios from "axios";
 import { API_BASE } from "../config/api";
 import "./UserManagement.css";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);
@@ -129,114 +130,120 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
     }
   };
 
-  const handleCreateUser = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleCreateUser = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await axios.post(
-        `${API_BASE}/users`,
-        {
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          mobile_number: formData.mobile_number,
-          address: formData.address,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setShowCreateModal(false);
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        role: "viewer",
-        mobile_number: "",
-        address: "",
-      });
-      fetchUsers();
-      setError("");
-    } catch (error) {
-      setError(error.response?.data?.error || "Failed to create user");
-    }
+  if (formData.password !== formData.confirmPassword) {
+    setError("Passwords do not match");
+    toast.error("Passwords do not match");
     setLoading(false);
-  };
+    return;
+  }
 
-  const handleStatusChange = async (userId, newStatus) => {
-    try {
-      await axios.patch(
-        `${API_BASE}/users/${userId}/status`,
-        {
-          status: newStatus,
+  if (formData.password.length < 6) {
+    setError("Password must be at least 6 characters long");
+    toast.error("Password must be at least 6 characters long");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${API_BASE}/users`,
+      {
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        mobile_number: formData.mobile_number,
+        address: formData.address,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchUsers();
-    } catch (error) {
-      setError(error.response?.data?.error || "Failed to update user status");
-    }
-  };
-
-  const handleRoleChange = async (userId, newRole) => {
-    try {
-      await axios.patch(
-        `${API_BASE}/users/${userId}/role`,
-        {
-          role: newRole,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchUsers();
-    } catch (error) {
-      setError(error.response?.data?.error || "Failed to update user role");
-    }
-  };
-
-  const handleDeleteUser = async (userId, username) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete user "${username}"? This action cannot be undone.`
-      )
-    ) {
-      try {
-        await axios.delete(`${API_BASE}/users/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        fetchUsers();
-      } catch (error) {
-        setError(error.response?.data?.error || "Failed to delete user");
       }
-    }
-  };
+    );
+
+    setShowCreateModal(false);
+    setFormData({
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      role: "viewer",
+      mobile_number: "",
+      address: "",
+    });
+    fetchUsers();
+    setError("");
+    toast.success(`User "${formData.username}" created successfully!`);
+  } catch (error) {
+    const errorMsg = error.response?.data?.error || "Failed to create user";
+    setError(errorMsg);
+    toast.error(errorMsg);
+  }
+  setLoading(false);
+};
+
+ const handleStatusChange = async (userId, newStatus) => {
+  try {
+    await axios.patch(
+      `${API_BASE}/users/${userId}/status`,
+      {
+        status: newStatus,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    fetchUsers();
+    toast.success(`User status updated to ${newStatus}`);
+  } catch (error) {
+    setError(error.response?.data?.error || "Failed to update user status");
+    toast.error(`Error updating user status: ${error.message}`);
+  }
+};
+
+const handleRoleChange = async (userId, newRole) => {
+  try {
+    await axios.patch(
+      `${API_BASE}/users/${userId}/role`,
+      {
+        role: newRole,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    fetchUsers();
+    toast.success(`User role updated to ${newRole}`);
+  } catch (error) {
+    setError(error.response?.data?.error || "Failed to update user role");
+    toast.error(`Error updating user role: ${error.message}`);
+  }
+};
+
+
+const handleDeleteUser = async (userId, username) => {
+  try {
+    await axios.delete(`${API_BASE}/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    fetchUsers();
+    toast.success(`User "${username}" deleted successfully!`);
+  } catch (error) {
+    setError(error.response?.data?.error || "Failed to delete user");
+    toast.error(`Error deleting user: ${error.message}`);
+  }
+};
 
   // Permission Management Functions
   const handleUserSelectForPermissions = (userId) => {
@@ -313,68 +320,65 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
     setPermissions(updatedPermissions);
   };
 
-  const savePermissions = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
+const savePermissions = async () => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
 
-      // Validate we have a selected user
-      if (!selectedUserForPermissions) {
-        alert("No user selected");
-        setLoading(false);
-        return;
-      }
-
-      // Validate permissions data
-      if (!permissions || permissions.length === 0) {
-        alert("No permissions data to save");
-        setLoading(false);
-        return;
-      }
-
-      logger.log("Saving permissions:", {
-        userId: selectedUserForPermissions.id,
-        permissions: permissions,
-      });
-
-      const response = await axios.put(
-        `${API_BASE}/permissions/user/${selectedUserForPermissions.id}`,
-        { permissions },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      logger.log("Save response:", response.data);
-      alert("Permissions updated successfully!");
-
-      // Refresh the permissions to ensure sync
-      fetchUserPermissions(selectedUserForPermissions.id);
-    } catch (error) {
-      logger.error("Error saving permissions:", error);
-
-      let errorMessage = "Failed to save permissions";
-
-      if (error.response) {
-        // Server responded with error status
-        errorMessage = error.response.data?.error || errorMessage;
-        logger.error("Server error details:", error.response.data);
-      } else if (error.request) {
-        // Request was made but no response received
-        errorMessage = "Network error: Could not connect to server";
-        logger.error("Network error:", error.request);
-      } else {
-        // Something else happened
-        errorMessage = error.message || errorMessage;
-      }
-
-      alert(errorMessage);
+    // Validate we have a selected user
+    if (!selectedUserForPermissions) {
+      toast.warning("No user selected");
+      setLoading(false);
+      return;
     }
-    setLoading(false);
-  };
+
+    // Validate permissions data
+    if (!permissions || permissions.length === 0) {
+      toast.warning("No permissions data to save");
+      setLoading(false);
+      return;
+    }
+
+    logger.log("Saving permissions:", {
+      userId: selectedUserForPermissions.id,
+      permissions: permissions,
+    });
+
+    const response = await axios.put(
+      `${API_BASE}/permissions/user/${selectedUserForPermissions.id}`,
+      { permissions },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    logger.log("Save response:", response.data);
+    toast.success("Permissions updated successfully!");
+
+    // Refresh the permissions to ensure sync
+    fetchUserPermissions(selectedUserForPermissions.id);
+  } catch (error) {
+    logger.error("Error saving permissions:", error);
+
+    let errorMessage = "Failed to save permissions";
+
+    if (error.response) {
+      errorMessage = error.response.data?.error || errorMessage;
+      logger.error("Server error details:", error.response.data);
+    } else if (error.request) {
+      errorMessage = "Network error: Could not connect to server";
+      logger.error("Network error:", error.request);
+    } else {
+      errorMessage = error.message || errorMessage;
+    }
+
+    toast.error(errorMessage);
+  }
+  setLoading(false);
+};
 
   const resetToRoleDefault = async () => {
     if (!selectedUserForPermissions) return;
@@ -611,18 +615,36 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button
-                        onClick={() => handleDeleteUser(user.id, user.username)}
-                        className="btn btn-danger btn-sm"
-                        disabled={user.role === "super_admin"}
-                        title={
-                          user.role === "super_admin"
-                            ? "Cannot delete super admin"
-                            : "Delete user"
-                        }
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
+<button
+  onClick={() => {
+    // Use onShowConfirmation if provided
+    if (onShowConfirmation) {
+      onShowConfirmation(
+        "Delete User",
+        `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+        "delete",
+        user.id,
+        "users",
+        user.username,
+        () => handleDeleteUser(user.id, user.username)
+      );
+    } else {
+      // Fallback to window.confirm
+      if (window.confirm(`Are you sure you want to delete user "${user.username}"?`)) {
+        handleDeleteUser(user.id, user.username);
+      }
+    }
+  }}
+  className="btn btn-danger btn-sm"
+  disabled={user.role === "super_admin"}
+  title={
+    user.role === "super_admin"
+      ? "Cannot delete super admin"
+      : "Delete user"
+  }
+>
+  <i className="fas fa-trash"></i>
+</button>
                       <button
                         onClick={() => {
                           setActiveSubTab("permissions");

@@ -3,7 +3,8 @@ import { API_BASE } from "../config/api";
 import axios from "axios";
 import toast from "../utils/toast";
 import logger from "../utils/logger";
-import confirmDialog from "../utils/confirmDialog";
+// REMOVE confirmDialog import since we're using onShowConfirmation
+// import confirmDialog from "../utils/confirmDialog"; // REMOVE THIS LINE
 import {
   extractData,
   extractErrorMessage,
@@ -25,6 +26,8 @@ const OurWorkManagement = ({
   onClose,
   onActionChange,
   currentUser,
+  onShowConfirmation,
+  onHideConfirmation, // Also accept onHideConfirmation if needed
 }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -221,22 +224,17 @@ const OurWorkManagement = ({
       return;
     }
 
-    const confirmed = await confirmDialog(
-      "Are you sure you want to delete this item?"
-    );
-    if (confirmed) {
-      try {
-        const response = await axios.delete(
-          `${API_BASE}/our-work/admin/${category}/${id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        fetchItems();
-        handleApiSuccess(response, {
-          customMessage: "Item deleted successfully!",
-        });
-      } catch (error) {
-        handleApiError(error);
-      }
+    try {
+      const response = await axios.delete(
+        `${API_BASE}/our-work/admin/${category}/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchItems();
+      handleApiSuccess(response, {
+        customMessage: "Item deleted successfully!",
+      });
+    } catch (error) {
+      handleApiError(error);
     }
   };
 
@@ -331,7 +329,7 @@ const OurWorkManagement = ({
     );
   };
 
-  // Action buttons
+  // Action buttons - FIXED VERSION
   const renderItemActions = (item) => {
     const canEditItem = canUserPerformAction("edit");
     const canDeleteItem = canUserPerformAction("delete");
@@ -345,6 +343,56 @@ const OurWorkManagement = ({
       );
     }
 
+    // Handle status toggle with confirmation
+    const handleToggleStatus = () => {
+      if (onShowConfirmation) {
+        onShowConfirmation(
+          item.is_active ? "Deactivate Item" : "Activate Item",
+          `Are you sure you want to ${
+            item.is_active ? "deactivate" : "activate"
+          } "${item.title}"?`,
+          item.is_active ? "deactivate" : "activate",
+          item.id,
+          category,
+          item.title,
+          () => toggleStatus(item.id, item.is_active)
+        );
+      } else {
+        // Fallback to simple confirmation
+        const confirmed = window.confirm(
+          `Are you sure you want to ${
+            item.is_active ? "deactivate" : "activate"
+          } "${item.title}"?`
+        );
+        if (confirmed) {
+          toggleStatus(item.id, item.is_active);
+        }
+      }
+    };
+
+    // Handle delete with confirmation
+    const handleDeleteClick = () => {
+      if (onShowConfirmation) {
+        onShowConfirmation(
+          "Delete Item",
+          `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
+          "delete",
+          item.id,
+          category,
+          item.title,
+          () => handleDelete(item.id)
+        );
+      } else {
+        // Fallback to simple confirmation
+        const confirmed = window.confirm(
+          `Are you sure you want to delete "${item.title}"? This action cannot be undone.`
+        );
+        if (confirmed) {
+          handleDelete(item.id);
+        }
+      }
+    };
+
     return (
       <div className="item-actions">
         {canPublishItem && (
@@ -352,7 +400,7 @@ const OurWorkManagement = ({
             className={`btn-status ${
               item.is_active ? "btn-deactivate" : "btn-activate"
             }`}
-            onClick={() => toggleStatus(item.id, item.is_active)}
+            onClick={handleToggleStatus}
           >
             {item.is_active ? "Deactivate" : "Activate"}
           </button>
@@ -365,7 +413,7 @@ const OurWorkManagement = ({
         )}
 
         {canDeleteItem && (
-          <button className="btn-delete" onClick={() => handleDelete(item.id)}>
+          <button className="btn-delete" onClick={handleDeleteClick}>
             Delete
           </button>
         )}

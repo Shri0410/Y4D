@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE } from '../config/api';
 import axios from 'axios';
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const ImpactDataEditor = () => {
   const [impactData, setImpactData] = useState({
@@ -27,28 +28,31 @@ const ImpactDataEditor = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+  e.preventDefault();
+  setLoading(true);
+  setMessage('');
+  
+  try {
+    await axios.put(`${API_BASE}/impact-data`, impactData);
+    toast.success('Impact data updated successfully!');
     
-    try {
-      await axios.put(`${API_BASE}/impact-data`, impactData);
-      setMessage('Impact data updated successfully!');
-      
-      // CRITICAL: Dispatch event to notify Home.jsx to refresh data
-      window.dispatchEvent(new CustomEvent('impactDataUpdated'));
-      
-      setTimeout(() => setMessage(''), 3000);
-    } catch (error) {
-      logger.error('Error updating impact data:', error);
-      if (error.response && error.response.status === 404) {
-        setMessage('Error: API endpoint not found. Please check the server URL.');
-      } else {
-        setMessage('Error updating data. Please try again.');
-      }
+    // CRITICAL: Dispatch event to notify Home.jsx to refresh data
+    window.dispatchEvent(new CustomEvent('impactDataUpdated'));
+    
+    setTimeout(() => setMessage(''), 3000);
+  } catch (error) {
+    logger.error('Error updating impact data:', error);
+    let errorMessage = 'Error updating data. Please try again.';
+    
+    if (error.response && error.response.status === 404) {
+      errorMessage = 'Error: API endpoint not found. Please check the server URL.';
     }
-    setLoading(false);
-  };
+    
+    setMessage(errorMessage);
+    toast.error(errorMessage);
+  }
+  setLoading(false);
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;

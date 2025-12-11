@@ -1,7 +1,9 @@
+// Updated AccreditationManagement.jsx with toast integration
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 import {
   canView,
   canCreate,
@@ -15,6 +17,8 @@ const AccreditationManagement = ({
   onClose,
   onActionChange,
   currentUser,
+  onShowConfirmation,
+  onHideConfirmation,
 }) => {
   const [accreditations, setAccreditations] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -104,6 +108,7 @@ const AccreditationManagement = ({
     } catch (error) {
       logger.error("Error fetching accreditations:", error);
       setError("Failed to fetch accreditations");
+      toast.error(`Error fetching accreditations: ${error.message}`);
     }
     setLoading(false);
   };
@@ -124,7 +129,7 @@ const AccreditationManagement = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canUserPerformAction(editingItem ? "edit" : "create")) {
-      alert("You don't have permission to perform this action");
+      toast.warning("You don't have permission to perform this action");
       return;
     }
 
@@ -167,7 +172,7 @@ const AccreditationManagement = ({
       resetForm();
       onActionChange("view");
       fetchAccreditations();
-      alert(
+      toast.success(
         `Accreditation ${editingItem ? "updated" : "created"} successfully!`
       );
     } catch (error) {
@@ -177,13 +182,14 @@ const AccreditationManagement = ({
         error.response?.data?.details ||
         "Failed to save accreditation";
       setError(errorMessage);
+      toast.error(`Error saving accreditation: ${errorMessage}`);
     }
     setLoading(false);
   };
 
   const handleEdit = (item) => {
     if (!canUserPerformAction("edit")) {
-      alert("You don't have permission to edit accreditations");
+      toast.warning("You don't have permission to edit accreditations");
       return;
     }
     setEditingItem(item);
@@ -204,40 +210,29 @@ const AccreditationManagement = ({
 
   const handleDelete = async (id) => {
     if (!canUserPerformAction("delete")) {
-      alert("You don't have permission to delete accreditations");
+      toast.warning("You don't have permission to delete accreditations");
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this accreditation?")) {
-      setLoading(true);
-      try {
-        await axios.delete(`${API_BASE}/accreditations/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        fetchAccreditations();
-        alert("Accreditation deleted successfully!");
-      } catch (error) {
-        logger.error("Error deleting accreditation:", error);
-        alert("Failed to delete accreditation");
-      }
-      setLoading(false);
+    setLoading(true);
+    try {
+      await axios.delete(`${API_BASE}/accreditations/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchAccreditations();
+      toast.success("Accreditation deleted successfully!");
+    } catch (error) {
+      logger.error("Error deleting accreditation:", error);
+      toast.error(`Error deleting accreditation: ${error.message}`);
     }
+    setLoading(false);
   };
 
   const toggleStatus = async (id, currentStatus) => {
     if (!canUserPerformAction("publish")) {
-      alert("You don't have permission to change accreditation status");
+      toast.warning("You don't have permission to change accreditation status");
       return;
     }
-
-    if (
-      !window.confirm(
-        `Are you sure you want to ${
-          currentStatus ? "deactivate" : "activate"
-        } this accreditation?`
-      )
-    )
-      return;
 
     setLoading(true);
     try {
@@ -247,14 +242,14 @@ const AccreditationManagement = ({
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchAccreditations();
-      alert(
+      toast.success(
         `Accreditation ${
           !currentStatus ? "activated" : "deactivated"
         } successfully!`
       );
     } catch (error) {
       logger.error("Error toggling status:", error);
-      alert("Failed to update accreditation status");
+      toast.error(`Error updating accreditation status: ${error.message}`);
     }
     setLoading(false);
   };
@@ -300,7 +295,17 @@ const AccreditationManagement = ({
             className={`status-toggle-btn ${
               item.is_active ? "btn-inactive" : "btn-active"
             }`}
-            onClick={() => toggleStatus(item.id, item.is_active)}
+            onClick={() => {
+              onShowConfirmation(
+                item.is_active ? "Deactivate Accreditation" : "Activate Accreditation",
+                `Are you sure you want to ${item.is_active ? "deactivate" : "activate"} "${item.title}"?`,
+                item.is_active ? "deactivate" : "activate",
+                item.id,
+                "accreditations",
+                item.title,
+                () => toggleStatus(item.id, item.is_active)
+              );
+            }}
             disabled={loading}
           >
             {item.is_active ? "Deactivate" : "Activate"}
@@ -320,7 +325,17 @@ const AccreditationManagement = ({
         {canDeleteItem && (
           <button
             className="btn-delete"
-            onClick={() => handleDelete(item.id)}
+            onClick={() => {
+              onShowConfirmation(
+                "Delete Accreditation",
+                `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
+                "delete",
+                item.id,
+                "accreditations",
+                item.title,
+                () => handleDelete(item.id)
+              );
+            }}
             disabled={loading}
           >
             Delete

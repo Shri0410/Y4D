@@ -327,6 +327,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setInterventionsAction(action)}
           currentUser={currentUser}
+          // ADDED: Pass confirmation modal functions
           onShowConfirmation={showConfirmationModal}
           onHideConfirmation={hideConfirmationModal}
         />
@@ -446,6 +447,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setAccreditationAction(action)}
           currentUser={currentUser}
+          // ADDED: Pass confirmation modal functions
           onShowConfirmation={showConfirmationModal}
           onHideConfirmation={hideConfirmationModal}
         />
@@ -465,6 +467,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           }}
           onActionChange={(action) => setBannerAction(action)}
           currentUser={currentUser}
+          // ADDED: Pass confirmation modal functions
           onShowConfirmation={showConfirmationModal}
           onHideConfirmation={hideConfirmationModal}
         />
@@ -604,37 +607,29 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       switch (type) {
         case "reports":
-          try {
-            const config = {};
-            
-            // Only add authorization if token exists and is valid
-            if (token) {
-              config.headers = {
-                Authorization: `Bearer ${token}`,
-              };
-            }
-            
-            response = await axios.get(`${API_BASE}/reports`, config);
-            setReports(response.data);
-            logger.log("Reports fetched successfully:", response.data);
-          } catch (error) {
-            logger.error(`Error fetching reports:`, error);
-            
-            // If token is invalid, try without auth
-            if (error.response?.status === 401) {
-              logger.log("Token invalid, trying without auth...");
-              try {
-                response = await axios.get(`${API_BASE}/reports`);
-                setReports(response.data);
-              } catch (noAuthError) {
-                logger.error("Error fetching reports without auth:", noAuthError);
-                toast.error(`Error fetching reports: ${noAuthError.message}`);
-              }
-            } else {
-              toast.error(`Error fetching reports: ${error.message}`);
-            }
-          }
-          break;
+  try {
+    const config = {};
+    const token = localStorage.getItem("token");
+    
+    if (token) {
+      config.headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      
+      // Use admin endpoint to get all reports (including unpublished)
+      response = await axios.get(`${API_BASE}/reports/admin/all`, config);
+    } else {
+      // Fallback to public endpoint
+      response = await axios.get(`${API_BASE}/reports`);
+    }
+    
+    setReports(response.data);
+    logger.log("Reports fetched successfully:", response.data);
+  } catch (error) {
+    logger.error(`Error fetching reports:`, error);
+    toast.error(`Error fetching reports: ${error.message}`);
+  }
+  break;
           
         case "mentors":
           response = await axios.get(`${API_BASE}/mentors`);
@@ -690,79 +685,78 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
       switch (type) {
         case "reports":
-          try {
-            const reportFormData = new FormData();
-            reportFormData.append("title", reportForm.title);
-            reportFormData.append("description", reportForm.description);
-            reportFormData.append("content", reportForm.content);
-            reportFormData.append("is_published", "true");
-            
-            // IMPORTANT: Append files with the exact field names backend expects
-            if (reportForm.image && reportForm.image instanceof File) {
-              reportFormData.append("image", reportForm.image);
-            }
-            
-            if (reportForm.pdf && reportForm.pdf instanceof File) {
-              reportFormData.append("pdf", reportForm.pdf);
-            }
-            
-            endpoint = editingId
-              ? `${API_BASE}/reports/${editingId}`
-              : `${API_BASE}/reports`;
-            
-            const config = {
-              headers: {
-                "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${localStorage.getItem("token")}`,
-              },
-            };
-            
-            // Debug: Log FormData contents
-            logger.log("FormData entries for report:");
-            for (let [key, value] of reportFormData.entries()) {
-              logger.log(`${key}:`, value);
-            }
-            
-            await (editingId
-              ? axios.put(endpoint, reportFormData, config)
-              : axios.post(endpoint, reportFormData, config));
-            
-            // Reset form
-            setReportForm({
-              title: "",
-              description: "",
-              content: "",
-              image: null,
-              pdf: null,
-            });
-            setLegalReportAction("view");
-            setImagePreview(null);
-            setEditingId(null);
-            
-            // Refresh reports
-            fetchData("reports");
-            
-            toast.success(`Report ${editingId ? "updated" : "created"} successfully!`);
-          } catch (error) {
-            logger.error("Error saving report:", error);
-            
-            // More detailed error logging
-            if (error.response) {
-              logger.error("Error response data:", error.response.data);
-              logger.error("Error response status:", error.response.status);
-              logger.error("Error response headers:", error.response.headers);
-            } else if (error.request) {
-              logger.error("Error request:", error.request);
-            }
-            
-            toast.error(
-              `Error saving report: ${
-                error.response?.data?.error || error.response?.data?.message || error.message
-              }`
-            );
-          }
-          break;
-
+  try {
+    const reportFormData = new FormData();
+    reportFormData.append("title", reportForm.title);
+    reportFormData.append("description", reportForm.description);
+    reportFormData.append("content", reportForm.content || "");
+    reportFormData.append("is_published", "1"); // Add this line
+    
+    // IMPORTANT: Append files with the exact field names backend expects
+    if (reportForm.image && reportForm.image instanceof File) {
+      reportFormData.append("image", reportForm.image);
+    }
+    
+    if (reportForm.pdf && reportForm.pdf instanceof File) {
+      reportFormData.append("pdf", reportForm.pdf);
+    }
+    
+    endpoint = editingId
+      ? `${API_BASE}/reports/${editingId}`
+      : `${API_BASE}/reports`;
+    
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    };
+    
+    // Debug: Log FormData contents
+    logger.log("FormData entries for report:");
+    for (let [key, value] of reportFormData.entries()) {
+      logger.log(`${key}:`, value);
+    }
+    
+    await (editingId
+      ? axios.put(endpoint, reportFormData, config)
+      : axios.post(endpoint, reportFormData, config));
+    
+    // Reset form
+    setReportForm({
+      title: "",
+      description: "",
+      content: "",
+      image: null,
+      pdf: null,
+    });
+    setLegalReportAction("view");
+    setImagePreview(null);
+    setEditingId(null);
+    
+    // Refresh reports
+    fetchData("reports");
+    
+    toast.success(`Report ${editingId ? "updated" : "created"} successfully!`);
+  } catch (error) {
+    logger.error("Error saving report:", error);
+    
+    // More detailed error logging
+    if (error.response) {
+      logger.error("Error response data:", error.response.data);
+      logger.error("Error response status:", error.response.status);
+      logger.error("Error response headers:", error.response.headers);
+    } else if (error.request) {
+      logger.error("Error request:", error.request);
+    }
+    
+    toast.error(
+      `Error saving report: ${
+        error.response?.data?.error || error.response?.data?.message || error.message
+      }`
+    );
+  }
+  break;
         case "mentors":
           Object.keys(mentorForm).forEach((key) => {
             if (key === "image" && mentorForm.image) {
@@ -784,6 +778,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             image: null,
             social_links: "{}",
           });
+          
+          // Show success message
+          toast.success(`Mentor ${editingId ? "updated" : "created"} successfully!`);
+          
           break;
 
         case "management":
@@ -807,6 +805,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             image: null,
             social_links: "{}",
           });
+          
+          // Show success message
+          toast.success(`Management member ${editingId ? "updated" : "created"} successfully!`);
+          
           break;
 
         case "careers":
@@ -825,6 +827,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             status: "active",
           });
           setCareerAction("all");
+          
+          // Show success message
+          toast.success(`Career opening ${editingId ? "updated" : "created"} successfully!`);
+          
           break;
 
         case "board-trustees":
@@ -848,6 +854,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             image: null,
             social_links: "{}",
           });
+          
+          // Show success message
+          toast.success(`Board trustee ${editingId ? "updated" : "created"} successfully!`);
+          
           break;
 
         default:
@@ -859,17 +869,39 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       setTeamAction("view");
       fetchAllTeamData();
       fetchData(type);
-      toast.success(
-        `${type.slice(0, -1)} ${
-          editingId ? "updated" : "created"
-        } successfully!`
-      );
+      
     } catch (error) {
       logger.error(`Error saving ${type}:`, error);
       toast.error(`Error saving ${type}: ${error.message}`);
     }
     setLoading(false);
   };
+  const handleReportStatusToggle = async (id, newStatus) => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    await axios.patch(
+      `${API_BASE}/reports/${id}/publish`,
+      { is_published: newStatus },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    toast.success(`Report ${newStatus ? 'published' : 'unpublished'} successfully!`);
+    fetchData("reports");
+  } catch (error) {
+    logger.error("Error toggling report status:", error);
+    if (error.response?.status === 401) {
+      toast.error("Session expired. Please login again.");
+      handleLogout();
+    } else {
+      toast.error(`Error updating report status: ${error.message}`);
+    }
+  }
+  setLoading(false);
+};
 
   // UPDATED: handleEdit for reports
   const handleEdit = (item, type) => {
@@ -886,19 +918,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
 
     switch (type) {
       case "reports":
-        setLegalReportAction("update");
-        setReportForm({
-          title: item.title,
-          description: item.description,
-          content: item.content,
-          image: null, // Reset to null when editing
-          pdf: null,   // Reset to null when editing
-        });
-        // Set image preview if exists
-        if (item.image) {
-          setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
-        }
-        break;
+  setLegalReportAction("update");
+  setReportForm({
+    title: item.title,
+    description: item.description,
+    content: item.content || "",
+    image: null, // Reset to null when editing
+    pdf: null,   // Reset to null when editing
+  });
+  // Set image preview if exists
+  if (item.image) {
+    setImagePreview(`${API_BASE}/uploads/reports/${item.image}`);
+  }
+  break;
       case "careers":
         setCareerForm({
           title: item.title,
@@ -2012,110 +2044,122 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(false);
   };
 
-  const renderMediaList = () => {
-    return (
-      <div className="content-list">
-        <div className="content-header">
-          <div className="header-row">
-            <h3>
-              {currentMediaType
-                ? currentMediaType.charAt(0).toUpperCase() +
-                  currentMediaType.slice(1) +
-                  " Management"
-                : "Media Corner"}
-            </h3>
-            {canUserPerformAction("media", currentMediaType, "create") && (
-              <button
-                className="btn-primary"
-                onClick={() => {
-                  setMediaAction("add");
-                  setEditingMediaId(null);
-                  setMediaForm({
-                    title: "",
-                    description: "",
-                    content: "",
-                    image: null,
-                    pdf: null,
-                    is_active: true,
-                  });
-                  updateUrlPath("media", "add", currentMediaType);
-                }}
-              >
-                + Add{" "}
-                {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
-              </button>
-            )}
-          </div>
+const renderMediaList = () => {
+  return (
+    <div className="content-list">
+      <div className="content-header">
+        <div className="header-row">
+          <h3>
+            {currentMediaType
+              ? currentMediaType.charAt(0).toUpperCase() +
+                currentMediaType.slice(1) +
+                " Management"
+              : "Media Corner"}
+          </h3>
+          {canUserPerformAction("media", currentMediaType, "create") && (
+            <button
+              className="btn-primary"
+              onClick={() => {
+                setMediaAction("add");
+                setEditingMediaId(null);
+                setMediaForm({
+                  title: "",
+                  description: "",
+                  content: "",
+                  image: null,
+                  pdf: null,
+                  is_active: true,
+                });
+                updateUrlPath("media", "add", currentMediaType);
+              }}
+            >
+              + Add{" "}
+              {currentMediaType ? currentMediaType.slice(0, -1) : "Media"}
+            </button>
+          )}
         </div>
-
-        {loading ? (
-          <div className="loading">Loading...</div>
-        ) : mediaItems.length === 0 ? (
-          <div className="no-data-message">
-            <p>No {currentMediaType || "media items"} found</p>
-            <p>
-              <small>Total items: {mediaItems.length}</small>
-            </p>
-          </div>
-        ) : (
-          <div
-            className={`items-list ${
-              GRID_MEDIA_TYPES.includes(currentMediaType) ? "media-grid" : ""
-            }`}
-          >
-            {mediaItems.map((item) => (
-              <div
-                key={item.id}
-                className="item-card"
-                style={{
-                  borderLeft: `4px solid ${
-                    item.is_published ? "#4CAF50" : "#ff9800"
-                  }`,
-                }}
-              >
-                <div className="item-content">
-                  <div className="media-header">
-                    <h4>{item.title}</h4>
-                    <span
-                      className={`status-badge ${
-                        item.is_published ? "active" : "inactive"
-                      }`}
-                    >
-                      {item.is_published ? "PUBLISHED" : "DRAFT"}
-                    </span>
-                  </div>
-
-                  {item.image && (
-                    <div className="media-image-preview">
-                      <img
-                        src={`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`}
-                        alt={item.title}
-                      />
-                    </div>
-                  )}
-
-                  <p>
-                    <strong>Content:</strong> {item.content}
-                  </p>
-                  <p>
-                    <strong>Created:</strong>{" "}
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString()
-                      : "N/A"}
-                  </p>
-
-                  {/* ADDED: Last modified info display */}
-                  {renderLastModifiedInfo(item)}
-
-                  {renderActionButtons(item, "media", currentMediaType)}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
-    );
-  };
+
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : mediaItems.length === 0 ? (
+        <div className="no-data-message">
+          <p>No {currentMediaType || "media items"} found</p>
+          <p>
+            <small>Total items: {mediaItems.length}</small>
+          </p>
+        </div>
+      ) : (
+        <div
+          className={`items-list ${
+            GRID_MEDIA_TYPES.includes(currentMediaType) ? "media-grid" : ""
+          }`}
+        >
+          {mediaItems.map((item) => (
+            <div
+              key={item.id}
+              className="item-card"
+              style={{
+                borderLeft: `4px solid ${
+                  item.is_published ? "#4CAF50" : "#ff9800"
+                }`,
+              }}
+            >
+              <div className="item-content">
+                <div className="media-header">
+                  <h4>{item.title}</h4>
+                  <span
+                    className={`status-badge ${
+                      item.is_published ? "active" : "inactive"
+                    }`}
+                  >
+                    {item.is_published ? "PUBLISHED" : "DRAFT"}
+                  </span>
+                </div>
+                
+                {/* REMOVE THIS DUPLICATE SECTION - it belongs in reports, not media */}
+                {/* <div className="report-header">
+                  <h4>{item.title}</h4>
+                  <span
+                    className={`status-badge ${
+                      item.is_published === 1 ? "active" : "inactive"
+                    }`}
+                  >
+                    {item.is_published === 1 ? "PUBLISHED" : "DRAFT"}
+                  </span>
+                </div> */}
+
+                {item.image && (
+                  <div className="media-image-preview">
+                    <img
+                      src={`${API_BASE}/uploads/media/${currentMediaType}/${item.image}`}
+                      alt={item.title}
+                    />
+                  </div>
+                )}
+
+                <p>
+                  <strong>Content:</strong> {item.content}
+                </p>
+                <p>
+                  <strong>Created:</strong>{" "}
+                  {item.created_at
+                    ? new Date(item.created_at).toLocaleDateString()
+                    : "N/A"}
+                </p>
+
+                {/* ADDED: Last modified info display */}
+                {renderLastModifiedInfo(item)}
+
+                {renderActionButtons(item, "media", currentMediaType)}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
   const renderCareerForm = () => {
     return (
@@ -2123,7 +2167,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <div className="content-header">
           <div className="header-row">
             <button
-              className="btn-back"
+              className="btn-back-career"
               onClick={() => {
                 setCareerAction("all");
                 setEditingId(null);
@@ -2437,7 +2481,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         <div className="content-header">
           <div className="header-row">
             <button
-              className="btn-back"
+              className="btn-back-legal"
               onClick={() => {
                 setLegalReportAction("view");
                 setEditingId(null);
@@ -2669,165 +2713,198 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       return renderMediaList();
     }
 
-    switch (activeTab) {
-      case "reports":
-        if (!canUserPerformAction("reports", null, "view")) {
-          return (
-            <div className="no-permission">
-              <h3>Access Denied</h3>
-              <p>You don't have permission to view legal reports.</p>
-            </div>
-          );
-        }
+switch (activeTab) {
+  case "reports":
+    if (!canUserPerformAction("reports", null, "view")) {
+      return (
+        <div className="no-permission">
+          <h3>Access Denied</h3>
+          <p>You don't have permission to view legal reports.</p>
+        </div>
+      );
+    }
 
-        return (
-          <div className="content-list">
-            <div className="content-header">
-              <div className="header-row">
-                <h3>Legal Reports</h3>
-                {canUserPerformAction("reports", null, "create") && (
-                  <button
-                    className="btn-primary"
-                    onClick={() => {
-                      setLegalReportAction("add");
-                      setEditingId(null);
-                      setReportForm({
-                        title: "",
-                        description: "",
-                        content: "",
-                        image: null,
-                        pdf: null,
-                      });
-                      setImagePreview(null);
-                      updateUrlPath("reports", "add");
-                    }}
-                  >
-                    + Add Report
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {legalReportAction === "add" || legalReportAction === "update" ? (
-              renderLegalReportForm()
-            ) : (
-              <>
-                {reports.length === 0 ? (
-                  <div className="no-data-message">
-                    <p>No reports found</p>
-                    <button
-                      className="btn-refresh"
-                      onClick={() => fetchData("reports")}
-                    >
-                      Refresh
-                    </button>
-                  </div>
-                ) : (
-                  <div className="items-grid">
-                    {reports.map((report) => (
-                      <div key={report.id} className="item-card">
-                        {/* Display Image if exists */}
-                        {report.image && (
-                          <div className="item-image">
-                            <img
-                              src={`${API_BASE}/uploads/reports/${report.image}`}
-                              alt={report.title}
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                              }}
-                            />
-                          </div>
-                        )}
-
-                        {/* Display PDF icon if PDF exists */}
-                        {report.pdf && (
-                          <div className="pdf-indicator">
-                            <span className="pdf-icon">📄</span>
-                            <span>PDF Available</span>
-                          </div>
-                        )}
-
-                        <div className="item-content">
-                          <h4>{report.title}</h4>
-                          <p>{report.description}</p>
-
-                          {/* ADDED: Last modified info for reports - ADMIN/SUPER_ADMIN ONLY */}
-                          {renderReportLastModifiedInfo(report)}
-
-                          {/* Action Buttons */}
-                          <div className="item-actions">
-                            {/* View PDF Button if PDF exists */}
-                            {report.pdf && (
-                              <button
-                                className="btn-pdf"
-                                onClick={() =>
-                                  window.open(
-                                    `${API_BASE}/uploads/reports/${report.pdf}`,
-                                    "_blank"
-                                  )
-                                }
-                              >
-                                View PDF
-                              </button>
-                            )}
-
-                            {canUserPerformAction("reports", null, "edit") && (
-                              <button
-                                className="btn-edit"
-                                onClick={() => {
-                                  setLegalReportAction("update");
-                                  handleEdit(report, "reports");
-                                  updateUrlPath("reports", "update");
-                                }}
-                              >
-                                Edit
-                              </button>
-                            )}
-
-                            {canUserPerformAction(
-                              "reports",
-                              null,
-                              "delete"
-                            ) && (
-                              <button
-                                className="btn-delete"
-                                onClick={() => {
-                                  showConfirmationModal(
-                                    "Delete Report",
-                                    `Are you sure you want to delete "${report.title}"? This action cannot be undone.`,
-                                    "delete",
-                                    report.id,
-                                    "reports",
-                                    report.title,
-                                    () => handleDelete(report.id, "reports")
-                                  );
-                                }}
-                              >
-                                Delete
-                              </button>
-                            )}
-
-                            {/* Show View Only if no actions available */}
-                            {!canUserPerformAction("reports", null, "edit") &&
-                              !canUserPerformAction(
-                                "reports",
-                                null,
-                                "delete"
-                              ) && (
-                                <span className="view-only-badge">
-                                  View Only
-                                </span>
-                              )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
+    return (
+      <div className="content-list">
+        <div className="content-header">
+          <div className="header-row">
+            <h3>Legal Reports</h3>
+            {canUserPerformAction("reports", null, "create") && (
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setLegalReportAction("add");
+                  setEditingId(null);
+                  setReportForm({
+                    title: "",
+                    description: "",
+                    content: "",
+                    image: null,
+                    pdf: null,
+                  });
+                  setImagePreview(null);
+                  updateUrlPath("reports", "add");
+                }}
+              >
+                + Add Report
+              </button>
             )}
           </div>
-        );
+        </div>
+
+        {legalReportAction === "add" || legalReportAction === "update" ? (
+          renderLegalReportForm()
+        ) : (
+          <>
+            {reports.length === 0 ? (
+              <div className="no-data-message">
+                <p>No reports found</p>
+                <button
+                  className="btn-refresh"
+                  onClick={() => fetchData("reports")}
+                >
+                  Refresh
+                </button>
+              </div>
+            ) : (
+              <div className="items-grid">
+                {reports.map((report) => (
+                  <div key={report.id} className="item-card">
+                    {/* Display Image if exists */}
+                    {report.image && (
+                      <div className="item-image">
+                        <img
+                          src={`${API_BASE}/uploads/reports/${report.image}`}
+                          alt={report.title}
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Display PDF icon if PDF exists */}
+                    {report.pdf && (
+                      <div className="pdf-indicator">
+                        <span className="pdf-icon">📄</span>
+                        <span>PDF Available</span>
+                      </div>
+                    )}
+
+                    <div className="item-content">
+                      {/* ADD THIS: Status badge for reports */}
+                      <div className="report-header">
+                        <h4>{report.title}</h4>
+                        <span
+                          className={`status-badge ${
+                            report.is_published === 1 ? "active" : "inactive"
+                          }`}
+                        >
+                          {report.is_published === 1 ? "PUBLISHED" : "DRAFT"}
+                        </span>
+                      </div>
+                      
+                      <p>{report.description}</p>
+
+                      {/* ADDED: Last modified info for reports - ADMIN/SUPER_ADMIN ONLY */}
+                      {renderReportLastModifiedInfo(report)}
+
+                      {/* Action Buttons */}
+                      <div className="item-actions">
+                        {/* View PDF Button if PDF exists */}
+                        {report.pdf && (
+                          <button
+                            className="btn-pdf"
+                            onClick={() =>
+                              window.open(
+                                `${API_BASE}/uploads/reports/${report.pdf}`,
+                                "_blank"
+                              )
+                            }
+                          >
+                            View PDF
+                          </button>
+                        )}
+
+                        {/* Publish/Unpublish Button - only for users with publish permission */}
+                        {canUserPerformAction("reports", null, "publish") && (
+                          <button
+                            className={`status-toggle-btn ${
+                              report.is_published === 1 ? "btn-inactive" : "btn-active"
+                            }`}
+                            onClick={() => {
+                              showConfirmationModal(
+                                report.is_published === 1 ? "Unpublish Report" : "Publish Report",
+                                `Are you sure you want to ${report.is_published === 1 ? "unpublish" : "publish"} "${report.title}"?`,
+                                report.is_published === 1 ? "unpublish" : "publish",
+                                report.id,
+                                "reports",
+                                report.title,
+                                () => handleReportStatusToggle(report.id, report.is_published !== 1)
+                              );
+                            }}
+                          >
+                            {report.is_published === 1 ? "Unpublish" : "Publish"}
+                          </button>
+                        )}
+
+                        {canUserPerformAction("reports", null, "edit") && (
+                          <button
+                            className="btn-edit"
+                            onClick={() => {
+                              setLegalReportAction("update");
+                              handleEdit(report, "reports");
+                              updateUrlPath("reports", "update");
+                            }}
+                          >
+                            Edit
+                          </button>
+                        )}
+
+                        {canUserPerformAction(
+                          "reports",
+                          null,
+                          "delete"
+                        ) && (
+                          <button
+                            className="btn-delete"
+                            onClick={() => {
+                              showConfirmationModal(
+                                "Delete Report",
+                                `Are you sure you want to delete "${report.title}"? This action cannot be undone.`,
+                                "delete",
+                                report.id,
+                                "reports",
+                                report.title,
+                                () => handleDelete(report.id, "reports")
+                              );
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+
+                        {/* Show View Only if no actions available */}
+                        {!canUserPerformAction("reports", null, "edit") &&
+                          !canUserPerformAction(
+                            "reports",
+                            null,
+                            "delete"
+                          ) && (
+                            <span className="view-only-badge">
+                              View Only
+                            </span>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
 
       case "careers":
         if (!canUserPerformAction("careers", null, "view")) {
@@ -3836,21 +3913,6 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             <i className="fas fa-user-plus"></i> Add User
                           </button>
                         </li>
-                        {/* <li>
-                          <button
-                            className={
-                              activeTab === "permissions" ? "active-sub" : ""
-                            }
-                            onClick={() => {
-                              setActiveTab("permissions");
-                              setOpenDropdown(null);
-                              updateUrlPath("users", "permissions");
-                            }}
-                          >
-                            <i className="fas fa-shield-alt"></i> User
-                            Permissions
-                          </button>
-                        </li> */}
                       </>
                     )}
                     {canUserPerformAction("users", "registrations", "view") && (
@@ -3889,7 +3951,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                 </h3>
                 <div className="media-action-controls">
                   <button
-                    className="btn-back"
+                    className="btn-back-media"
                     onClick={() => {
                       if (mediaAction !== "view") {
                         setMediaAction("view");
@@ -3929,6 +3991,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             canUserPerformAction("users", "users", "view") ? (
             <UserManagement 
               activeSubTab="users" 
+              // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}
               onHideConfirmation={hideConfirmationModal}
             />
@@ -3936,6 +3999,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             canUserPerformAction("users", "users", "create") ? (
             <UserManagement 
               activeSubTab="add-user" 
+              // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}
               onHideConfirmation={hideConfirmationModal}
             />
@@ -3943,18 +4007,21 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             canUserPerformAction("users", "users", "edit") ? (
             <UserManagement 
               activeSubTab="permissions" 
+              // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}
               onHideConfirmation={hideConfirmationModal}
             />
           ) : activeTab === "registrations" &&
             canUserPerformAction("users", "registrations", "view") ? (
             <RegistrationRequests 
+              // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}
               onHideConfirmation={hideConfirmationModal}
             />
           ) : activeTab === "impact" &&
             canUserPerformAction("impact", null, "view") ? (
             <ImpactDataEditor 
+              // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}
               onHideConfirmation={hideConfirmationModal}
             />
