@@ -239,7 +239,7 @@ const Events = () => {
                 </div>
                 <div className="ev-modal-footer">
                   <a
-                    href={`mailto:waghmareshrinivas99@gmail.com?subject=Inquiry about ${
+                    href={`mailto:media@y4d.ngo?subject=Inquiry about ${
                       selectedEvent.title
                     }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${
                       selectedEvent.title

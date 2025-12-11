@@ -53,7 +53,7 @@ api.interceptors.response.use(
 /*CAREERS*/
 export const getCareers = async () => {
   logger.log("🔄 Fetching careers...");
-  const response = await api.get("/careers");
+  const response = await api.get("/careers/active");
   logger.log("✅ Careers loaded");
   return extractData(response);
 };
