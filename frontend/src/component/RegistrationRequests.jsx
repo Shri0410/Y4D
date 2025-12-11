@@ -3,6 +3,7 @@ import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./UserManagement.css"; // reuse the same styles
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -65,74 +66,77 @@ const RegistrationRequests = () => {
     setMessage("");
   };
 
-  const handleReject = async (requestId) => {
-    if (
-      window.confirm(
-        "Are you sure you want to reject this registration request?"
-      )
-    ) {
-      try {
-        await axios.post(
-          `${API_BASE}/registration/requests/${requestId}/reject`,
-          {
-            reason: "Rejected by administrator",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setMessage("Registration request rejected successfully");
-        fetchRequests();
-        fetchStats();
-      } catch (error) {
-        setError(error.response?.data?.error || "Failed to reject request");
+  const handleReject = async (requestId, requestName) => {
+  try {
+    await axios.post(
+      `${API_BASE}/registration/requests/${requestId}/reject`,
+      {
+        reason: "Rejected by administrator",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
-    }
-  };
+    );
+    setMessage("Registration request rejected successfully");
+    toast.success(`Registration request for "${requestName}" rejected successfully`);
+    fetchRequests();
+    fetchStats();
+  } catch (error) {
+    const errorMsg = error.response?.data?.error || "Failed to reject request";
+    setError(errorMsg);
+    toast.error(errorMsg);
+  }
+};
 
   const handleApproveSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    if (approveForm.password !== approveForm.confirmPassword) {
-      setError("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (approveForm.password.length < 6) {
-      setError("Password must be at least 6 characters long");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      await axios.post(
-        `${API_BASE}/registration/requests/${selectedRequest.id}/approve`,
-        {
-          username: approveForm.username,
-          password: approveForm.password,
-          role: approveForm.role,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setMessage("User account created successfully!");
-      setShowApproveModal(false);
-      fetchRequests();
-      fetchStats();
-    } catch (error) {
-      setError(error.response?.data?.error || "Failed to approve request");
-    }
+  if (approveForm.password !== approveForm.confirmPassword) {
+    setError("Passwords do not match");
+    toast.error("Passwords do not match");
     setLoading(false);
-  };
+    return;
+  }
+
+  if (approveForm.password.length < 6) {
+    setError("Password must be at least 6 characters long");
+    toast.error("Password must be at least 6 characters long");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${API_BASE}/registration/requests/${selectedRequest.id}/approve`,
+      {
+        username: approveForm.username,
+        password: approveForm.password,
+        role: approveForm.role,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setMessage("User account created successfully!");
+    toast.success(`User account "${approveForm.username}" created successfully!`);
+    setShowApproveModal(false);
+    fetchRequests();
+    fetchStats();
+  } catch (error) {
+    const errorMsg = error.response?.data?.error || "Failed to approve request";
+    setError(errorMsg);
+    toast.error(errorMsg);
+  }
+  setLoading(false);
+};
+
 
   const getStatusBadge = (status) => {
     const statusClasses = {
@@ -276,7 +280,25 @@ const RegistrationRequests = () => {
                             <i className="fas fa-check"></i> Approve
                           </button>
                           <button
-                            onClick={() => handleReject(request.id)}
+                            onClick={() => {
+                              // Use onShowConfirmation if provided
+                              if (onShowConfirmation) {
+                                onShowConfirmation(
+                                  "Reject Registration Request",
+                                  `Are you sure you want to reject registration request from "${request.name}"?`,
+                                  "reject",
+                                  request.id,
+                                  "registrations",
+                                  request.name,
+                                  () => handleReject(request.id, request.name)
+                                );
+                              } else {
+                                // Fallback to window.confirm
+                                if (window.confirm(`Are you sure you want to reject request from "${request.name}"?`)) {
+                                  handleReject(request.id, request.name);
+                                }
+                              }
+                            }}
                             className="btn btn-danger btn-sm"
                           >
                             <i className="fas fa-times"></i> Reject
