@@ -3,8 +3,6 @@ import { API_BASE } from "../config/api";
 import axios from "axios";
 import toast from "../utils/toast";
 import logger from "../utils/logger";
-// REMOVE confirmDialog import since we're using onShowConfirmation
-// import confirmDialog from "../utils/confirmDialog"; // REMOVE THIS LINE
 import {
   extractData,
   extractErrorMessage,
@@ -27,7 +25,7 @@ const OurWorkManagement = ({
   onActionChange,
   currentUser,
   onShowConfirmation,
-  onHideConfirmation, // Also accept onHideConfirmation if needed
+  onHideConfirmation, 
 }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
