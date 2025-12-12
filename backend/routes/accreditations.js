@@ -37,8 +37,8 @@ const upload = multer({
 router.get('/', async (req, res) => {
   try {
     console.log('📋 Fetching all accreditations from database');
-    
-    const query = 'SELECT * FROM accreditations ORDER BY display_order ASC, created_at DESC';
+
+    const query = 'SELECT id, title, description, image, is_active, last_modified_by, last_modified_at, display_order, created_at, updated_at FROM accreditations ORDER BY display_order ASC, created_at DESC';
     const [results] = await db.query(query);
     
     console.log(`✅ Successfully fetched ${results.length} accreditations`);
@@ -57,7 +57,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`📋 Fetching accreditation with ID: ${id}`);
     
-    const query = 'SELECT * FROM accreditations WHERE id = ?';
+    const query = 'SELECT id, title, description, image, is_active, last_modified_by, last_modified_at, display_order, created_at, updated_at FROM accreditations WHERE id = ?';
     const [results] = await db.query(query, [id]);
     
     if (results.length === 0) {
@@ -133,7 +133,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
     console.log('📤 Processed data:', { title, description, isActive, displayOrder });
 
-    const getQuery = 'SELECT * FROM accreditations WHERE id = ?';
+    const getQuery = 'SELECT id, title, image FROM accreditations WHERE id = ?';
     const [currentResults] = await db.query(getQuery, [id]);
     
     if (currentResults.length === 0) {
@@ -190,7 +190,7 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     console.log(`🗑️ Deleting accreditation with ID: ${id}`);
 
-    const getQuery = 'SELECT * FROM accreditations WHERE id = ?';
+    const getQuery = 'SELECT id, title, description, image, is_active, display_order FROM accreditations WHERE id = ?';
     const [results] = await db.query(getQuery, [id]);
     
     if (results.length === 0) {

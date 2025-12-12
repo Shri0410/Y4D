@@ -76,12 +76,11 @@ router.post("/request", authLimiter, async (req, res) => {
     });
   }
 });
-
 // Get all registration requests (Admin only)
 router.get("/requests", async (req, res) => {
   try {
     const [requests] = await db.query(
-      "SELECT * FROM registration_requests ORDER BY created_at DESC"
+      "SELECT id, name, email, mobile_number, address, password_hash, status, created_at, updated_at FROM registration_requests ORDER BY created_at DESC"
     );
     res.json(requests);
   } catch (error) {
@@ -108,7 +107,7 @@ router.post("/requests/:id/approve", async (req, res) => {
     }
 
     const [requests] = await db.query(
-      'SELECT * FROM registration_requests WHERE id = ? AND status = "pending"',
+      'SELECT id, name, email, mobile_number, address, password_hash, status, created_at, updated_at FROM registration_requests WHERE id = ? AND status = "pending"',
       [id]
     );
 

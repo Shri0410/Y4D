@@ -9,6 +9,8 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);
   const [selectedUserForPermissions, setSelectedUserForPermissions] =
     useState(null);
+      const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationData, setConfirmationData] = useState(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,7 +28,32 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [permissions, setPermissions] = useState([]);
 
   const token = localStorage.getItem("token");
+const onShowConfirmation = (title, message, actionType, id, entityType, entityName, onConfirm) => {
+    setConfirmationData({
+      title,
+      message,
+      actionType,
+      id,
+      entityType,
+      entityName,
+      onConfirm
+    });
+    setShowConfirmationModal(true);
+  };
+const handleConfirmationClose = () => {
+    setShowConfirmationModal(false);
+    setConfirmationData(null);
+  };
 
+  // Add this handler to confirm action
+const handleConfirmationConfirm = () => {
+  if (confirmationData && confirmationData.onConfirm) {
+    toast.info(`Deleting "${confirmationData.entityName}"...`);
+    confirmationData.onConfirm();
+  }
+  setShowConfirmationModal(false);
+  setConfirmationData(null);
+};
   // Sync with prop changes
   useEffect(() => {
     setActiveSubTab(propActiveSubTab);
@@ -237,11 +264,13 @@ const handleDeleteUser = async (userId, username) => {
         Authorization: `Bearer ${token}`,
       },
     });
+
     fetchUsers();
     toast.success(`User "${username}" deleted successfully!`);
   } catch (error) {
-    setError(error.response?.data?.error || "Failed to delete user");
-    toast.error(`Error deleting user: ${error.message}`);
+    const errMsg = error.response?.data?.error || "Failed to delete user";
+    setError(errMsg);
+    toast.error(errMsg);
   }
 };
 
@@ -617,23 +646,18 @@ const savePermissions = async () => {
                     <div className="action-buttons">
 <button
   onClick={() => {
-    // Use onShowConfirmation if provided
-    if (onShowConfirmation) {
-      onShowConfirmation(
-        "Delete User",
-        `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
-        "delete",
-        user.id,
-        "users",
-        user.username,
-        () => handleDeleteUser(user.id, user.username)
-      );
-    } else {
-      // Fallback to window.confirm
-      if (window.confirm(`Are you sure you want to delete user "${user.username}"?`)) {
-        handleDeleteUser(user.id, user.username);
-      }
-    }
+    // Show toast when delete action is initiated
+    toast.info(`Please confirm deletion of "${user.username}"`);
+
+    onShowConfirmation(
+      "Delete User",
+      `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+      "delete",
+      user.id,
+      "users",
+      user.username,
+      () => handleDeleteUser(user.id, user.username)
+    );
   }}
   className="btn btn-danger btn-sm"
   disabled={user.role === "super_admin"}
@@ -1155,8 +1179,41 @@ const savePermissions = async () => {
           </div>
         </div>
       )}
+      {showConfirmationModal && confirmationData && (
+        <div className="modal-overlay">
+          <div className="modal confirmation-modal">
+            <div className="modal-header">
+              <h3>{confirmationData.title}</h3>
+              <button onClick={handleConfirmationClose} className="modal-close">
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="confirmation-icon">
+                <i className="fas fa-exclamation-triangle"></i>
+              </div>
+              <p>{confirmationData.message}</p>
+            </div>
+            <div className="modal-actions">
+              <button
+                onClick={handleConfirmationConfirm}
+                className={`btn btn-${
+                  confirmationData.actionType === "delete" ? "danger" : "primary"
+                }`}
+              >
+                Confirm
+              </button>
+              <button
+                onClick={handleConfirmationClose}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-
 export default UserManagement;

@@ -30,7 +30,7 @@ const upload = multer({
 router.get('/', async (req, res) => {
   try {
     console.log('📖 Fetching all mentors from database');
-    const [results] = await db.query('SELECT * FROM mentors ORDER BY name');
+    const [results] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors ORDER BY name');
     
     const mentorsWithParsedSocialLinks = results.map(mentor => {
       try {
@@ -58,7 +58,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const [results] = await db.query('SELECT * FROM mentors WHERE id = ?', [id]);
+    const [results] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
     
     if (results.length === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
@@ -140,7 +140,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     const { id } = req.params;
     const { name, position, bio, social_links } = req.body;
     
-    const [existingRows] = await db.query('SELECT * FROM mentors WHERE id = ?', [id]);
+    const [existingRows] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
     if (existingRows.length === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
     }

@@ -40,7 +40,6 @@ const upload = multer({
   fileFilter: fileFilter,
   limits: { fileSize: 10 * 1024 * 1024 }, 
 });
-
 // ✅ FIXED: Get ALL reports - Public endpoint returns ONLY published reports
 router.get("/", async (req, res) => {
   try {
@@ -48,7 +47,7 @@ router.get("/", async (req, res) => {
     console.log("📝 Auth header present:", !!req.headers["authorization"]);
     
     // For LegalReports.jsx frontend - ALWAYS return only published reports
-    const query = `SELECT * FROM reports WHERE is_published = TRUE ORDER BY created_at DESC`;
+    const query = `SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE is_published = TRUE ORDER BY created_at DESC`;
     const [rows] = await db.query(query);
     
     console.log(`✅ [REPORTS] Returning ${rows.length} published reports to frontend`);
@@ -82,7 +81,7 @@ router.get("/admin/all", authenticateToken, async (req, res) => {
       `;
     } else {
       // Regular users see only their own reports + published ones
-      query = `SELECT * FROM reports WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
+      query = `SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
     }
     
     const params = req.user.role === "admin" || req.user.role === "super_admin" ? [] : [req.user.id];
@@ -122,10 +121,10 @@ router.get("/:id", async (req, res) => {
           
           if (user.role === "admin" || user.role === "super_admin") {
             // Admins can see any report
-            query = `SELECT * FROM reports WHERE id = ?`;
+            query = `SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE id = ?`;
           } else {
             // Regular users can see published reports or their own
-            query = `SELECT * FROM reports WHERE id = ? AND (is_published = TRUE OR last_modified_by = ?)`;
+            query = `SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE id = ? AND (is_published = TRUE OR last_modified_by = ?)`;
           }
         }
       } catch (authError) {
@@ -135,7 +134,7 @@ router.get("/:id", async (req, res) => {
     
     // Public access (or invalid token): only published reports
     if (!query) {
-      query = `SELECT * FROM reports WHERE id = ? AND is_published = TRUE`;
+      query = `SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE id = ? AND is_published = TRUE`;
     }
     
     const params = query.includes("last_modified_by = ?") ? [req.params.id, decoded.id] : [req.params.id];
@@ -242,7 +241,7 @@ router.put(
         is_published
       });
 
-      const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [id]);
+      const [rows] = await db.query("SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE id = ?", [id]);
       if (rows.length === 0) {
         console.log(`❌ [REPORTS] Report ${id} not found`);
         return res.status(404).json({ error: "Report not found" });
@@ -316,7 +315,7 @@ router.delete("/:id", authenticateToken, async (req, res) => {
   try {
     console.log(`🗑️ [REPORTS] Deleting report ${req.params.id}`);
     
-    const [rows] = await db.query("SELECT * FROM reports WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, title, description, content, last_modified_by, image, pdf, is_published, created_at, updated_at, last_modified_at FROM reports WHERE id = ?", [
       req.params.id,
     ]);
     if (rows.length === 0) {

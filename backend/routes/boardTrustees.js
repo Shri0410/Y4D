@@ -50,7 +50,7 @@ const handleMulterError = (err, req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     const [results] = await db.query(
-      "SELECT * FROM board_trustees ORDER BY name"
+      "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees ORDER BY name"
     );
 
     const trusteesWithParsedLinks = results.map((trustee) => {
@@ -82,7 +82,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [results] = await db.query(
-      "SELECT * FROM board_trustees WHERE id = ?",
+      "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
       [id]
     );
 
@@ -192,7 +192,7 @@ router.put(
       const { name, position, bio, social_links } = req.body;
 
       const [existingRows] = await db.query(
-        "SELECT * FROM board_trustees WHERE id = ?",
+        "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
         [id]
       );
       if (existingRows.length === 0) {
@@ -284,7 +284,7 @@ router.delete("/:id", async (req, res) => {
     const { id } = req.params;
 
     const [existingRows] = await db.query(
-      "SELECT * FROM board_trustees WHERE id = ?",
+      "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
       [id]
     );
     if (existingRows.length === 0) {

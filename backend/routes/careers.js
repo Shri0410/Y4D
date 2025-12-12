@@ -32,12 +32,11 @@ const upload = multer({
     }
   },
 });
-
 // CAREERS CRUD 
 router.get("/", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT * FROM careers ORDER BY created_at DESC"
+      "SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers ORDER BY created_at DESC"
     );
     res.json(rows);
   } catch (err) {
@@ -49,7 +48,7 @@ router.get("/", async (req, res) => {
 router.get("/active", async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT * FROM careers WHERE is_active = TRUE ORDER BY created_at DESC"
+      "SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE is_active = TRUE ORDER BY created_at DESC"
     );
     res.json(rows);
   } catch (err) {
@@ -60,7 +59,7 @@ router.get("/active", async (req, res) => {
 // Get one career
 router.get("/:id", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM careers WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [
       req.params.id,
     ]);
     if (rows.length === 0)
@@ -104,7 +103,7 @@ router.put("/:id", async (req, res) => {
     const { title, description, requirements, location, type, is_active } =
       req.body;
 
-    const [rows] = await db.query("SELECT * FROM careers WHERE id = ?", [id]);
+    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [id]);
     if (rows.length === 0)
       return res.status(404).json({ error: "Career not found" });
 
@@ -139,7 +138,7 @@ router.post("/apply", upload.single("resume"), async (req, res) => {
     const { name, email, phone, message, careerId } = req.body;
     const resumeFile = req.file;
 
-    const [careerRows] = await db.query("SELECT * FROM careers WHERE id = ?", [
+    const [careerRows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [
       careerId,
     ]);
     if (careerRows.length === 0)

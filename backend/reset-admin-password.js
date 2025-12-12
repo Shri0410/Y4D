@@ -13,7 +13,7 @@ bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
   }
   
   // First check if admin exists
-  const checkQuery = 'SELECT * FROM users WHERE username = "admin"';
+  const checkQuery = 'SELECT id, username, email, mobile_number, address, password, role, status, created_by, created_at, updated_at, reset_otp, reset_otp_expiry FROM users WHERE username = "admin"';
   db.query(checkQuery, (err, results) => {
     if (err) {
       console.error('❌ Error checking admin user:', err);
