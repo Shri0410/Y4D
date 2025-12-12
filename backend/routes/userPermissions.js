@@ -14,9 +14,8 @@ router.get(
       const { userId } = req.params;
 
       console.log(`📋 Fetching permissions for user ID: ${userId}`);
-
       const [permissions] = await db.query(
-        `SELECT * FROM user_permissions WHERE user_id = ? ORDER BY section, sub_section`,
+        `SELECT id, user_id, section, sub_section, can_view, can_create, can_edit, can_delete, can_publish, created_at, updated_at FROM user_permissions WHERE user_id = ? ORDER BY section, sub_section`,
         [userId]
       );
 
@@ -161,7 +160,7 @@ router.get("/my-permissions", authenticateToken, async (req, res) => {
     consoleLogger.log(`🔍 Getting permissions for current user ID: ${userId}`);
 
     const [permissions] = await db.query(
-      `SELECT * FROM user_permissions WHERE user_id = ? ORDER BY section, sub_section`,
+      `SELECT id, user_id, section, sub_section, can_view, can_create, can_edit, can_delete, can_publish, created_at, updated_at FROM user_permissions WHERE user_id = ? ORDER BY section, sub_section`,
       [userId]
     );
 

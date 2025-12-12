@@ -2,11 +2,10 @@ const express = require('express');
 const db = require('../config/database');
 
 const router = express.Router();
-
 // Get all quality education items
 router.get('/', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM healthcare ORDER BY display_order ASC, created_at DESC');
+    const [rows] = await db.query('SELECT id, title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order, last_modified_by, last_modified_at, created_at, updated_at FROM healthcare ORDER BY display_order ASC, created_at DESC');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -16,7 +15,7 @@ router.get('/', async (req, res) => {
 // Get active quality education items
 router.get('/active', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM healthcare WHERE is_active = TRUE ORDER BY display_order ASC, created_at DESC');
+    const [rows] = await db.query('SELECT id, title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order, last_modified_by, last_modified_at, created_at, updated_at FROM healthcare WHERE is_active = TRUE ORDER BY display_order ASC, created_at DESC');
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -26,7 +25,7 @@ router.get('/active', async (req, res) => {
 // Get one quality education item
 router.get('/:id', async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM healthcare WHERE id = ?', [req.params.id]);
+    const [rows] = await db.query('SELECT id, title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order, last_modified_by, last_modified_at, created_at, updated_at FROM healthcare WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Item not found' });
     res.json(rows[0]);
   } catch (err) {
@@ -60,7 +59,7 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order } = req.body;
 
-    const [rows] = await db.query('SELECT * FROM healthcare WHERE id = ?', [id]);
+    const [rows] = await db.query('SELECT id, title, description, content, image_url, video_url, additional_images, meta_title, meta_description, meta_keywords, is_active, display_order, last_modified_by, last_modified_at, created_at, updated_at FROM healthcare WHERE id = ?', [id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Item not found' });
 
     await db.query(

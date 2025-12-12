@@ -1,3 +1,4 @@
+// ---------- IMPORTS ----------
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -7,26 +8,7 @@ const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const type = req.params.type;
-    const uploadPath = `uploads/media/${type}/`;
-
-    fs.mkdir(uploadPath, { recursive: true })
-      .then(() => cb(null, uploadPath))
-      .catch((err) => cb(err));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
-}).any();
-
+// ---------- MEDIA TABLE DEFINITIONS ----------
 const mediaTables = {
   newsletters: {
     fields: [
@@ -34,8 +16,9 @@ const mediaTables = {
       "description",
       "file_path",
       "published_date",
-      "is_published",
+      "is_published"
     ],
+    fileFields: ["file_path"]
   },
   stories: {
     fields: [
@@ -44,8 +27,9 @@ const mediaTables = {
       "image",
       "author",
       "published_date",
-      "is_published",
+      "is_published"
     ],
+    fileFields: ["image"]
   },
   events: {
     fields: [
@@ -56,8 +40,9 @@ const mediaTables = {
       "location",
       "image",
       "published_date",
-      "is_published",
+      "is_published"
     ],
+    fileFields: ["image"]
   },
   blogs: {
     fields: [
@@ -67,511 +52,320 @@ const mediaTables = {
       "author",
       "tags",
       "published_date",
-      "is_published",
+      "is_published"
     ],
+    fileFields: ["image"]
   },
   documentaries: {
     fields: [
       "title",
       "description",
       "video_url",
+      "video_filename",
       "thumbnail",
       "duration",
       "published_date",
-      "is_published",
+      "is_published"
     ],
-  },
-};
-
-const isValidMediaType = (type) => {
-  return mediaTables.hasOwnProperty(type);
-};
-
-// Get all published items for a specific media type (for frontend) : Include user info
-router.get("/published/:type", async (req, res) => {
-  const { type } = req.params;
-
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
+    fileFields: ["video_filename", "thumbnail"]
   }
+};
 
-  try {
-    const query = `SELECT m.*, u.username as last_modified_by_name 
-                   FROM ${type} m 
-                   LEFT JOIN users u ON m.last_modified_by = u.id 
-                   WHERE m.is_published = TRUE 
-                   ORDER BY m.created_at DESC`;
-    const [results] = await db.query(query);
-    res.json(results);
-  } catch (error) {
-    console.error(`Error fetching published ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to fetch ${type}`,
-      details: error.message,
-    });
+const isValidMediaType = (type) => mediaTables.hasOwnProperty(type);
+
+// ---------- BUILD DYNAMIC COLUMN LIST ----------
+function getSelectColumns(type, alias = "m") {
+  return [
+    `${alias}.id`,
+    ...mediaTables[type].fields.map((f) => `${alias}.${f}`),
+    `${alias}.created_at`,
+    `${alias}.updated_at`,
+    `${alias}.last_modified_by`,
+    `${alias}.last_modified_at`
+  ].join(", ");
+}
+
+// ---------- MULTER UPLOAD CONFIG ----------
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const type = req.params.type;
+    const uploadPath = `uploads/media/${type}/`;
+    fs.mkdir(uploadPath, { recursive: true })
+      .then(() => cb(null, uploadPath))
+      .catch((err) => cb(err));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-// Get all items for a specific media type (for admin) 
-router.get("/:type", authenticateToken, async (req, res) => {
-  const { type } = req.params;
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }
+}).any();
 
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
-  }
+// --------------------------------------------------
+//   GET ALL PUBLISHED — FRONTEND
+// --------------------------------------------------
+router.get("/published/:type", async (req, res) => {
+  const { type } = req.params;
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
-    let query;
+    const columns = getSelectColumns(type, "m");
 
-    if (req.user.role === "admin" || req.user.role === "super_admin") {
+    const query = `
+      SELECT ${columns}, u.username AS last_modified_by_name
+      FROM ${type} m
+      LEFT JOIN users u ON m.last_modified_by = u.id
+      WHERE m.is_published = TRUE
+      ORDER BY m.created_at DESC
+    `;
+
+    const [results] = await db.query(query);
+    res.json(results);
+
+  } catch (error) {
+    console.error(`Error fetching published ${type}:`, error);
+    res.status(500).json({ error: "Failed to fetch published items" });
+  }
+});
+
+// --------------------------------------------------
+//   GET ALL ITEMS — ADMIN
+// --------------------------------------------------
+router.get("/:type", authenticateToken, async (req, res) => {
+  const { type } = req.params;
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
+
+  try {
+    const columns = getSelectColumns(type, "m");
+    let query;
+    let params = [];
+
+    if (["admin", "super_admin"].includes(req.user.role)) {
       query = `
-        SELECT m.*, u.username as last_modified_by_name 
-        FROM ${type} m 
-        LEFT JOIN users u ON m.last_modified_by = u.id 
+        SELECT ${columns}, u.username AS last_modified_by_name
+        FROM ${type} m
+        LEFT JOIN users u ON m.last_modified_by = u.id
         ORDER BY m.created_at DESC
       `;
     } else {
-      query = `SELECT * FROM ${type} WHERE last_modified_by = ? OR is_published = TRUE ORDER BY created_at DESC`;
+      query = `
+        SELECT ${columns}
+        FROM ${type}
+        WHERE last_modified_by = ? OR is_published = TRUE
+        ORDER BY created_at DESC
+      `;
+      params = [req.user.id];
     }
 
-    const [results] = await db.query(
-      query,
-      req.user.role !== "admin" && req.user.role !== "super_admin"
-        ? [req.user.id]
-        : []
-    );
+    const [results] = await db.query(query, params);
     res.json(results);
+
   } catch (error) {
     console.error(`Error fetching ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to fetch ${type}`,
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to fetch items" });
   }
 });
 
-// Get single item 
+
+// --------------------------------------------------
+//   GET SINGLE ITEM
+// --------------------------------------------------
 router.get("/:type/:id", async (req, res) => {
   const { type, id } = req.params;
-
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
-  }
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
-    const query = `SELECT m.*, u.username as last_modified_by_name 
-                   FROM ${type} m 
-                   LEFT JOIN users u ON m.last_modified_by = u.id 
-                   WHERE m.id = ?`;
+    const columns = getSelectColumns(type, "m");
+
+    const query = `
+      SELECT ${columns}, u.username AS last_modified_by_name
+      FROM ${type} m
+      LEFT JOIN users u ON m.last_modified_by = u.id
+      WHERE m.id = ?
+    `;
+
     const [results] = await db.query(query, [id]);
 
-    if (results.length === 0) {
+    if (results.length === 0)
       return res.status(404).json({ error: "Item not found" });
-    }
 
     res.json(results[0]);
+
   } catch (error) {
     console.error(`Error fetching ${type} item:`, error);
-    res.status(500).json({
-      error: `Failed to fetch ${type} item`,
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to fetch item" });
   }
 });
 
-// Create item - Track who created the item
+
+// --------------------------------------------------
+//   CREATE ITEM
+// --------------------------------------------------
 router.post("/:type", authenticateToken, upload, async (req, res) => {
   const { type } = req.params;
 
-  if (!isValidMediaType(type)) {
+  if (!isValidMediaType(type)) 
     return res.status(400).json({ error: "Invalid media type" });
-  }
 
   try {
-    console.log("Uploaded files:", req.files);
-    console.log("Request body:", req.body);
-
-    const sanitizedBody = {};
-    Object.keys(req.body).forEach((key) => {
-      sanitizedBody[key] = req.body[key] || ""; 
-    });
+    const body = req.body;
+    const files = req.files || [];
+    const imageFile = files.find((f) => f.fieldname === "image");
+    const fileFile = files.find((f) => f.fieldname === "file");
+    const videoFile = files.find((f) => f.fieldname === "video_file");
 
     let fields = [];
     let values = [];
-    let placeholders = [];
 
-    const files = req.files || [];
-    const imageFile = files.find((file) => file.fieldname === "image");
-    const fileFile = files.find((file) => file.fieldname === "file");
-
+    // ----- Handle Different Types -----
     switch (type) {
       case "newsletters":
-        const {
-          title: newsletterTitle,
-          description: newsletterDesc,
-          published_date: newsletterDate,
-          publish_type: newsletterPublishType = "immediate",
-          scheduled_date: newsletterScheduledDate,
-        } = sanitizedBody;
+        if (!fileFile)
+          return res.status(400).json({ error: "PDF file required" });
 
-        const file_path = fileFile ? fileFile.filename : null;
-
-        if (!file_path) {
-          return res
-            .status(400)
-            .json({ error: "PDF file is required for newsletters" });
-        }
-
-        let newsletterPublishedDate =
-          newsletterDate || new Date().toISOString().split("T")[0];
-        let newsletterIsPublished = newsletterPublishType === "immediate";
-
-        if (newsletterPublishType === "schedule" && newsletterScheduledDate) {
-          newsletterPublishedDate = newsletterScheduledDate;
-          newsletterIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "description",
-          "file_path",
-          "published_date",
-          "is_published",
-          "last_modified_by",
-        ];
+        fields = mediaTables.newsletters.fields.concat(["last_modified_by"]);
         values = [
-          newsletterTitle,
-          newsletterDesc,
-          file_path,
-          newsletterPublishedDate,
-          newsletterIsPublished,
-          req.user.id,
+          body.title,
+          body.description,
+          fileFile.filename,
+          body.published_date || new Date().toISOString().split("T")[0],
+          body.publish_type === "schedule" ? false : true,
+          req.user.id
         ];
         break;
 
       case "stories":
-        const {
-          title: storyTitle,
-          content,
-          author,
-          published_date: storyDate,
-          publish_type: storyPublishType = "immediate",
-          scheduled_date: storyScheduledDate,
-        } = sanitizedBody; 
-
-        const image = imageFile ? imageFile.filename : null;
-
-        const storyContent = content || "";
-
-        let storyPublishedDate =
-          storyDate || new Date().toISOString().split("T")[0];
-        let storyIsPublished = storyPublishType === "immediate";
-
-        if (storyPublishType === "schedule" && storyScheduledDate) {
-          storyPublishedDate = storyScheduledDate;
-          storyIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "content",
-          "image",
-          "author",
-          "published_date",
-          "is_published",
-          "last_modified_by", 
-        ];
+        fields = mediaTables.stories.fields.concat(["last_modified_by"]);
         values = [
-          storyTitle,
-          storyContent, 
-          image,
-          author || "Anonymous",
-          storyPublishedDate,
-          storyIsPublished,
-          req.user.id,
+          body.title,
+          body.content || "",
+          imageFile ? imageFile.filename : null,
+          body.author || "Anonymous",
+          body.published_date || new Date().toISOString().split("T")[0],
+          body.publish_type === "schedule" ? false : true,
+          req.user.id
         ];
         break;
 
       case "events":
-        const {
-          title: eventTitle,
-          description: eventDesc,
-          date,
-          time,
-          location,
-          publish_type: eventPublishType = "immediate",
-          scheduled_date: eventScheduledDate,
-        } = req.body;
-        const eventImage = imageFile ? imageFile.filename : null;
-
-        let eventIsPublished = eventPublishType === "immediate";
-        let eventPublishedDate = new Date().toISOString().split("T")[0];
-
-        if (eventPublishType === "schedule" && eventScheduledDate) {
-          eventPublishedDate = eventScheduledDate;
-          eventIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "description",
-          "date",
-          "time",
-          "location",
-          "image",
-          "published_date",
-          "is_published",
-          "last_modified_by", 
-        ];
+        fields = mediaTables.events.fields.concat(["last_modified_by"]);
         values = [
-          eventTitle,
-          eventDesc,
-          date,
-          time,
-          location,
-          eventImage,
-          eventPublishedDate,
-          eventIsPublished,
-          req.user.id,
+          body.title,
+          body.description,
+          body.date,
+          body.time,
+          body.location,
+          imageFile ? imageFile.filename : null,
+          body.published_date || new Date().toISOString().split("T")[0],
+          body.publish_type === "schedule" ? false : true,
+          req.user.id
         ];
         break;
 
       case "blogs":
-        const {
-          title: blogTitle,
-          content: blogContent,
-          author: blogAuthor,
-          tags,
-          published_date: blogDate,
-          publish_type: blogPublishType = "immediate",
-          scheduled_date: blogScheduledDate,
-        } = req.body;
-        const blogImage = imageFile ? imageFile.filename : null;
+        const tagsJson = body.tags ? JSON.stringify(JSON.parse(body.tags)) : "[]";
 
-        let tagsJson = [];
-        if (tags) {
-          try {
-            tagsJson = typeof tags === "string" ? JSON.parse(tags) : tags;
-            if (!Array.isArray(tagsJson)) {
-              tagsJson = [tagsJson];
-            }
-          } catch (error) {
-            console.warn("Error parsing tags, using empty array:", error);
-            tagsJson = [];
-          }
-        }
-
-        let blogPublishedDate = blogDate;
-        let blogIsPublished = blogPublishType === "immediate";
-
-        if (blogPublishType === "schedule" && blogScheduledDate) {
-          blogPublishedDate = blogScheduledDate;
-          blogIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "content",
-          "image",
-          "author",
-          "tags",
-          "published_date",
-          "is_published",
-          "last_modified_by", 
-        ];
+        fields = mediaTables.blogs.fields.concat(["last_modified_by"]);
         values = [
-          blogTitle,
-          blogContent,
-          blogImage,
-          blogAuthor,
-          JSON.stringify(tagsJson),
-          blogPublishedDate,
-          blogIsPublished,
-          req.user.id, 
+          body.title,
+          body.content,
+          imageFile ? imageFile.filename : null,
+          body.author,
+          tagsJson,
+          body.published_date,
+          body.publish_type === "schedule" ? false : true,
+          req.user.id
         ];
         break;
 
       case "documentaries":
-        const {
-          title: docTitle,
-          description: docDesc,
-          video_url,
-          duration,
-          published_date: docDate,
-          publish_type: docPublishType = "immediate",
-          scheduled_date: docScheduledDate,
-        } = req.body;
-
-        const thumbnail = imageFile ? imageFile.filename : null;
-
-        const videoFile = files.find((file) => file.fieldname === "video_file");
-        const video_filename = videoFile ? videoFile.filename : null;
-
-        let docPublishedDate = docDate;
-        let docIsPublished = docPublishType === "immediate";
-
-        if (docPublishType === "schedule" && docScheduledDate) {
-          docPublishedDate = docScheduledDate;
-          docIsPublished = false;
-        }
-
-        fields = [
-          "title",
-          "description",
-          "video_url",
-          "video_filename",
-          "thumbnail",
-          "duration",
-          "published_date",
-          "is_published",
-          "last_modified_by", 
-        ];
+        fields = mediaTables.documentaries.fields.concat(["last_modified_by"]);
         values = [
-          docTitle,
-          docDesc,
-          video_url,
-          video_filename,
-          thumbnail,
-          duration,
-          docPublishedDate,
-          docIsPublished,
-          req.user.id, 
+          body.title,
+          body.description,
+          body.video_url,
+          videoFile ? videoFile.filename : null,
+          imageFile ? imageFile.filename : null,
+          body.duration,
+          body.published_date,
+          body.publish_type === "schedule" ? false : true,
+          req.user.id
         ];
         break;
     }
 
-    placeholders = fields.map(() => "?").join(", ");
-    const query = `INSERT INTO ${type} (${fields.join(
-      ", "
-    )}) VALUES (${placeholders})`;
-
-    console.log("Final SQL query:", query);
-    console.log("Final values:", values);
+    // Build query dynamically
+    const placeholders = fields.map(() => "?").join(", ");
+    const query = `INSERT INTO ${type} (${fields.join(", ")}) VALUES (${placeholders})`;
 
     const [result] = await db.query(query, values);
 
     res.json({
       id: result.insertId,
-      message: `${type.slice(0, -1)} created successfully`,
-      is_published: values[values.length - 2],
+      message: `${type.slice(0, -1)} created successfully`
     });
+
   } catch (error) {
     console.error(`Error creating ${type}:`, error);
-
-    if (req.files) {
-      for (const file of req.files) {
-        try {
-          await fs.unlink(file.path);
-        } catch (unlinkError) {
-          console.error("Error cleaning up file:", unlinkError);
-        }
-      }
-    }
-
-    res.status(500).json({
-      error: `Failed to create ${type}`,
-      details: error.message,
-      sqlMessage: error.sqlMessage,
-    });
+    res.status(500).json({ error: "Failed to create item" });
   }
 });
 
-// Update item -  Track who modified the item
+
+// --------------------------------------------------
+//   UPDATE ITEM
+// --------------------------------------------------
 router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
   const { type, id } = req.params;
-
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
-  }
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
-    const [existingItems] = await db.query(
-      `SELECT * FROM ${type} WHERE id = ?`,
-      [id]
-    );
+    // Select full column list instead of *
+    const columns = getSelectColumns(type);
+    const [rows] = await db.query(`SELECT ${columns} FROM ${type} WHERE id = ?`, [id]);
 
-    if (existingItems.length === 0) {
+    if (rows.length === 0)
       return res.status(404).json({ error: "Item not found" });
-    }
 
-    const existingItem = existingItems[0];
+    const existing = rows[0];
+    const body = req.body;
+    const files = req.files || [];
+
+    const imageFile = files.find((f) => f.fieldname === "image");
+    const fileFile = files.find((f) => f.fieldname === "file");
+    const videoFile = files.find((f) => f.fieldname === "video_file");
+
     let updates = [];
     let values = [];
 
-    const files = req.files || [];
-    const imageFile = files.find((file) => file.fieldname === "image");
-    const fileFile = files.find((file) => file.fieldname === "file");
-
+    // ------- Switch by Type -------
     switch (type) {
       case "newsletters":
-        const {
-          title,
-          description,
-          published_date,
-          publish_type,
-          scheduled_date,
-          is_published,
-        } = req.body;
-        let file_path = existingItem.file_path;
-        if (fileFile) file_path = fileFile.filename;
-
-        let finalIsPublished = is_published;
-        if (publish_type === "schedule" && scheduled_date) {
-          finalIsPublished = false;
-        } else if (publish_type === "immediate") {
-          finalIsPublished = true;
-        }
-
         updates = [
           "title = ?",
           "description = ?",
           "file_path = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP"
         ];
         values = [
-          title,
-          description,
-          file_path,
-          published_date,
-          finalIsPublished,
+          body.title,
+          body.description,
+          fileFile ? fileFile.filename : existing.file_path,
+          body.published_date,
+          body.is_published,
           req.user.id,
-          id,
+          id
         ];
         break;
 
       case "stories":
-        const {
-          title: storyTitle,
-          content,
-          author,
-          published_date: storyDate,
-          publish_type: storyPublishType = "immediate",
-          scheduled_date: storyScheduledDate,
-        } = req.body;
-
-        const image = imageFile ? imageFile.filename : null;
-
-        console.log("Received story data:", {
-          title: storyTitle,
-          content: content,
-          author: author,
-          image: image,
-        });
-
-        const storyContent = content || "";
-
-        let storyPublishedDate =
-          storyDate || new Date().toISOString().split("T")[0];
-        let storyIsPublished = storyPublishType === "immediate";
-
-        if (storyPublishType === "schedule" && storyScheduledDate) {
-          storyPublishedDate = storyScheduledDate;
-          storyIsPublished = false;
-        }
-
         updates = [
           "title = ?",
           "content = ?",
@@ -579,44 +373,22 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "author = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP"
         ];
         values = [
-          storyTitle,
-          storyContent, 
-          image,
-          author || "Anonymous",
-          storyPublishedDate,
-          storyIsPublished,
+          body.title,
+          body.content,
+          imageFile ? imageFile.filename : existing.image,
+          body.author || "Anonymous",
+          body.published_date,
+          body.is_published,
           req.user.id,
-          id,
+          id
         ];
-
-        console.log("Final values for database:", values);
         break;
 
       case "events":
-        const {
-          title: eventTitle,
-          description: eventDesc,
-          date,
-          time,
-          location,
-          publish_type: eventPublishType,
-          scheduled_date: eventScheduledDate,
-          is_published: eventIsPublished,
-        } = req.body;
-        let eventImage = existingItem.image;
-        if (imageFile) eventImage = imageFile.filename;
-
-        let finalEventPublished = eventIsPublished;
-        if (eventPublishType === "schedule" && eventScheduledDate) {
-          finalEventPublished = false;
-        } else if (eventPublishType === "immediate") {
-          finalEventPublished = true;
-        }
-
         updates = [
           "title = ?",
           "description = ?",
@@ -626,56 +398,24 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "image = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP"
         ];
         values = [
-          eventTitle,
-          eventDesc,
-          date,
-          time,
-          location,
-          eventImage,
-          existingItem.published_date,
-          finalEventPublished,
-          req.user.id, 
-          id,
+          body.title,
+          body.description,
+          body.date,
+          body.time,
+          body.location,
+          imageFile ? imageFile.filename : existing.image,
+          body.published_date,
+          body.is_published,
+          req.user.id,
+          id
         ];
         break;
 
       case "blogs":
-        const {
-          title: blogTitle,
-          content: blogContent,
-          author: blogAuthor,
-          tags,
-          published_date: blogDate,
-          publish_type: blogPublishType,
-          scheduled_date: blogScheduledDate,
-          is_published: blogIsPublished,
-        } = req.body;
-        let blogImage = existingItem.image;
-        if (imageFile) blogImage = imageFile.filename;
-
-        let tagsJson = existingItem.tags;
-        if (tags) {
-          try {
-            tagsJson = typeof tags === "string" ? JSON.parse(tags) : tags;
-            if (!Array.isArray(tagsJson)) {
-              tagsJson = [tagsJson];
-            }
-          } catch (error) {
-            console.warn("Error parsing tags, keeping existing:", error);
-          }
-        }
-
-        let finalBlogPublished = blogIsPublished;
-        if (blogPublishType === "schedule" && blogScheduledDate) {
-          finalBlogPublished = false;
-        } else if (blogPublishType === "immediate") {
-          finalBlogPublished = true;
-        }
-
         updates = [
           "title = ?",
           "content = ?",
@@ -684,64 +424,46 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "tags = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP"
         ];
         values = [
-          blogTitle,
-          blogContent,
-          blogImage,
-          blogAuthor,
-          JSON.stringify(tagsJson),
-          blogDate,
-          finalBlogPublished,
-          req.user.id, 
-          id,
+          body.title,
+          body.content,
+          imageFile ? imageFile.filename : existing.image,
+          body.author,
+          JSON.stringify(JSON.parse(body.tags || "[]")),
+          body.published_date,
+          body.is_published,
+          req.user.id,
+          id
         ];
         break;
 
       case "documentaries":
-        const {
-          title: docTitle,
-          description: docDesc,
-          video_url,
-          duration,
-          published_date: docDate,
-          publish_type: docPublishType,
-          scheduled_date: docScheduledDate,
-          is_published: docIsPublished,
-        } = req.body;
-        let thumbnail = existingItem.thumbnail;
-        if (imageFile) thumbnail = imageFile.filename;
-
-        let finalDocPublished = docIsPublished;
-        if (docPublishType === "schedule" && docScheduledDate) {
-          finalDocPublished = false;
-        } else if (docPublishType === "immediate") {
-          finalDocPublished = true;
-        }
-
         updates = [
           "title = ?",
           "description = ?",
           "video_url = ?",
+          "video_filename = ?",
           "thumbnail = ?",
           "duration = ?",
           "published_date = ?",
           "is_published = ?",
-          "last_modified_by = ?", 
-          "last_modified_at = CURRENT_TIMESTAMP", 
+          "last_modified_by = ?",
+          "last_modified_at = CURRENT_TIMESTAMP"
         ];
         values = [
-          docTitle,
-          docDesc,
-          video_url,
-          thumbnail,
-          duration,
-          docDate,
-          finalDocPublished,
-          req.user.id, 
-          id,
+          body.title,
+          body.description,
+          body.video_url,
+          videoFile ? videoFile.filename : existing.video_filename,
+          imageFile ? imageFile.filename : existing.thumbnail,
+          body.duration,
+          body.published_date,
+          body.is_published,
+          req.user.id,
+          id
         ];
         break;
     }
@@ -749,192 +471,167 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
     const query = `UPDATE ${type} SET ${updates.join(", ")} WHERE id = ?`;
     await db.query(query, values);
 
-    res.json({
-      message: `${type.slice(0, -1)} updated successfully`,
-      is_published: values[values.length - 3],
-    });
+    res.json({ message: `${type.slice(0, -1)} updated successfully` });
+
   } catch (error) {
     console.error(`Error updating ${type}:`, error);
-
-    if (req.files) {
-      for (const file of req.files) {
-        try {
-          await fs.unlink(file.path);
-        } catch (unlinkError) {
-          console.error("Error cleaning up file:", unlinkError);
-        }
-      }
-    }
-
-    res.status(500).json({
-      error: `Failed to update ${type}`,
-      details: error.message,
-      sqlMessage: error.sqlMessage,
-    });
+    res.status(500).json({ error: "Failed to update item" });
   }
 });
 
-// Delete item
+
+// --------------------------------------------------
+//   DELETE ITEM
+// --------------------------------------------------
 router.delete("/:type/:id", authenticateToken, async (req, res) => {
   const { type, id } = req.params;
-
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
-  }
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
-    const [items] = await db.query(`SELECT * FROM ${type} WHERE id = ?`, [id]);
+    const fileColumns = mediaTables[type].fileFields.concat(["id"]);
+    const columnList = fileColumns.join(", ");
 
-    if (items.length === 0) {
+    const [rows] = await db.query(
+      `SELECT ${columnList} FROM ${type} WHERE id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0)
       return res.status(404).json({ error: "Item not found" });
-    }
 
-    const item = items[0];
+    const item = rows[0];
 
-    if (item.image || item.file_path || item.thumbnail) {
-      try {
-        if (item.image) {
-          await fs.unlink(`uploads/media/${type}/${item.image}`);
-        }
-        if (item.file_path) {
-          await fs.unlink(`uploads/media/${type}/${item.file_path}`);
-        }
-        if (item.thumbnail) {
-          await fs.unlink(`uploads/media/${type}/${item.thumbnail}`);
-        }
-      } catch (unlinkError) {
-        console.warn("Error deleting associated files:", unlinkError);
+    // Delete files
+    for (const f of mediaTables[type].fileFields) {
+      if (item[f]) {
+        const filePath = `uploads/media/${type}/${item[f]}`;
+        await fs.unlink(filePath).catch(() => {});
       }
     }
 
-    const query = `DELETE FROM ${type} WHERE id = ?`;
-    const [result] = await db.query(query, [id]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Item not found" });
-    }
+    await db.query(`DELETE FROM ${type} WHERE id = ?`, [id]);
 
     res.json({ message: `${type.slice(0, -1)} deleted successfully` });
+
   } catch (error) {
     console.error(`Error deleting ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to delete ${type}`,
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to delete item" });
   }
 });
 
-// Toggle publish status - Track who changed the status
+
+// --------------------------------------------------
+//   PUBLISH / UNPUBLISH
+// --------------------------------------------------
 router.patch("/:type/:id/publish", authenticateToken, async (req, res) => {
   const { type, id } = req.params;
   const { is_published } = req.body;
 
-  if (!isValidMediaType(type)) {
+  if (!isValidMediaType(type))
     return res.status(400).json({ error: "Invalid media type" });
-  }
 
   try {
-    const query = `UPDATE ${type} SET is_published = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    const query = `
+      UPDATE ${type}
+      SET is_published = ?, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `;
+
     await db.query(query, [is_published, req.user.id, id]);
 
     res.json({
-      message: `${type.slice(0, -1)} ${
-        is_published ? "published" : "unpublished"
-      } successfully`,
-      is_published,
+      message: `${type.slice(0, -1)} ${is_published ? "published" : "unpublished"} successfully`,
+      is_published
     });
+
   } catch (error) {
-    console.error(`Error toggling publish status for ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to update publish status`,
-      details: error.message,
-    });
+    console.error(`Error publishing ${type}:`, error);
+    res.status(500).json({ error: "Failed to update status" });
   }
 });
 
-// Get scheduled items for a specific media type - Include user info
+
+// --------------------------------------------------
+//   GET SCHEDULED
+// --------------------------------------------------
 router.get("/scheduled/:type", async (req, res) => {
   const { type } = req.params;
 
-  if (!isValidMediaType(type)) {
+  if (!isValidMediaType(type))
     return res.status(400).json({ error: "Invalid media type" });
-  }
 
   try {
-    const query = `SELECT m.*, u.username as last_modified_by_name 
-                   FROM ${type} m 
-                   LEFT JOIN users u ON m.last_modified_by = u.id 
-                   WHERE m.is_published = FALSE AND m.published_date > NOW() 
-                   ORDER BY m.published_date ASC`;
+    const columns = getSelectColumns(type, "m");
+
+    const query = `
+      SELECT ${columns}, u.username AS last_modified_by_name
+      FROM ${type} m
+      LEFT JOIN users u ON m.last_modified_by = u.id
+      WHERE m.is_published = FALSE AND m.published_date > NOW()
+      ORDER BY m.published_date ASC
+    `;
+
     const [results] = await db.query(query);
     res.json(results);
+
   } catch (error) {
     console.error(`Error fetching scheduled ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to fetch scheduled ${type}`,
-      details: error.message,
-    });
+    res.status(500).json({ error: "Failed to fetch scheduled items" });
   }
 });
 
-// Publish all scheduled items that are due - Track who published
+
+// --------------------------------------------------
+//   PUBLISH ALL SCHEDULED ITEMS
+// --------------------------------------------------
 router.post("/publish-scheduled", authenticateToken, async (req, res) => {
   try {
     const now = new Date().toISOString().slice(0, 19).replace("T", " ");
-    let totalPublished = 0;
+    let count = 0;
 
     for (const type of Object.keys(mediaTables)) {
-      const query = `UPDATE ${type} SET is_published = TRUE, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP WHERE is_published = FALSE AND published_date <= ?`;
+      const query = `
+        UPDATE ${type}
+        SET is_published = TRUE, last_modified_by = ?, last_modified_at = CURRENT_TIMESTAMP
+        WHERE is_published = FALSE AND published_date <= ?
+      `;
       const [result] = await db.query(query, [req.user.id, now]);
-      totalPublished += result.affectedRows;
+      count += result.affectedRows;
     }
 
-    res.json({
-      message: `Published ${totalPublished} scheduled items successfully`,
-      count: totalPublished,
-    });
+    res.json({ message: "Scheduled items published", count });
+
   } catch (error) {
-    console.error("Error publishing scheduled items:", error);
-    res.status(500).json({
-      error: "Failed to publish scheduled items",
-      details: error.message,
-    });
+    console.error("Error publishing scheduled:", error);
+    res.status(500).json({ error: "Failed to publish scheduled items" });
   }
 });
 
-// Get statistics for specific media type
+
+// --------------------------------------------------
+//   STATISTICS
+// --------------------------------------------------
 router.get("/stats/:type", async (req, res) => {
   const { type } = req.params;
-
-  if (!isValidMediaType(type)) {
-    return res.status(400).json({ error: "Invalid media type" });
-  }
+  if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
-    const totalQuery = `SELECT COUNT(*) as total FROM ${type}`;
-    const publishedQuery = `SELECT COUNT(*) as published FROM ${type} WHERE is_published = TRUE`;
-    const scheduledQuery = `SELECT COUNT(*) as scheduled FROM ${type} WHERE is_published = FALSE AND published_date > NOW()`;
-
-    const [totalResult] = await db.query(totalQuery);
-    const [publishedResult] = await db.query(publishedQuery);
-    const [scheduledResult] = await db.query(scheduledQuery);
+    const [total] = await db.query(`SELECT COUNT(*) AS total FROM ${type}`);
+    const [published] = await db.query(`SELECT COUNT(*) AS total FROM ${type} WHERE is_published = TRUE`);
+    const [scheduled] = await db.query(`SELECT COUNT(*) AS total FROM ${type} WHERE is_published = FALSE AND published_date > NOW()`);
 
     res.json({
-      total: totalResult[0].total,
-      published: publishedResult[0].published,
-      scheduled: scheduledResult[0].scheduled,
-      draft:
-        totalResult[0].total -
-        publishedResult[0].published -
-        scheduledResult[0].scheduled,
+      total: total[0].total,
+      published: published[0].total,
+      scheduled: scheduled[0].total,
+      draft: total[0].total - published[0].total - scheduled[0].total
     });
+
   } catch (error) {
-    console.error(`Error fetching stats for ${type}:`, error);
-    res.status(500).json({
-      error: `Failed to fetch statistics`,
-      details: error.message,
-    });
+    console.error("Error getting stats:", error);
+    res.status(500).json({ error: "Failed to fetch statistics" });
   }
 });
 
+// ---------- EXPORT ----------
 module.exports = router;

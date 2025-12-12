@@ -28,7 +28,7 @@ const upload = multer({
 // Get all management
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM management ORDER BY name");
+    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management ORDER BY name");
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
 // Get one member
 router.get("/:id", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM management WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
       req.params.id,
     ]);
     if (rows.length === 0)
@@ -84,7 +84,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
     const { id } = req.params;
     const { name, position, bio, social_links } = req.body;
 
-    const [rows] = await db.query("SELECT * FROM management WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
       id,
     ]);
     if (rows.length === 0)

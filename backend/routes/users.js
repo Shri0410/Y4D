@@ -339,6 +339,10 @@ router.delete(
 
       const username = userRows[0].username;
 
+      // 🔥 FIX: delete dependent login_attempts first
+      await db.query("DELETE FROM login_attempts WHERE user_id = ?", [id]);
+
+      // Delete user now that dependencies are removed
       const [result] = await db.query("DELETE FROM users WHERE id = ?", [id]);
 
       if (result.affectedRows === 0) {
@@ -347,7 +351,7 @@ router.delete(
 
       await db.query(
         `INSERT INTO audit_logs (user_id, action, resource_type, resource_id, details)
-       VALUES (?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?)`,
         [req.user.id, "delete", "user", id, `Deleted user account: ${username}`]
       );
 
@@ -363,6 +367,7 @@ router.delete(
     }
   }
 );
+
 
 // Debug schema
 router.get(

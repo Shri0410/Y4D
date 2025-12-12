@@ -5,7 +5,7 @@ const db = require('../config/database');
 // Get impact data
 router.get('/impact-data', async (req, res) => {
   try {
-    const [results] = await db.execute('SELECT * FROM impact_data WHERE id = 1');
+    const [results] = await db.execute('SELECT id, beneficiaries, states, projects, updated_at FROM impact_data WHERE id = 1');
     if (results.length > 0) {
       res.json({
         beneficiaries: results[0].beneficiaries,
@@ -30,7 +30,7 @@ router.put('/impact-data', async (req, res) => {
   try {
     const { beneficiaries, states, projects } = req.body;
     
-    const [existing] = await db.execute('SELECT * FROM impact_data WHERE id = 1');
+    const [existing] = await db.execute('SELECT id, beneficiaries, states, projects, updated_at FROM impact_data WHERE id = 1');
     
     if (existing.length > 0) {
       await db.execute(

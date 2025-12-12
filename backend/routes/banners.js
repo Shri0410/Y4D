@@ -346,7 +346,7 @@ router.put("/:id", upload.single("media"), async (req, res) => {
     const modifiedById = modified_by_id ? parseInt(modified_by_id) : null;
 
     // First get current banner to handle media updates
-    const getQuery = "SELECT * FROM banners WHERE id = ?";
+    const getQuery = "SELECT id FROM banners WHERE id = ?";
     const [currentResults] = await db.query(getQuery, [id]);
 
     if (currentResults.length === 0) {
@@ -433,7 +433,7 @@ router.delete("/:id", async (req, res) => {
     console.log(`🗑️ Deleting banner with ID: ${id}`);
 
     // First get banner to delete media file
-    const getQuery = "SELECT * FROM banners WHERE id = ?";
+    const getQuery = "SELECT id, title, image, video FROM banners WHERE id = ?";
     const [results] = await db.query(getQuery, [id]);
 
     if (results.length === 0) {

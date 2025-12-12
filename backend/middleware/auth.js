@@ -86,7 +86,7 @@ const checkPermission = (action, section, subSection = null) => {
       }
 
       let query = `
-        SELECT * FROM user_permissions 
+        SELECT id, user_id, section, sub_section, can_view, can_create, can_edit, can_delete, can_publish, created_at, updated_at FROM user_permissions 
         WHERE user_id = ? AND section = ? 
         AND (sub_section IS NULL OR sub_section = ?)
       `;
