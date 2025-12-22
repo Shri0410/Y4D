@@ -2,8 +2,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../pages/About.css";
-// Remove static banner import
-// import bannerImg from "../assets/BannerImages/f.jpeg";
 import pyramidImg from "../assets/Pyramid.png";
 import { getBanners } from "../services/api.jsx";
 import { UPLOADS_BASE } from "../config/api";

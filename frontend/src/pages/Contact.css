@@ -558,10 +558,13 @@
 
 .popup-content {
   background: #fff;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
+  height: auto;
+  max-height: 400px;
+  overflow-y: auto;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease;

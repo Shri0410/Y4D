@@ -31,7 +31,9 @@
   object-position: center;
   display: block;
 }
-
+.work-section {
+  scroll-margin-top: 130px; 
+}
 /* Responsive adjustments */
 @media (max-width: 1024px) {
   .work-banner img,

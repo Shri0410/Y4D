@@ -135,6 +135,8 @@
   font-size: 0.95rem;
   color: #555;
   margin-bottom: 15px;
+    height: 30px;
+  overflow: hidden;
 }
 
 .qe-card-footer {

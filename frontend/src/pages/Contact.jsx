@@ -145,7 +145,7 @@ const Contact = () => {
   const offices = [
     {
       name: "Pune Office",
-      address: "3rd Floor, The Onyx, Near Euro School, Wakad, Pune 411057",
+      address: "4th Floor, Near Euro School, Wakad, Pune 411057",
       mapsUrl:
         "https://www.google.com/maps/search/3rd+Floor,+The+Onyx,+Near+Euro+School,+Wakad,+Pune+411057/@18.5966469,73.7434204,14z",
       iframeSrc:

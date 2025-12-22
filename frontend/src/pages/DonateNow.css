@@ -110,7 +110,7 @@
 }
 
 .submit-btn {
-  display: inline-block;
+  display: block;
   width: 250px;
   padding: 12px 25px;
   margin: 0 auto;
