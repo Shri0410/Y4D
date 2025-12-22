@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import axios from "axios";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
+import confirmDialog from "../utils/confirmDialog";
 
 const MediaManager = ({ mediaType, onClose }) => {
   const [items, setItems] = useState([]);
@@ -99,7 +101,7 @@ const MediaManager = ({ mediaType, onClose }) => {
           ? `${mediaType.slice(0, -1)} published successfully!`
           : `${mediaType.slice(0, -1)} scheduled for publication!`;
 
-      alert(message);
+      toast.success(message);
     } catch (error) {
       logger.error(`Error saving ${mediaType}:`, error);
       const errorMessage =
@@ -140,19 +142,19 @@ const MediaManager = ({ mediaType, onClose }) => {
   };
 
   const handleDelete = async (id) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete this ${mediaType.slice(0, -1)}?`
-      )
-    ) {
-      try {
-        await axios.delete(`${API_BASE}/media/${mediaType}/${id}`);
-        fetchItems();
-        alert(`${mediaType.slice(0, -1)} deleted successfully!`);
-      } catch (error) {
-        logger.error(`Error deleting ${mediaType}:`, error);
-        alert(`Error: ${error.response?.data?.error || "Failed to delete"}`);
-      }
+    const confirmed = await confirmDialog(
+      `Are you sure you want to delete this ${mediaType.slice(0, -1)}?`,
+      "Delete"
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE}/media/${mediaType}/${id}`);
+      fetchItems();
+      toast.success(`${mediaType.slice(0, -1)} deleted successfully!`);
+    } catch (error) {
+      logger.error(`Error deleting ${mediaType}:`, error);
+      toast.error(`Error: ${error.response?.data?.error || "Failed to delete"}`);
     }
   };
 
@@ -162,14 +164,14 @@ const MediaManager = ({ mediaType, onClose }) => {
         is_published: !currentStatus,
       });
       fetchItems();
-      alert(
+      toast.success(
         `${mediaType.slice(0, -1)} ${
           !currentStatus ? "published" : "unpublished"
         } successfully!`
       );
     } catch (error) {
       logger.error(`Error toggling publish status:`, error);
-      alert(
+      toast.error(
         `Error: ${error.response?.data?.error || "Failed to update status"}`
       );
     }

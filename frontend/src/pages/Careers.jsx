@@ -5,6 +5,7 @@ import "./Careers.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
 import SanitizedHTML from "../components/SanitizedHTML";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const Careers = () => {
   const [careers, setCareers] = useState([]);
@@ -88,7 +89,7 @@ const Careers = () => {
       }, 3000);
     } catch (error) {
       logger.error("Error applying for job:", error);
-      alert("Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }

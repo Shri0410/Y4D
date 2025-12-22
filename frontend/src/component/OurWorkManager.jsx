@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE, UPLOADS_BASE } from '../config/api';
 import axios from 'axios';
 import logger from "../utils/logger";
+import toast from "../utils/toast";
+import confirmDialog from "../utils/confirmDialog";
 
 const OurWorkManager = ({ category, onClose }) => {
   const [items, setItems] = useState([]);
@@ -95,7 +97,7 @@ const OurWorkManager = ({ category, onClose }) => {
       });
       fetchItems();
       
-      alert(`Item ${editingItem ? 'updated' : 'created'} successfully!`);
+      toast.success(`Item ${editingItem ? 'updated' : 'created'} successfully!`);
     } catch (error) {
       logger.error('Error saving item:', error);
       const errorMessage = error.response?.data?.error || error.response?.data?.details || 'Failed to save. Please check console for details.';
@@ -122,17 +124,18 @@ const OurWorkManager = ({ category, onClose }) => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      try {
-        await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        fetchItems();
-        alert('Item deleted successfully!');
-      } catch (error) {
-        logger.error('Error deleting item:', error);
-        alert(`Error: ${error.response?.data?.error || 'Failed to delete'}`);
-      }
+    const confirmed = await confirmDialog('Are you sure you want to delete this item?', 'Delete');
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE}/our-work/admin/${category}/${id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      fetchItems();
+      toast.success('Item deleted successfully!');
+    } catch (error) {
+      logger.error('Error deleting item:', error);
+      toast.error(`Error: ${error.response?.data?.error || 'Failed to delete'}`);
     }
   };
 
@@ -147,10 +150,10 @@ const OurWorkManager = ({ category, onClose }) => {
         }
       });
       fetchItems();
-      alert(`Item ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
+      toast.success(`Item ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
     } catch (error) {
       logger.error('Error toggling status:', error);
-      alert(`Error: ${error.response?.data?.error || 'Failed to update status'}`);
+      toast.error(`Error: ${error.response?.data?.error || 'Failed to update status'}`);
     }
   };
 

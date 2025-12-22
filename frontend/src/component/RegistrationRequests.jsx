@@ -4,6 +4,7 @@ import axios from "axios";
 import "./UserManagement.css"; // reuse the same styles
 import logger from "../utils/logger";
 import toast from "../utils/toast";
+import confirmDialog from "../utils/confirmDialog";
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -293,10 +294,16 @@ const RegistrationRequests = () => {
                                   () => handleReject(request.id, request.name)
                                 );
                               } else {
-                                // Fallback to window.confirm
-                                if (window.confirm(`Are you sure you want to reject request from "${request.name}"?`)) {
-                                  handleReject(request.id, request.name);
-                                }
+                                // Fallback to confirmDialog utility
+                                (async () => {
+                                  const confirmed = await confirmDialog(
+                                    `Are you sure you want to reject request from "${request.name}"?`,
+                                    "Reject Registration"
+                                  );
+                                  if (confirmed) {
+                                    handleReject(request.id, request.name);
+                                  }
+                                })();
                               }
                             }}
                             className="btn btn-danger btn-sm"

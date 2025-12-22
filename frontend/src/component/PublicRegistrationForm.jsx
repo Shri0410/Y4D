@@ -4,6 +4,7 @@ import { API_BASE } from "../config/api";
 import axios from "axios";
 import "./RegistrationForm.css";
 import logo from "../assets/Y4D LOGO LOADING.png";
+import { useNavigate } from "react-router-dom";
 
 const PublicRegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -67,6 +68,7 @@ const PublicRegistrationForm = () => {
     setLoading(false);
   };
 
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -186,8 +188,12 @@ const PublicRegistrationForm = () => {
               "Submit Registration Request"
             )}
           </button>
-
-          <div className="registration-footer">
+    <button
+      className="auth-login-btn"
+      onClick={() => navigate("/admin")}
+    >
+      Login
+    </button>          <div className="registration-footer">
             <p>
               <small>
                 After submission, your request will be reviewed by an

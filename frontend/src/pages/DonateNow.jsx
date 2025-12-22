@@ -3,6 +3,7 @@ import "./DonateNow.css";
 import { getBanners } from "../services/api.jsx";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const DonateNow = () => {
   const [formData, setFormData] = useState({
@@ -118,7 +119,7 @@ const DonateNow = () => {
       // Load Razorpay script
       const loaded = await loadRazorpayScript();
       if (!loaded) {
-        alert("Payment gateway failed to load. Please check your internet connection and try again.");
+        toast.error("Payment gateway failed to load. Please check your internet connection and try again.");
         setIsProcessing(false);
         return;
       }
@@ -132,14 +133,14 @@ const DonateNow = () => {
         }
       } catch (error) {
         logger.error("Error fetching Razorpay key:", error);
-        alert("Unable to connect to payment service. Please try again later.");
+        toast.error("Unable to connect to payment service. Please try again later.");
         setIsProcessing(false);
         return;
       }
 
       const keyData = await keyRes.json();
       if (!keyData.success || !keyData.key) {
-        alert(keyData.message || "Payment service is not configured. Please contact support.");
+        toast.error(keyData.message || "Payment service is not configured. Please contact support.");
         setIsProcessing(false);
         return;
       }
@@ -165,7 +166,7 @@ const DonateNow = () => {
         }
       } catch (error) {
         logger.error("Error creating order:", error);
-        alert(error.message || "Failed to create payment order. Please check your details and try again.");
+        toast.error(error.message || "Failed to create payment order. Please check your details and try again.");
         setIsProcessing(false);
         return;
       }
@@ -173,7 +174,7 @@ const DonateNow = () => {
       const orderData = await orderRes.json();
       if (!orderData.success || !orderData.order) {
         const errorMsg = orderData.message || orderData.errors?.[0]?.msg || "Order creation failed";
-        alert(errorMsg);
+        toast.error(errorMsg);
         setIsProcessing(false);
         return;
       }
@@ -276,7 +277,7 @@ const DonateNow = () => {
       const razorpayInstance = new window.Razorpay(options);
       razorpayInstance.on("payment.failed", function (response) {
         logger.error("Payment failed:", response);
-        alert(
+        toast.error(
           `Payment failed: ${response.error?.description || "Unknown error"}. Please try again.`
         );
         setIsProcessing(false);
@@ -285,7 +286,7 @@ const DonateNow = () => {
       razorpayInstance.open();
     } catch (error) {
       logger.error("Payment error:", error);
-      alert("An unexpected error occurred. Please try again or contact support.");
+      toast.error("An unexpected error occurred. Please try again or contact support.");
       setIsProcessing(false);
     }
   };
@@ -297,7 +298,7 @@ const DonateNow = () => {
 
     const validationError = validateForm();
     if (validationError) {
-      alert(validationError);
+      toast.error(validationError);
       return;
     }
 

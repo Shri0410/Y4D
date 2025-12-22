@@ -162,3 +162,33 @@
     width: 100%;
   }
 }
+.auth-login-btn {
+  background: linear-gradient(135deg, #fb6401, #fc7c27);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(251, 100, 1, 0.25);
+}
+
+.auth-login-btn:hover {
+  background: linear-gradient(135deg, #e85700, #fb6401);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(251, 100, 1, 0.35);
+}
+
+.auth-login-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(251, 100, 1, 0.25);
+}
+
+.auth-login-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}

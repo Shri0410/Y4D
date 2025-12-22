@@ -3,6 +3,8 @@ import axios from 'axios';
 import { API_BASE } from '../config/api';
 import "./BoardTrustees.css";
 import logger from "../utils/logger";
+import confirmDialog from "../utils/confirmDialog";
+import toast from "../utils/toast";
 
 const BoardTrustees = () => {
   const [trustees, setTrustees] = useState([]);
@@ -71,13 +73,16 @@ const BoardTrustees = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this trustee?')) {
-      try {
-        await axios.delete(`${API_BASE}/board-trustees/${id}`);
-        fetchTrustees();
-      } catch (error) {
-        logger.error('Error deleting trustee:', error);
-      }
+    const confirmed = await confirmDialog('Are you sure you want to delete this trustee?', 'Delete Trustee');
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${API_BASE}/board-trustees/${id}`);
+      fetchTrustees();
+      toast.success('Trustee deleted successfully');
+    } catch (error) {
+      logger.error('Error deleting trustee:', error);
+      toast.error('Failed to delete trustee');
     }
   };
 

@@ -3,6 +3,7 @@ import { API_BASE } from "../config/api";
 import axios from "axios";
 import toast from "../utils/toast";
 import logger from "../utils/logger";
+import confirmDialog from "../utils/confirmDialog";
 import {
   extractData,
   extractErrorMessage,
@@ -356,16 +357,17 @@ const OurWorkManagement = ({
           () => toggleStatus(item.id, item.is_active)
         );
       } else {
-        // Fallback to simple confirmation
-        const confirmed = window.confirm(
-          `Are you sure you want to ${
-            item.is_active ? "deactivate" : "activate"
-          } "${item.title}"?`
-        );
-        if (confirmed) {
-          toggleStatus(item.id, item.is_active);
+          // Fallback to confirmDialog utility
+          (async () => {
+            const confirmed = await confirmDialog(
+              `Are you sure you want to ${item.is_active ? "deactivate" : "activate"} "${item.title}"?`,
+              item.is_active ? "Deactivate Item" : "Activate Item"
+            );
+            if (confirmed) {
+              toggleStatus(item.id, item.is_active);
+            }
+          })();
         }
-      }
     };
 
     // Handle delete with confirmation
@@ -381,13 +383,16 @@ const OurWorkManagement = ({
           () => handleDelete(item.id)
         );
       } else {
-        // Fallback to simple confirmation
-        const confirmed = window.confirm(
-          `Are you sure you want to delete "${item.title}"? This action cannot be undone.`
-        );
-        if (confirmed) {
-          handleDelete(item.id);
-        }
+        // Fallback to confirmDialog utility
+        (async () => {
+          const confirmed = await confirmDialog(
+            `Are you sure you want to delete "${item.title}"? This action cannot be undone.`,
+            "Delete Item"
+          );
+          if (confirmed) {
+            handleDelete(item.id);
+          }
+        })();
       }
     };
 
