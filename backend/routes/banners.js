@@ -433,7 +433,7 @@ router.delete("/:id", async (req, res) => {
     console.log(`🗑️ Deleting banner with ID: ${id}`);
 
     // First get banner to delete media file
-    const getQuery = "SELECT id, title, image, video FROM banners WHERE id = ?";
+    const getQuery = "SELECT id, media FROM banners WHERE id = ?";
     const [results] = await db.query(getQuery, [id]);
 
     if (results.length === 0) {
@@ -445,16 +445,19 @@ router.delete("/:id", async (req, res) => {
 
     // Delete media file if exists
     if (banner.media) {
-      const mediaPath = path.join("uploads/banners/", banner.media);
+      const mediaPath = path.join(__dirname, "../uploads/banners", banner.media);
+
       if (fs.existsSync(mediaPath)) {
         fs.unlinkSync(mediaPath);
         console.log(`🗑️ Deleted media file: ${banner.media}`);
+      } else {
+        console.warn(`⚠️ Media file not found: ${mediaPath}`);
       }
     }
 
     // Delete from database
-    const deleteQuery = "DELETE FROM banners WHERE id = ?";
-    await db.query(deleteQuery, [id]);
+    await db.query("DELETE FROM banners WHERE id = ?", [id]);
+
 
     console.log(`✅ Banner deleted successfully ID: ${id}`);
     res.json({ message: "Banner deleted successfully" });
