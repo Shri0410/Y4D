@@ -400,7 +400,7 @@ const Home = () => {
             Our Impact<span></span>
           </h2>
           <div className="reach-grid">
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="200">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
               <h3 className="reach-number">
                 <Counter end={impact.beneficiaries} />
                 L+
@@ -411,7 +411,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="300">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="150">
               <h3 className="reach-number">
                 <Counter end={impact.states} />+
               </h3>
@@ -422,7 +422,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="400">
+            <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
               <h3 className="reach-number">
                 <Counter end={impact.projects} />+
               </h3>

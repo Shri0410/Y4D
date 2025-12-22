@@ -49,13 +49,13 @@ const Footer = () => {
             <h4>Satellite offices</h4>
             <ul>
               <li>
-                <a href="#">Palghar</a>
+                <a>Palghar</a>
               </li>
               <li>
-                <a href="#">Washim</a>
+                <a>Washim</a>
               </li>
               <li>
-                <a href="#">Chennai</a>
+                <a>Chennai</a>
               </li>
             </ul>
           </div>
@@ -94,8 +94,8 @@ const Footer = () => {
               rel="noopener noreferrer"
               className="footer-address-link"
             >
-              Y4D Foundation, 402, The Onyx, Near Euro School,
-              <br /> Wakad, Pune, Maharashtra, India - 411057
+              4th Floor, Near Euro School,
+              <br /> Wakad, Pune- 411057
             </a>
 
             <p style={{ fontWeight: "bold", marginTop: "10px" }}>
@@ -181,6 +181,14 @@ const Footer = () => {
             ></div>
           </div>
         </div>
+      </div>
+      <div className="footer-bottom-syntiaro">
+        <p style={{ letterSpacing: "2px", color: "white" }}>
+          Design and Developed By { ' ' }
+          <a href="https://www.syntiaro.com" target="_blank" rel="noopener noreferrer" style={{ color: "white", textDecoration: "none" }}>
+            SYNTIARO
+          </a>{" "}
+        </p>
       </div>
     </footer>
   );

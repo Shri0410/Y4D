@@ -57,12 +57,18 @@ const About = () => {
     { id: "trust", label: "WHY TRUST US?" },
   ];
 
-  const scrollTo = (id) => {
-    sectionRefs[id].current.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+const scrollTo = (id) => {
+  const element = sectionRefs[id].current;
+  const offset = 230; 
+  
+  const elementPosition = element.getBoundingClientRect().top;
+  const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: "smooth"
+  });
+};
 
   // Render dynamic banner
   const renderBanner = () => {

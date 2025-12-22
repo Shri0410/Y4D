@@ -32,7 +32,6 @@
   font-weight: 600;
   color: #222;
   margin-bottom: 1rem;
-  /* Ensure long titles wrap nicely and don't overflow */
   overflow-wrap: break-word;
   word-break: break-word;
 }

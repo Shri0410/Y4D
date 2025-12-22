@@ -148,12 +148,20 @@
     gap: 20px;
     margin: -30px auto 30px;
   }
+    .submit-btn{
+    padding: 12px;
+    margin-bottom: 20px;
+  }
 }
 
 @media (max-width: 768px) {
   .donate-left,
   .donate-right {
     padding: 0px 10px;
+  }
+  .submit-btn{
+    padding: 10px;
+    margin-bottom: 15px;
   }
 }
 

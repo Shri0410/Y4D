@@ -75,13 +75,14 @@ const isValidMediaType = (type) => mediaTables.hasOwnProperty(type);
 
 // ---------- BUILD DYNAMIC COLUMN LIST ----------
 function getSelectColumns(type, alias = "m") {
+  const prefix = alias ? `${alias}.` : '';
   return [
-    `${alias}.id`,
-    ...mediaTables[type].fields.map((f) => `${alias}.${f}`),
-    `${alias}.created_at`,
-    `${alias}.updated_at`,
-    `${alias}.last_modified_by`,
-    `${alias}.last_modified_at`
+    `${prefix}id`,
+    ...mediaTables[type].fields.map((f) => `${prefix}${f}`),
+    `${prefix}created_at`,
+    `${prefix}updated_at`,
+    `${prefix}last_modified_by`,
+    `${prefix}last_modified_at`
   ].join(", ");
 }
 
@@ -325,7 +326,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
 
   try {
     // Select full column list instead of *
-    const columns = getSelectColumns(type);
+    const columns = getSelectColumns(type, "");
     const [rows] = await db.query(`SELECT ${columns} FROM ${type} WHERE id = ?`, [id]);
 
     if (rows.length === 0)

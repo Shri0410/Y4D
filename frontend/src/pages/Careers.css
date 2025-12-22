@@ -160,6 +160,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #e6e6e6;
   height: 100%;
+  width: 100%;
+  max-width: 350px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -391,6 +393,8 @@
 /* For tablets below 1024px */
 @media (max-width: 1024px) {
   .careers-card {
+    width: 100%;
+    max-width: 350px;
     padding: 20px;
   }
 
@@ -431,6 +435,9 @@
   .careers-title {
     font-size: 1.5rem;
     line-height: 30px;
+  }
+  .careers-card{
+    width: 310px;
   }
 
   .careers-card h4 {

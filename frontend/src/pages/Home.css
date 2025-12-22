@@ -864,6 +864,7 @@
   .accreditation-card {
     max-width: 240px;
   }
+  
   .accreditation-card img {
     width: 200px;
     height: 170px;
@@ -1023,6 +1024,12 @@
 
   .accreditation-card h3 {
     font-size: 0.95rem;
+      overflow-wrap: break-word;
+  word-break: break-word;
+  }
+    .accreditation-card p{
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
   .accreditations-container {
     display: flex;
@@ -1108,6 +1115,7 @@
     line-height: 30px;
     margin-bottom: 2rem;
     margin-top: 0px;
+    
   }
   .accreditations-title::before {
     right: 0px;
@@ -1185,6 +1193,10 @@
     font-size: 0.9rem;
     text-align: center;
     margin-top: 5px;
+  }
+  .accreditation-card p{
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .accreditations-container {

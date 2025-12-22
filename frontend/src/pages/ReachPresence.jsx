@@ -170,14 +170,14 @@ export default function ReachPresence() {
               </p>
             </div>
             <div className="connector">
-              <span className="arrow">➤</span>
+            <span className="arrow reverse">➤</span>
             </div>
             <div className="timeline-item green">
               <div className="circle">2017</div>
               <p>First CSR project in skill development</p>
             </div>
             <div className="connector">
-              <span className="arrow">➤</span>
+            <span className="arrow reverse">➤</span>
             </div>
             <div className="timeline-item orange">
               <div className="circle">2015</div>
@@ -190,7 +190,6 @@ export default function ReachPresence() {
   );
 }
 
-// Dummy Counter component (replace with your actual one)
 function Counter({ end }) {
   return <span>{end}</span>;
 }
