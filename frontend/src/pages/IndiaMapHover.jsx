@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import "./IndiaMapHover.css";
-import map from "../assets/Imap.png";
+import map from "../assets/map.jpg";
 
 export default function IndiaMapHover({ mapUrl = map, statesData }) {
   const containerRef = useRef(null);

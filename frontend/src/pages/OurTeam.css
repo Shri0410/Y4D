@@ -541,6 +541,9 @@
 }
 
 @media (max-width: 768px) {
+  .banner {
+    margin-top: 80px;
+  }
   .team-card {
     flex: 1 1 100%; /* 1 per row */
     max-width: 100%;

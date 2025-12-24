@@ -365,8 +365,15 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       if (currentBanner.media) {
         const oldMediaPath = path.join("uploads/banners/", currentBanner.media);
         if (fs.existsSync(oldMediaPath)) {
-          fs.unlinkSync(oldMediaPath);
-          console.log(`🗑️ Deleted old media: ${currentBanner.media}`);
+          try {
+            fs.unlinkSync(oldMediaPath);
+            console.log(`🗑️ Deleted old media: ${currentBanner.media}`);
+          } catch (err) {
+            console.warn(
+              `⚠️ Failed to delete old media: ${currentBanner.media}`,
+              err
+            );
+          }
         }
       }
       console.log(`🖼️ New media uploaded: ${media}`);
@@ -381,8 +388,8 @@ router.put("/:id", upload.single("media"), async (req, res) => {
         section = ?, 
         category = ?, 
         is_active = ?, 
-        last_modified_by = ?,
-        last_modified_at = CURRENT_TIMESTAMP,
+        last_modified_by = ?, 
+        last_modified_at = CURRENT_TIMESTAMP, 
         updated_at = CURRENT_TIMESTAMP 
       WHERE id = ?
     `;
@@ -445,11 +452,23 @@ router.delete("/:id", async (req, res) => {
 
     // Delete media file if exists
     if (banner.media) {
-      const mediaPath = path.join(__dirname, "../uploads/banners", banner.media);
+      const mediaPath = path.join(
+        __dirname,
+        "../uploads/banners",
+        banner.media
+      );
 
       if (fs.existsSync(mediaPath)) {
-        fs.unlinkSync(mediaPath);
-        console.log(`🗑️ Deleted media file: ${banner.media}`);
+        // WRAPPED IN TRY-CATCH TO PREVENT CRASH IF FILE DELETE FAILS
+        try {
+          fs.unlinkSync(mediaPath);
+          console.log(`🗑️ Deleted media file: ${banner.media}`);
+        } catch (err) {
+          console.error(
+            `⚠️ Failed to delete media file (proceeding with DB delete): ${mediaPath}`
+          );
+          console.error(err.message);
+        }
       } else {
         console.warn(`⚠️ Media file not found: ${mediaPath}`);
       }
@@ -457,7 +476,6 @@ router.delete("/:id", async (req, res) => {
 
     // Delete from database
     await db.query("DELETE FROM banners WHERE id = ?", [id]);
-
 
     console.log(`✅ Banner deleted successfully ID: ${id}`);
     res.json({ message: "Banner deleted successfully" });

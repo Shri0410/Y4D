@@ -13,13 +13,13 @@ import {
   canPublish,
 } from "../utils/permissions";
 
-const BannerManagement = ({ 
-  action, 
-  onClose, 
-  onActionChange, 
+const BannerManagement = ({
+  action,
+  onClose,
+  onActionChange,
   currentUser,
   onShowConfirmation,
-  onHideConfirmation 
+  onHideConfirmation,
 }) => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -295,7 +295,9 @@ const BannerManagement = ({
 
       logger.log("✅ Banner saved successfully:", response.data);
 
-      toast.success(`Banner ${editingId ? "updated" : "created"} successfully!`);
+      toast.success(
+        `Banner ${editingId ? "updated" : "created"} successfully!`
+      );
 
       // Reset form
       setBannerForm(bannerFormInitialState);
@@ -397,7 +399,9 @@ const BannerManagement = ({
         },
       });
 
-      toast.success(`Banner ${newStatus ? "activated" : "deactivated"} successfully!`);
+      toast.success(
+        `Banner ${newStatus ? "activated" : "deactivated"} successfully!`
+      );
       fetchBanners();
     } catch (error) {
       logger.error("❌ Error toggling banner status:", error);
@@ -446,11 +450,17 @@ const BannerManagement = ({
             onClick={() => {
               onShowConfirmation(
                 banner.is_active ? "Deactivate Banner" : "Activate Banner",
-                `Are you sure you want to ${banner.is_active ? "deactivate" : "activate"} "${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}" banner?`,
+                `Are you sure you want to ${
+                  banner.is_active ? "deactivate" : "activate"
+                } "${formatDisplayName(banner.page)} - ${formatDisplayName(
+                  banner.section
+                )}" banner?`,
                 banner.is_active ? "deactivate" : "activate",
                 banner.id,
                 "banners",
-                `${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}`,
+                `${formatDisplayName(banner.page)} - ${formatDisplayName(
+                  banner.section
+                )}`,
                 () => handleStatusToggle(banner.id, !banner.is_active)
               );
             }}
@@ -476,11 +486,17 @@ const BannerManagement = ({
             onClick={() => {
               onShowConfirmation(
                 "Delete Banner",
-                `Are you sure you want to delete "${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}" banner? This action cannot be undone.`,
+                `Are you sure you want to delete "${formatDisplayName(
+                  banner.page
+                )} - ${formatDisplayName(
+                  banner.section
+                )}" banner? This action cannot be undone.`,
                 "delete",
                 banner.id,
                 "banners",
-                `${formatDisplayName(banner.page)} - ${formatDisplayName(banner.section)}`,
+                `${formatDisplayName(banner.page)} - ${formatDisplayName(
+                  banner.section
+                )}`,
                 () => handleDelete(banner.id)
               );
             }}
@@ -580,8 +596,6 @@ const BannerManagement = ({
                     ))}
                   </optgroup>
                 )}
-
-                
               </select>
 
               {/* Help text for Our Work sections */}
