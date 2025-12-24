@@ -26,10 +26,11 @@ const OurWorkManagement = ({
   onActionChange,
   currentUser,
   onShowConfirmation,
-  onHideConfirmation, 
+  onHideConfirmation,
 }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false); // Separate state for form submission
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -121,11 +122,12 @@ const OurWorkManagement = ({
     } catch (error) {
       logger.error("Error fetching items:", error);
       setError("Failed to load items. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  // Save / Update Item
+  // Save / Update Item - FIXED VERSION
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -134,7 +136,9 @@ const OurWorkManagement = ({
       return;
     }
 
-    setLoading(true);
+    if (submitting) return; // Prevent double submission
+
+    setSubmitting(true);
     setError("");
 
     try {
@@ -175,19 +179,24 @@ const OurWorkManagement = ({
         );
       }
 
+      // Reset form and submission state first
       resetForm();
+      setSubmitting(false);
+
+      // Then change view and refresh items
       onActionChange("view");
       fetchItems();
 
       handleApiSuccess(response, {
-        customMessage: `Item ${editingItem ? "updated" : "created"} successfully!`,
+        customMessage: `Item ${
+          editingItem ? "updated" : "created"
+        } successfully!`,
       });
     } catch (error) {
       const errorMessage = handleApiError(error, { showToast: false });
       setError(errorMessage);
+      setSubmitting(false); // Always reset submitting state on error
     }
-
-    setLoading(false);
   };
 
   // Edit Item
@@ -298,6 +307,7 @@ const OurWorkManagement = ({
     setImageFile(null);
     setImagePreview(null);
     setError("");
+    setSubmitting(false); // Ensure submitting is reset
   };
 
   const cancelAction = () => {
@@ -328,7 +338,7 @@ const OurWorkManagement = ({
     );
   };
 
-  // Action buttons - FIXED VERSION
+  // Action buttons
   const renderItemActions = (item) => {
     const canEditItem = canUserPerformAction("edit");
     const canDeleteItem = canUserPerformAction("delete");
@@ -357,17 +367,19 @@ const OurWorkManagement = ({
           () => toggleStatus(item.id, item.is_active)
         );
       } else {
-          // Fallback to confirmDialog utility
-          (async () => {
-            const confirmed = await confirmDialog(
-              `Are you sure you want to ${item.is_active ? "deactivate" : "activate"} "${item.title}"?`,
-              item.is_active ? "Deactivate Item" : "Activate Item"
-            );
-            if (confirmed) {
-              toggleStatus(item.id, item.is_active);
-            }
-          })();
-        }
+        // Fallback to confirmDialog utility
+        (async () => {
+          const confirmed = await confirmDialog(
+            `Are you sure you want to ${
+              item.is_active ? "deactivate" : "activate"
+            } "${item.title}"?`,
+            item.is_active ? "Deactivate Item" : "Activate Item"
+          );
+          if (confirmed) {
+            toggleStatus(item.id, item.is_active);
+          }
+        })();
+      }
     };
 
     // Handle delete with confirmation
@@ -424,7 +436,7 @@ const OurWorkManagement = ({
     );
   };
 
-  // VIEW MODE (Updated UI)
+  // VIEW MODE
   const renderViewMode = () => {
     if (loading) return <div className="loading">Loading...</div>;
 
@@ -518,7 +530,7 @@ const OurWorkManagement = ({
     );
   };
 
-  // FORM MODE (Updated UI)
+  // FORM MODE
   const renderFormMode = () => {
     return (
       <div className="our-work-manager">
@@ -548,6 +560,7 @@ const OurWorkManagement = ({
                 setFormData({ ...formData, title: e.target.value })
               }
               required
+              disabled={submitting}
             />
           </div>
 
@@ -560,6 +573,7 @@ const OurWorkManagement = ({
               }
               rows="3"
               required
+              disabled={submitting}
             />
           </div>
 
@@ -572,6 +586,7 @@ const OurWorkManagement = ({
               }
               rows="6"
               placeholder="Detailed content (HTML supported)"
+              disabled={submitting}
             />
           </div>
 
@@ -584,12 +599,18 @@ const OurWorkManagement = ({
                 setFormData({ ...formData, image_url: e.target.value })
               }
               placeholder="https://example.com/image.jpg"
+              disabled={submitting}
             />
           </div>
 
           <div className="form-group">
             <label>Or Upload Image:</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              disabled={submitting}
+            />
             {imagePreview && (
               <div className="image-preview">
                 <img src={imagePreview} alt="Preview" />
@@ -606,6 +627,7 @@ const OurWorkManagement = ({
                 setFormData({ ...formData, video_url: e.target.value })
               }
               placeholder="https://youtube.com/embed/video-id"
+              disabled={submitting}
             />
           </div>
 
@@ -619,6 +641,7 @@ const OurWorkManagement = ({
                   is_active: e.target.value === "true",
                 })
               }
+              disabled={submitting}
             >
               <option value="true">Active</option>
               <option value="false">Inactive</option>
@@ -626,11 +649,23 @@ const OurWorkManagement = ({
           </div>
 
           <div className="form-actions">
-            <button type="submit" disabled={loading}>
-              {loading ? "Saving..." : editingItem ? "Update" : "Create"} Item
+            <button
+              type="submit"
+              disabled={submitting}
+              className={submitting ? "btn-submitting" : "btn-primary"}
+            >
+              {submitting ? (
+                <>
+                  <span className="spinner"></span> Saving...
+                </>
+              ) : editingItem ? (
+                "Update Item"
+              ) : (
+                "Create Item"
+              )}
             </button>
 
-            <button type="button" onClick={cancelAction}>
+            <button type="button" onClick={cancelAction} disabled={submitting}>
               Cancel
             </button>
           </div>

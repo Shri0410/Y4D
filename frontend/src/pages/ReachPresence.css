@@ -469,6 +469,9 @@
     top: -25px;
     left: 0px;
   }
+  .timeline-item {
+    margin-left: 0px;
+  }
 }
 
 /* Mobiles (≤768px) */

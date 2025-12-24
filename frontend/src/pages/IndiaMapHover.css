@@ -197,12 +197,12 @@
   .timeline-icon {
     margin-left: 0px;
   }
-  .timeline-item {
+  /* .timeline-item {
     display: flex;
     flex-direction: column;
     align-items: start;
     margin-left: 20px;
-  }
+  } */
 }
 
 @media (max-width: 768px) {
