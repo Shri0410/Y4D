@@ -5,6 +5,8 @@ const db = require("../config/database");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const { sendError, sendSuccess, sendNotFound, sendInternalError } = require("../utils/response");
+const consoleLogger = require("../utils/logger");
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -346,7 +348,8 @@ router.put("/:id", upload.single("media"), async (req, res) => {
     const modifiedById = modified_by_id ? parseInt(modified_by_id) : null;
 
     // First get current banner to handle media updates
-    const getQuery = "SELECT id FROM banners WHERE id = ?";
+    // IMPORTANT: Select 'media' field to preserve it when no new file is uploaded
+    const getQuery = "SELECT id, media FROM banners WHERE id = ?";
     const [currentResults] = await db.query(getQuery, [id]);
 
     if (currentResults.length === 0) {
@@ -355,28 +358,52 @@ router.put("/:id", upload.single("media"), async (req, res) => {
     }
 
     const currentBanner = currentResults[0];
+    // Preserve existing media if no new file is uploaded
     let media = currentBanner.media;
 
-    // If new media uploaded, use new media filename
+    // Only update media if a new file is actually uploaded
     if (req.file) {
       media = req.file.filename;
 
-      // Delete old media file
-      if (currentBanner.media) {
-        const oldMediaPath = path.join("uploads/banners/", currentBanner.media);
-        if (fs.existsSync(oldMediaPath)) {
+      // Delete old media file only if it exists and is different from new file
+      if (currentBanner.media && currentBanner.media !== media) {
+        // Try multiple possible paths (server compatibility)
+        const possiblePaths = [
+          path.join(process.cwd(), "uploads", "banners", currentBanner.media),
+          path.join(__dirname, "..", "uploads", "banners", currentBanner.media),
+          path.join(process.cwd(), "backend", "uploads", "banners", currentBanner.media),
+          path.join(process.cwd(), "..", "uploads", "banners", currentBanner.media),
+          path.join("uploads", "banners", currentBanner.media), // Relative path fallback
+        ];
+
+        let fileDeleted = false;
+        for (const oldMediaPath of possiblePaths) {
           try {
-            fs.unlinkSync(oldMediaPath);
-            console.log(`🗑️ Deleted old media: ${currentBanner.media}`);
+            if (fs.existsSync(oldMediaPath)) {
+              fs.unlinkSync(oldMediaPath);
+              consoleLogger.log(`🗑️ Deleted old media: ${currentBanner.media} from ${oldMediaPath}`);
+              fileDeleted = true;
+              break;
+            }
           } catch (err) {
-            console.warn(
-              `⚠️ Failed to delete old media: ${currentBanner.media}`,
-              err
+            consoleLogger.warn(
+              `⚠️ Failed to delete old media: ${oldMediaPath}`,
+              { error: err.message }
             );
+            // Continue to next path
           }
         }
+
+        if (!fileDeleted) {
+          consoleLogger.warn(
+            `⚠️ Old media file not found in any expected location: ${currentBanner.media}`
+          );
+        }
       }
-      console.log(`🖼️ New media uploaded: ${media}`);
+      consoleLogger.log(`🖼️ New media uploaded: ${media}`);
+    } else {
+      // No new file uploaded - preserve existing media
+      consoleLogger.log(`📌 Preserving existing media: ${currentBanner.media || 'none'}`);
     }
 
     const updateQuery = `
@@ -405,7 +432,7 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       id,
     ]);
 
-    console.log(`✅ Banner updated successfully ID: ${id}`);
+    consoleLogger.log(`✅ Banner updated successfully ID: ${id}`);
 
     // Return updated banner with user info
     const [updatedBanner] = await db.query(
@@ -420,16 +447,29 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       [id]
     );
 
-    res.json({
-      message: "Banner updated successfully",
-      banner: updatedBanner[0],
-    });
+    if (updatedBanner.length === 0) {
+      return sendNotFound(res, "Banner not found after update");
+    }
+
+    return sendSuccess(res, { banner: updatedBanner[0] }, "Banner updated successfully");
   } catch (error) {
-    console.error("❌ Error updating banner:", error);
-    res.status(500).json({
-      error: "Failed to update banner",
-      details: error.message,
+    consoleLogger.error("❌ Error updating banner:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      bannerId: id,
     });
+    
+    // Provide more specific error messages
+    if (error.code === 'ECONNREFUSED' || error.code === 'ER_ACCESS_DENIED_ERROR') {
+      return sendInternalError(res, error, "Database connection failed. Please contact administrator.");
+    }
+    
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return sendInternalError(res, error, "Database configuration error. Please contact administrator.");
+    }
+    
+    return sendInternalError(res, error, "Failed to update banner. Please try again or contact support.");
   }
 });
 
@@ -450,41 +490,85 @@ router.delete("/:id", async (req, res) => {
 
     const banner = results[0];
 
-    // Delete media file if exists
+    // Delete media file if exists (non-blocking - won't fail deletion if file delete fails)
     if (banner.media) {
-      const mediaPath = path.join(
-        __dirname,
-        "../uploads/banners",
-        banner.media
-      );
+      // Use process.cwd() instead of __dirname for better server compatibility
+      // Try multiple possible paths (server might have different directory structure)
+      const possiblePaths = [
+        path.join(process.cwd(), "uploads", "banners", banner.media),
+        path.join(__dirname, "..", "uploads", "banners", banner.media),
+        path.join(process.cwd(), "backend", "uploads", "banners", banner.media),
+        path.join(process.cwd(), "..", "uploads", "banners", banner.media),
+      ];
 
-      if (fs.existsSync(mediaPath)) {
-        // WRAPPED IN TRY-CATCH TO PREVENT CRASH IF FILE DELETE FAILS
+      consoleLogger.log("🔍 Searching for media file:", {
+        filename: banner.media,
+        cwd: process.cwd(),
+        __dirname: __dirname,
+        possiblePaths: possiblePaths,
+      });
+
+      let fileDeleted = false;
+      let foundPath = null;
+      
+      for (const mediaPath of possiblePaths) {
         try {
-          fs.unlinkSync(mediaPath);
-          console.log(`🗑️ Deleted media file: ${banner.media}`);
+          if (fs.existsSync(mediaPath)) {
+            foundPath = mediaPath;
+            fs.unlinkSync(mediaPath);
+            consoleLogger.log(`🗑️ Deleted media file: ${banner.media} from ${mediaPath}`);
+            fileDeleted = true;
+            break; // File found and deleted, exit loop
+          }
         } catch (err) {
-          console.error(
-            `⚠️ Failed to delete media file (proceeding with DB delete): ${mediaPath}`
+          consoleLogger.error(
+            `⚠️ Failed to delete media file: ${mediaPath}`,
+            {
+              error: err.message,
+              code: err.code,
+            }
           );
-          console.error(err.message);
+          // Continue to next path or proceed with DB delete
         }
-      } else {
-        console.warn(`⚠️ Media file not found: ${mediaPath}`);
+      }
+
+      if (!fileDeleted) {
+        consoleLogger.warn(
+          `⚠️ Media file not found in any expected location: ${banner.media}`,
+          {
+            searchedPaths: possiblePaths,
+            currentWorkingDirectory: process.cwd(),
+            __dirname: __dirname,
+          }
+        );
+        // Continue with DB delete even if file not found
+        // This is acceptable - file might have been manually deleted or moved
       }
     }
 
     // Delete from database
     await db.query("DELETE FROM banners WHERE id = ?", [id]);
 
-    console.log(`✅ Banner deleted successfully ID: ${id}`);
-    res.json({ message: "Banner deleted successfully" });
+    consoleLogger.log(`✅ Banner deleted successfully ID: ${id}`);
+    return sendSuccess(res, { id: parseInt(id) }, "Banner deleted successfully");
   } catch (error) {
-    console.error("❌ Error deleting banner:", error);
-    res.status(500).json({
-      error: "Failed to delete banner",
-      details: error.message,
+    consoleLogger.error("❌ Error deleting banner:", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      bannerId: id,
     });
+    
+    // Provide more specific error messages
+    if (error.code === 'ECONNREFUSED' || error.code === 'ER_ACCESS_DENIED_ERROR') {
+      return sendInternalError(res, error, "Database connection failed. Please contact administrator.");
+    }
+    
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return sendInternalError(res, error, "Database configuration error. Please contact administrator.");
+    }
+    
+    return sendInternalError(res, error, "Failed to delete banner. Please try again or contact support.");
   }
 });
 

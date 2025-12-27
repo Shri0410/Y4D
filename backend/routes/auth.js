@@ -40,16 +40,25 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
     if (results.length === 0) {
       const attemptQuery =
         "INSERT INTO login_attempts (ip_address, user_agent, success) VALUES (?, ?, FALSE)";
-      await db.query(attemptQuery, [req.ip, req.get("User-Agent")]);
+      try {
+        await db.query(attemptQuery, [req.ip, req.get("User-Agent")]);
+      } catch (dbError) {
+        consoleLogger.error("Failed to log login attempt:", dbError);
+        // Continue even if logging fails
+      }
 
-      await logger.logLogin(
+      // Log login attempt (non-blocking)
+      logger.logLogin(
         null,
         username,
         req.ip || req.connection.remoteAddress,
         req.get("User-Agent"),
         false,
         "User not found"
-      );
+      ).catch((logError) => {
+        consoleLogger.error("Failed to log login attempt:", logError);
+        // Don't break login flow if logging fails
+      });
 
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -64,7 +73,8 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
 
     // Check approval
     if (user.status !== "approved") {
-      await logger.warning(
+      // Log warning (non-blocking)
+      logger.warning(
         "authentication",
         `Login attempt by unapproved user: ${user.username}`,
         {
@@ -73,7 +83,9 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
           ip_address: req.ip || req.connection.remoteAddress,
           metadata: { status: user.status },
         }
-      );
+      ).catch((logError) => {
+        consoleLogger.error("Failed to log warning:", logError);
+      });
 
       return sendError(
         res,
@@ -90,23 +102,38 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
     if (!validPassword) {
       const attemptQuery =
         "INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, FALSE)";
-      await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
+      try {
+        await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
+      } catch (dbError) {
+        consoleLogger.error("Failed to log login attempt:", dbError);
+        // Continue even if logging fails
+      }
 
-      await logger.logLogin(
+      // Log login attempt (non-blocking)
+      logger.logLogin(
         user.id,
         user.username,
         req.ip || req.connection.remoteAddress,
         req.get("User-Agent"),
         false,
         "Invalid password"
-      );
+      ).catch((logError) => {
+        consoleLogger.error("Failed to log login attempt:", logError);
+        // Don't break login flow if logging fails
+      });
 
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Log successful login attempt (non-blocking)
     const attemptQuery =
       "INSERT INTO login_attempts (user_id, ip_address, user_agent, success) VALUES (?, ?, ?, TRUE)";
-    await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
+    try {
+      await db.query(attemptQuery, [user.id, req.ip, req.get("User-Agent")]);
+    } catch (dbError) {
+      consoleLogger.error("Failed to log successful login attempt:", dbError);
+      // Continue even if logging fails
+    }
 
     // Create token
     const token = jwt.sign(
@@ -115,13 +142,17 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    await logger.logLogin(
+    // Log successful login (non-blocking)
+    logger.logLogin(
       user.id,
       user.username,
       req.ip || req.connection.remoteAddress,
       req.get("User-Agent"),
       true
-    );
+    ).catch((logError) => {
+      consoleLogger.error("Failed to log successful login:", logError);
+      // Don't break login flow if logging fails
+    });
 
     res.json({
       message: "Login successful",
@@ -135,8 +166,24 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
       },
     });
   } catch (error) {
-    consoleLogger.error("❌ Login error:", error);
-    return sendInternalError(res, error, "Login failed");
+    consoleLogger.error("❌ Login error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+    });
+    
+    // Provide more specific error messages
+    if (error.code === 'ECONNREFUSED' || error.code === 'ER_ACCESS_DENIED_ERROR') {
+      return sendInternalError(res, error, "Database connection failed. Please contact administrator.");
+    }
+    
+    if (error.code === 'ER_NO_SUCH_TABLE') {
+      return sendInternalError(res, error, "Database configuration error. Please contact administrator.");
+    }
+    
+    // Generic error
+    return sendInternalError(res, error, "Login failed. Please try again or contact support.");
   }
 });
 
