@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { getReports } from "../services/api";
 import bannerImg from "../assets/BannerImages/f.jpeg";
+import { useLocation } from "react-router-dom";
 
 import QE from "../assets/Interventions/i/Education.png";
 import LS from "../assets/Interventions/i/Livelihood.png";
@@ -23,6 +24,23 @@ const OurWork = () => {
     environment: useRef(null),
     idp: useRef(null),
   };
+const location = useLocation();
+
+useEffect(() => {
+  if (location.hash) {
+    const id = location.hash.replace("#", "");
+    const targetRef = sectionRefs[id];
+
+    if (targetRef?.current) {
+      setTimeout(() => {
+        targetRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 300);
+    }
+  }
+}, [location]);
 
   // Intervention data
   const interventions = [

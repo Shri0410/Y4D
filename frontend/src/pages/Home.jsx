@@ -436,54 +436,64 @@ const Home = () => {
       </section>
 
       {/* Our Interventions Section */}
-      <section className="Interventions-section" data-aos="fade-up">
-        <div className="Interventions-container">
-          <h2 className="Inter-title" data-aos="fade-up" data-aos-delay="100">
-            Our Interventions<span></span>
-          </h2>
-          <div className="grid grid-3">
-            {[
-              {
-                title: "Quality Education",
-                img: edu,
-              },
-              {
-                title: " Livelihood",
-                img: livelihood,
-              },
-              {
-                title: " Healthcare",
-                img: healthcare,
-              },
-              {
-                title: " Environment & Sustainability",
-                img: environment,
-              },
-              {
-                title: "Integrated Development Program",
-                img: idp,
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="card text-center intervention-card"
-                data-aos="zoom-in"
-                data-aos-delay={200 + index * 100}
-              >
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="intervention-icon"
-                />
-                <h3>{item.title}</h3>
-                <Link to="/our-work" className="inter-btn">
-                  Learn More
-                </Link>
-              </div>
-            ))}
-          </div>
+<section className="Interventions-section" data-aos="fade-up">
+  <div className="Interventions-container">
+    <h2 className="Inter-title" data-aos="fade-up" data-aos-delay="100">
+      Our Interventions<span></span>
+    </h2>
+
+    <div className="grid grid-3">
+      {[
+        {
+          title: "Quality Education",
+          img: edu,
+          link: "/our-work#education",
+        },
+        {
+          title: "Livelihood",
+          img: livelihood,
+          link: "/our-work#livelihood",
+        },
+        {
+          title: "Healthcare",
+          img: healthcare,
+          link: "/our-work#healthcare",
+        },
+        {
+          title: "Environment & Sustainability",
+          img: environment,
+          link: "/our-work#environment",
+        },
+        {
+          title: "Integrated Development Program",
+          img: idp,
+          link: "/our-work#idp",
+        },
+      ].map((item, index) => (
+        <div
+          key={index}
+          className="card text-center intervention-card"
+          data-aos="zoom-in"
+          data-aos-delay={200 + index * 100}
+        >
+          <img
+            src={item.img}
+            alt={item.title}
+            className="intervention-icon"
+          />
+
+          <h3>{item.title}</h3>
+
+          {/* ✅ HASH NAVIGATION */}
+          <Link to={item.link} className="inter-btn">
+            Learn More
+          </Link>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
+
 
       {/* SDGs Section */}
       <section className="SDGs-section">
@@ -696,7 +706,7 @@ const Home = () => {
               security. Over the past decade, Y4D has made significant
               contributions to these key sectors.
             </p>
-            <Link to="/our-work" className="about-btn">
+            <Link to="/about" className="about-btn">
               Know More
             </Link>
           </div>

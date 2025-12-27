@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from "react";
 import "./ReachPresence.css";
 import IndiaMapHover from "./IndiaMapHover";
-import map from "../assets/Imap.png";
+import map from "../assets/map1.png";
 import logger from "../utils/logger";
+import Counter from "../component/Counter";
+
+// ✅ IMPORT SAME API USED IN HOME
+import {
+  getMentors,
+  getManagement,
+  getReports,
+  getImpactData,
+} from "../services/api.jsx";
 
 export default function ReachPresence() {
   const [teamCount, setTeamCount] = useState(0);
@@ -14,58 +23,60 @@ export default function ReachPresence() {
   });
   const [loading, setLoading] = useState(true);
 
-  const getMentors = async () => [];
-  const getManagement = async () => [];
-  const getReports = async () => [];
-  const getImpactData = async () => ({
-    beneficiaries: 15,
-    states: 20,
-    projects: 50,
-  });
-
   useEffect(() => {
-    const fetchHomeData = async () => {
+    const fetchImpactData = async () => {
       try {
-        const [mentorsData, managementData, reportsData, impactData] =
-          await Promise.all([
-            getMentors(),
-            getManagement(),
-            getReports(),
-            getImpactData(),
-          ]);
+        setLoading(true);
+
+        const [
+          mentorsData,
+          managementData,
+          reportsData,
+          impactData,
+        ] = await Promise.all([
+          getMentors().catch(() => []),
+          getManagement().catch(() => []),
+          getReports().catch(() => []),
+          getImpactData().catch(() => ({
+            beneficiaries: 0,
+            states: 0,
+            projects: 0,
+          })),
+        ]);
 
         setTeamCount(mentorsData.length + managementData.length);
         setReportsCount(reportsData.length);
         setImpact(impactData);
       } catch (err) {
-        logger.error("Error fetching home data:", err);
+        logger.error("❌ Error fetching ReachPresence impact data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHomeData();
+    fetchImpactData();
   }, []);
 
   return (
     <div>
-      {/* Our Impact Section */}
+      {/* ================= OUR IMPACT ================= */}
       <section className="rp-section">
         <div className="rp-container">
           <h2 className="rp-impact-title">
             Our Impact<span></span>
           </h2>
+
           <div className="rpi-grid">
             <div className="rpi-item">
               <h3 className="rpi-number">
-                <Counter end={impact.beneficiaries} />
-                L+
+                <Counter end={impact.beneficiaries} />L+
               </h3>
               <p className="rpi-subtitle">Beneficiaries</p>
               <p className="rpi-text">
                 Children and their families are impacted every year
               </p>
             </div>
+
             <div className="rpi-item">
               <h3 className="rpi-number">
                 <Counter end={impact.states} />+
@@ -76,6 +87,7 @@ export default function ReachPresence() {
                 communities
               </p>
             </div>
+
             <div className="rpi-item">
               <h3 className="rpi-number">
                 <Counter end={impact.projects} />+
@@ -188,8 +200,4 @@ export default function ReachPresence() {
       </div>
     </div>
   );
-}
-
-function Counter({ end }) {
-  return <span>{end}</span>;
 }
