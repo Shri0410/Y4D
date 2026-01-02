@@ -203,8 +203,12 @@
   box-shadow: 0 4px 8px rgba(251, 100, 1, 0.3);
 }
 
-.nav-link-btn:hover i {
+.nav-link-btn:hover i.fa-globe {
   transform: rotate(15deg) scale(1.1);
+}
+
+.nav-link-btn:hover i.fa-map-marker-alt {
+  transform: scale(1.2) translateY(-2px);
 }
 
 .D-btn {
