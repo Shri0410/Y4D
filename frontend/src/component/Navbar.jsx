@@ -256,7 +256,14 @@ const Navbar = () => {
                 Contact Us
               </Link>
             </li>
-            <li>
+            <li className="nav-buttons-group">
+              <button 
+                className="nav-link-btn" 
+                onClick={() => window.open("https://global.y4dinfo.org", "_blank")}
+                title="Visit Global Y4D"
+              >
+                Global
+              </button>
               <button className="D-btn" onClick={goToDonate}>
                 Donate Now
               </button>
