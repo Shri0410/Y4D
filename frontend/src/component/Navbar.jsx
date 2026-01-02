@@ -260,9 +260,10 @@ const Navbar = () => {
               <button 
                 className="nav-link-btn" 
                 onClick={() => window.open("https://global.y4dinfo.org", "_blank")}
-                title="Visit Global Y4D"
+                title="Visit Y4D Global"
               >
-                Global
+                <i className="fas fa-globe"></i>
+                <span>Y4D Global</span>
               </button>
               <button className="D-btn" onClick={goToDonate}>
                 Donate Now

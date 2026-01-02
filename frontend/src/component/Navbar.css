@@ -188,6 +188,12 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+}
+
+.nav-link-btn i {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
 }
 
 .nav-link-btn:hover {
@@ -195,6 +201,10 @@
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(251, 100, 1, 0.3);
+}
+
+.nav-link-btn:hover i {
+  transform: rotate(15deg) scale(1.1);
 }
 
 .D-btn {
