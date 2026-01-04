@@ -1,11 +1,11 @@
 // src/pages/Healthcare.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import "./Healthcare.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { bannerService } from "../api/services/banners.service";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
 const Healthcare = () => {
@@ -21,7 +21,7 @@ const Healthcare = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching healthcare page banners...');
-        const bannersData = await getBanners('our-work', 'healthcare');
+        const bannersData = await bannerService.getBanners('our-work', 'healthcare');
         logger.log('✅ Healthcare banners received:', bannersData);
         setHealthcareBanners(bannersData);
       } catch (error) {
@@ -50,10 +50,8 @@ const Healthcare = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/healthcare`
-      );
-      setItems(response.data);
+      const itemsData = await ourworkService.getItemsByCategory("healthcare", { active_only: true });
+      setItems(itemsData);
     } catch (error) {
       logger.error("Error fetching healthcare initiatives:", error);
       setError("Failed to load healthcare initiatives");

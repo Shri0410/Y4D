@@ -1,12 +1,12 @@
 // src/pages/IDP.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import "./IDP.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import DonateButton from "../component/DonateButton";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { bannerService } from "../api/services/banners.service";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import DonateButton from "../component/Common/DonateButton";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
 const IDP = () => {
@@ -22,7 +22,7 @@ const IDP = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching IDP page banners...');
-        const bannersData = await getBanners('our-work', 'idp');
+        const bannersData = await bannerService.getBanners('our-work', 'idp');
         logger.log('✅ IDP banners received:', bannersData);
         setIdpBanners(bannersData);
       } catch (error) {
@@ -54,10 +54,8 @@ const IDP = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/integrated_development`
-      );
-      setItems(response.data);
+      const itemsData = await ourworkService.getItemsByCategory("integrated_development", { active_only: true });
+      setItems(itemsData);
     } catch (error) {
       logger.error("Error fetching IDP programs:", error);
       setError("Failed to load integrated development programs");

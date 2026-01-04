@@ -4,15 +4,12 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { Link } from "react-router-dom";
 import Slider from "react-slick";
-import Counter from "../component/Counter";
+import Counter from "../component/Common/Counter";
 import {
-  getMentors,
-  getManagement,
-  getReports,
-  getImpactData,
-  getAccreditations,
-  getBanners,
-} from "../services/api.jsx";
+  impactService,
+  accreditationsService,
+  bannerService,
+} from "../api/services";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 import "slick-carousel/slick/slick.css";
@@ -28,7 +25,7 @@ import idp from "../assets/Interventions/IDP.png";
 import Partners1 from "./Partners1";
 import Partners2 from "./Partners2";
 
-import DonateButton from "../component/DonateButton";
+import DonateButton from "../component/Common/DonateButton";
 import fallbackBanner from "../assets/BannerImages/f.jpeg";
 
 import LogoSlider from "./LogoSlider.jsx";
@@ -75,32 +72,32 @@ const Home = () => {
           heroBannersData,
           campaignBannersData,
         ] = await Promise.all([
-          getMentors().catch((err) => {
+          impactService.getMentors().catch((err) => {
             logger.error("❌ Error fetching mentors:", err);
             return [];
           }),
-          getManagement().catch((err) => {
+          impactService.getManagement().catch((err) => {
             logger.error("❌ Error fetching management:", err);
             return [];
           }),
-          getReports().catch((err) => {
+          impactService.getReports().catch((err) => {
             logger.error("❌ Error fetching reports:", err);
             return [];
           }),
-          getImpactData().catch((err) => {
+          impactService.getImpactData().catch((err) => {
             logger.error("❌ Error fetching impact data:", err);
             return { beneficiaries: 0, states: 0, projects: 0 };
           }),
-          getAccreditations().catch((err) => {
+          accreditationsService.getAccreditations().catch((err) => {
             logger.error("❌ Error fetching accreditations:", err);
             setAccreditationsError(true);
             return [];
           }),
-          getBanners("home", "hero").catch((err) => {
+          bannerService.getBanners("home", "hero").catch((err) => {
             logger.error("❌ Error fetching hero banners:", err);
             return [];
           }),
-          getBanners("home", "campaigns").catch((err) => {
+          bannerService.getBanners("home", "campaigns").catch((err) => {
             logger.error("❌ Error fetching campaign banners:", err);
             return [];
           }),

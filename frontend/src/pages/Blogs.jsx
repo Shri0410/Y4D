@@ -1,10 +1,10 @@
 // src/pages/Blogs.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Blogs.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 
@@ -20,7 +20,7 @@ const Blogs = () => {
       try {
         setBannersLoading(true);
         logger.log("🔄 Fetching blogs page banners...");
-        const bannersData = await getBanners("media-corner", "blogs");
+        const bannersData = await bannerService.getBanners("media-corner", "blogs");
         logger.log("✅ Blogs banners received:", bannersData);
         setBlogsBanners(bannersData);
       } catch (error) {
@@ -40,8 +40,8 @@ const Blogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/media/published/blogs`);
-      setBlogs(response.data);
+      const blogsData = await mediaService.getPublishedMedia("blogs");
+      setBlogs(blogsData);
     } catch (error) {
       logger.error("Error fetching blogs:", error);
     } finally {

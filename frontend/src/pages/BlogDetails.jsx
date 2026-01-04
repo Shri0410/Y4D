@@ -1,8 +1,8 @@
 // src/pages/BlogDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import "./BlogDetails.css";
 import logger from "../utils/logger";
 
@@ -15,8 +15,8 @@ const BlogDetails = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/media/blogs/${id}`);
-        setBlog(res.data);
+        const blogData = await mediaService.getMediaById("blogs", id);
+        setBlog(blogData);
       } catch (err) {
         logger.error("Error fetching blog:", err);
         setBlog(null);
@@ -26,7 +26,7 @@ const BlogDetails = () => {
     };
 
     fetchBlog();
-  }, [id, API_BASE]);
+  }, [id]);
 
   const renderTags = (tags) => {
     if (!tags) return null;

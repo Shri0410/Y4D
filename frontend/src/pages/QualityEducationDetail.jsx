@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 import "./QualityEducationDetail.css";
 
@@ -62,9 +62,8 @@ const QualityEducationDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/our-work/published/quality_education/${id}`;
-      const response = await axios.get(url);
-      setItem(response.data);
+      const itemData = await ourworkService.getItemById("quality_education", id);
+      setItem(itemData);
     } catch (err) {
       logger.error("Error fetching details:", err);
       setError("Failed to load program details");

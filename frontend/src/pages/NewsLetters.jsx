@@ -1,9 +1,9 @@
 // src/pages/Newsletters.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./NewsLetters.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 const Newsletters = () => {
@@ -18,7 +18,7 @@ const Newsletters = () => {
       try {
         setBannersLoading(true);
         logger.log("🔄 Fetching newsletter page banners...");
-        const bannersData = await getBanners("media-corner", "newsletters");
+        const bannersData = await bannerService.getBanners("media-corner", "newsletters");
         logger.log("✅ Newsletter banners received:", bannersData);
         setNewsletterBanners(bannersData);
       } catch (error) {
@@ -38,10 +38,8 @@ const Newsletters = () => {
 
   const fetchNewsletters = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/media/published/newsletters`
-      );
-      setNewsletters(response.data);
+      const newslettersData = await mediaService.getPublishedMedia("newsletters");
+      setNewsletters(newslettersData);
     } catch (error) {
       logger.error("Error fetching newsletters:", error);
     }
