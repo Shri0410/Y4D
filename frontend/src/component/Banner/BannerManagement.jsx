@@ -1,18 +1,18 @@
 // Updated BannerManagement.jsx file with toast integration
 import React, { useState, useEffect } from "react";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import { bannerService } from "../api/services/banners.service";
-import { useLoadingState } from "../hooks/useLoadingState";
+import { API_BASE, UPLOADS_BASE } from "../../config/api";
+import { bannerService } from "../../api/services/banners.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
 import "./BannerManagement.css";
-import logger from "../utils/logger";
-import toast from "../utils/toast";
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
 import {
   canView,
   canCreate,
   canEdit,
   canDelete,
   canPublish,
-} from "../utils/permissions";
+} from "../../utils/permissions";
 
 const BannerManagement = ({
   action,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import { mediaService } from "../api/services/media.service";
-import { useApi } from "../hooks/useApi";
-import { useLoadingState } from "../hooks/useLoadingState";
-import logger from "../utils/logger";
-import toast from "../utils/toast";
-import confirmDialog from "../utils/confirmDialog";
+import { API_BASE, UPLOADS_BASE } from "../../config/api";
+import { mediaService } from "../../api/services/media.service";
+import { useApi } from "../../hooks/useApi";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
+import confirmDialog from "../../utils/confirmDialog";
 
 const MediaManager = ({ mediaType, onClose }) => {
   const [editingItem, setEditingItem] = useState(null);

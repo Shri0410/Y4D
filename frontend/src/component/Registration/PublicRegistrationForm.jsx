@@ -1,9 +1,9 @@
 // src/components/PublicRegistrationForm.jsx
 import React, { useState } from "react";
-import { registrationService } from "../api/services/registration.service";
-import { useLoadingState } from "../hooks/useLoadingState";
+import { registrationService } from "../../api/services/registration.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
 import "./RegistrationForm.css";
-import logo from "../assets/Y4D LOGO LOADING.png";
+import logo from "../../assets/landing_logo.png";
 import { useNavigate } from "react-router-dom";
 
 const PublicRegistrationForm = () => {

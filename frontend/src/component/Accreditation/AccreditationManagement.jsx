@@ -1,16 +1,16 @@
 // Updated AccreditationManagement.jsx with toast integration
 import React, { useState, useEffect } from "react";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import { accreditationsService } from "../api/services/accreditations.service";
-import logger from "../utils/logger";
-import toast from "../utils/toast";
+import { API_BASE, UPLOADS_BASE } from "../../config/api";
+import { accreditationsService } from "../../api/services/accreditations.service";
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
 import {
   canView,
   canCreate,
   canEdit,
   canDelete,
   canPublish,
-} from "../utils/permissions";
+} from "../../utils/permissions";
 
 const AccreditationManagement = ({
   action,

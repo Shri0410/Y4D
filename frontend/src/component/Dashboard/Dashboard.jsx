@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import { impactService } from "../api/services/impact.service";
-import { careerService } from "../api/services/careers.service";
-import { mediaService } from "../api/services/media.service";
-import { useLoadingState } from "../hooks/useLoadingState";
+import { API_BASE, UPLOADS_BASE } from "../../config/api";
+import { impactService } from "../../api/services/impact.service";
+import { careerService } from "../../api/services/careers.service";
+import { mediaService } from "../../api/services/media.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
 import UserManagement from "../User/UserManagement";
 import RegistrationRequests from "../Registration/RegistrationRequests";
 import MediaManager from "../Media/MediaManager";
@@ -13,7 +13,7 @@ import AccreditationManagement from "../Accreditation/AccreditationManagement";
 import BannerManagement from "../Banner/BannerManagement";
 import SanitizedHTML from "../Common/SanitizedHTML";
 import "./Dashboard.css";
-import logger from "../utils/logger";
+import logger from "../../utils/logger";
 import {
   canView,
   canCreate,
@@ -22,8 +22,8 @@ import {
   canPublish,
   fetchUserPermissions,
   clearPermissionsCache,
-} from "../utils/permissions";
-import toast from "../utils/toast";
+} from "../../utils/permissions";
+import toast from "../../utils/toast";
 
 const GRID_MEDIA_TYPES = [
   "newsletters",

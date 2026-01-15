@@ -1,9 +1,9 @@
 // src/component/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "../assets/Y4D LOGO NAVBAR.png";
+import logo from "../../assets/navbar_logo.png";
 import "./Navbar.css";
-import helpingHands from "../assets/handshake.png";
+import helpingHands from "../../assets/handshake.png";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);

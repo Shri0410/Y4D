@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { registrationService } from "../api/services/registration.service";
-import { useLoadingState } from "../hooks/useLoadingState";
+import { registrationService } from "../../api/services/registration.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
 import "../User/UserManagement.css"; // reuse the same styles
-import logger from "../utils/logger";
-import toast from "../utils/toast";
-import confirmDialog from "../utils/confirmDialog";
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
+import confirmDialog from "../../utils/confirmDialog";
 
 const RegistrationRequests = () => {
   const [requests, setRequests] = useState([]);

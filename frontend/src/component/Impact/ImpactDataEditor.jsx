@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { impactService } from '../api/services/impact.service';
-import logger from "../utils/logger";
-import toast from "../utils/toast";
+import { impactService } from '../../api/services/impact.service';
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
 
 const ImpactDataEditor = () => {
   const [impactData, setImpactData] = useState({

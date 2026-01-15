@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { UPLOADS_BASE } from '../config/api';
-import { ourworkService } from '../api/services/ourwork.service';
-import logger from "../utils/logger";
-import toast from "../utils/toast";
-import confirmDialog from "../utils/confirmDialog";
+import { UPLOADS_BASE } from '../../config/api';
+import { ourworkService } from '../../api/services/ourwork.service';
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
+import confirmDialog from "../../utils/confirmDialog";
 
 const OurWorkManager = ({ category, onClose }) => {
   const [items, setItems] = useState([]);

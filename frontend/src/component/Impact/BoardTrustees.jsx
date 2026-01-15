@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { impactService } from '../api/services/impact.service';
+import { impactService } from '../../api/services/impact.service';
 import "./BoardTrustees.css";
-import logger from "../utils/logger";
-import confirmDialog from "../utils/confirmDialog";
-import toast from "../utils/toast";
+import logger from "../../utils/logger";
+import confirmDialog from "../../utils/confirmDialog";
+import toast from "../../utils/toast";
 
 const BoardTrustees = () => {
   const [trustees, setTrustees] = useState([]);

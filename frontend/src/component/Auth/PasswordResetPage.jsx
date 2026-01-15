@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../api/services/auth.service";
-import { useLoadingState } from "../hooks/useLoadingState";
-import { extractErrorMessage } from "../utils/apiResponse";
+import { authService } from "../../api/services/auth.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import { extractErrorMessage } from "../../utils/apiResponse";
 import "./PasswordResetPage.css";
-import logo from "../assets/Y4D LOGO LOADING.png";
+import logo from "../../assets/landing_logo.png";
 
 const PasswordResetPage = () => {
   const [email, setEmail] = useState("");

@@ -1,6 +1,6 @@
 // src/component/PageTransition.jsx
 import React from "react";
-import logo from "../assets/Y4D LOGO LOADING.png"; // adjust path
+import logo from "../../assets/landing_logo.png";
 
 const PageTransition = () => {
   return (

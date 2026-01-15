@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import { ourworkService } from "../api/services/ourwork.service";
-import { useApi } from "../hooks/useApi";
-import { useLoadingState } from "../hooks/useLoadingState";
-import toast from "../utils/toast";
-import logger from "../utils/logger";
-import confirmDialog from "../utils/confirmDialog";
+import { API_BASE, UPLOADS_BASE } from "../../config/api";
+import { ourworkService } from "../../api/services/ourwork.service";
+import { useApi } from "../../hooks/useApi";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import toast from "../../utils/toast";
+import logger from "../../utils/logger";
+import confirmDialog from "../../utils/confirmDialog";
 import "./OurWorkManagement.css";
 import {
   canView,
@@ -13,7 +13,7 @@ import {
   canEdit,
   canDelete,
   canPublish,
-} from "../utils/permissions";
+} from "../../utils/permissions";
 
 const OurWorkManagement = ({
   category,

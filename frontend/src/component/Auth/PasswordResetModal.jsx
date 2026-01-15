@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { authService } from "../api/services/auth.service";
-import { useLoadingState } from "../hooks/useLoadingState";
-import { extractErrorMessage } from "../utils/apiResponse";
+import { authService } from "../../api/services/auth.service";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import { extractErrorMessage } from "../../utils/apiResponse";
 import "./PasswordResetModal.css";
 
 const PasswordResetModal = ({ onClose }) => {

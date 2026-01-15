@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../api/services/auth.service";
-import { setToken, setUser } from "../utils/tokenManager";
-import { useLoadingState } from "../hooks/useLoadingState";
-import { extractErrorMessage, handleApiError } from "../utils/apiResponse";
+import { authService } from "../../api/services/auth.service";
+import { setToken, setUser } from "../../utils/tokenManager";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import { extractErrorMessage, handleApiError } from "../../utils/apiResponse";
 import RegistrationModal from "../Registration/RegistrationModal";
 import PasswordResetModal from "./PasswordResetModal";
 import "./LoginPage.css";
-import logo from "../assets/Y4D LOGO LOADING.png";
+import logo from "../../assets/landing_logo.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
 
 const LoginPage = ({ onLogin, onAdminLogin }) => {

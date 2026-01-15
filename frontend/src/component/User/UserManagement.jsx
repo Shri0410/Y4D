@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { usersService } from "../api/services/users.service";
-import { useApi } from "../hooks/useApi";
-import { useLoadingState } from "../hooks/useLoadingState";
-import { API_BASE } from "../config/api";
+import { usersService } from "../../api/services/users.service";
+import { useApi } from "../../hooks/useApi";
+import { useLoadingState } from "../../hooks/useLoadingState";
+import { API_BASE } from "../../config/api";
 import "./UserManagement.css";
-import logger from "../utils/logger";
-import toast from "../utils/toast";
+import logger from "../../utils/logger";
+import toast from "../../utils/toast";
 
 const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);

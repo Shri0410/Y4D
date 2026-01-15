@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../config/api';
+import { API_BASE } from '../../config/api';
 import axios from 'axios';
-import logger from "../utils/logger";
+import logger from "../../utils/logger";
 
 const RegistrationModal = ({ onClose }) => {
   const [formData, setFormData] = useState({
