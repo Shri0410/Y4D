@@ -235,13 +235,15 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST new banner
-router.post("/", upload.single("media"), async (req, res) => {
+router.post("/", upload.array("media"), async (req, res) => {
   try {
-    console.log("➕ Creating new banner");
+    console.log("➕ Creating new banner(s)");
 
     const { media_type, page, section, category, is_active, modified_by_id } =
       req.body;
-    const media = req.file ? req.file.filename : null;
+
+    // Check for files (multiple) or single file (if coming from single upload form, though we're changing to array)
+    const files = req.files;
 
     console.log("📤 Banner data:", {
       media_type,
@@ -250,7 +252,7 @@ router.post("/", upload.single("media"), async (req, res) => {
       category,
       is_active,
       modified_by_id,
-      media: media ? "file uploaded" : "no file",
+      files_count: files ? files.length : 0,
     });
 
     // Validate required fields
@@ -260,9 +262,9 @@ router.post("/", upload.single("media"), async (req, res) => {
       });
     }
 
-    if (!media) {
+    if (!files || files.length === 0) {
       return res.status(400).json({
-        error: "Media file is required",
+        error: "Media files are required",
       });
     }
 
@@ -271,43 +273,53 @@ router.post("/", upload.single("media"), async (req, res) => {
       is_active === "true" || is_active === true || is_active === "1";
     const modifiedById = modified_by_id ? parseInt(modified_by_id) : null;
 
-    const query = `
-      INSERT INTO banners (
-        media_type, media, page, section, category, is_active,
-        last_modified_by, last_modified_at
-      ) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    `;
+    const createdBanners = [];
+    const errors = [];
 
-    const [result] = await db.query(query, [
-      media_type,
-      media,
-      page,
-      section,
-      category || "main",
-      isActive,
-      modifiedById,
-    ]);
+    // Process each file
+    for (const file of files) {
+      try {
+        const query = `
+          INSERT INTO banners (
+            media_type, media, page, section, category, is_active,
+            last_modified_by, last_modified_at
+          ) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `;
 
-    console.log(`✅ Banner created successfully with ID: ${result.insertId}`);
+        const [result] = await db.query(query, [
+          media_type,
+          file.filename, // Use the filename from multer
+          page,
+          section,
+          category || "main",
+          isActive,
+          modifiedById,
+        ]);
 
-    // Return the complete banner data with user info
-    const [newBanner] = await db.query(
-      `
-      SELECT 
-        b.*,
-        u.username as last_modified_by_name
-      FROM banners b
-      LEFT JOIN users u ON b.last_modified_by = u.id
-      WHERE b.id = ?
-    `,
-      [result.insertId]
-    );
+        createdBanners.push({
+          id: result.insertId,
+          media: file.filename
+        });
+
+        console.log(`✅ Banner created successfully: ${file.filename} (ID: ${result.insertId})`);
+      } catch (err) {
+        console.error(`❌ Error inserting banner for file ${file.originalname}:`, err);
+        errors.push({ file: file.originalname, error: err.message });
+      }
+    }
+
+    if (createdBanners.length === 0 && errors.length > 0) {
+      return res.status(500).json({
+        error: "Failed to create any banners",
+        details: errors
+      });
+    }
 
     res.status(201).json({
-      message: "Banner created successfully",
-      id: result.insertId,
-      banner: newBanner[0],
+      message: `${createdBanners.length} banners created successfully`,
+      created_banners: createdBanners,
+      errors: errors.length > 0 ? errors : undefined
     });
   } catch (error) {
     console.error("❌ Error creating banner:", error);
@@ -459,16 +471,16 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       code: error.code,
       bannerId: id,
     });
-    
+
     // Provide more specific error messages
     if (error.code === 'ECONNREFUSED' || error.code === 'ER_ACCESS_DENIED_ERROR') {
       return sendInternalError(res, error, "Database connection failed. Please contact administrator.");
     }
-    
+
     if (error.code === 'ER_NO_SUCH_TABLE') {
       return sendInternalError(res, error, "Database configuration error. Please contact administrator.");
     }
-    
+
     return sendInternalError(res, error, "Failed to update banner. Please try again or contact support.");
   }
 });
@@ -510,7 +522,7 @@ router.delete("/:id", async (req, res) => {
 
       let fileDeleted = false;
       let foundPath = null;
-      
+
       for (const mediaPath of possiblePaths) {
         try {
           if (fs.existsSync(mediaPath)) {
@@ -558,16 +570,16 @@ router.delete("/:id", async (req, res) => {
       code: error.code,
       bannerId: id,
     });
-    
+
     // Provide more specific error messages
     if (error.code === 'ECONNREFUSED' || error.code === 'ER_ACCESS_DENIED_ERROR') {
       return sendInternalError(res, error, "Database connection failed. Please contact administrator.");
     }
-    
+
     if (error.code === 'ER_NO_SUCH_TABLE') {
       return sendInternalError(res, error, "Database configuration error. Please contact administrator.");
     }
-    
+
     return sendInternalError(res, error, "Failed to delete banner. Please try again or contact support.");
   }
 });
