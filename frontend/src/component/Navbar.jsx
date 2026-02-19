@@ -12,8 +12,21 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Check current domain to determine which button to show
+  const currentHostname = window.location.hostname;
+  const isGlobalDomain = currentHostname === 'global.y4dinfo.org' || currentHostname.includes('global');
+  const isIndiaDomain = currentHostname === 'app.y4dinfo.org' || currentHostname.includes('app');
+
   const goToDonate = () => {
     navigate("/DonateNow");
+  };
+
+  const goToGlobal = () => {
+    window.open("https://global.y4dinfo.org", "_blank");
+  };
+
+  const goToIndia = () => {
+    window.open("https://app.y4dinfo.org", "_blank");
   };
 
   useEffect(() => {
@@ -256,7 +269,40 @@ const Navbar = () => {
                 Contact Us
               </Link>
             </li>
-            <li>
+            <li className="nav-buttons-group">
+              {/* Show Y4D India button when on global domain */}
+              {isGlobalDomain && (
+                <button 
+                  className="nav-link-btn" 
+                  onClick={goToIndia}
+                  title="Visit Y4D India"
+                >
+                  <i className="fas fa-map-marker-alt"></i>
+                  <span>Y4D India</span>
+                </button>
+              )}
+              {/* Show Y4D Global button when on India domain or localhost */}
+              {isIndiaDomain && (
+                <button 
+                  className="nav-link-btn" 
+                  onClick={goToGlobal}
+                  title="Visit Y4D Global"
+                >
+                  <i className="fas fa-globe"></i>
+                  <span>Y4D Global</span>
+                </button>
+              )}
+              {/* Show Y4D Global button by default (for localhost/development) */}
+              {!isGlobalDomain && !isIndiaDomain && (
+                <button 
+                  className="nav-link-btn" 
+                  onClick={goToGlobal}
+                  title="Visit Y4D Global"
+                >
+                  <i className="fas fa-globe"></i>
+                  <span>Y4D Global</span>
+                </button>
+              )}
               <button className="D-btn" onClick={goToDonate}>
                 Donate Now
               </button>
