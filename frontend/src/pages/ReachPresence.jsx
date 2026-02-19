@@ -3,7 +3,7 @@ import "./ReachPresence.css";
 import IndiaMapHover from "./IndiaMapHover";
 import map from "../assets/map1.png";
 import logger from "../utils/logger";
-import Counter from "../component/Counter";
+import Counter from "../component/Common/Counter";
 
 // ✅ IMPORT SAME API USED IN HOME
 import {

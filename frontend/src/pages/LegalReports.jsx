@@ -1,9 +1,9 @@
 // src/pages/LegalReports.jsx
 import React, { useEffect, useState } from "react";
 import "./LegalReports.css";
-import axios from "axios";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { impactService } from "../api/services/impact.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 const LegalReports = () => {
@@ -17,7 +17,7 @@ const LegalReports = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching legal page banners...');
-        const bannersData = await getBanners('legal-status', 'hero');
+        const bannersData = await bannerService.getBanners('legal-status', 'hero');
         logger.log('✅ Legal banners received:', bannersData);
         setLegalBanners(bannersData);
       } catch (error) {
@@ -33,35 +33,17 @@ const LegalReports = () => {
 
   // Fetch reports from backend
   useEffect(() => {
-// Update the fetchReports function
-const fetchReports = async () => {
-  try {
-    // Try to get token from localStorage (if admin is logged in)
-    const token = localStorage.getItem("token");
-    
-    const config = {};
-    if (token) {
-      config.headers = {
-        Authorization: `Bearer ${token}`
-      };
-    }
-    
-    const res = await axios.get(`${API_BASE}/reports`, config);
-    setReports(res.data);
-    logger.log("📊 Reports fetched:", res.data.length);
-  } catch (err) {
-    logger.error("Error fetching reports:", err);
-    // If error with auth, try without
-    if (err.response?.status === 401) {
+    const fetchReports = async () => {
       try {
-        const publicRes = await axios.get(`${API_BASE}/reports`);
-        setReports(publicRes.data);
-      } catch (publicErr) {
-        logger.error("Error fetching public reports:", publicErr);
+        // Get published reports (public endpoint)
+        const reportsData = await impactService.getReports();
+        setReports(reportsData);
+        logger.log("📊 Reports fetched:", reportsData.length);
+      } catch (err) {
+        logger.error("Error fetching reports:", err);
+        setReports([]);
       }
-    }
-  }
-};
+    };
     fetchReports();
   }, []);
 

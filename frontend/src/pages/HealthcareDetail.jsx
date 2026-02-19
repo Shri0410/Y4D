@@ -1,9 +1,9 @@
 // src/pages/HealthcareDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 import "./HealthcareDetail.css";
 
@@ -55,9 +55,8 @@ const HealthcareDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const url = `${API_BASE}/our-work/published/healthcare/${id}`;
-      const response = await axios.get(url);
-      setItem(response.data);
+      const itemData = await ourworkService.getItemById("healthcare", id);
+      setItem(itemData);
     } catch (err) {
       logger.error("Error fetching healthcare details:", err);
       setError("Failed to load healthcare initiative details");

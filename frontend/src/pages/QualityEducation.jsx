@@ -1,11 +1,11 @@
 // src/pages/QualityEducation.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import "./QualityEducation.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { bannerService } from "../api/services/banners.service";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
 const QualityEducation = () => {
@@ -21,7 +21,7 @@ const QualityEducation = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching quality education page banners...');
-        const bannersData = await getBanners('our-work', 'quality-education');
+        const bannersData = await bannerService.getBanners('our-work', 'quality-education');
         logger.log('✅ Quality education banners received:', bannersData);
         setEducationBanners(bannersData);
       } catch (error) {
@@ -53,10 +53,8 @@ const QualityEducation = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/quality_education`
-      );
-      setItems(response.data);
+      const itemsData = await ourworkService.getItemsByCategory("quality_education", { active_only: true });
+      setItems(itemsData);
     } catch (error) {
       logger.error("Error fetching quality education programs:", error);
       setError("Failed to load quality education programs");

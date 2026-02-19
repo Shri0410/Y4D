@@ -1,9 +1,9 @@
 // src/pages/Stories.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./Stories.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 
@@ -20,7 +20,7 @@ const Stories = () => {
       try {
         setBannersLoading(true);
         logger.log("🔄 Fetching stories page banners...");
-        const bannersData = await getBanners("media-corner", "stories");
+        const bannersData = await bannerService.getBanners("media-corner", "stories");
         logger.log("✅ Stories banners received:", bannersData);
         setStoriesBanners(bannersData);
       } catch (error) {
@@ -40,10 +40,8 @@ const Stories = () => {
 
   const fetchStories = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/media/published/stories`
-      );
-      setStories(response.data);
+      const storiesData = await mediaService.getPublishedMedia("stories");
+      setStories(storiesData);
     } catch (error) {
       logger.error("Error fetching stories:", error);
     } finally {

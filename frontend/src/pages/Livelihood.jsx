@@ -1,11 +1,11 @@
 // src/pages/Livelihood.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import "./Livelihood.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { bannerService } from "../api/services/banners.service";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
 const Livelihood = () => {
@@ -21,7 +21,7 @@ const Livelihood = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching livelihood page banners...');
-        const bannersData = await getBanners('our-work', 'livelihood');
+        const bannersData = await bannerService.getBanners('our-work', 'livelihood');
         logger.log('✅ Livelihood banners received:', bannersData);
         setLivelihoodBanners(bannersData);
       } catch (error) {
@@ -50,10 +50,8 @@ const Livelihood = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/livelihood`
-      );
-      setItems(response.data);
+      const itemsData = await ourworkService.getItemsByCategory("livelihood", { active_only: true });
+      setItems(itemsData);
     } catch (error) {
       logger.error("Error fetching livelihood programs:", error);
       setError("Failed to load livelihood programs");

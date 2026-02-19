@@ -1,11 +1,11 @@
 // src/pages/EnvironmentSustainability.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import "./EnvironmentSustainability.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { bannerService } from "../api/services/banners.service";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
 const getImageUrl = (path) => {
@@ -33,7 +33,7 @@ const EnvironmentSustainability = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching environment sustainability page banners...');
-        const bannersData = await getBanners('our-work', 'environmental-sustainability');
+        const bannersData = await bannerService.getBanners('our-work', 'environmental-sustainability');
         logger.log('✅ Environment sustainability banners received:', bannersData);
         setEnvironmentBanners(bannersData);
       } catch (error) {
@@ -53,10 +53,8 @@ const EnvironmentSustainability = () => {
 
   const fetchItems = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/environment_sustainability`
-      );
-      setItems(response.data);
+      const itemsData = await ourworkService.getItemsByCategory("environment_sustainability", { active_only: true });
+      setItems(itemsData);
     } catch (err) {
       logger.error("Error fetching environment sustainability programs:", err);
       setError("Failed to load environment sustainability programs");

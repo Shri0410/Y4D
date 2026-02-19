@@ -8,11 +8,11 @@ import {
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Navbar from "./component/Navbar";
-import Footer from "./component/Footer";
+import Navbar from "./component/Layout/Navbar";
+import Footer from "./component/Layout/Footer";
 import ScrollToTop from "./ScrollToTop";
-import PageTransition from "./component/PageTransition";
-import ErrorBoundary from "./components/ErrorBoundary";
+import PageTransition from "./component/Common/PageTransition";
+import ErrorBoundary from "./component/Common/ErrorBoundary";
 import Popup from "./pages/Popup";
 import "./App.css";
 
@@ -53,10 +53,10 @@ const EnvironmentSustainabilityDetail = lazy(() => import("./pages/EnvironmentSu
 const IDPDetail = lazy(() => import("./pages/IDPDetail"));
 
 // Auth pages
-const Dashboard = lazy(() => import("./component/Dashboard"));
-const LoginPage = lazy(() => import("./component/LoginPage"));
-const PublicRegistrationForm = lazy(() => import("./component/PublicRegistrationForm"));
-const PasswordResetPage = lazy(() => import("./component/PasswordResetPage"));
+const Dashboard = lazy(() => import("./component/Dashboard/Dashboard"));
+const LoginPage = lazy(() => import("./component/Auth/LoginPage"));
+const PublicRegistrationForm = lazy(() => import("./component/Registration/PublicRegistrationForm"));
+const PasswordResetPage = lazy(() => import("./component/Auth/PasswordResetPage"));
 
 // Loading fallback component
 const PageLoader = () => <PageTransition />;

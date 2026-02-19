@@ -1,9 +1,9 @@
 // src/pages/IDPDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import axios from "axios";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
-import SanitizedHTML from "../components/SanitizedHTML";
+import { ourworkService } from "../api/services/ourwork.service";
+import { UPLOADS_BASE } from "../config/api";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 import "./IDPDetail.css";
 
@@ -58,10 +58,8 @@ const IDPDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/our-work/published/integrated_development/${id}`
-      );
-      setItem(response.data);
+      const itemData = await ourworkService.getItemById("integrated_development", id);
+      setItem(itemData);
     } catch (err) {
       logger.error("Error fetching IDP details:", err);
       setError("Failed to load Integrated Development Initiative details");

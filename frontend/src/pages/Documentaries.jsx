@@ -1,9 +1,9 @@
 // src/pages/Documentaries.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./Documentaries.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 const Documentaries = () => {
@@ -18,7 +18,7 @@ const Documentaries = () => {
     const fetchDocsBanners = async () => {
       try {
         setBannersLoading(true);
-        const bannersData = await getBanners("media-corner", "documentaries");
+        const bannersData = await bannerService.getBanners("media-corner", "documentaries");
         setDocsBanners(bannersData);
       } catch (error) {
         logger.error("❌ Error fetching documentaries banners:", error);
@@ -38,10 +38,8 @@ const Documentaries = () => {
 
   const fetchDocumentaries = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/media/published/documentaries`
-      );
-      setDocumentaries(response.data);
+      const documentariesData = await mediaService.getPublishedMedia("documentaries");
+      setDocumentaries(documentariesData);
     } catch (error) {
       logger.error("Error fetching documentaries:", error);
     } finally {

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./DonateNow.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { paymentService } from "../api/services/payment.service";
+import { UPLOADS_BASE } from "../config/api";
+import { useApi } from "../hooks/useApi";
+import { useLoadingState } from "../hooks/useLoadingState";
 import logger from "../utils/logger";
 import toast from "../utils/toast";
 
@@ -14,38 +17,20 @@ const DonateNow = () => {
     message: "",
   });
 
-  const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const [donateBanners, setDonateBanners] = useState([]);
-  const [bannersLoading, setBannersLoading] = useState(true);
-
   const suggestedAmounts = [500, 1000, 2000, 5000];
 
-  /*  SAFE ENV VARIABLE DETECTION
-   * In Vite, environment variables must be prefixed with VITE_
-   * Frontend only needs the public key (not the secret)
-   */
+  // Use new useApi hook for banners
+  const { data: donateBanners = [], loading: bannersLoading } = useApi(
+    () => bannerService.getBanners("donate", "hero"),
+    [],
+    { defaultData: [] }
+  );
 
-
-
-  /* Fetch Donate Banners*/
-  useEffect(() => {
-    const fetchDonateBanners = async () => {
-      try {
-        setBannersLoading(true);
-        const bannersData = await getBanners("donate", "hero");
-        setDonateBanners(bannersData || []);
-      } catch (error) {
-        logger.error("❌ Error fetching banners:", error);
-      } finally {
-        setBannersLoading(false);
-      }
-    };
-
-    fetchDonateBanners();
-  }, []);
+  // Use useLoadingState for payment processing
+  const { loading: isProcessing, execute: executePayment } = useLoadingState();
 
   /* Input Handler*/
   const handleChange = (e) => {
@@ -113,69 +98,49 @@ const DonateNow = () => {
 
   /* Razorpay Checkout Logic*/
   const loadRazorpay = async () => {
-    try {
-      setIsProcessing(true);
-
+    await executePayment(async () => {
       // Load Razorpay script
       const loaded = await loadRazorpayScript();
       if (!loaded) {
         toast.error("Payment gateway failed to load. Please check your internet connection and try again.");
-        setIsProcessing(false);
         return;
       }
 
-      // Get Razorpay Key from backend
-      let keyRes;
+      // Get Razorpay Key from backend using paymentService
+      let keyData;
       try {
-        keyRes = await fetch(`${API_BASE}/payment/key`);
-        if (!keyRes.ok) {
-          throw new Error(`Failed to get payment key: ${keyRes.status}`);
-        }
+        const keyResponse = await paymentService.getRazorpayKey();
+        keyData = { success: true, key: keyResponse };
       } catch (error) {
         logger.error("Error fetching Razorpay key:", error);
         toast.error("Unable to connect to payment service. Please try again later.");
-        setIsProcessing(false);
         return;
       }
 
-      const keyData = await keyRes.json();
       if (!keyData.success || !keyData.key) {
-        toast.error(keyData.message || "Payment service is not configured. Please contact support.");
-        setIsProcessing(false);
+        toast.error("Payment service is not configured. Please contact support.");
         return;
       }
 
-      // Create order
-      let orderRes;
+      // Create order using paymentService
+      let orderData;
       try {
-        orderRes = await fetch(`${API_BASE}/payment/create-order`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            amount: Number(formData.amount),
-            name: formData.name.trim(),
-            email: formData.email.trim(),
-            pan: formData.pan?.trim() || "",
-            message: formData.message?.trim() || "",
-          }),
+        orderData = await paymentService.createOrder({
+          amount: Number(formData.amount),
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          pan: formData.pan?.trim() || "",
+          message: formData.message?.trim() || "",
         });
-
-        if (!orderRes.ok) {
-          const errorData = await orderRes.json();
-          throw new Error(errorData.message || `Order creation failed: ${orderRes.status}`);
-        }
       } catch (error) {
         logger.error("Error creating order:", error);
         toast.error(error.message || "Failed to create payment order. Please check your details and try again.");
-        setIsProcessing(false);
         return;
       }
 
-      const orderData = await orderRes.json();
       if (!orderData.success || !orderData.order) {
         const errorMsg = orderData.message || orderData.errors?.[0]?.msg || "Order creation failed";
         toast.error(errorMsg);
-        setIsProcessing(false);
         return;
       }
 
@@ -203,22 +168,14 @@ const DonateNow = () => {
             setSuccessMessage("Verifying payment...");
             setIsProcessing(true);
 
-            // Verify payment with backend
-            let verifyRes;
+            // Verify payment with backend using paymentService
+            let verifyData;
             try {
-              verifyRes = await fetch(`${API_BASE}/payment/verify-payment`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
-                }),
+              verifyData = await paymentService.verifyPayment({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
               });
-
-              if (!verifyRes.ok) {
-                throw new Error(`Verification failed: ${verifyRes.status}`);
-              }
             } catch (error) {
               logger.error("Error verifying payment:", error);
               setSuccessMessage(
@@ -228,8 +185,6 @@ const DonateNow = () => {
               setIsProcessing(false);
               return;
             }
-
-            const verifyData = await verifyRes.json();
 
             if (!verifyData.success) {
               setSuccessMessage(
@@ -284,11 +239,7 @@ const DonateNow = () => {
       });
 
       razorpayInstance.open();
-    } catch (error) {
-      logger.error("Payment error:", error);
-      toast.error("An unexpected error occurred. Please try again or contact support.");
-      setIsProcessing(false);
-    }
+    });
   };
 
   /*  Submit Handler*/

@@ -1,10 +1,11 @@
 // src/pages/Newsletters.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./NewsLetters.css";
-import { getBanners } from "../services/api.jsx";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import toast from "../utils/toast";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
@@ -18,7 +19,7 @@ const Newsletters = () => {
       try {
         setBannersLoading(true);
         logger.log("🔄 Fetching newsletter page banners...");
-        const bannersData = await getBanners("media-corner", "newsletters");
+        const bannersData = await bannerService.getBanners("media-corner", "newsletters");
         logger.log("✅ Newsletter banners received:", bannersData);
         setNewsletterBanners(bannersData);
       } catch (error) {
@@ -38,14 +39,77 @@ const Newsletters = () => {
 
   const fetchNewsletters = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/media/published/newsletters`
-      );
-      setNewsletters(response.data);
+      const newslettersData = await mediaService.getPublishedMedia("newsletters");
+      setNewsletters(newslettersData);
     } catch (error) {
       logger.error("Error fetching newsletters:", error);
     }
     setLoading(false);
+  };
+
+  // Handle download with error checking
+  const handleDownload = async (newsletter) => {
+    // Check if file_path exists
+    if (!newsletter.file_path || newsletter.file_path.trim() === "") {
+      toast.error("Download file is not available for this newsletter. Please contact support.");
+      return;
+    }
+
+    const fileUrl = `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`;
+    
+    try {
+      // Try to fetch the file to check if it exists (with CORS handling)
+      const response = await fetch(fileUrl, { 
+        method: 'HEAD',
+        mode: 'cors',
+        cache: 'no-cache'
+      });
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          toast.error("The newsletter file was not found on the server. Please contact support.");
+        } else if (response.status === 403) {
+          toast.error("Access denied. You don't have permission to download this file.");
+        } else {
+          toast.error(`Unable to download newsletter. Server returned error ${response.status}. Please try again later.`);
+        }
+        return;
+      }
+
+      // If file exists, create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.download = newsletter.title || 'newsletter.pdf';
+      
+      // Append to body, click, and remove
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Set a timeout to check if download actually started
+      // If the file doesn't exist, browser will show error in console but we can't catch it
+      // So we rely on the HEAD request above
+      
+    } catch (error) {
+      logger.error("Error downloading newsletter:", error);
+      
+      // Check for specific error types
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        // CORS error or network error - try direct download anyway
+        // Sometimes HEAD requests fail due to CORS but GET works
+        try {
+          window.open(fileUrl, '_blank', 'noopener,noreferrer');
+        } catch (openError) {
+          toast.error("Network error: Unable to connect to the server. Please check your internet connection and try again.");
+        }
+      } else if (error.message) {
+        toast.error(`Download failed: ${error.message}. Please try again later.`);
+      } else {
+        toast.error("An unexpected error occurred while downloading. Please try again later or contact support.");
+      }
+    }
   };
 
   // Render dynamic banner
@@ -122,14 +186,13 @@ const Newsletters = () => {
                     {newsletter.description}
                   </p>
                   <div className="newsletter-actions">
-                    <a
-                      href={`${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownload(newsletter)}
                       className="download-btn"
+                      type="button"
                     >
                       <i className="fas fa-download"></i> Download
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>

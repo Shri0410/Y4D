@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./OurTeam.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { impactService } from "../api/services/impact.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 const OurTeam = () => {
@@ -22,7 +23,7 @@ const OurTeam = () => {
       try {
         setBannersLoading(true);
         logger.log('🔄 Fetching team page banners...');
-        const bannersData = await getBanners('our-team', 'hero');
+        const bannersData = await bannerService.getBanners('our-team', 'hero');
         logger.log('✅ Team banners received:', bannersData);
         setTeamBanners(bannersData);
       } catch (error) {
@@ -40,8 +41,7 @@ const OurTeam = () => {
   useEffect(() => {
     const fetchMentors = async () => {
       try {
-        const response = await fetch(`${API_BASE}/mentors`);
-        const data = await response.json();
+        const data = await impactService.getMentors();
         setMentors(data);
         setLoadingMentors(false);
       } catch (error) {
@@ -56,8 +56,7 @@ const OurTeam = () => {
   useEffect(() => {
     const fetchManagement = async () => {
       try {
-        const response = await fetch(`${API_BASE}/management`);
-        const data = await response.json();
+        const data = await impactService.getManagement();
         setManagement(data);
         setLoadingManagement(false);
       } catch (error) {
@@ -71,13 +70,7 @@ const OurTeam = () => {
   useEffect(() => {
     const fetchTrustees = async () => {
       try {
-        const response = await fetch(
-          `${API_BASE}/board-trustees`
-        );
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await impactService.getBoardTrustees();
         setTrustees(data);
         setLoadingTrustees(false);
       } catch (error) {

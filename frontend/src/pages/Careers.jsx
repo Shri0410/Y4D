@@ -1,20 +1,18 @@
 // src/pages/Careers.jsx
-import React, { useState, useEffect } from "react";
-import { getCareers, applyForJob } from "../services/api";
+import React, { useState } from "react";
+import { careerService } from "../api/services/careers.service";
+import { useApi } from "../hooks/useApi";
+import { useLoadingState } from "../hooks/useLoadingState";
 import "./Careers.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
-import SanitizedHTML from "../components/SanitizedHTML";
+import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 import toast from "../utils/toast";
 
 const Careers = () => {
-  const [careers, setCareers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedCareer, setSelectedCareer] = useState(null); // for popup modal
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [applicationData, setApplicationData] = useState({
     name: "",
     email: "",
@@ -23,6 +21,16 @@ const Careers = () => {
     resume: null,
   });
 
+  // Use useApi hook for fetching careers
+  const { data: careers = [], loading, error } = useApi(
+    () => careerService.getCareers(),
+    [],
+    { defaultData: [] }
+  );
+
+  // Use useLoadingState for form submission
+  const { loading: isSubmitting, execute: executeSubmit } = useLoadingState();
+
   // Handle file change
   const handleFileChange = (e) => {
     setApplicationData({
@@ -30,25 +38,6 @@ const Careers = () => {
       resume: e.target.files[0],
     });
   };
-
-  useEffect(() => {
-    const fetchCareersData = async () => {
-      try {
-        setLoading(true);
-        const careersData = await getCareers();
-        setCareers(careersData);
-      } catch (err) {
-        setError(
-          "Failed to load career opportunities. Please try again later."
-        );
-        logger.error("Error fetching careers:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCareersData();
-  }, []);
 
   const handleApplicationChange = (e) => {
     setApplicationData({
@@ -59,40 +48,41 @@ const Careers = () => {
 
   const handleApplicationSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // show loading popup
-    try {
-      const formData = new FormData();
-      formData.append("name", applicationData.name);
-      formData.append("email", applicationData.email);
-      formData.append("phone", applicationData.phone);
-      formData.append("message", applicationData.message);
-      formData.append("careerId", selectedCareer.id);
-      if (applicationData.resume) {
-        formData.append("resume", applicationData.resume);
-      }
+    
+    await executeSubmit(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", applicationData.name);
+        formData.append("email", applicationData.email);
+        formData.append("phone", applicationData.phone);
+        formData.append("message", applicationData.message);
+        formData.append("careerId", selectedCareer.id);
+        if (applicationData.resume) {
+          formData.append("resume", applicationData.resume);
+        }
 
-      await applyForJob(formData, true);
-      // ✅ Show success popup
-      setShowSuccessPopup(true);
-      setApplicationData({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-        resume: null,
-      });
-      setShowApplicationForm(false);
-      // ✅ Close success popup after 3 seconds
-      setTimeout(() => {
-        setShowSuccessPopup(false);
-        setSelectedCareer(null);
-      }, 3000);
-    } catch (error) {
-      logger.error("Error applying for job:", error);
-      toast.error("Something went wrong. Please try again later.");
-    } finally {
-      setIsSubmitting(false);
-    }
+        await careerService.applyForJob(formData);
+        // ✅ Show success popup
+        setShowSuccessPopup(true);
+        setApplicationData({
+          name: "",
+          email: "",
+          phone: "",
+          message: "",
+          resume: null,
+        });
+        setShowApplicationForm(false);
+        // ✅ Close success popup after 3 seconds
+        setTimeout(() => {
+          setShowSuccessPopup(false);
+          setSelectedCareer(null);
+        }, 3000);
+      } catch (error) {
+        logger.error("Error applying for job:", error);
+        toast.error("Something went wrong. Please try again later.");
+        throw error;
+      }
+    });
   };
 
   if (loading)

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "./CorporatePartnership.css";
 import bannerImg from "../assets/BannerImages/f.jpeg";
-import { API_BASE } from "../config/api";
+import { contactService } from "../api/services/contact.service";
+import { useLoadingState } from "../hooks/useLoadingState";
 import logger from "../utils/logger";
 
 const CorporatePartnership = () => {
@@ -11,7 +12,7 @@ const CorporatePartnership = () => {
     contact: "",
     details: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { loading: isSubmitting, execute } = useLoadingState();
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleChange = (e) => {
@@ -24,7 +25,6 @@ const CorporatePartnership = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setMessage({ type: "", text: "" });
 
     // Validate required fields
@@ -33,20 +33,15 @@ const CorporatePartnership = () => {
         type: "error",
         text: "Please fill in all required fields (Company Name, Email, Contact).",
       });
-      setIsSubmitting(false);
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/corporate-partnership/corporate-partnership`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const result = await execute(() =>
+        contactService.submitCorporatePartnership(formData)
+      );
 
-      const result = await res.json();
-
-      if (result.success) {
+      if (result?.success) {
         setMessage({
           type: "success",
           text: "Your partnership form has been submitted successfully!",
@@ -61,7 +56,7 @@ const CorporatePartnership = () => {
       } else {
         setMessage({
           type: "error",
-          text: result.message || "Failed to submit form. Please try again.",
+          text: result?.message || "Failed to submit form. Please try again.",
         });
       }
     } catch (error) {
@@ -70,8 +65,6 @@ const CorporatePartnership = () => {
         type: "error",
         text: "An error occurred. Please try again later.",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

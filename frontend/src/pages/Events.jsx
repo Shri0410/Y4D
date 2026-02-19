@@ -1,9 +1,9 @@
 // src/pages/Events.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import "./Events.css";
-import { getBanners } from "../services/api.jsx";
-import { API_BASE, UPLOADS_BASE } from "../config/api";
+import { bannerService } from "../api/services/banners.service";
+import { mediaService } from "../api/services/media.service";
+import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 
 const Events = () => {
@@ -19,7 +19,7 @@ const Events = () => {
       try {
         setBannersLoading(true);
         logger.log("🔄 Fetching events page banners...");
-        const bannersData = await getBanners("media-corner", "events");
+        const bannersData = await bannerService.getBanners("media-corner", "events");
         logger.log("✅ Events banners received:", bannersData);
         setEventsBanners(bannersData);
       } catch (error) {
@@ -39,10 +39,8 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE}/media/published/events`
-      );
-      const sortedEvents = response.data.sort(
+      const eventsData = await mediaService.getPublishedMedia("events");
+      const sortedEvents = eventsData.sort(
         (a, b) => new Date(b.date) - new Date(a.date)
       );
       setEvents(sortedEvents);
