@@ -9,12 +9,29 @@ import DonateButton from "../component/Common/DonateButton";
 import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const IDP = () => {
   const [items, setItems] = useState([]);
   const [idpBanners, setIdpBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Slider settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    adaptiveHeight: true,
+  };
 
   // Fetch IDP page banners
   useEffect(() => {
@@ -85,27 +102,31 @@ const IDP = () => {
     }
 
     return (
-      <div className="idp-banner">
-        {idpBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`IDP Banner - ${banner.page}`}
-                className="idp-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="idp-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+      <div className="idp-banner-slider-container">
+        <Slider {...sliderSettings} className="idp-banner-slider">
+          {idpBanners.map((banner) => (
+            <div key={banner.id} className="banner-slide">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`IDP Banner - ${banner.page}`}
+                  className="idp-banner-image"
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="idp-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%' }}
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };

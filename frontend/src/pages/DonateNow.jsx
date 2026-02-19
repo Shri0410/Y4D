@@ -314,42 +314,63 @@ const DonateNow = () => {
       {renderBanner()}
 
       <div className="donate-content">
-        {/* LEFT SECTION */}
-        <div className="donate-left">
-          <h2>Why Donate to Y4D Foundation?</h2>
-          <p>
-            Empower underprivileged communities with education, healthcare,
-            livelihood, and sustainable development.
+        {/* LEFT SECTION: Impact & Info */}
+        <div className="donate-left" data-aos="fade-right">
+          <h2>Why Donate to Y4D?</h2>
+          <p className="donate-description">
+            Your contribution helps us empower underprivileged communities through sustainable initiatives in education, healthcare, and livelihood. Together, we can create lasting change.
           </p>
 
-          <ul>
-            <li>📚 Education Support</li>
-            <li>💼 Livelihood Opportunities</li>
-            <li>🏥 Healthcare Access</li>
-            <li>🌱 Environmental Protection</li>
-            <li>🤝 Community Development</li>
+          <ul className="impact-list">
+            <li className="impact-item">
+              <div className="impact-icon">📚</div>
+              <div className="impact-text">
+                <h4>Education Support</h4>
+                <p>Providing quality education to underprivileged children.</p>
+              </div>
+            </li>
+            <li className="impact-item">
+              <div className="impact-icon">💼</div>
+              <div className="impact-text">
+                <h4>Livelihood Opportunities</h4>
+                <p>Skill development and employment for youth & women.</p>
+              </div>
+            </li>
+            <li className="impact-item">
+              <div className="impact-icon">🏥</div>
+              <div className="impact-text">
+                <h4>Healthcare Access</h4>
+                <p>Medical camps and health awareness in rural areas.</p>
+              </div>
+            </li>
+            <li className="impact-item">
+              <div className="impact-icon">🌱</div>
+              <div className="impact-text">
+                <h4>Environmental Protection</h4>
+                <p>Tree plantation and sustainability drives.</p>
+              </div>
+            </li>
           </ul>
         </div>
 
-        {/* DONATION FORM */}
-        <div className="donate-right">
+        {/* RIGHT SECTION: Donation Form */}
+        <div className="donate-right" data-aos="fade-up">
           <h2>Make a Donation</h2>
-          <p className="donation-subtitle">
-            Your donation is eligible for tax exemption under Section 80G.
-          </p>
+          <span className="donation-subtitle">
+            Tax Exemption under Section 80G
+          </span>
 
           <div className="suggested-amounts">
-            <p>Quick Select Amount:</p>
+            <p>Select Amount:</p>
             <div className="amount-buttons">
               {suggestedAmounts.map((amt) => (
                 <button
                   key={amt}
-                  className={`suggest-btn ${
-                    formData.amount == amt ? "active" : ""
-                  }`}
+                  className={`suggest-btn ${formData.amount == amt ? "active" : ""
+                    }`}
                   onClick={() => setFormData({ ...formData, amount: amt })}
                 >
-                  ₹{amt}
+                  ₹{amt.toLocaleString()}
                 </button>
               ))}
             </div>
@@ -392,11 +413,8 @@ const DonateNow = () => {
                 value={formData.amount}
                 onChange={handleChange}
                 required
-                placeholder="Enter amount (min ₹1, max ₹1,00,00,000)"
+                placeholder="Enter amount"
               />
-              <small className="form-hint">
-                Minimum: ₹1 | Maximum: ₹1,00,00,000
-              </small>
             </div>
 
             <div className="form-group">
@@ -406,12 +424,10 @@ const DonateNow = () => {
                 value={formData.pan}
                 onChange={handleChange}
                 maxLength="10"
-                pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
-                title="Format: ABCDE1234F (optional)"
-                placeholder="ABCDE1234F (for tax exemption)"
+                placeholder="For 80G Tax Receipt"
               />
               <small className="form-hint">
-                Optional: Required for tax exemption under Section 80G
+                Required for 80G tax exemption certificate.
               </small>
             </div>
 
@@ -423,15 +439,12 @@ const DonateNow = () => {
                 maxLength="1000"
                 value={formData.message}
                 onChange={handleChange}
-                placeholder="Any specific cause you'd like to support?"
+                placeholder="Any note for us?"
               ></textarea>
-              <small className="form-hint">
-                {formData.message.length}/1000 characters
-              </small>
             </div>
 
             <button className="submit-btn" disabled={isProcessing}>
-              {isProcessing ? "Processing..." : "Donate Now"}
+              {isProcessing ? "Processing Securely..." : "Donate Now"}
             </button>
           </form>
         </div>
@@ -439,27 +452,20 @@ const DonateNow = () => {
 
       {/* SUCCESS POPUP */}
       {showSuccessPopup && (
-        <div className="popup-overlay donate-popup-overlay">
+        <div className="popup-overlay">
           <div className="popup-box donate-success-box">
-            <div className="donate-success-icon">✔</div>
-            <h2 className="donate-success-title">Payment Successful</h2>
-            <p className="donate-success-text">
-              {successMessage.split("\n").map((line, idx) => (
-                <span key={idx}>
-                  {line}
-                  <br />
-                </span>
-              ))}
-            </p>
+            <div className="donate-success-icon">✓</div>
+            <h2 className="donate-success-title">Thank You!</h2>
+            <p className="donate-success-text">{successMessage}</p>
             <div className="donate-success-footer">
               <p className="donate-success-note">
-                You will also receive a confirmation email with your receipt.
+                A receipt has been sent to your email.
               </p>
               <button
-                className="ok-btn donate-success-btn"
+                className="donate-success-btn"
                 onClick={() => setShowSuccessPopup(false)}
               >
-                Back to Donation Page
+                Close
               </button>
             </div>
           </div>

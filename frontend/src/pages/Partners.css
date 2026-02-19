@@ -28,7 +28,7 @@
   position: absolute;
   right: 380px;
   top: calc(50% - 6px);
-  width: 20px;
+  width: 15px;
   height: 2px;
   background: #f26722;
 }
@@ -37,9 +37,9 @@
 .partner-title::after {
   content: "";
   position: absolute;
-  right: 360px;
+  right: 365px;
   top: calc(50% + 4px);
-  width: 40px;
+  width: 30px;
   height: 2px;
   background: #f26722;
 }
@@ -50,7 +50,7 @@
   position: absolute;
   left: 380px;
   top: calc(50% - 6px);
-  width: 20px;
+  width: 15px;
   height: 2px;
   background: #f26722;
 }
@@ -58,9 +58,9 @@
 .partner-title span::after {
   content: "";
   position: absolute;
-  left: 360px;
+  left: 365px;
   top: calc(50% + 4px);
-  width: 40px;
+  width: 30px;
   height: 2px;
   background: #f26722;
 }
@@ -73,22 +73,26 @@
 }
 
 .partner-item img {
-  max-width: 100px;
+  max-width: 130px;
   height: auto;
   object-fit: contain;
 }
+
 @media (max-width: 1280px) {
   .partner-title::before {
     right: 340px;
   }
+
   /* Right bottom line */
   .partner-title::after {
     right: 320px;
   }
+
   /* Left side */
   .partner-title span::before {
     left: 340px;
   }
+
   .partner-title span::after {
     left: 320px;
   }
@@ -100,15 +104,19 @@
     line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .partner-title::before {
     right: 220px;
   }
+
   .partner-title::after {
     right: 200px;
   }
+
   .partner-title span::before {
     left: 220px;
   }
+
   .partner-title span::after {
     left: 200px;
   }
@@ -118,28 +126,35 @@
   .partners-container {
     padding: 0px;
   }
+
   .partner-item {
-    gap: 10px;
+    gap: 50px;
   }
+
   .partner-item img {
-    max-width: 80px;
+    max-width: 100px;
   }
+
   .partner-title {
-    font-size: 1.8rem;
+    font-size: 31px;
     line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .partner-title::before {
-    right: 55px;
+    right: 40px;
   }
+
   .partner-title::after {
-    right: 35px;
+    right: 25px;
   }
+
   .partner-title span::before {
-    left: 55px;
+    left: 40px;
   }
+
   .partner-title span::after {
-    left: 35px;
+    left: 25px;
   }
 }
 

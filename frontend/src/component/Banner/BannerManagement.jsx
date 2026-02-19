@@ -217,8 +217,7 @@ const BannerManagement = ({
       } catch (error) {
         logger.error("❌ Error fetching banners:", error);
         setError(
-          `Error fetching banners: ${
-            error.response?.data?.error || error.message
+          `Error fetching banners: ${error.response?.data?.error || error.message
           }`
         );
         toast.error(`Error fetching banners: ${error.message}`);
@@ -227,16 +226,39 @@ const BannerManagement = ({
   };
 
   const handleMediaChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      logger.log("📁 Media selected:", file.name, file.size, file.type);
-      setBannerForm((prev) => ({ ...prev, media: file }));
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      if (bannerForm.media_type === "image") {
+        logger.log(`📁 ${files.length} images selected`);
+        setBannerForm((prev) => ({ ...prev, media: files }));
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMediaPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+        // Generate previews for all images
+        const newPreviews = [];
+        let processedCount = 0;
+
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            newPreviews.push(reader.result);
+            processedCount++;
+            if (processedCount === files.length) {
+              setMediaPreview(newPreviews);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      } else {
+        // For video, keep single file behavior
+        const file = files[0];
+        logger.log("📁 Video selected:", file.name, file.size, file.type);
+        setBannerForm((prev) => ({ ...prev, media: file }));
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setMediaPreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -271,7 +293,14 @@ const BannerManagement = ({
         }
 
         if (bannerForm.media) {
-          formDataToSend.append("media", bannerForm.media);
+          if (Array.isArray(bannerForm.media)) {
+            // Append multiple files
+            bannerForm.media.forEach(file => {
+              formDataToSend.append("media", file);
+            });
+          } else {
+            formDataToSend.append("media", bannerForm.media);
+          }
         }
 
         if (editingId) {
@@ -427,14 +456,12 @@ const BannerManagement = ({
       <div className="item-actions">
         {canPublishItem && (
           <button
-            className={`status-toggle-btn ${
-              banner.is_active ? "btn-inactive" : "btn-active"
-            }`}
+            className={`status-toggle-btn ${banner.is_active ? "btn-inactive" : "btn-active"
+              }`}
             onClick={() => {
               onShowConfirmation(
                 banner.is_active ? "Deactivate Banner" : "Activate Banner",
-                `Are you sure you want to ${
-                  banner.is_active ? "deactivate" : "activate"
+                `Are you sure you want to ${banner.is_active ? "deactivate" : "activate"
                 } "${formatDisplayName(banner.page)} - ${formatDisplayName(
                   banner.section
                 )}" banner?`,
@@ -642,31 +669,44 @@ const BannerManagement = ({
 
           <div className="form-group">
             <label>
-              {bannerForm.media_type === "image" ? "Image" : "Video"}: *
+              {bannerForm.media_type === "image" ? "Image(s)" : "Video"}: *
             </label>
             <input
               type="file"
               accept={bannerForm.media_type === "image" ? "image/*" : "video/*"}
               onChange={handleMediaChange}
               required={!editingId}
+              multiple={bannerForm.media_type === "image"}
             />
             <small>
               {bannerForm.media_type === "image"
-                ? "Supported formats: JPG, PNG, GIF. Max size: 10MB"
+                ? "Supported formats: JPG, PNG, GIF. Max size: 10MB. multiple allowed."
                 : "Supported formats: MP4, WebM. Max size: 50MB"}
             </small>
             {mediaPreview && (
-              <div className="media-preview">
-                {bannerForm.media_type === "image" ? (
-                  <img src={mediaPreview} alt="Preview" />
+              <div className="media-preview-container">
+                {Array.isArray(mediaPreview) ? (
+                  <div className="previews-grid">
+                    {mediaPreview.map((src, index) => (
+                      <div key={index} className="preview-item">
+                        <img src={src} alt={`Preview ${index}`} />
+                      </div>
+                    ))}
+                  </div>
                 ) : (
-                  <video
-                    controls
-                    src={mediaPreview}
-                    style={{ maxWidth: "100%", maxHeight: "200px" }}
-                  />
+                  <div className="media-preview">
+                    {bannerForm.media_type === "image" ? (
+                      <img src={mediaPreview} alt="Preview" />
+                    ) : (
+                      <video
+                        controls
+                        src={mediaPreview}
+                        style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                    )}
+                    <p>Media Preview</p>
+                  </div>
                 )}
-                <p>Media Preview</p>
               </div>
             )}
           </div>
@@ -694,8 +734,8 @@ const BannerManagement = ({
               {loading
                 ? "Processing..."
                 : editingId
-                ? "Update Banner"
-                : "Create Banner"}
+                  ? "Update Banner"
+                  : "Create Banner"}
             </button>
             <button
               type="button"
@@ -857,9 +897,8 @@ const BannerManagement = ({
                           {formatDisplayName(banner.section)}
                         </span>
                         <span
-                          className={`status-badge ${
-                            isActive ? "active" : "inactive"
-                          }`}
+                          className={`status-badge ${isActive ? "active" : "inactive"
+                            }`}
                         >
                           {isActive ? "ACTIVE" : "INACTIVE"}
                         </span>

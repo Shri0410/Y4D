@@ -13,6 +13,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
+
 .f-title {
   position: relative;
   text-align: center;
@@ -233,9 +234,11 @@
   display: flex;
   gap: 1rem;
 }
+
 .form-row input {
   flex: 1;
 }
+
 /* Enquiry Form */
 .contactus-enquiry form {
   display: flex;
@@ -371,6 +374,7 @@
 .contactus-office a:hover {
   transform: translateY(-2px);
 }
+
 .office-list {
   display: flex;
   flex-direction: column;
@@ -518,34 +522,64 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin: 30px auto 2rem auto;
+  gap: 20px;
+  margin: 40px auto 3rem auto;
   max-width: 1200px;
+  padding: 0 20px;
 }
 
 .contact-top-buttons button {
-  flex: 1 1 calc(35.33% - 1rem);
-  max-width: 300px;
-  padding: 0.9rem 1rem;
-  background: #c2c1c0;
-  color: #222;
-  border: 1px solid #222;
-  border-radius: 8px;
+  flex: 1 1 200px;
+  max-width: 250px;
+  padding: 15px 20px;
+  background: white;
+  color: #333;
+  border: 2px solid #eee;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
 }
+
 .contact-top-buttons button:hover {
-  color: #fff;
-  background: #fd6500;
+  border-color: #f26722;
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(242, 103, 34, 0.2);
+  color: #f26722;
+  background: #fff0e6;
+}
+
+.contact-top-buttons button:active {
   transform: translateY(-2px);
+  box-shadow: 0 5px 10px rgba(242, 103, 34, 0.15);
+}
+
+/* Specific styling for Career button to stand out */
+.contact-top-buttons button:last-child {
+  border-color: #2e7d32;
+  color: #2e7d32;
+  background: #e8f5e9;
+}
+
+.contact-top-buttons button:last-child:hover {
+  background: #2e7d32;
+  color: white;
+  box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3);
 }
 
 /* Popup Styles */
 .popup-overlay {
   position: fixed;
-  top: 0;
+  top: 5%;
   left: 0;
   width: 100%;
   height: 100%;
@@ -558,12 +592,11 @@
 
 .popup-content {
   background: #fff;
-  padding: 1rem;
+  padding: 2.5rem;
   border-radius: 12px;
   width: 90%;
   max-width: 500px;
   height: auto;
-  max-height: 400px;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -601,22 +634,25 @@
 }
 
 .popup-form button {
-  width: 250px;
-  margin: 0 auto;
-  background: transparent;
-  color: #222;
-  border: 1px solid #222;
-  padding: 0.9rem;
-  border-radius: 8px;
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto 0;
+  background: linear-gradient(135deg, #f26722 0%, #ff8c00 100%);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(242, 103, 34, 0.3);
 }
 
 .popup-form button:hover {
-  color: #fff;
-  background: #d94e24;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(242, 103, 34, 0.4);
+  background: linear-gradient(135deg, #e65100 0%, #f57c00 100%);
 }
 
 @keyframes fadeIn {
@@ -624,6 +660,7 @@
     opacity: 0;
     transform: scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -638,15 +675,19 @@
     margin-bottom: 3rem;
     margin-top: 2.5rem;
   }
+
   .heading::before {
     right: 180px;
   }
+
   .heading::after {
     right: 160px;
   }
+
   .heading span::before {
     left: 180px;
   }
+
   .heading span::after {
     left: 160px;
   }
@@ -657,51 +698,65 @@
     margin-bottom: 3rem;
     margin-top: 2.5rem;
   }
+
   .b-title::before {
     right: 120px;
   }
+
   .b-title::after {
     right: 100px;
   }
+
   .b-title span::before {
     left: 120px;
   }
+
   .b-title span::after {
     left: 100px;
   }
+
   .faq-title {
     font-size: 1.5rem;
     line-height: 34px;
     margin-bottom: 3rem;
     margin-top: 2.5rem;
   }
+
   .faq-title::before {
     right: 30px;
   }
+
   .faq-title::after {
     right: 10px;
   }
+
   .faq-title span::before {
     left: 30px;
   }
+
   .faq-title span::after {
     left: 10px;
   }
+
   .office-title {
     font-size: 1.5rem;
     line-height: 34px;
     margin-bottom: 3rem;
     margin-top: 2.5rem;
   }
+
   .office-title::before {
     right: 120px;
   }
+
   .office-title::after {
     right: 100px;
   }
+
   .office-title span::before {
     left: 120px;
   }
+
   .office-title span::after {
     left: 100px;
   }
@@ -711,9 +766,11 @@
   .contactus-help-buttons {
     flex-direction: column;
   }
+
   .form-row {
     flex-direction: column;
   }
+
   .contactus-page {
     padding: 0;
   }
@@ -723,15 +780,19 @@
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .b-title::before {
     right: 40px;
   }
+
   .b-title::after {
     right: 20px;
   }
+
   .b-title span::before {
     left: 40px;
   }
+
   .b-title span::after {
     left: 20px;
   }
@@ -741,15 +802,19 @@
     line-height: 38px;
     margin-bottom: 2rem;
   }
+
   .faq-title::before {
     right: 0px;
   }
+
   .faq-title::after {
     right: -20px;
   }
+
   .faq-title span::before {
     left: 0px;
   }
+
   .faq-title span::after {
     left: -20px;
   }
@@ -759,15 +824,19 @@
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .office-title::before {
     right: 0px;
   }
+
   .office-title::after {
     right: -20px;
   }
+
   .office-title span::before {
     left: 0px;
   }
+
   .office-title span::after {
     left: -20px;
   }
@@ -776,6 +845,7 @@
     margin-top: 0px;
     padding-top: 0px;
   }
+
   .contactus-enquiry {
     margin-top: 80px;
   }
@@ -783,6 +853,7 @@
   .office-container {
     flex-direction: column;
   }
+
   .office-map {
     height: 250px;
   }
@@ -793,15 +864,19 @@
     margin-bottom: 2rem;
     margin-top: 100px;
   }
+
   .heading::before {
     right: 50px;
   }
+
   .heading::after {
     right: 30px;
   }
+
   .heading span::before {
     left: 50px;
   }
+
   .heading span::after {
     left: 30px;
   }
@@ -836,8 +911,10 @@
   left: 0;
   width: 100%;
   height: auto;
-  background: rgba(0, 0, 0, 0.25); /* soft dimming */
-  backdrop-filter: blur(6px); /* main blur effect */
+  background: rgba(0, 0, 0, 0.25);
+  /* soft dimming */
+  backdrop-filter: blur(6px);
+  /* main blur effect */
   -webkit-backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
@@ -852,6 +929,7 @@
     opacity: 0;
     backdrop-filter: blur(0px);
   }
+
   to {
     opacity: 1;
     backdrop-filter: blur(6px);
@@ -879,6 +957,7 @@
     opacity: 0;
     transform: scale(0.85);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -905,9 +984,11 @@
   0% {
     transform: scale(0);
   }
+
   70% {
     transform: scale(1.15);
   }
+
   100% {
     transform: scale(1);
   }
@@ -926,15 +1007,19 @@
 }
 
 .success-ok-btn {
-  padding: 10px 25px;
-  background: #14a44d;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
   color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: 30px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+  transition: all 0.3s ease;
 }
 
 .success-ok-btn:hover {
-  background: #0e7d3c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.4);
 }

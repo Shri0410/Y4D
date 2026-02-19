@@ -257,6 +257,41 @@
   color: #666;
 }
 
+/* Media Preview Grid for Multiple Uploads */
+.media-preview-container {
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.previews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 15px;
+}
+
+.preview-item {
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* Grid and List Styles */
 .banner-list,
 .content-list {
@@ -569,6 +604,7 @@
 }
 
 @media (max-width: 480px) {
+
   .dashboard-form,
   .banner-form {
     padding: 20px 15px;
@@ -622,6 +658,7 @@ textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
 /* Needed for updated header layout */
 .header-left {
   flex: 1;

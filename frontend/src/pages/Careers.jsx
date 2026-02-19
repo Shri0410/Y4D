@@ -1,6 +1,6 @@
 // src/pages/Careers.jsx
 import React, { useState } from "react";
-import { careerService } from "../api/services/careers.service";
+import { careersService } from "../api/services/careers.service";
 import { useApi } from "../hooks/useApi";
 import { useLoadingState } from "../hooks/useLoadingState";
 import "./Careers.css";
@@ -23,7 +23,7 @@ const Careers = () => {
 
   // Use useApi hook for fetching careers
   const { data: careers = [], loading, error } = useApi(
-    () => careerService.getCareers(),
+    () => careersService.getCareers(),
     [],
     { defaultData: [] }
   );
@@ -48,7 +48,7 @@ const Careers = () => {
 
   const handleApplicationSubmit = async (e) => {
     e.preventDefault();
-    
+
     await executeSubmit(async () => {
       try {
         const formData = new FormData();
@@ -61,7 +61,7 @@ const Careers = () => {
           formData.append("resume", applicationData.resume);
         }
 
-        await careerService.applyForJob(formData);
+        await careersService.applyForJob(formData);
         // ✅ Show success popup
         setShowSuccessPopup(true);
         setApplicationData({

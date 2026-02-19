@@ -8,12 +8,29 @@ import { UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const Livelihood = () => {
   const [items, setItems] = useState([]);
   const [livelihoodBanners, setLivelihoodBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Slider settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    adaptiveHeight: true,
+  };
 
   // Fetch livelihood page banners
   useEffect(() => {
@@ -81,27 +98,31 @@ const Livelihood = () => {
     }
 
     return (
-      <div className="lv-banner">
-        {livelihoodBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Livelihood Banner - ${banner.page}`}
-                className="lv-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="lv-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+      <div className="lv-banner-slider-container">
+        <Slider {...sliderSettings} className="lv-banner-slider">
+          {livelihoodBanners.map((banner) => (
+            <div key={banner.id} className="banner-slide">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Livelihood Banner - ${banner.page}`}
+                  className="lv-banner-image"
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="lv-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%' }}
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };

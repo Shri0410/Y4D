@@ -48,11 +48,12 @@
   align-items: center;
 }
 
-.nav-list > li {
+.nav-list>li {
   position: relative;
 }
+
 .nav-list a,
-.nav-list .dropdown > button {
+.nav-list .dropdown>button {
   position: relative;
   background: none;
   border: none;
@@ -69,7 +70,7 @@
 
 /* Gradient underline effect */
 .nav-list a::after,
-.nav-list .dropdown > button::after {
+.nav-list .dropdown>button::after {
   content: "";
   position: absolute;
   bottom: 0;
@@ -85,20 +86,22 @@
 
 /* Hover underline animation */
 .nav-list a:hover::after,
-.nav-list .dropdown > button:hover::after {
+.nav-list .dropdown>button:hover::after {
   transform: scaleX(1);
 }
 
 /* Keep underline visible for active link */
 .nav-list a.active::after,
-.nav-list .dropdown > button.active::after {
+.nav-list .dropdown>button.active::after {
   transform: scaleX(1);
   font-weight: normal;
 }
+
 .nav-list a.active,
-.nav-list .dropdown > button.active {
+.nav-list .dropdown>button.active {
   font-weight: normal;
 }
+
 .dropdown {
   position: relative;
 }
@@ -213,8 +216,9 @@
 
 .D-btn {
   background-color: #ff6b6b;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border-radius: 5px;
+  font-size: 1rem;
   border: none;
   color: white;
   font-weight: bold;
@@ -230,7 +234,8 @@
 }
 
 .dropdown-icon {
-  display: none; /* hidden on desktop */
+  display: none;
+  /* hidden on desktop */
 }
 
 @media (max-width: 1280px) {
@@ -246,10 +251,12 @@
     margin: 0 20px;
     font-size: 20px;
   }
+
   /* hide desktop chevron on mobile/tablet */
   .desktop-chevron {
     display: none;
   }
+
   .hamburger {
     display: flex;
   }
@@ -287,13 +294,13 @@
     width: 100%;
   }
 
-  .nav-list > li {
+  .nav-list>li {
     width: 100%;
     border-bottom: 1px solid #f0f0f0;
   }
 
   .nav-list a,
-  .nav-list .dropdown > button {
+  .nav-list .dropdown>button {
     padding: 15px 10px;
     width: 100%;
     justify-content: space-between;
@@ -333,15 +340,17 @@
     gap: 10px;
     margin-left: 0;
   }
-  
+
   .nav-link-btn,
   .D-btn {
     width: 100%;
     margin: 0;
   }
+
   .hamburger {
     display: flex;
   }
+
   .navbar .Nav-container {
     display: flex;
     justify-content: space-between;
@@ -375,13 +384,13 @@
     width: 100%;
   }
 
-  .nav-list > li {
+  .nav-list>li {
     width: 100%;
     border-bottom: 1px solid #f0f0f0;
   }
 
   .nav-list a,
-  .nav-list .dropdown > button {
+  .nav-list .dropdown>button {
     padding: 15px 10px;
     width: 100%;
     justify-content: space-between;
@@ -449,9 +458,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-5px);
   }

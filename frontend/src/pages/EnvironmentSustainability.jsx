@@ -20,12 +20,29 @@ const getImageUrl = (path) => {
   return `${UPLOADS_BASE}/our-work/environment_sustainability/${cleanPath}`;
 };
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const EnvironmentSustainability = () => {
   const [items, setItems] = useState([]);
   const [environmentBanners, setEnvironmentBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Slider settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    adaptiveHeight: true,
+  };
 
   // Fetch environment sustainability page banners
   useEffect(() => {
@@ -84,27 +101,31 @@ const EnvironmentSustainability = () => {
     }
 
     return (
-      <div className="es-banner">
-        {environmentBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Environment Sustainability Banner - ${banner.page}`}
-                className="es-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="es-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+      <div className="es-banner-slider-container">
+        <Slider {...sliderSettings} className="es-banner-slider">
+          {environmentBanners.map((banner) => (
+            <div key={banner.id} className="banner-slide">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Environment Sustainability Banner - ${banner.page}`}
+                  className="es-banner-image"
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="es-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%' }}
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };

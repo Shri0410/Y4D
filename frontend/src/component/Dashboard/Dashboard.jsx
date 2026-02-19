@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE, UPLOADS_BASE } from "../../config/api";
 import { impactService } from "../../api/services/impact.service";
-import { careerService } from "../../api/services/careers.service";
+import { careersService } from "../../api/services/careers.service";
 import { mediaService } from "../../api/services/media.service";
 import { useLoadingState } from "../../hooks/useLoadingState";
 import UserManagement from "../User/UserManagement";
@@ -380,14 +380,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       <div className="item-actions">
         {canPublishItem && (
           <button
-            className={`status-toggle-btn ${
-              item.is_published ? "btn-inactive" : "btn-active"
-            }`}
+            className={`status-toggle-btn ${item.is_published ? "btn-inactive" : "btn-active"
+              }`}
             onClick={() => {
               showConfirmationModal(
                 item.is_published ? "Unpublish Item" : "Publish Item",
-                `Are you sure you want to ${
-                  item.is_published ? "unpublish" : "publish"
+                `Are you sure you want to ${item.is_published ? "unpublish" : "publish"
                 } "${item.title}"?`,
                 item.is_published ? "unpublish" : "publish",
                 item.id,
@@ -442,7 +440,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     if (!canCreateItem) return null;
 
     return (
-      <button className="btn-primary" onClick={() => {}}>
+      <button className="btn-primary" onClick={() => { }}>
         + Add {section.slice(0, -1)}
       </button>
     );
@@ -649,7 +647,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           setManagement(managementData);
           break;
         case "careers":
-          const careersData = await careerService.getCareers();
+          const careersData = await careersService.getCareers();
           setCareers(careersData);
           logger.log("Fetched careers:", careersData);
           break;
@@ -747,10 +745,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             }
 
             toast.error(
-              `Error saving report: ${
-                error.response?.data?.error ||
-                error.response?.data?.message ||
-                error.message
+              `Error saving report: ${error.response?.data?.error ||
+              error.response?.data?.message ||
+              error.message
               }`
             );
           }
@@ -763,13 +760,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               formData.append(key, mentorForm[key]);
             }
           });
-          
+
           if (editingId) {
             await impactService.updateMentor(editingId, formData);
           } else {
             await impactService.createMentor(formData);
           }
-          
+
           setMentorForm({
             name: "",
             position: "",
@@ -792,13 +789,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               formData.append(key, managementForm[key]);
             }
           });
-          
+
           if (editingId) {
             await impactService.updateManagement(editingId, formData);
           } else {
             await impactService.createManagement(formData);
           }
-          
+
           setManagementForm({
             name: "",
             position: "",
@@ -808,8 +805,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           });
 
           toast.success(
-            `Management member ${
-              editingId ? "updated" : "created"
+            `Management member ${editingId ? "updated" : "created"
             } successfully!`
           );
 
@@ -821,7 +817,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           } else {
             await careerService.createCareer(careerForm);
           }
-          
+
           setCareerForm({
             title: "",
             description: "",
@@ -846,13 +842,13 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               formData.append(key, trusteeForm[key]);
             }
           });
-          
+
           if (editingId) {
             await impactService.updateBoardTrustee(editingId, formData);
           } else {
             await impactService.createBoardTrustee(formData);
           }
-          
+
           setTrusteeForm({
             name: "",
             position: "",
@@ -988,8 +984,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       });
 
       toast.success(
-        `Career opening ${
-          newStatus ? "activated" : "deactivated"
+        `Career opening ${newStatus ? "activated" : "deactivated"
         } successfully!`
       );
       fetchData("careers");
@@ -1044,8 +1039,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         handleLogout();
       } else {
         toast.error(
-          `Error deleting ${type}: ${
-            error.response?.data?.error || error.message
+          `Error deleting ${type}: ${error.response?.data?.error || error.message
           }`
         );
       }
@@ -1716,8 +1710,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       <th>Designation</th>
                       {(canUserPerformAction("team", "mentors", "edit") ||
                         canUserPerformAction("team", "mentors", "delete")) && (
-                        <th>Actions</th>
-                      )}
+                          <th>Actions</th>
+                        )}
                     </tr>
                   </thead>
                   <tbody>
@@ -1742,48 +1736,48 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             "mentors",
                             "delete"
                           )) && (
-                          <td>
-                            <div className="action-buttons">
-                              {canUserPerformAction(
-                                "team",
-                                "mentors",
-                                "edit"
-                              ) && (
-                                <button
-                                  className="btn-edit"
-                                  onClick={() => {
-                                    handleEdit(mentor, "mentors");
-                                    updateUrlPath("team", "update", "mentors");
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                              )}
-                              {canUserPerformAction(
-                                "team",
-                                "mentors",
-                                "delete"
-                              ) && (
-                                <button
-                                  className="btn-delete"
-                                  onClick={() => {
-                                    showConfirmationModal(
-                                      "Delete Mentor",
-                                      `Are you sure you want to delete "${mentor.name}"? This action cannot be undone.`,
-                                      "delete",
-                                      mentor.id,
-                                      "mentors",
-                                      mentor.name,
-                                      () => handleDelete(mentor.id, "mentors")
-                                    );
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        )}
+                            <td>
+                              <div className="action-buttons">
+                                {canUserPerformAction(
+                                  "team",
+                                  "mentors",
+                                  "edit"
+                                ) && (
+                                    <button
+                                      className="btn-edit"
+                                      onClick={() => {
+                                        handleEdit(mentor, "mentors");
+                                        updateUrlPath("team", "update", "mentors");
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
+                                {canUserPerformAction(
+                                  "team",
+                                  "mentors",
+                                  "delete"
+                                ) && (
+                                    <button
+                                      className="btn-delete"
+                                      onClick={() => {
+                                        showConfirmationModal(
+                                          "Delete Mentor",
+                                          `Are you sure you want to delete "${mentor.name}"? This action cannot be undone.`,
+                                          "delete",
+                                          mentor.id,
+                                          "mentors",
+                                          mentor.name,
+                                          () => handleDelete(mentor.id, "mentors")
+                                        );
+                                      }}
+                                    >
+                                      Delete
+                                    </button>
+                                  )}
+                              </div>
+                            </td>
+                          )}
                       </tr>
                     ))}
                   </tbody>
@@ -1825,53 +1819,53 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             "management",
                             "delete"
                           )) && (
-                          <td>
-                            <div className="action-buttons">
-                              {canUserPerformAction(
-                                "team",
-                                "management",
-                                "edit"
-                              ) && (
-                                <button
-                                  className="btn-edit"
-                                  onClick={() => {
-                                    handleEdit(member, "management");
-                                    updateUrlPath(
-                                      "team",
-                                      "update",
-                                      "management"
-                                    );
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                              )}
-                              {canUserPerformAction(
-                                "team",
-                                "management",
-                                "delete"
-                              ) && (
-                                <button
-                                  className="btn-delete"
-                                  onClick={() => {
-                                    showConfirmationModal(
-                                      "Delete Management Member",
-                                      `Are you sure you want to delete "${member.name}"? This action cannot be undone.`,
-                                      "delete",
-                                      member.id,
-                                      "management",
-                                      member.name,
-                                      () =>
-                                        handleDelete(member.id, "management")
-                                    );
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        )}
+                            <td>
+                              <div className="action-buttons">
+                                {canUserPerformAction(
+                                  "team",
+                                  "management",
+                                  "edit"
+                                ) && (
+                                    <button
+                                      className="btn-edit"
+                                      onClick={() => {
+                                        handleEdit(member, "management");
+                                        updateUrlPath(
+                                          "team",
+                                          "update",
+                                          "management"
+                                        );
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
+                                {canUserPerformAction(
+                                  "team",
+                                  "management",
+                                  "delete"
+                                ) && (
+                                    <button
+                                      className="btn-delete"
+                                      onClick={() => {
+                                        showConfirmationModal(
+                                          "Delete Management Member",
+                                          `Are you sure you want to delete "${member.name}"? This action cannot be undone.`,
+                                          "delete",
+                                          member.id,
+                                          "management",
+                                          member.name,
+                                          () =>
+                                            handleDelete(member.id, "management")
+                                        );
+                                      }}
+                                    >
+                                      Delete
+                                    </button>
+                                  )}
+                              </div>
+                            </td>
+                          )}
                       </tr>
                     ))}
                   </tbody>
@@ -1933,56 +1927,56 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             "board-trustees",
                             "delete"
                           )) && (
-                          <td>
-                            <div className="action-buttons">
-                              {canUserPerformAction(
-                                "team",
-                                "board-trustees",
-                                "edit"
-                              ) && (
-                                <button
-                                  className="btn-edit"
-                                  onClick={() => {
-                                    handleEdit(trustee, "board-trustees");
-                                    updateUrlPath(
-                                      "team",
-                                      "update",
-                                      "board-trustees"
-                                    );
-                                  }}
-                                >
-                                  Edit
-                                </button>
-                              )}
-                              {canUserPerformAction(
-                                "team",
-                                "board-trustees",
-                                "delete"
-                              ) && (
-                                <button
-                                  className="btn-delete"
-                                  onClick={() => {
-                                    showConfirmationModal(
-                                      "Delete Board Trustee",
-                                      `Are you sure you want to delete "${trustee.name}"? This action cannot be undone.`,
-                                      "delete",
-                                      trustee.id,
-                                      "board-trustees",
-                                      trustee.name,
-                                      () =>
-                                        handleDelete(
-                                          trustee.id,
+                            <td>
+                              <div className="action-buttons">
+                                {canUserPerformAction(
+                                  "team",
+                                  "board-trustees",
+                                  "edit"
+                                ) && (
+                                    <button
+                                      className="btn-edit"
+                                      onClick={() => {
+                                        handleEdit(trustee, "board-trustees");
+                                        updateUrlPath(
+                                          "team",
+                                          "update",
                                           "board-trustees"
-                                        )
-                                    );
-                                  }}
-                                >
-                                  Delete
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        )}
+                                        );
+                                      }}
+                                    >
+                                      Edit
+                                    </button>
+                                  )}
+                                {canUserPerformAction(
+                                  "team",
+                                  "board-trustees",
+                                  "delete"
+                                ) && (
+                                    <button
+                                      className="btn-delete"
+                                      onClick={() => {
+                                        showConfirmationModal(
+                                          "Delete Board Trustee",
+                                          `Are you sure you want to delete "${trustee.name}"? This action cannot be undone.`,
+                                          "delete",
+                                          trustee.id,
+                                          "board-trustees",
+                                          trustee.name,
+                                          () =>
+                                            handleDelete(
+                                              trustee.id,
+                                              "board-trustees"
+                                            )
+                                        );
+                                      }}
+                                    >
+                                      Delete
+                                    </button>
+                                  )}
+                              </div>
+                            </td>
+                          )}
                       </tr>
                     ))}
                   </tbody>
@@ -2030,8 +2024,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <h3>
               {currentMediaType
                 ? currentMediaType.charAt(0).toUpperCase() +
-                  currentMediaType.slice(1) +
-                  " Management"
+                currentMediaType.slice(1) +
+                " Management"
                 : "Media Corner"}
             </h3>
             {canUserPerformAction("media", currentMediaType, "create") && (
@@ -2069,27 +2063,24 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           </div>
         ) : (
           <div
-            className={`items-list ${
-              GRID_MEDIA_TYPES.includes(currentMediaType) ? "media-grid" : ""
-            }`}
+            className={`items-list ${GRID_MEDIA_TYPES.includes(currentMediaType) ? "media-grid" : ""
+              }`}
           >
             {mediaItems.map((item) => (
               <div
                 key={item.id}
                 className="item-card"
                 style={{
-                  borderLeft: `4px solid ${
-                    item.is_published ? "#4CAF50" : "#ff9800"
-                  }`,
+                  borderLeft: `4px solid ${item.is_published ? "#4CAF50" : "#ff9800"
+                    }`,
                 }}
               >
                 <div className="item-content">
                   <div className="media-header">
                     <h4>{item.title}</h4>
                     <span
-                      className={`status-badge ${
-                        item.is_published ? "active" : "inactive"
-                      }`}
+                      className={`status-badge ${item.is_published ? "active" : "inactive"
+                        }`}
                     >
                       {item.is_published ? "PUBLISHED" : "DRAFT"}
                     </span>
@@ -2320,8 +2311,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       }
 
       toast.success(
-        `${currentMediaType.slice(0, -1)} ${
-          editingMediaId ? "updated" : "created"
+        `${currentMediaType.slice(0, -1)} ${editingMediaId ? "updated" : "created"
         } successfully!`
       );
 
@@ -2756,11 +2746,10 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                           <div className="report-header">
                             <h4>{report.title}</h4>
                             <span
-                              className={`status-badge ${
-                                report.is_published === 1
+                              className={`status-badge ${report.is_published === 1
                                   ? "active"
                                   : "inactive"
-                              }`}
+                                }`}
                             >
                               {report.is_published === 1
                                 ? "PUBLISHED"
@@ -2796,41 +2785,39 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               null,
                               "publish"
                             ) && (
-                              <button
-                                className={`status-toggle-btn ${
-                                  report.is_published === 1
-                                    ? "btn-inactive"
-                                    : "btn-active"
-                                }`}
-                                onClick={() => {
-                                  showConfirmationModal(
-                                    report.is_published === 1
-                                      ? "Unpublish Report"
-                                      : "Publish Report",
-                                    `Are you sure you want to ${
+                                <button
+                                  className={`status-toggle-btn ${report.is_published === 1
+                                      ? "btn-inactive"
+                                      : "btn-active"
+                                    }`}
+                                  onClick={() => {
+                                    showConfirmationModal(
                                       report.is_published === 1
+                                        ? "Unpublish Report"
+                                        : "Publish Report",
+                                      `Are you sure you want to ${report.is_published === 1
                                         ? "unpublish"
                                         : "publish"
-                                    } "${report.title}"?`,
-                                    report.is_published === 1
-                                      ? "unpublish"
-                                      : "publish",
-                                    report.id,
-                                    "reports",
-                                    report.title,
-                                    () =>
-                                      handleReportStatusToggle(
-                                        report.id,
-                                        report.is_published !== 1
-                                      )
-                                  );
-                                }}
-                              >
-                                {report.is_published === 1
-                                  ? "Unpublish"
-                                  : "Publish"}
-                              </button>
-                            )}
+                                      } "${report.title}"?`,
+                                      report.is_published === 1
+                                        ? "unpublish"
+                                        : "publish",
+                                      report.id,
+                                      "reports",
+                                      report.title,
+                                      () =>
+                                        handleReportStatusToggle(
+                                          report.id,
+                                          report.is_published !== 1
+                                        )
+                                    );
+                                  }}
+                                >
+                                  {report.is_published === 1
+                                    ? "Unpublish"
+                                    : "Publish"}
+                                </button>
+                              )}
 
                             {canUserPerformAction("reports", null, "edit") && (
                               <button
@@ -2850,23 +2837,23 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                               null,
                               "delete"
                             ) && (
-                              <button
-                                className="btn-delete"
-                                onClick={() => {
-                                  showConfirmationModal(
-                                    "Delete Report",
-                                    `Are you sure you want to delete "${report.title}"? This action cannot be undone.`,
-                                    "delete",
-                                    report.id,
-                                    "reports",
-                                    report.title,
-                                    () => handleDelete(report.id, "reports")
-                                  );
-                                }}
-                              >
-                                Delete
-                              </button>
-                            )}
+                                <button
+                                  className="btn-delete"
+                                  onClick={() => {
+                                    showConfirmationModal(
+                                      "Delete Report",
+                                      `Are you sure you want to delete "${report.title}"? This action cannot be undone.`,
+                                      "delete",
+                                      report.id,
+                                      "reports",
+                                      report.title,
+                                      () => handleDelete(report.id, "reports")
+                                    );
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              )}
 
                             {/* Show View Only if no actions available */}
                             {!canUserPerformAction("reports", null, "edit") &&
@@ -3036,18 +3023,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       key={career.id}
                       className="item-card"
                       style={{
-                        borderLeft: `4px solid ${
-                          isActive ? "#4CAF50" : "#ff9800"
-                        }`,
+                        borderLeft: `4px solid ${isActive ? "#4CAF50" : "#ff9800"
+                          }`,
                       }}
                     >
                       <div className="item-content">
                         <div className="career-header">
                           <h4>{career.title}</h4>
                           <span
-                            className={`status-badge ${
-                              isActive ? "active" : "inactive"
-                            }`}
+                            className={`status-badge ${isActive ? "active" : "inactive"
+                              }`}
                           >
                             {isActive ? "ACTIVE" : "INACTIVE"}
                           </span>
@@ -3083,16 +3068,14 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                           {/* Status Toggle Buttons - only for users with publish permission */}
                           {canUserPerformAction("careers", null, "publish") && (
                             <button
-                              className={`status-toggle-btn ${
-                                isActive ? "btn-inactive" : "btn-active"
-                              }`}
+                              className={`status-toggle-btn ${isActive ? "btn-inactive" : "btn-active"
+                                }`}
                               onClick={() => {
                                 showConfirmationModal(
                                   isActive
                                     ? "Deactivate Career"
                                     : "Activate Career",
-                                  `Are you sure you want to ${
-                                    isActive ? "deactivate" : "activate"
+                                  `Are you sure you want to ${isActive ? "deactivate" : "activate"
                                   } "${career.title}"?`,
                                   isActive ? "deactivate" : "activate",
                                   career.id,
@@ -3364,7 +3347,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                                     }
                                     className={
                                       currentOurWorkCategory === category &&
-                                      interventionsAction === "view"
+                                        interventionsAction === "view"
                                         ? "active-sub"
                                         : ""
                                     }
@@ -3377,50 +3360,50 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                                   category,
                                   "create"
                                 ) && (
-                                  <li>
-                                    <button
-                                      onClick={() =>
-                                        handleInterventionsAction(
-                                          category,
-                                          "add"
-                                        )
-                                      }
-                                      className={
-                                        currentOurWorkCategory === category &&
-                                        interventionsAction === "add"
-                                          ? "active-sub"
-                                          : ""
-                                      }
-                                    >
-                                      ➕ Add {getOurWorkCategoryLabel(category)}
-                                    </button>
-                                  </li>
-                                )}
+                                    <li>
+                                      <button
+                                        onClick={() =>
+                                          handleInterventionsAction(
+                                            category,
+                                            "add"
+                                          )
+                                        }
+                                        className={
+                                          currentOurWorkCategory === category &&
+                                            interventionsAction === "add"
+                                            ? "active-sub"
+                                            : ""
+                                        }
+                                      >
+                                        ➕ Add {getOurWorkCategoryLabel(category)}
+                                      </button>
+                                    </li>
+                                  )}
                                 {canUserPerformAction(
                                   "interventions",
                                   category,
                                   "edit"
                                 ) && (
-                                  <li>
-                                    <button
-                                      onClick={() =>
-                                        handleInterventionsAction(
-                                          category,
-                                          "update"
-                                        )
-                                      }
-                                      className={
-                                        currentOurWorkCategory === category &&
-                                        interventionsAction === "update"
-                                          ? "active-sub"
-                                          : ""
-                                      }
-                                    >
-                                      ✏️ Update{" "}
-                                      {getOurWorkCategoryLabel(category)}
-                                    </button>
-                                  </li>
-                                )}
+                                    <li>
+                                      <button
+                                        onClick={() =>
+                                          handleInterventionsAction(
+                                            category,
+                                            "update"
+                                          )
+                                        }
+                                        className={
+                                          currentOurWorkCategory === category &&
+                                            interventionsAction === "update"
+                                            ? "active-sub"
+                                            : ""
+                                        }
+                                      >
+                                        ✏️ Update{" "}
+                                        {getOurWorkCategoryLabel(category)}
+                                      </button>
+                                    </li>
+                                  )}
                               </ul>
                             )}
                           </li>
@@ -3486,7 +3469,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                                     }
                                     className={
                                       currentMediaType === type &&
-                                      mediaAction === "view"
+                                        mediaAction === "view"
                                         ? "active-sub"
                                         : ""
                                     }
@@ -3499,43 +3482,43 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                                   type,
                                   "create"
                                 ) && (
-                                  <li>
-                                    <button
-                                      onClick={() =>
-                                        handleMediaAction(type, "add")
-                                      }
-                                      className={
-                                        currentMediaType === type &&
-                                        mediaAction === "add"
-                                          ? "active-sub"
-                                          : ""
-                                      }
-                                    >
-                                      ➕ Add {type.slice(0, -1)}
-                                    </button>
-                                  </li>
-                                )}
+                                    <li>
+                                      <button
+                                        onClick={() =>
+                                          handleMediaAction(type, "add")
+                                        }
+                                        className={
+                                          currentMediaType === type &&
+                                            mediaAction === "add"
+                                            ? "active-sub"
+                                            : ""
+                                        }
+                                      >
+                                        ➕ Add {type.slice(0, -1)}
+                                      </button>
+                                    </li>
+                                  )}
                                 {canUserPerformAction(
                                   "media",
                                   type,
                                   "edit"
                                 ) && (
-                                  <li>
-                                    <button
-                                      onClick={() =>
-                                        handleMediaAction(type, "update")
-                                      }
-                                      className={
-                                        currentMediaType === type &&
-                                        mediaAction === "update"
-                                          ? "active-sub"
-                                          : ""
-                                      }
-                                    >
-                                      ✏️ Update {type.slice(0, -1)}
-                                    </button>
-                                  </li>
-                                )}
+                                    <li>
+                                      <button
+                                        onClick={() =>
+                                          handleMediaAction(type, "update")
+                                        }
+                                        className={
+                                          currentMediaType === type &&
+                                            mediaAction === "update"
+                                            ? "active-sub"
+                                            : ""
+                                        }
+                                      >
+                                        ✏️ Update {type.slice(0, -1)}
+                                      </button>
+                                    </li>
+                                  )}
                               </ul>
                             )}
                           </li>
@@ -3845,9 +3828,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               <li
                 className={
                   activeTab === "users" ||
-                  activeTab === "registrations" ||
-                  activeTab === "add-user" ||
-                  activeTab === "permissions"
+                    activeTab === "registrations" ||
+                    activeTab === "add-user" ||
+                    activeTab === "permissions"
                     ? "active"
                     : ""
                 }

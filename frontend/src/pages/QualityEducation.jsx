@@ -8,12 +8,29 @@ import { UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const QualityEducation = () => {
   const [items, setItems] = useState([]);
   const [educationBanners, setEducationBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Slider settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    adaptiveHeight: true,
+  };
 
   // Fetch quality education page banners
   useEffect(() => {
@@ -83,28 +100,34 @@ const QualityEducation = () => {
       );
     }
 
+    // Use slider if there are banners (even 1, consistency is good, creates a wrapper)
+    // If specifically want strictly image for 1, can add condition. But Slider works for 1.
     return (
-      <div className="qe-banner">
-        {educationBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Quality Education Banner - ${banner.page}`}
-                className="qe-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="qe-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+      <div className="qe-banner-slider-container">
+        <Slider {...sliderSettings} className="qe-banner-slider">
+          {educationBanners.map((banner) => (
+            <div key={banner.id} className="banner-slide">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Quality Education Banner - ${banner.page}`}
+                  className="qe-banner-image"
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="qe-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%' }}
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };

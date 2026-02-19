@@ -303,7 +303,7 @@ const Contact = () => {
     <div className="contactus-page">
       <div className="heading">
         <h2>
-          Get Involve <span></span>
+          Get Involved <span></span>
         </h2>
       </div>
 
@@ -543,9 +543,8 @@ const Contact = () => {
             {offices.map((office, index) => (
               <div
                 key={index}
-                className={`office-item ${
-                  selectedOffice.name === office.name ? "active" : ""
-                }`}
+                className={`office-item ${selectedOffice.name === office.name ? "active" : ""
+                  }`}
                 onClick={() => setSelectedOffice(office)}
               >
                 <div>

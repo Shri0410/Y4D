@@ -44,10 +44,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [accreditationsError, setAccreditationsError] = useState(false);
   const [bannersLoading, setBannersLoading] = useState(true);
-  
-  // New state for dynamic slider height
-  const [sliderHeight, setSliderHeight] = useState(0);
-  const sliderRef = useRef(null);
 
   useEffect(() => {
     AOS.init({
@@ -125,59 +121,9 @@ const Home = () => {
   }, []);
 
   // Dynamic slider height adjustment
-  useEffect(() => {
-    const updateSliderHeight = () => {
-      if (sliderRef.current) {
-        const activeSlide = sliderRef.current.querySelector('.slick-active');
-        if (activeSlide) {
-          const mediaElement = activeSlide.querySelector('.slide-img');
-          if (mediaElement) {
-            // Get the actual height of the media element
-            const height = mediaElement.offsetHeight;
-            
-            // Add some buffer for overlay content if present
-            const overlay = activeSlide.querySelector('.slide-overlay');
-            const overlayHeight = overlay ? overlay.offsetHeight : 0;
-            
-            const totalHeight = Math.max(height, overlayHeight);
-            
-            // Smooth transition
-            setSliderHeight(totalHeight);
-          }
-        }
-      }
-    };
+  // Removed dynamic slider height adjustment - now handled by CSS
 
-    // Update on window resize
-    window.addEventListener('resize', updateSliderHeight);
-    
-    // Update when banners are loaded
-    if (!bannersLoading && heroBanners.length > 0) {
-      // Wait a bit for images to load
-      const timer = setTimeout(() => {
-        updateSliderHeight();
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    }
 
-    return () => {
-      window.removeEventListener('resize', updateSliderHeight);
-    };
-  }, [bannersLoading, heroBanners.length]);
-
-  // Handle image load to update height
-  const handleImageLoad = (e) => {
-    setTimeout(() => {
-      if (sliderRef.current) {
-        const activeSlide = sliderRef.current.querySelector('.slick-active');
-        if (activeSlide && activeSlide.contains(e.target)) {
-          const height = e.target.offsetHeight;
-          setSliderHeight(height);
-        }
-      }
-    }, 100);
-  };
 
   const sliderSettings = {
     dots: true,
@@ -188,25 +134,6 @@ const Home = () => {
     autoplay: true,
     autoplaySpeed: 4000,
     arrows: false,
-    beforeChange: (current, next) => {
-      // Reset height temporarily during transition
-      setSliderHeight(0);
-    },
-    afterChange: (current) => {
-      // Update height after slide change
-      setTimeout(() => {
-        if (sliderRef.current) {
-          const activeSlide = sliderRef.current.querySelector('.slick-active');
-          if (activeSlide) {
-            const mediaElement = activeSlide.querySelector('.slide-img');
-            if (mediaElement) {
-              const height = mediaElement.offsetHeight;
-              setSliderHeight(height);
-            }
-          }
-        }
-      }, 100);
-    },
   };
 
   const useIsMobile = (breakpoint = 768) => {
@@ -260,7 +187,7 @@ const Home = () => {
   const renderHeroSlider = () => {
     if (bannersLoading) {
       return (
-        <section className="hero-slider" style={{ height: '400px' }}>
+        <section className="hero-slider">
           <div className="loading-slider">Loading banners...</div>
         </section>
       );
@@ -274,7 +201,6 @@ const Home = () => {
               src={fallbackBanner}
               alt="Y4D Foundation"
               className="slide-img"
-              onLoad={handleImageLoad}
             />
           </div>
         </section>
@@ -282,15 +208,7 @@ const Home = () => {
     }
 
     return (
-      <section 
-        className="hero-slider" 
-        ref={sliderRef}
-        style={{ 
-          height: sliderHeight > 0 ? `${sliderHeight}px` : 'auto',
-          transition: 'height 0.3s ease',
-          overflow: 'hidden'
-        }}
-      >
+      <section className="hero-slider">
         <Slider {...sliderSettings}>
           {heroBanners.map((banner) => (
             <div key={banner.id} className="slide-content">
@@ -299,7 +217,6 @@ const Home = () => {
                   src={`${UPLOADS_BASE}/banners/${banner.media}`}
                   alt={banner.title}
                   className="slide-img"
-                  onLoad={handleImageLoad}
                   onError={handleImageError}
                 />
               ) : (
@@ -433,63 +350,63 @@ const Home = () => {
       </section>
 
       {/* Our Interventions Section */}
-<section className="Interventions-section" data-aos="fade-up">
-  <div className="Interventions-container">
-    <h2 className="Inter-title" data-aos="fade-up" data-aos-delay="100">
-      Our Interventions<span></span>
-    </h2>
+      <section className="Interventions-section" data-aos="fade-up">
+        <div className="Interventions-container">
+          <h2 className="Inter-title" data-aos="fade-up" data-aos-delay="100">
+            Our Interventions<span></span>
+          </h2>
 
-    <div className="grid grid-3">
-      {[
-        {
-          title: "Quality Education",
-          img: edu,
-          link: "/our-work#education",
-        },
-        {
-          title: "Livelihood",
-          img: livelihood,
-          link: "/our-work#livelihood",
-        },
-        {
-          title: "Healthcare",
-          img: healthcare,
-          link: "/our-work#healthcare",
-        },
-        {
-          title: "Environment & Sustainability",
-          img: environment,
-          link: "/our-work#environment",
-        },
-        {
-          title: "Integrated Development Program",
-          img: idp,
-          link: "/our-work#idp",
-        },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="card text-center intervention-card"
-          data-aos="zoom-in"
-          data-aos-delay={200 + index * 100}
-        >
-          <img
-            src={item.img}
-            alt={item.title}
-            className="intervention-icon"
-          />
+          <div className="grid grid-3">
+            {[
+              {
+                title: "Quality Education",
+                img: edu,
+                link: "/our-work#education",
+              },
+              {
+                title: "Livelihood",
+                img: livelihood,
+                link: "/our-work#livelihood",
+              },
+              {
+                title: "Healthcare",
+                img: healthcare,
+                link: "/our-work#healthcare",
+              },
+              {
+                title: "Environment & Sustainability",
+                img: environment,
+                link: "/our-work#environment",
+              },
+              {
+                title: "Integrated Development Program",
+                img: idp,
+                link: "/our-work#idp",
+              },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="card text-center intervention-card"
+                data-aos="zoom-in"
+                data-aos-delay={200 + index * 100}
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="intervention-icon"
+                />
 
-          <h3>{item.title}</h3>
+                <h3>{item.title}</h3>
 
-          {/* ✅ HASH NAVIGATION */}
-          <Link to={item.link} className="inter-btn">
-            Learn More
-          </Link>
+                {/* ✅ HASH NAVIGATION */}
+                <Link to={item.link} className="inter-btn">
+                  Learn More
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
 
       {/* SDGs Section */}

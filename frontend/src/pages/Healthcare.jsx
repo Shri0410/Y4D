@@ -8,12 +8,29 @@ import { UPLOADS_BASE } from "../config/api";
 import SanitizedHTML from "../component/Common/SanitizedHTML";
 import logger from "../utils/logger";
 
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 const Healthcare = () => {
   const [items, setItems] = useState([]);
   const [healthcareBanners, setHealthcareBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Slider settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    adaptiveHeight: true,
+  };
 
   // Fetch healthcare page banners
   useEffect(() => {
@@ -81,27 +98,31 @@ const Healthcare = () => {
     }
 
     return (
-      <div className="hc-banner">
-        {healthcareBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Healthcare Banner - ${banner.page}`}
-                className="hc-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="hc-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+      <div className="hc-banner-slider-container">
+        <Slider {...sliderSettings} className="hc-banner-slider">
+          {healthcareBanners.map((banner) => (
+            <div key={banner.id} className="banner-slide">
+              {banner.media_type === 'image' ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Healthcare Banner - ${banner.page}`}
+                  className="hc-banner-image"
+                  style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="hc-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{ width: '100%' }}
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };
