@@ -1,8 +1,8 @@
-
 /* Stories Page Styles */
 .stories-container {
   margin-top: 80px;
 }
+
 .st-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
@@ -18,7 +18,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -73,14 +73,14 @@
 
 .st-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); 
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   justify-items: center;
 }
 
 
 .st-card {
-  width: 362px; 
+  width: 362px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -115,7 +115,7 @@
   font-weight: 600;
   margin-bottom: 0.6rem;
   color: #333;
-    flex: 1;
+  flex: 1;
   /* Title overflow handling for content items */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -252,8 +252,10 @@
 
 .st-modal-image img {
   width: 100%;
-  height: 300px; /* smaller height */
-  object-fit: cover; /* maintain aspect ratio */
+  height: 300px;
+  /* smaller height */
+  object-fit: cover;
+  /* maintain aspect ratio */
   border-radius: 8px;
   margin-bottom: 1rem;
 }
@@ -275,6 +277,7 @@
   color: #444;
   line-height: 1.6;
 }
+
 /* Stories Banner - Same as About Page */
 .stories-banner {
   width: 100%;
@@ -303,11 +306,12 @@
 
 /* Tablet view */
 @media (max-width: 1024px) {
+
   .stories-banner img,
   .stories-banner video {
     height: 300px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 300px;
@@ -316,23 +320,26 @@
 
 /* Mobile view */
 @media (max-width: 768px) {
+
   .stories-banner img,
   .stories-banner video {
     height: 200px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 200px;
     font-size: 16px;
   }
 }
+
 /* Fade in animation */
 @keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -353,46 +360,56 @@
     line-height: 34px;
     margin-bottom: 3rem;
   }
+
   .st-title::before {
     right: 100px;
   }
+
   .st-title::after {
     right: 80px;
   }
+
   .st-title span::before {
     left: 100px;
   }
+
   .st-title span::after {
     left: 80px;
   }
+
   .st-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .st-card {
-    width: 320px; 
+    width: 320px;
   }
 }
 
 @media (max-width: 768px) {
   .st-title {
-    font-size: 1.8rem;
+    font-size: 30px;
     line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .st-title::before {
-    right: 0px;
+    right: -5px;
   }
+
   .st-title::after {
-    right: -20px;
+    right: -25px;
   }
+
   .st-title span::before {
-    left: 10px;
+    left: -5px;
   }
+
   .st-title span::after {
-    left: -10px;
+    left: -25px;
   }
-    .st-grid {
+
+  .st-grid {
     grid-template-columns: 1fr;
   }
 

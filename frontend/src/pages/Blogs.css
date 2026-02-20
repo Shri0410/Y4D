@@ -1,4 +1,4 @@
-.blogs-container{
+.blogs-container {
   margin-top: 80px;
 }
 
@@ -21,8 +21,8 @@
   font-size: 2.8rem;
   font-weight: 600;
   color: #333;
-  margin: 0px auto ;
-  padding: 0 70px;
+  margin: 0px auto;
+
 }
 
 /* Right top line */
@@ -83,7 +83,7 @@
 }
 
 .blog-card {
-  width: 380px; 
+  width: 380px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -210,6 +210,7 @@
   color: #777;
   padding: 2rem;
 }
+
 /* Blogs Banner - Same as About Page */
 .blogs-banner {
   width: 100%;
@@ -238,11 +239,12 @@
 
 /* Tablet view */
 @media (max-width: 1024px) {
+
   .blogs-banner img,
   .blogs-banner video {
     height: 300px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 300px;
@@ -251,34 +253,41 @@
 
 /* Mobile view */
 @media (max-width: 768px) {
+
   .blogs-banner img,
   .blogs-banner video {
     height: 200px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 200px;
     font-size: 16px;
   }
 }
+
 /* Responsive – match Our Work grid behavior */
 @media (max-width: 1024px) {
   .page-header h1 {
     font-size: 2.2rem;
   }
+
   .blog-header h1::before {
     right: 140px;
   }
+
   .blog-header h1::after {
     right: 120px;
   }
+
   .blog-header h1 span::before {
     left: 140px;
   }
+
   .blog-header h1 span::after {
     left: 120px;
   }
+
   .blogs-grid {
     grid-template-columns: repeat(2, 1fr);
     column-gap: 0;
@@ -293,22 +302,26 @@
   .blogs-page {
     padding: 1rem;
   }
+
   .blog-header h1 {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 33px;
     margin-bottom: 2rem;
   }
+
   .blog-header h1::before {
-    right: 40px;
+    right: 10px;
   }
+
   .blog-header h1::after {
-    right: 20px;
+    right: -10px;
   }
+
   .blog-header h1 span::before {
-    left: 40px;
+    left: 10px;
   }
+
   .blog-header h1 span::after {
-    left: 20px;
+    left: -10px;
   }
 
   .blogs-grid {

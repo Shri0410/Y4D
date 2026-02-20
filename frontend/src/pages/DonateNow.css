@@ -538,6 +538,7 @@
 
 /* Responsive */
 @media (max-width: 900px) {
+
   .donate-content {
     flex-direction: column;
   }
@@ -563,6 +564,10 @@
 }
 
 @media (max-width: 768px) {
+  .donate-banner {
+    margin-top: 80px;
+    height: 200px;
+  }
 
   .donate-left {
     padding: 10px 10px;

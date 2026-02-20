@@ -103,7 +103,7 @@
   font-weight: 600;
   color: #333;
   margin: 20px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -341,25 +341,25 @@
   }
 
   .hc-title {
-    font-size: 1.8rem;
+    font-size: 33px;
     line-height: 34px;
     margin-bottom: 2rem;
   }
 
   .hc-title::before {
-    right: 40px;
-  }
-
-  .hc-title::after {
     right: 20px;
   }
 
+  .hc-title::after {
+    right: 0px;
+  }
+
   .hc-title span::before {
-    left: 40px;
+    left: 20px;
   }
 
   .hc-title span::after {
-    left: 20px;
+    left: 0px;
   }
 
   .hc-grid {

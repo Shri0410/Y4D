@@ -7,6 +7,7 @@
   align-items: center;
   gap: 35px;
 }
+
 .time-container {
   gap: 100px;
 }
@@ -76,6 +77,7 @@
   border-top: 2px dashed #f97316;
   position: relative;
 }
+
 .connector-mid {
   width: 401px;
   height: 2px;
@@ -241,7 +243,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -295,7 +297,7 @@
   font-weight: 600;
   color: #333;
   margin: 20px auto 0px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -349,7 +351,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 0px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -406,15 +408,19 @@
   .rp-impact-title {
     font-size: 2rem;
   }
+
   .rp-impact-title::before {
     right: 200px;
   }
+
   .rp-impact-title::after {
     right: 180px;
   }
+
   .rp-impact-title span::before {
     left: 200px;
   }
+
   .rp-impact-title span::after {
     left: 180px;
   }
@@ -422,15 +428,19 @@
   .rp-title {
     font-size: 2rem;
   }
+
   .rp-title::before {
     right: 120px;
   }
+
   .rp-title::after {
     right: 100px;
   }
+
   .rp-title span::before {
     left: 120px;
   }
+
   .rp-title span::after {
     left: 100px;
   }
@@ -438,15 +448,19 @@
   .rpt-title {
     font-size: 2rem;
   }
+
   .rpt-title::before {
     right: 20px;
   }
+
   .rpt-title::after {
     right: 0px;
   }
+
   .rpt-title span::before {
     left: 20px;
   }
+
   .rpt-title span::after {
     left: 0px;
   }
@@ -458,17 +472,21 @@
   .connector-mid {
     width: 330px;
   }
+
   .connector-up {
     left: 15%;
   }
+
   .connector-mid-up {
     height: 60px;
     top: -73px;
   }
+
   .connector-mid-up .arrow {
     top: -25px;
     left: 0px;
   }
+
   .timeline-item {
     margin-left: 0px;
   }
@@ -494,55 +512,67 @@
   }
 
   .rp-impact-title {
-    font-size: 1.7rem;
+    font-size: 33px;
     line-height: 28px;
     margin-bottom: 2rem;
   }
+
   .rp-impact-title::before {
-    right: 40px;
+    right: 10px;
   }
+
   .rp-impact-title::after {
-    right: 20px;
+    right: -10px;
   }
+
   .rp-impact-title span::before {
-    left: 40px;
+    left: 10px;
   }
+
   .rp-impact-title span::after {
-    left: 20px;
+    left: -10px;
   }
 
   .rp-title {
-    font-size: 1.6rem;
-    line-height: 28px;
+    font-size: 32px;
+    line-height: 30px;
   }
+
   .rp-title::before {
-    right: 40px;
+    display: none;
   }
+
   .rp-title::after {
-    right: 20px;
+    display: none;
   }
+
   .rp-title span::before {
-    left: 40px;
+    display: none;
   }
+
   .rp-title span::after {
-    left: 20px;
+    display: none;
   }
 
   .rpt-title {
-    font-size: 1.6rem;
+    font-size: 33px;
     line-height: 28px;
   }
+
   .rpt-title::before {
-    right: 40px;
+    right: -30px;
   }
+
   .rpt-title::after {
-    right: 20px;
+    right: -50px;
   }
+
   .rpt-title span::before {
-    left: 40px;
+    left: -30px;
   }
+
   .rpt-title span::after {
-    left: 20px;
+    left: -50px;
   }
 
   .timeline-row,
@@ -608,6 +638,7 @@
     top: 46px;
     transform: translateX(-50%) rotate(-270deg);
   }
+
   .connector-mid {
     width: 2px;
     height: 40px;
@@ -616,6 +647,7 @@
     margin: 0px auto 20px auto;
     position: relative;
   }
+
   .connector-mid-up {
     display: block;
     width: 2px;
@@ -628,7 +660,12 @@
     top: 45px;
     transform: translateX(-50%) rotate(-270deg);
   }
+
   .timeline-row.bottom {
     margin-top: 20px;
+  }
+
+  .rpi-subtitle {
+    font-size: 25px;
   }
 }

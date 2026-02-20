@@ -22,7 +22,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -76,7 +76,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -130,7 +130,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -184,7 +184,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -763,6 +763,8 @@
 }
 
 @media (max-width: 768px) {
+
+
   .contactus-help-buttons {
     flex-direction: column;
   }
@@ -799,46 +801,44 @@
 
   .faq-title {
     font-size: 1.4rem;
-    line-height: 38px;
     margin-bottom: 2rem;
   }
 
   .faq-title::before {
-    right: 0px;
+    display: none;
   }
 
   .faq-title::after {
-    right: -20px;
+    display: none;
   }
 
   .faq-title span::before {
-    left: 0px;
+    display: none;
   }
 
   .faq-title span::after {
-    left: -20px;
+    display: none;
   }
 
   .office-title {
-    font-size: 1.4rem;
-    line-height: 34px;
+    font-size: 22px;
     margin-bottom: 2rem;
   }
 
   .office-title::before {
-    right: 0px;
+    display: none;
   }
 
   .office-title::after {
-    right: -20px;
+    display: none;
   }
 
   .office-title span::before {
-    left: 0px;
+    display: none;
   }
 
   .office-title span::after {
-    left: -20px;
+    display: none;
   }
 
   .contactus-section {
@@ -859,26 +859,25 @@
   }
 
   .heading {
-    font-size: 1.4rem;
-    line-height: 34px;
+    font-size: 23px;
     margin-bottom: 2rem;
     margin-top: 100px;
   }
 
   .heading::before {
-    right: 50px;
+    display: none;
   }
 
   .heading::after {
-    right: 30px;
+    display: none;
   }
 
   .heading span::before {
-    left: 50px;
+    display: none;
   }
 
   .heading span::after {
-    left: 30px;
+    display: none;
   }
 
   .contact-top-buttons {
