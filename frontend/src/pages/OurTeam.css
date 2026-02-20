@@ -3,6 +3,7 @@
   color: #333;
   text-align: center;
 }
+
 .banner {
   width: 100%;
   height: auto;
@@ -16,6 +17,7 @@
   object-fit: cover;
   display: block;
 }
+
 .FOT-section {
   background-color: #f7f7f7;
   padding: 100px 0 30px 0;
@@ -34,7 +36,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -79,6 +81,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .mentors-title {
   position: relative;
   text-align: center;
@@ -87,8 +90,9 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
+
 /* Right top line */
 .mentors-title::before {
   content: "";
@@ -99,6 +103,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Right bottom line */
 .mentors-title::after {
   content: "";
@@ -109,6 +114,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Left side */
 .mentors-title span::before {
   content: "";
@@ -119,6 +125,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .mentors-title span::after {
   content: "";
   position: absolute;
@@ -128,6 +135,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .management-title {
   position: relative;
   text-align: center;
@@ -136,8 +144,9 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
+
 /* Right top line */
 .management-title::before {
   content: "";
@@ -148,6 +157,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Right bottom line */
 .management-title::after {
   content: "";
@@ -158,6 +168,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Left side */
 .management-title span::before {
   content: "";
@@ -168,6 +179,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .management-title span::after {
   content: "";
   position: absolute;
@@ -177,6 +189,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .useful-title {
   position: relative;
   text-align: center;
@@ -185,8 +198,9 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
+
 /* Right top line */
 .useful-title::before {
   content: "";
@@ -197,6 +211,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Right bottom line */
 .useful-title::after {
   content: "";
@@ -207,6 +222,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 /* Left side */
 .useful-title span::before {
   content: "";
@@ -217,6 +233,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .useful-title span::after {
   content: "";
   position: absolute;
@@ -242,6 +259,7 @@
   max-width: 1200px;
   margin: 0 auto;
 }
+
 .team-card {
   background: #fff;
   border-radius: 10px;
@@ -271,6 +289,7 @@
   cursor: pointer;
   border: 3px solid #f2f2f2;
 }
+
 .team-card img:hover {
   transform: scale(1.1);
 }
@@ -344,6 +363,7 @@
 .use-btn:hover {
   color: #000;
 }
+
 .use-btn::after {
   content: "›";
   font-size: 1.1rem;
@@ -361,15 +381,19 @@
   .FOT-section {
     padding-top: 45px;
   }
+
   .team-container {
     width: 90%;
   }
+
   .useful-container {
     width: 87%;
   }
+
   .empty-box {
     width: 86%;
   }
+
   .banner {
     height: auto;
   }
@@ -378,6 +402,7 @@
     font-size: 1.8rem;
     margin-bottom: 2rem;
   }
+
   .trustee-title::before {
     right: 420px;
   }
@@ -395,10 +420,12 @@
   .trustee-title span::after {
     left: 400px;
   }
+
   .mentors-title {
     font-size: 1.8rem;
     margin-bottom: 2rem;
   }
+
   .mentors-title::before {
     right: 480px;
   }
@@ -421,6 +448,7 @@
     font-size: 1.8rem;
     margin-bottom: 2rem;
   }
+
   .management-title::before {
     right: 430px;
   }
@@ -443,6 +471,7 @@
     font-size: 1.8rem;
     margin-bottom: 2rem;
   }
+
   .useful-title::before {
     right: 420px;
   }
@@ -461,21 +490,26 @@
     left: 400px;
   }
 }
+
 @media (max-width: 1024px) {
   .banner {
     height: auto;
   }
+
   .FOT-section {
     padding-top: 40px;
   }
+
   .team-container {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .trustee-title {
     font-size: 1.8rem;
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .trustee-title::before {
     right: 180px;
   }
@@ -493,11 +527,13 @@
   .trustee-title span::after {
     left: 160px;
   }
+
   .mentors-title {
     font-size: 1.8rem;
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .mentors-title::before {
     right: 240px;
   }
@@ -521,6 +557,7 @@
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .useful-title::before {
     right: 180px;
   }
@@ -544,8 +581,10 @@
   .banner {
     margin-top: 80px;
   }
+
   .team-card {
-    flex: 1 1 100%; /* 1 per row */
+    flex: 1 1 100%;
+    /* 1 per row */
     max-width: 100%;
   }
 
@@ -566,32 +605,35 @@
   }
 
   .trustee-title {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 32px;
+    line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .trustee-title::before {
-    right: 40px;
+    display: none;
   }
 
   /* Right bottom line */
   .trustee-title::after {
-    right: 20px;
+    display: none;
   }
 
   /* Left side */
   .trustee-title span::before {
-    left: 40px;
+    display: none;
   }
 
   .trustee-title span::after {
-    left: 20px;
+    display: none;
   }
+
   .mentors-title {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 33px;
+    line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .mentors-title::before {
     right: 40px;
   }
@@ -611,10 +653,11 @@
   }
 
   .management-title {
-    font-size: 1.8rem;
+    font-size: 33px;
     line-height: 34px;
     margin-bottom: 2rem;
   }
+
   .management-title::before {
     right: 40px;
   }
@@ -634,26 +677,27 @@
   }
 
   .useful-title {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 32px;
+    line-height: 30px;
     margin-bottom: 2rem;
   }
+
   .useful-title::before {
-    right: 40px;
+    display: none;
   }
 
   /* Right bottom line */
   .useful-title::after {
-    right: 20px;
+    display: none;
   }
 
   /* Left side */
   .useful-title span::before {
-    left: 40px;
+    display: none;
   }
 
   .useful-title span::after {
-    left: 20px;
+    display: none;
   }
 
   .team-container {

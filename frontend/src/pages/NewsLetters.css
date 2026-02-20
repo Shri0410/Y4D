@@ -23,8 +23,9 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
+
 /* Newsletter Banner - Same as About Page */
 .newsletter-banner {
   width: 100%;
@@ -178,11 +179,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #333; /* dark gray background */
-  color: #fff; /* white text */
+  background-color: #333;
+  /* dark gray background */
+  color: #fff;
+  /* white text */
   padding: 0.5rem 1.25rem;
-  border-radius: 50px; /* pill shape */
-  border: 1px dashed #fff; /* dashed border */
+  border-radius: 50px;
+  /* pill shape */
+  border: 1px dashed #fff;
+  /* dashed border */
   font-weight: 500;
   font-size: 0.9rem;
   cursor: pointer;
@@ -190,8 +195,10 @@
 }
 
 .download-btn:hover {
-  background-color: #555; /* lighter gray on hover */
-  transform: translateY(-2px); /* small lift */
+  background-color: #555;
+  /* lighter gray on hover */
+  transform: translateY(-2px);
+  /* small lift */
 }
 
 .empty-state {
@@ -212,7 +219,8 @@
 }
 
 @media (max-width: 1024px) {
-   .newsletter-banner img,
+
+  .newsletter-banner img,
   .newsletter-banner video {
     height: 300px;
   }
@@ -221,15 +229,18 @@
   .no-banner-message {
     height: 300px;
   }
-    .newsletter-content h3{
-      overflow-wrap: break-word;
-  word-break: break-word;
+
+  .newsletter-content h3 {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
-  .newsletter-content p{
-      overflow-wrap: break-word;
-  word-break: break-word;
+
+  .newsletter-content p {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
-    .newsletter-banner img,
+
+  .newsletter-banner img,
   .newsletter-banner video {
     height: 200px;
   }
@@ -239,6 +250,7 @@
     height: 200px;
     font-size: 16px;
   }
+
   .page-header h1::before {
     right: 190px;
   }
@@ -256,8 +268,10 @@
   .page-header h1 span::after {
     left: 170px;
   }
+
   .newsletters-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 cards per row on tablets */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 cards per row on tablets */
   }
 }
 
@@ -266,8 +280,9 @@
   .newsletters-page {
     padding: 1rem;
   }
+
   .page-header h1 {
-    font-size: 1.9rem;
+    font-size: 33px;
   }
 
   .newsletters-grid {
@@ -282,6 +297,7 @@
   .btn-download {
     width: 100%;
   }
+
   .page-header h1::before {
     right: 290px;
   }
@@ -299,19 +315,23 @@
   .page-header h1 span::after {
     left: 290px;
   }
+
   .newsletters-grid {
-    grid-template-columns: 1fr; /* 1 card per row on mobile */
+    grid-template-columns: 1fr;
+    /* 1 card per row on mobile */
   }
-  .newsletter-card{
+
+  .newsletter-card {
     width: 100%;
   }
-  .newsletter-content h3{
-      overflow-wrap: break-word;
-  word-break: break-word;
+
+  .newsletter-content h3 {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
-  .newsletter-content p{
-      overflow-wrap: break-word;
-  word-break: break-word;
+
+  .newsletter-content p {
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 }
-

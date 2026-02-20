@@ -28,7 +28,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 30px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -200,7 +200,8 @@ table td {
   font-size: 14px;
   flex: 1;
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  -webkit-line-clamp: 3;
+  /* Limit to 3 lines */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -211,6 +212,7 @@ table td {
   margin-top: 10px;
   text-align: center;
 }
+
 .download-btn {
   display: inline-block;
   padding: 8px 12px;
@@ -228,7 +230,8 @@ table td {
 /* Responsive Design */
 @media (max-width: 1200px) {
   .reports-container {
-    grid-template-columns: repeat(3, 1fr); /* 3 per row */
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 per row */
   }
 }
 
@@ -248,6 +251,50 @@ table td {
     padding: 6px;
     font-size: 0.8rem;
   }
+
+  .legal-section h2 {
+    font-size: 33px;
+    line-height: 30px;
+  }
+
+  .ls-title::before {
+    right: -30px;
+    top: calc(50% - 6px);
+    width: 20px;
+    height: 2px;
+    background: #f15a29;
+  }
+
+  .ls-title::after {
+    right: -50px;
+    top: calc(50% + 4px);
+    width: 40px;
+    height: 2px;
+    background: #f15a29;
+  }
+
+  .ls-title span::before {
+    content: "";
+    position: absolute;
+    left: -30px;
+    top: calc(50% - 6px);
+    width: 20px;
+    height: 2px;
+    background: #f15a29;
+  }
+
+  .ls-title span::after {
+    content: "";
+    position: absolute;
+    left: -50px;
+    top: calc(50% + 4px);
+    width: 40px;
+    height: 2px;
+    background: #f15a29;
+  }
+
+
+
 }
 
 @media (max-width: 480px) {
@@ -259,16 +306,21 @@ table td {
     padding: 5px;
     font-size: 0.7rem;
   }
+
+
+
 }
 
 @media (max-width: 1024px) {
   .legal-page {
     padding-bottom: 0px;
   }
+
   .reports-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 0px;
   }
+
   .report-card {
     margin-bottom: 20px;
   }
@@ -276,11 +328,13 @@ table td {
 
 @media (max-width: 600px) {
   .reports-container {
-    grid-template-columns: repeat(1, 1fr); /* 1 per row */
+    grid-template-columns: repeat(1, 1fr);
+    /* 1 per row */
   }
 
   .report-card {
-    width: 90%; /* take almost full width */
+    width: 90%;
+    /* take almost full width */
     height: 400px;
   }
 

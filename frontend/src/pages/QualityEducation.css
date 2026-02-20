@@ -39,7 +39,6 @@
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
-
   .qe-banner-image,
   .qe-banner-video {
     height: 500px;
@@ -47,7 +46,6 @@
 }
 
 @media (max-width: 768px) {
-
   .qe-banner-image,
   .qe-banner-video {
     height: 400px;
@@ -55,7 +53,6 @@
 }
 
 @media (max-width: 480px) {
-
   .qe-banner-image,
   .qe-banner-video {
     height: 300px;
@@ -204,7 +201,6 @@
 
 /* Responsive adjustments for banner */
 @media (max-width: 1024px) {
-
   .qe-banner-image,
   .qe-banner-video {
     max-height: 400px;
@@ -217,7 +213,6 @@
 }
 
 @media (max-width: 768px) {
-
   .qe-banner-image,
   .qe-banner-video {
     max-height: 300px;
@@ -231,6 +226,7 @@
 
   .qe-title {
     font-size: 2rem;
+    line-height: 33px;
   }
 
   .qe-grid {
@@ -240,7 +236,6 @@
 }
 
 @media (max-width: 480px) {
-
   .qe-banner-image,
   .qe-banner-video {
     max-height: 250px;

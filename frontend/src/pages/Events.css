@@ -23,7 +23,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -68,6 +68,7 @@
   height: 2px;
   background: #f15a29;
 }
+
 .ev-subtitle {
   font-size: 1.1rem;
   color: #555;
@@ -76,16 +77,16 @@
 /* Grid */
 .ev-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); 
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  justify-items: center; 
+  justify-items: center;
 }
 
 
 .ev-card {
   width: 360px;
   height: auto;
-  overflow: hidden; 
+  overflow: hidden;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -119,11 +120,13 @@
   font-weight: 600;
   color: #222;
   margin-bottom: 0.75rem;
-    flex: 1;
+  flex: 1;
   /* Title overflow handling for content items */
   display: -webkit-box;
-  -webkit-line-clamp: 2; /* show only 2 lines */
-  line-clamp: 2; /* standard property for compatibility */
+  -webkit-line-clamp: 2;
+  /* show only 2 lines */
+  line-clamp: 2;
+  /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,8 +143,10 @@
 
   /* Truncate text to 3 lines */
   display: -webkit-box;
-  -webkit-line-clamp: 3; /* show only 3 lines */
-  line-clamp: 3; /* standard property for compatibility */
+  -webkit-line-clamp: 3;
+  /* show only 3 lines */
+  line-clamp: 3;
+  /* standard property for compatibility */
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -261,9 +266,11 @@
   font-size: 1rem;
   color: #555;
   line-height: 1.6;
-  word-wrap: break-word; /* prevents text from overflowing horizontally */
+  word-wrap: break-word;
+  /* prevents text from overflowing horizontally */
   overflow-wrap: break-word;
 }
+
 .ev-connect-btn {
   display: inline-block;
   padding: 0.6rem 1.2rem;
@@ -278,6 +285,7 @@
 .ev-connect-btn:hover {
   background-color: #218838;
 }
+
 /* Events Banner - Same as About Page */
 .events-banner {
   width: 100%;
@@ -306,11 +314,12 @@
 
 /* Tablet view */
 @media (max-width: 1024px) {
+
   .events-banner img,
   .events-banner video {
     height: 300px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 300px;
@@ -319,23 +328,26 @@
 
 /* Mobile view */
 @media (max-width: 768px) {
+
   .events-banner img,
   .events-banner video {
     height: 200px;
   }
-  
+
   .loading-banner,
   .no-banner-message {
     height: 200px;
     font-size: 16px;
   }
 }
+
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -355,18 +367,23 @@
     line-height: 34px;
     margin-bottom: 3rem;
   }
+
   .ev-title::before {
     right: 140px;
   }
+
   .ev-title::after {
     right: 120px;
   }
+
   .ev-title span::before {
     left: 140px;
   }
+
   .ev-title span::after {
     left: 120px;
   }
+
   .ev-card-title {
     font-size: 1.25rem;
   }
@@ -376,23 +393,29 @@
   .ev-page {
     padding: 1rem;
   }
+
   .ev-title {
-    font-size: 1.8rem;
-    line-height: 34px;
+    font-size: 33px;
+
     margin-bottom: 2rem;
   }
+
   .ev-title::before {
-    right: 40px;
+    display: none;
   }
+
   .ev-title::after {
-    right: 20px;
+    display: none;
   }
+
   .ev-title span::before {
-    left: 40px;
+    display: none;
   }
+
   .ev-title span::after {
-    left: 20px;
+    display: none;
   }
+
   .ev-subtitle {
     font-size: 1rem;
   }

@@ -2,6 +2,7 @@
 .documentaries-container {
   margin-top: 80px;
 }
+
 .documentaries-page {
   font-family: "Poppins", sans-serif;
   padding: 2rem;
@@ -22,7 +23,7 @@
   font-weight: 600;
   color: #333;
   margin: 0px auto 0px auto;
-  padding: 0 70px;
+
 }
 
 /* Right top line */
@@ -253,6 +254,7 @@
   font-weight: 600;
   color: #222;
 }
+
 .dc-close-btn {
   background: none;
   border: none;
@@ -281,7 +283,8 @@
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
   margin-bottom: 20px;
 }
 
@@ -289,7 +292,8 @@
   position: relative;
   width: 100%;
   height: 0;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  padding-bottom: 56.25%;
+  /* 16:9 aspect ratio */
   margin-bottom: 20px;
 }
 
@@ -302,6 +306,7 @@
   height: 100%;
   border-radius: 8px;
 }
+
 .file-preview {
   margin-top: 5px;
   padding: 8px;
@@ -327,6 +332,7 @@
   font-size: 0.95rem;
   color: #444;
 }
+
 /* Documentaries Banner - Same as About Page */
 .documentaries-banner {
   width: 100%;
@@ -355,6 +361,7 @@
 
 /* Tablet view */
 @media (max-width: 1024px) {
+
   .documentaries-banner img,
   .documentaries-banner video {
     height: 300px;
@@ -368,6 +375,7 @@
 
 /* Mobile view */
 @media (max-width: 768px) {
+
   .documentaries-banner img,
   .documentaries-banner video {
     height: 200px;
@@ -379,12 +387,14 @@
     font-size: 16px;
   }
 }
+
 /* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -402,18 +412,23 @@
   .page-header h1 {
     font-size: 2.2rem;
   }
+
   .page-header h1::before {
     right: 140px;
   }
+
   .page-header h1::after {
     right: 120px;
   }
+
   .page-header h1 span::before {
     left: 140px;
   }
+
   .page-header h1 span::after {
     left: 120px;
   }
+
   .doc-content h3 {
     font-size: 1.25rem;
   }
@@ -423,22 +438,28 @@
   .documentaries-page {
     padding: 1rem;
   }
+
   .page-header h1 {
-    font-size: 1.6rem;
+    font-size: 33px;
     margin-bottom: 2rem;
   }
+
   .page-header h1::before {
-    right: 30px;
+    display: none;
   }
+
   .page-header h1::after {
-    right: 10px;
+    display: none;
   }
+
   .page-header h1 span::before {
-    left: 30px;
+    display: none;
   }
+
   .page-header h1 span::after {
-    left: 10px;
+    display: none;
   }
+
   .page-header p {
     font-size: 1rem;
   }
