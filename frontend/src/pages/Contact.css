@@ -901,6 +901,10 @@
     max-width: 60%;
     margin: 0 auto;
   }
+
+  .popup-overlay {
+    top: 6%;
+  }
 }
 
 /* SUCCESS POPUP */
