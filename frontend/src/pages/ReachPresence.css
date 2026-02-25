@@ -358,7 +358,7 @@
 .rpt-title::before {
   content: "";
   position: absolute;
-  right: 10px;
+  right: -50px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -369,7 +369,7 @@
 .rpt-title::after {
   content: "";
   position: absolute;
-  right: -10px;
+  right: -70px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;
@@ -380,7 +380,7 @@
 .rpt-title span::before {
   content: "";
   position: absolute;
-  left: 20px;
+  left: -50px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -390,7 +390,7 @@
 .rpt-title span::after {
   content: "";
   position: absolute;
-  left: 0px;
+  left: -70px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;

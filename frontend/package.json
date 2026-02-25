@@ -25,6 +25,7 @@
     "react-tooltip": "^5.29.1",
     "slick": "^1.12.2",
     "slick-carousel": "^1.8.1",
+    "styled-components": "^6.3.11",
     "typeface-poppins": "^1.1.13",
     "yup": "^1.7.1"
   },

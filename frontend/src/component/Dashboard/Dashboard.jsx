@@ -708,6 +708,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               reportFormData.append("pdf", reportForm.pdf);
             }
 
+            const adminRegion = localStorage.getItem("adminRegion");
+            if (adminRegion) {
+              reportFormData.append("region", adminRegion);
+            }
+
             if (editingId) {
               await impactService.updateReport(editingId, reportFormData);
             } else {
@@ -761,6 +766,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             }
           });
 
+          const mentorRegion = localStorage.getItem("adminRegion");
+          if (mentorRegion) {
+            formData.append("region", mentorRegion);
+          }
+
           if (editingId) {
             await impactService.updateMentor(editingId, formData);
           } else {
@@ -790,6 +800,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             }
           });
 
+          const managementRegion = localStorage.getItem("adminRegion");
+          if (managementRegion) {
+            formData.append("region", managementRegion);
+          }
+
           if (editingId) {
             await impactService.updateManagement(editingId, formData);
           } else {
@@ -812,10 +827,16 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           break;
 
         case "careers":
+          const careerPayload = { ...careerForm };
+          const careerRegion = localStorage.getItem("adminRegion");
+          if (careerRegion) {
+            careerPayload.region = careerRegion;
+          }
+
           if (editingId) {
-            await careerService.updateCareer(editingId, careerForm);
+            await careersService.updateCareer(editingId, careerPayload);
           } else {
-            await careerService.createCareer(careerForm);
+            await careersService.createCareer(careerPayload);
           }
 
           setCareerForm({
@@ -842,6 +863,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               formData.append(key, trusteeForm[key]);
             }
           });
+
+          const trusteeRegion = localStorage.getItem("adminRegion");
+          if (trusteeRegion) {
+            formData.append("region", trusteeRegion);
+          }
 
           if (editingId) {
             await impactService.updateBoardTrustee(editingId, formData);
@@ -978,7 +1004,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
     setLoading(true);
     try {
       const career = careers.find((c) => c.id === id);
-      await careerService.updateCareer(id, {
+      await careersService.updateCareer(id, {
         ...career,
         is_active: newStatus,
       });
@@ -1018,7 +1044,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           await impactService.deleteBoardTrustee(id);
           break;
         case "careers":
-          await careerService.deleteCareer(id);
+          await careersService.deleteCareer(id);
           break;
         default:
           throw new Error(`Unknown type: ${type}`);
@@ -1095,6 +1121,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("adminRegion");
     clearPermissionsCache();
     toast.info("You have been logged out successfully.");
     setTimeout(() => {
@@ -2298,6 +2325,11 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
       formData.append("published_date", new Date().toISOString().split("T")[0]);
       formData.append("is_published", mediaForm.is_active);
 
+      const adminRegion = localStorage.getItem("adminRegion");
+      if (adminRegion) {
+        formData.append("region", adminRegion);
+      }
+
       // Debug: Log all form data entries
       logger.log("FormData entries:");
       for (let [key, value] of formData.entries()) {
@@ -2747,8 +2779,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             <h4>{report.title}</h4>
                             <span
                               className={`status-badge ${report.is_published === 1
-                                  ? "active"
-                                  : "inactive"
+                                ? "active"
+                                : "inactive"
                                 }`}
                             >
                               {report.is_published === 1
@@ -2787,8 +2819,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                             ) && (
                                 <button
                                   className={`status-toggle-btn ${report.is_published === 1
-                                      ? "btn-inactive"
-                                      : "btn-active"
+                                    ? "btn-inactive"
+                                    : "btn-active"
                                     }`}
                                   onClick={() => {
                                     showConfirmationModal(
@@ -3262,7 +3294,12 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
-        <h2>Admin Dashboard</h2>
+        <div className="header-brand">
+          <h2>Admin Dashboard</h2>
+          <span className={`region-badge ${localStorage.getItem("adminRegion") === "global" ? "global" : "india"}`}>
+            {localStorage.getItem("adminRegion") === "global" ? "🌍 Global Region" : "🇮🇳 India Region"}
+          </span>
+        </div>
         {currentUser && (
           <div className="user-info">
             <span>

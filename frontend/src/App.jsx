@@ -57,6 +57,7 @@ const Dashboard = lazy(() => import("./component/Dashboard/Dashboard"));
 const LoginPage = lazy(() => import("./component/Auth/LoginPage"));
 const PublicRegistrationForm = lazy(() => import("./component/Registration/PublicRegistrationForm"));
 const PasswordResetPage = lazy(() => import("./component/Auth/PasswordResetPage"));
+const RegionSelect = lazy(() => import("./pages/Admin/RegionSelect"));
 
 // Loading fallback component
 const PageLoader = () => <PageTransition />;
@@ -181,10 +182,33 @@ function AppContent({
 
             {/* Admin routes */}
             <Route
+              path="/admin/region-select"
+              element={
+                isAuthenticated && currentUser ? (
+                  <RegionSelect />
+                ) : (
+                  <LoginPage
+                    onLogin={(user) => {
+                      setCurrentUser(user);
+                      setIsAuthenticated(true);
+                    }}
+                    onAdminLogin={() => {
+                      setCurrentUser({ role: "admin" });
+                      setIsAuthenticated(true);
+                    }}
+                  />
+                )
+              }
+            />
+            <Route
               path="/admin/*"
               element={
                 isAuthenticated && currentUser ? (
-                  <Dashboard currentUser={currentUser} />
+                  localStorage.getItem('adminRegion') ? (
+                    <Dashboard currentUser={currentUser} />
+                  ) : (
+                    <RegionSelect />
+                  )
                 ) : (
                   <LoginPage
                     onLogin={(user) => {

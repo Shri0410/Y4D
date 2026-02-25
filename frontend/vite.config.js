@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [react()],
   // Explicitly define environment variable prefix
   envPrefix: 'VITE_',
+  server: {
+    host: true, // Listen on all addresses, including global.localhost
+  },
   build: {
     // Increase chunk size warning limit (optional, but we'll optimize chunks)
     chunkSizeWarningLimit: 600,

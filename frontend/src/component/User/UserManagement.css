@@ -27,6 +27,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -175,7 +176,7 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 100%;
+  width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
@@ -183,7 +184,7 @@
 
 .users-table {
   width: 100%;
-    min-width: 1100px; 
+  min-width: 1100px;
   border-collapse: collapse;
 }
 
@@ -788,26 +789,27 @@
   border-radius: 50%;
 }
 
-.usermgmt-toggle-switch input:checked + .usermgmt-toggle-slider {
+.usermgmt-toggle-switch input:checked+.usermgmt-toggle-slider {
   background-color: #4caf50;
 }
 
-.usermgmt-toggle-switch input:checked + .usermgmt-toggle-slider:before {
+.usermgmt-toggle-switch input:checked+.usermgmt-toggle-slider:before {
   transform: translateX(26px);
 }
 
-.usermgmt-toggle-switch input:disabled + .usermgmt-toggle-slider {
+.usermgmt-toggle-switch input:disabled+.usermgmt-toggle-slider {
   background-color: #e0e0e0;
   cursor: not-allowed;
 }
 
-.usermgmt-toggle-switch input:disabled + .usermgmt-toggle-slider:before {
+.usermgmt-toggle-switch input:disabled+.usermgmt-toggle-slider:before {
   background-color: #f5f5f5;
 }
 
 /* Permission Management Layout */
 .usermgmt-action-labels {
   display: flex;
+  justify-content: end;
   gap: 15px;
 }
 
@@ -905,15 +907,19 @@
 .usermgmt-legend-view {
   background-color: #4caf50;
 }
+
 .usermgmt-legend-create {
   background-color: #2196f3;
 }
+
 .usermgmt-legend-edit {
   background-color: #ff9800;
 }
+
 .usermgmt-legend-delete {
   background-color: #f44336;
 }
+
 .usermgmt-legend-publish {
   background-color: #9c27b0;
 }
