@@ -72,7 +72,7 @@ function getBasePath(req) {
       if (url.pathname && url.pathname !== "/") {
         return url.pathname;
       }
-    } catch {}
+    } catch { }
   }
   const reqPath = req.originalUrl || req.url;
   if (reqPath.startsWith("/dev/")) return "/dev";
@@ -98,6 +98,9 @@ const corsOptions = {
       "https://app.y4dinfo.org",
       "http://localhost:3000",
       "http://localhost:5173",
+      "http://localhost:5174",
+      "http://global.localhost:5173",
+      "http://global.localhost:5174",
       "http://127.0.0.1:3000",
     ];
 
@@ -109,7 +112,7 @@ const corsOptions = {
         if (!allowedOrigins.includes(apiOrigin)) {
           allowedOrigins.push(apiOrigin);
         }
-      } catch {}
+      } catch { }
     }
 
     const normalized = origin.toLowerCase().replace(/\/$/, "");

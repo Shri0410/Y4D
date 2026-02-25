@@ -79,6 +79,7 @@ function getSelectColumns(type, alias = "m") {
   return [
     `${prefix}id`,
     ...mediaTables[type].fields.map((f) => `${prefix}${f}`),
+    `${prefix}region`,
     `${prefix}created_at`,
     `${prefix}updated_at`,
     `${prefix}last_modified_by`,
@@ -111,20 +112,28 @@ const upload = multer({
 // --------------------------------------------------
 router.get("/published/:type", async (req, res) => {
   const { type } = req.params;
+  const { region } = req.query;
   if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
     const columns = getSelectColumns(type, "m");
 
-    const query = `
+    let query = `
       SELECT ${columns}, u.username AS last_modified_by_name
       FROM ${type} m
       LEFT JOIN users u ON m.last_modified_by = u.id
       WHERE m.is_published = TRUE
-      ORDER BY m.created_at DESC
     `;
+    const params = [];
 
-    const [results] = await db.query(query);
+    if (region && region !== "all") {
+      query += ` AND (m.region = ? OR m.region = 'both')`;
+      params.push(region);
+    }
+
+    query += ` ORDER BY m.created_at DESC`;
+
+    const [results] = await db.query(query, params);
     res.json(results);
 
   } catch (error) {
@@ -138,6 +147,7 @@ router.get("/published/:type", async (req, res) => {
 // --------------------------------------------------
 router.get("/:type", authenticateToken, async (req, res) => {
   const { type } = req.params;
+  const { region } = req.query;
   if (!isValidMediaType(type)) return res.status(400).json({ error: "Invalid media type" });
 
   try {
@@ -150,17 +160,23 @@ router.get("/:type", authenticateToken, async (req, res) => {
         SELECT ${columns}, u.username AS last_modified_by_name
         FROM ${type} m
         LEFT JOIN users u ON m.last_modified_by = u.id
-        ORDER BY m.created_at DESC
+        WHERE 1=1
       `;
     } else {
       query = `
         SELECT ${columns}
-        FROM ${type}
-        WHERE last_modified_by = ? OR is_published = TRUE
-        ORDER BY created_at DESC
+        FROM ${type} m
+        WHERE (m.last_modified_by = ? OR m.is_published = TRUE)
       `;
       params = [req.user.id];
     }
+
+    if (region && region !== "all") {
+      query += ` AND (m.region = ? OR m.region = 'both')`;
+      params.push(region);
+    }
+
+    query += ` ORDER BY m.created_at DESC`;
 
     const [results] = await db.query(query, params);
     res.json(results);
@@ -209,7 +225,7 @@ router.get("/:type/:id", async (req, res) => {
 router.post("/:type", authenticateToken, upload, async (req, res) => {
   const { type } = req.params;
 
-  if (!isValidMediaType(type)) 
+  if (!isValidMediaType(type))
     return res.status(400).json({ error: "Invalid media type" });
 
   try {
@@ -222,25 +238,28 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
     let fields = [];
     let values = [];
 
+    const itemRegion = body.region || 'both';
+
     // ----- Handle Different Types -----
     switch (type) {
       case "newsletters":
         if (!fileFile)
           return res.status(400).json({ error: "PDF file required" });
 
-        fields = mediaTables.newsletters.fields.concat(["last_modified_by"]);
+        fields = mediaTables.newsletters.fields.concat(["region", "last_modified_by"]);
         values = [
           body.title,
           body.description,
           fileFile.filename,
           body.published_date || new Date().toISOString().split("T")[0],
           body.publish_type === "schedule" ? false : true,
+          itemRegion,
           req.user.id
         ];
         break;
 
       case "stories":
-        fields = mediaTables.stories.fields.concat(["last_modified_by"]);
+        fields = mediaTables.stories.fields.concat(["region", "last_modified_by"]);
         values = [
           body.title,
           body.content || "",
@@ -248,12 +267,13 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           body.author || "Anonymous",
           body.published_date || new Date().toISOString().split("T")[0],
           body.publish_type === "schedule" ? false : true,
+          itemRegion,
           req.user.id
         ];
         break;
 
       case "events":
-        fields = mediaTables.events.fields.concat(["last_modified_by"]);
+        fields = mediaTables.events.fields.concat(["region", "last_modified_by"]);
         values = [
           body.title,
           body.description,
@@ -263,6 +283,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           imageFile ? imageFile.filename : null,
           body.published_date || new Date().toISOString().split("T")[0],
           body.publish_type === "schedule" ? false : true,
+          itemRegion,
           req.user.id
         ];
         break;
@@ -270,7 +291,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
       case "blogs":
         const tagsJson = body.tags ? JSON.stringify(JSON.parse(body.tags)) : "[]";
 
-        fields = mediaTables.blogs.fields.concat(["last_modified_by"]);
+        fields = mediaTables.blogs.fields.concat(["region", "last_modified_by"]);
         values = [
           body.title,
           body.content,
@@ -279,12 +300,13 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           tagsJson,
           body.published_date,
           body.publish_type === "schedule" ? false : true,
+          itemRegion,
           req.user.id
         ];
         break;
 
       case "documentaries":
-        fields = mediaTables.documentaries.fields.concat(["last_modified_by"]);
+        fields = mediaTables.documentaries.fields.concat(["region", "last_modified_by"]);
         values = [
           body.title,
           body.description,
@@ -294,6 +316,7 @@ router.post("/:type", authenticateToken, upload, async (req, res) => {
           body.duration,
           body.published_date,
           body.publish_type === "schedule" ? false : true,
+          itemRegion,
           req.user.id
         ];
         break;
@@ -352,6 +375,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "file_path = ?",
           "published_date = ?",
           "is_published = ?",
+          "region = ?",
           "last_modified_by = ?",
           "last_modified_at = CURRENT_TIMESTAMP"
         ];
@@ -361,6 +385,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           fileFile ? fileFile.filename : existing.file_path,
           body.published_date,
           body.is_published,
+          body.region ?? existing.region,
           req.user.id,
           id
         ];
@@ -374,6 +399,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "author = ?",
           "published_date = ?",
           "is_published = ?",
+          "region = ?",
           "last_modified_by = ?",
           "last_modified_at = CURRENT_TIMESTAMP"
         ];
@@ -384,6 +410,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           body.author || "Anonymous",
           body.published_date,
           body.is_published,
+          body.region ?? existing.region,
           req.user.id,
           id
         ];
@@ -399,6 +426,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "image = ?",
           "published_date = ?",
           "is_published = ?",
+          "region = ?",
           "last_modified_by = ?",
           "last_modified_at = CURRENT_TIMESTAMP"
         ];
@@ -411,6 +439,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           imageFile ? imageFile.filename : existing.image,
           body.published_date,
           body.is_published,
+          body.region ?? existing.region,
           req.user.id,
           id
         ];
@@ -425,6 +454,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "tags = ?",
           "published_date = ?",
           "is_published = ?",
+          "region = ?",
           "last_modified_by = ?",
           "last_modified_at = CURRENT_TIMESTAMP"
         ];
@@ -436,6 +466,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           JSON.stringify(JSON.parse(body.tags || "[]")),
           body.published_date,
           body.is_published,
+          body.region ?? existing.region,
           req.user.id,
           id
         ];
@@ -451,6 +482,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           "duration = ?",
           "published_date = ?",
           "is_published = ?",
+          "region = ?",
           "last_modified_by = ?",
           "last_modified_at = CURRENT_TIMESTAMP"
         ];
@@ -463,6 +495,7 @@ router.put("/:type/:id", authenticateToken, upload, async (req, res) => {
           body.duration,
           body.published_date,
           body.is_published,
+          body.region ?? existing.region,
           req.user.id,
           id
         ];
@@ -506,7 +539,7 @@ router.delete("/:type/:id", authenticateToken, async (req, res) => {
     for (const f of mediaTables[type].fileFields) {
       if (item[f]) {
         const filePath = `uploads/media/${type}/${item[f]}`;
-        await fs.unlink(filePath).catch(() => {});
+        await fs.unlink(filePath).catch(() => { });
       }
     }
 

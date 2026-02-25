@@ -64,7 +64,7 @@ const getUserNameById = async (userId) => {
 // GET all banners with filtering (for dashboard - shows all banners)
 router.get("/", async (req, res) => {
   try {
-    const { page, section, category, active_only } = req.query;
+    const { page, section, category, active_only, region } = req.query;
 
     let query = `
       SELECT 
@@ -96,6 +96,11 @@ router.get("/", async (req, res) => {
       params.push(category);
     }
 
+    if (region && region !== "all") {
+      query += " AND (b.region = ? OR b.region = 'both')";
+      params.push(region);
+    }
+
     query += " ORDER BY b.created_at DESC";
 
     console.log("📋 Fetching banners with filters:", {
@@ -121,7 +126,7 @@ router.get("/", async (req, res) => {
 router.get("/page/:page", async (req, res) => {
   try {
     const { page } = req.params;
-    const { section } = req.query;
+    const { section, region } = req.query;
 
     let query = `
       SELECT 
@@ -138,10 +143,15 @@ router.get("/page/:page", async (req, res) => {
       params.push(section);
     }
 
+    if (region && region !== "all") {
+      query += " AND (b.region = ? OR b.region = 'both')";
+      params.push(region);
+    }
+
     query += " ORDER BY b.created_at DESC";
 
     console.log(
-      `📋 Fetching active banners for page: ${page}, section: ${section}`
+      `📋 Fetching active banners for page: ${page}, section: ${section}, region: ${region}`
     );
     const [results] = await db.query(query, params);
 
@@ -178,18 +188,26 @@ router.get("/pages/list", async (req, res) => {
 // GET active banners for frontend
 router.get("/active", async (req, res) => {
   try {
-    console.log("📋 Fetching active banners for frontend");
+    const { region } = req.query;
+    console.log("📋 Fetching active banners for frontend, region: " + region);
 
-    const query = `
+    let query = `
       SELECT 
         b.*,
         u.username as last_modified_by_name
       FROM banners b
       LEFT JOIN users u ON b.last_modified_by = u.id
       WHERE b.is_active = true 
-      ORDER BY b.created_at DESC
     `;
-    const [results] = await db.query(query);
+    const params = [];
+
+    if (region && region !== "all") {
+      query += " AND (b.region = ? OR b.region = 'both')";
+      params.push(region);
+    }
+
+    query += " ORDER BY b.created_at DESC";
+    const [results] = await db.query(query, params);
 
     console.log(`✅ Successfully fetched ${results.length} active banners`);
     res.json(results);
@@ -242,6 +260,8 @@ router.post("/", upload.array("media"), async (req, res) => {
     const { media_type, page, section, category, is_active, modified_by_id } =
       req.body;
 
+    const bannerRegion = req.body.region || req.query.region || 'both';
+
     // Check for files (multiple) or single file (if coming from single upload form, though we're changing to array)
     const files = req.files;
 
@@ -252,6 +272,7 @@ router.post("/", upload.array("media"), async (req, res) => {
       category,
       is_active,
       modified_by_id,
+      region: bannerRegion,
       files_count: files ? files.length : 0,
     });
 
@@ -281,10 +302,10 @@ router.post("/", upload.array("media"), async (req, res) => {
       try {
         const query = `
           INSERT INTO banners (
-            media_type, media, page, section, category, is_active,
+            media_type, media, page, section, category, is_active, region,
             last_modified_by, last_modified_at
           ) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         `;
 
         const [result] = await db.query(query, [
@@ -294,6 +315,7 @@ router.post("/", upload.array("media"), async (req, res) => {
           section,
           category || "main",
           isActive,
+          bannerRegion,
           modifiedById,
         ]);
 
@@ -337,6 +359,8 @@ router.put("/:id", upload.single("media"), async (req, res) => {
     const { media_type, page, section, category, is_active, modified_by_id } =
       req.body;
 
+    const bannerRegion = req.body.region || req.query.region || 'both';
+
     console.log(`✏️ Updating banner with ID: ${id}`);
     console.log("📤 Update data:", {
       media_type,
@@ -345,6 +369,7 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       category,
       is_active,
       modified_by_id,
+      region: bannerRegion,
     });
 
     // Validate required fields
@@ -427,6 +452,7 @@ router.put("/:id", upload.single("media"), async (req, res) => {
         section = ?, 
         category = ?, 
         is_active = ?, 
+        region = ?,
         last_modified_by = ?, 
         last_modified_at = CURRENT_TIMESTAMP, 
         updated_at = CURRENT_TIMESTAMP 
@@ -440,6 +466,7 @@ router.put("/:id", upload.single("media"), async (req, res) => {
       section,
       category || "main",
       isActive,
+      bannerRegion,
       modifiedById,
       id,
     ]);

@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: function (req, file, cb) {
@@ -30,12 +30,24 @@ const upload = multer({
 router.get('/', async (req, res) => {
   try {
     console.log('📖 Fetching all mentors from database');
-    const [results] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors ORDER BY name');
-    
+    const { region } = req.query;
+
+    let query = 'SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM mentors';
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` WHERE region = ? OR region = 'both'`;
+      params.push(region);
+    }
+
+    query += ' ORDER BY name';
+
+    const [results] = await db.query(query, params);
+
     const mentorsWithParsedSocialLinks = results.map(mentor => {
       try {
-        mentor.social_links = mentor.social_links ? 
-          (typeof mentor.social_links === 'string' ? JSON.parse(mentor.social_links) : mentor.social_links) 
+        mentor.social_links = mentor.social_links ?
+          (typeof mentor.social_links === 'string' ? JSON.parse(mentor.social_links) : mentor.social_links)
           : {};
       } catch (parseError) {
         console.error('Error parsing social_links:', parseError);
@@ -43,11 +55,11 @@ router.get('/', async (req, res) => {
       }
       return mentor;
     });
-    
+
     res.json(mentorsWithParsedSocialLinks);
   } catch (err) {
     console.error('Database error fetching mentors:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch mentors',
       details: err.message
     });
@@ -58,26 +70,26 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const [results] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
-    
+    const [results] = await db.query('SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
+
     if (results.length === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
     }
-    
+
     const mentor = results[0];
     try {
-      mentor.social_links = mentor.social_links ? 
-        (typeof mentor.social_links === 'string' ? JSON.parse(mentor.social_links) : mentor.social_links) 
+      mentor.social_links = mentor.social_links ?
+        (typeof mentor.social_links === 'string' ? JSON.parse(mentor.social_links) : mentor.social_links)
         : {};
     } catch (parseError) {
       console.error('Error parsing social_links:', parseError);
       mentor.social_links = {};
     }
-    
+
     res.json(mentor);
   } catch (err) {
     console.error('Database error fetching mentor:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to fetch mentor',
       details: err.message
     });
@@ -87,47 +99,50 @@ router.get('/:id', async (req, res) => {
 // Create mentor
 router.post('/', upload.single('image'), async (req, res) => {
   try {
-    const { name, position, bio, social_links } = req.body;
+    const { name, position, bio, social_links, region } = req.body;
     const image = req.file ? req.file.filename : null;
-    
+
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Name is required' });
     }
-    
+
     let socialLinksJson = {};
     try {
       if (social_links && social_links.trim() !== '') {
         socialLinksJson = JSON.parse(social_links);
       }
     } catch (parseError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid social links format',
         details: 'Use valid JSON format for social links'
       });
     }
-    
+
+    const mentorRegion = region || 'both';
+
     const [result] = await db.query(
-      'INSERT INTO mentors (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)',
-      [name.trim(), position?.trim() || null, bio?.trim() || null, image, JSON.stringify(socialLinksJson)]
+      'INSERT INTO mentors (name, position, bio, image, social_links, region) VALUES (?, ?, ?, ?, ?, ?)',
+      [name.trim(), position?.trim() || null, bio?.trim() || null, image, JSON.stringify(socialLinksJson), mentorRegion]
     );
-    
+
     const createdMentor = {
       id: result.insertId,
       name: name.trim(),
       position: position?.trim() || null,
       bio: bio?.trim() || null,
       image: image,
-      social_links: socialLinksJson
+      social_links: socialLinksJson,
+      region: mentorRegion
     };
-    
-    res.status(201).json({ 
+
+    res.status(201).json({
       message: 'Mentor created successfully',
       mentor: createdMentor
     });
-    
+
   } catch (err) {
     console.error('Database error creating mentor:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to create mentor',
       details: err.message
     });
@@ -138,48 +153,49 @@ router.post('/', upload.single('image'), async (req, res) => {
 router.put('/:id', upload.single('image'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, position, bio, social_links } = req.body;
-    
-    const [existingRows] = await db.query('SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
+    const { name, position, bio, social_links, region } = req.body;
+
+    const [existingRows] = await db.query('SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM mentors WHERE id = ?', [id]);
     if (existingRows.length === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
     }
-    
+
     const existingMentor = existingRows[0];
     const image = req.file ? req.file.filename : existingMentor.image;
-    
+
     let socialLinksJson;
     try {
       if (social_links && social_links.trim() !== '') {
         socialLinksJson = JSON.parse(social_links);
       } else {
-        socialLinksJson = typeof existingMentor.social_links === 'string' ? 
+        socialLinksJson = typeof existingMentor.social_links === 'string' ?
           JSON.parse(existingMentor.social_links) : existingMentor.social_links;
       }
     } catch (parseError) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid social links format',
         details: 'Use valid JSON format for social links'
       });
     }
-    
+
     const [result] = await db.query(
-      'UPDATE mentors SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?',
+      'UPDATE mentors SET name = ?, position = ?, bio = ?, image = ?, social_links = ?, region = ? WHERE id = ?',
       [
         name?.trim() || existingMentor.name,
         position?.trim() || existingMentor.position,
         bio?.trim() || existingMentor.bio,
         image,
         JSON.stringify(socialLinksJson),
+        region ?? existingMentor.region,
         id
       ]
     );
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       message: 'Mentor updated successfully',
       mentor: {
         id: parseInt(id),
@@ -187,13 +203,14 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         position: position?.trim() || existingMentor.position,
         bio: bio?.trim() || existingMentor.bio,
         image: image,
-        social_links: socialLinksJson
+        social_links: socialLinksJson,
+        region: region ?? existingMentor.region
       }
     });
-    
+
   } catch (err) {
     console.error('Database error updating mentor:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to update mentor',
       details: err.message
     });
@@ -204,21 +221,21 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const [result] = await db.query('DELETE FROM mentors WHERE id = ?', [id]);
-    
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Mentor not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       message: 'Mentor deleted successfully',
       deletedId: id
     });
-    
+
   } catch (err) {
     console.error('Database error deleting mentor:', err);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to delete mentor',
       details: err.message
     });
