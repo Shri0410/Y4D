@@ -13,9 +13,9 @@ const storage = multer.diskStorage({
     cb(
       null,
       Date.now() +
-        "-" +
-        Math.round(Math.random() * 1e9) +
-        path.extname(file.originalname)
+      "-" +
+      Math.round(Math.random() * 1e9) +
+      path.extname(file.originalname)
     );
   },
 });
@@ -28,7 +28,18 @@ const upload = multer({
 // Get all management
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management ORDER BY name");
+    const { region } = req.query;
+    let query = "SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM management";
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` WHERE region = ? OR region = 'both'`;
+      params.push(region);
+    }
+
+    query += " ORDER BY name";
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -38,7 +49,7 @@ router.get("/", async (req, res) => {
 // Get one member
 router.get("/:id", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
       req.params.id,
     ]);
     if (rows.length === 0)
@@ -52,13 +63,14 @@ router.get("/:id", async (req, res) => {
 // Create member
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { name, position, bio, social_links } = req.body;
+    const { name, position, bio, social_links, region } = req.body;
     const image = req.file ? req.file.filename : null;
     const socialLinksJson = social_links ? JSON.parse(social_links) : null;
+    const memberRegion = region || 'both';
 
     const [result] = await db.query(
-      "INSERT INTO management (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)",
-      [name, position, bio, image, JSON.stringify(socialLinksJson)]
+      "INSERT INTO management (name, position, bio, image, social_links, region) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, position, bio, image, JSON.stringify(socialLinksJson), memberRegion]
     );
 
     res.json({
@@ -71,6 +83,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         bio,
         image,
         social_links: socialLinksJson,
+        region: memberRegion
       },
     });
   } catch (err) {
@@ -82,9 +95,9 @@ router.post("/", upload.single("image"), async (req, res) => {
 router.put("/:id", upload.single("image"), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, position, bio, social_links } = req.body;
+    const { name, position, bio, social_links, region } = req.body;
 
-    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM management WHERE id = ?", [
       id,
     ]);
     if (rows.length === 0)
@@ -98,8 +111,8 @@ router.put("/:id", upload.single("image"), async (req, res) => {
       : rows[0].social_links;
 
     await db.query(
-      "UPDATE management SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?",
-      [name, position, bio, image, JSON.stringify(socialLinksJson), id]
+      "UPDATE management SET name = ?, position = ?, bio = ?, image = ?, social_links = ?, region = ? WHERE id = ?",
+      [name, position, bio, image, JSON.stringify(socialLinksJson), region ?? rows[0].region, id]
     );
 
     res.json({ message: "Management member updated successfully" });

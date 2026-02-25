@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs"); 
+const fs = require("fs");
 const db = require("../config/database");
 
 const router = express.Router();
@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, 
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -49,9 +49,18 @@ const handleMulterError = (err, req, res, next) => {
 // Get all board trustees
 router.get("/", async (req, res) => {
   try {
-    const [results] = await db.query(
-      "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees ORDER BY name"
-    );
+    const { region } = req.query;
+    let query = "SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees";
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` WHERE region = ? OR region = 'both'`;
+      params.push(region);
+    }
+
+    query += " ORDER BY name";
+
+    const [results] = await db.query(query, params);
 
     const trusteesWithParsedLinks = results.map((trustee) => {
       try {
@@ -82,7 +91,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [results] = await db.query(
-      "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
+      "SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
       [id]
     );
 
@@ -119,7 +128,7 @@ router.post(
   handleMulterError,
   async (req, res) => {
     try {
-      const { name, position, bio, social_links } = req.body;
+      const { name, position, bio, social_links, region } = req.body;
       const image = req.file ? req.file.filename : null;
 
       if (!name || name.trim() === "") {
@@ -144,14 +153,17 @@ router.post(
         });
       }
 
+      const trusteeRegion = region || 'both';
+
       const [result] = await db.query(
-        "INSERT INTO board_trustees (name, position, bio, image, social_links) VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO board_trustees (name, position, bio, image, social_links, region) VALUES (?, ?, ?, ?, ?, ?)",
         [
           name.trim(),
           position?.trim() || null,
           bio?.trim() || null,
           image,
           JSON.stringify(socialLinksJson),
+          trusteeRegion,
         ]
       );
 
@@ -162,6 +174,7 @@ router.post(
         bio: bio?.trim() || null,
         image: image,
         social_links: socialLinksJson,
+        region: trusteeRegion,
       };
 
       res.status(201).json({
@@ -189,10 +202,10 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, position, bio, social_links } = req.body;
+      const { name, position, bio, social_links, region } = req.body;
 
       const [existingRows] = await db.query(
-        "SELECT id, name, position, bio, image, social_links, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
+        "SELECT id, name, position, bio, image, social_links, region, last_modified_by, created_at, updated_at, last_modified_at FROM board_trustees WHERE id = ?",
         [id]
       );
       if (existingRows.length === 0) {
@@ -226,13 +239,14 @@ router.put(
       }
 
       const [result] = await db.query(
-        "UPDATE board_trustees SET name = ?, position = ?, bio = ?, image = ?, social_links = ? WHERE id = ?",
+        "UPDATE board_trustees SET name = ?, position = ?, bio = ?, image = ?, social_links = ?, region = ? WHERE id = ?",
         [
           name?.trim() || existingTrustee.name,
           position?.trim() || existingTrustee.position,
           bio?.trim() || existingTrustee.bio,
           image,
           JSON.stringify(socialLinksJson),
+          region ?? existingTrustee.region,
           id,
         ]
       );
@@ -263,6 +277,7 @@ router.put(
           bio: bio?.trim() || existingTrustee.bio,
           image: image,
           social_links: socialLinksJson,
+          region: region ?? existingTrustee.region,
         },
       });
     } catch (err) {

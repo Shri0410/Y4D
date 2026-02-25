@@ -108,6 +108,7 @@ function getSelectColumns(category, alias = "ow") {
   // include business fields + system fields (all guaranteed present)
   const businessCols = ourWorkTables[category].fields.map((f) => `${alias}.${f}`);
   const systemCols = [
+    `${alias}.region`,
     `${alias}.created_at`,
     `${alias}.updated_at`,
     `${alias}.last_modified_by`,
@@ -141,17 +142,27 @@ const upload = multer({
    ------------------------------------------------------------------ */
 router.get("/published/:category", publicLimiter, validateCategory, async (req, res) => {
   const { category } = req.params;
+  const { region } = req.query;
   try {
     // Build explicit column list
     const columns = getSelectColumns(category, "ow");
-    const query = `
+
+    let query = `
       SELECT ${columns}, u.username as last_modified_by_name
       FROM ${category} ow
       LEFT JOIN users u ON ow.last_modified_by = u.id
       WHERE ow.is_active = TRUE
-      ORDER BY ow.display_order ASC, ow.created_at DESC
     `;
-    const [results] = await db.query(query);
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` AND (ow.region = ? OR ow.region = 'both')`;
+      params.push(region);
+    }
+
+    query += ` ORDER BY ow.display_order ASC, ow.created_at DESC`;
+
+    const [results] = await db.query(query, params);
     return res.status(200).json(results || []);
   } catch (error) {
     consoleLogger.error(`Error fetching published ${category}:`, error);
@@ -186,6 +197,7 @@ router.get("/published/:category/:id", publicLimiter, validateCategory, validate
    ------------------------------------------------------------------ */
 router.get("/admin/:category", auth, adminLimiter, validateCategory, async (req, res) => {
   const { category } = req.params;
+  const { region } = req.query;
   try {
     const columns = getSelectColumns(category, "ow");
     let query;
@@ -196,18 +208,24 @@ router.get("/admin/:category", auth, adminLimiter, validateCategory, async (req,
         SELECT ${columns}, u.username as last_modified_by_name
         FROM ${category} ow
         LEFT JOIN users u ON ow.last_modified_by = u.id
-        ORDER BY ow.display_order ASC, ow.created_at DESC
+        WHERE 1=1
       `;
     } else {
       // regular user: show their items OR published items
       query = `
         SELECT ${columns}
         FROM ${category} ow
-        WHERE ow.last_modified_by = ? OR ow.is_active = TRUE
-        ORDER BY ow.display_order ASC, ow.created_at DESC
+        WHERE (ow.last_modified_by = ? OR ow.is_active = TRUE)
       `;
       params = [req.user.id];
     }
+
+    if (region && region !== "all") {
+      query += ` AND (ow.region = ? OR ow.region = 'both')`;
+      params.push(region);
+    }
+
+    query += ` ORDER BY ow.display_order ASC, ow.created_at DESC`;
 
     const [results] = await db.query(query, params);
     return res.status(200).json(results || []);
@@ -270,11 +288,13 @@ async function createItem(req, res) {
       meta_description,
       meta_keywords,
       is_active,
-      display_order
+      display_order,
+      region
     } = req.body;
 
     const isActiveBool = is_active === "true" || is_active === "1" || is_active === true;
     const displayOrderInt = parseInt(display_order) || 0;
+    const itemRegion = region || 'both';
 
     // Prefer uploaded image over provided image_url
     const finalImageUrl = imageFile ? `/uploads/our-work/${category}/${imageFile.filename}` : (image_url || "");
@@ -304,6 +324,7 @@ async function createItem(req, res) {
       "meta_keywords",
       "is_active",
       "display_order",
+      "region",
       "last_modified_by"
     ];
 
@@ -319,6 +340,7 @@ async function createItem(req, res) {
       meta_keywords || "",
       isActiveBool ? 1 : 0,
       displayOrderInt,
+      itemRegion,
       req.user.id
     ];
 
@@ -385,7 +407,8 @@ async function updateItem(req, res) {
       meta_description,
       meta_keywords,
       is_active,
-      display_order
+      display_order,
+      region
     } = req.body;
 
     // determine final image_url (uploaded or provided)
@@ -438,6 +461,7 @@ async function updateItem(req, res) {
       "meta_keywords = ?",
       "is_active = ?",
       "display_order = ?",
+      "region = ?",
       "last_modified_by = ?",
       "last_modified_at = CURRENT_TIMESTAMP"
     ];
@@ -454,6 +478,7 @@ async function updateItem(req, res) {
       meta_keywords ?? existingItem.meta_keywords,
       (is_active === "true" || is_active === "1" || is_active === true) ? 1 : (existingItem.is_active ? 1 : 0),
       parseInt(display_order) || existingItem.display_order || 0,
+      region ?? existingItem.region,
       req.user.id,
       id
     ];
@@ -506,7 +531,7 @@ router.delete("/admin/:category/:id", auth, adminLimiter, validateCategory, vali
     if (item.image_url && typeof item.image_url === "string" && item.image_url.startsWith("/uploads")) {
       try {
         const filePath = path.join(process.cwd(), item.image_url);
-        await fs.unlink(filePath).catch(() => {});
+        await fs.unlink(filePath).catch(() => { });
       } catch (unlinkError) {
         consoleLogger.warn("Error deleting associated image:", unlinkError.message);
       }
@@ -521,9 +546,9 @@ router.delete("/admin/:category/:id", auth, adminLimiter, validateCategory, vali
               try {
                 // try both absolute path and uploads folder path
                 if (imageUrl.startsWith("/uploads")) {
-                  await fs.unlink(path.join(process.cwd(), imageUrl)).catch(() => {});
+                  await fs.unlink(path.join(process.cwd(), imageUrl)).catch(() => { });
                 } else {
-                  await fs.unlink(`uploads/our-work/${category}/${imageUrl}`).catch(() => {});
+                  await fs.unlink(`uploads/our-work/${category}/${imageUrl}`).catch(() => { });
                 }
               } catch (unlinkError) {
                 consoleLogger.warn("Error deleting additional image:", unlinkError.message);

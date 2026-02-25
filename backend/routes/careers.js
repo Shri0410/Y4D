@@ -35,9 +35,18 @@ const upload = multer({
 // CAREERS CRUD 
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await db.query(
-      "SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers ORDER BY created_at DESC"
-    );
+    const { region } = req.query;
+    let query = "SELECT id, title, description, requirements, location, type, is_active, region, last_modified_by, created_at, updated_at, last_modified_at FROM careers";
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` WHERE region = ? OR region = 'both'`;
+      params.push(region);
+    }
+
+    query += " ORDER BY created_at DESC";
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -47,9 +56,18 @@ router.get("/", async (req, res) => {
 // Get active careers
 router.get("/active", async (req, res) => {
   try {
-    const [rows] = await db.query(
-      "SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE is_active = TRUE ORDER BY created_at DESC"
-    );
+    const { region } = req.query;
+    let query = "SELECT id, title, description, requirements, location, type, is_active, region, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE is_active = TRUE";
+    const params = [];
+
+    if (region && region !== "all") {
+      query += ` AND (region = ? OR region = 'both')`;
+      params.push(region);
+    }
+
+    query += " ORDER BY created_at DESC";
+
+    const [rows] = await db.query(query, params);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -59,7 +77,7 @@ router.get("/active", async (req, res) => {
 // Get one career
 router.get("/:id", async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [
+    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, region, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [
       req.params.id,
     ]);
     if (rows.length === 0)
@@ -73,10 +91,12 @@ router.get("/:id", async (req, res) => {
 // Create career
 router.post("/", async (req, res) => {
   try {
-    const { title, description, requirements, location, type } = req.body;
+    const { title, description, requirements, location, type, region } = req.body;
+    const careerRegion = region || 'both';
+
     const [result] = await db.query(
-      "INSERT INTO careers (title, description, requirements, location, type) VALUES (?, ?, ?, ?, ?)",
-      [title, description, requirements, location, type]
+      "INSERT INTO careers (title, description, requirements, location, type, region) VALUES (?, ?, ?, ?, ?, ?)",
+      [title, description, requirements, location, type, careerRegion]
     );
     res.json({
       id: result.insertId,
@@ -89,6 +109,7 @@ router.post("/", async (req, res) => {
         location,
         type,
         is_active: true,
+        region: careerRegion
       },
     });
   } catch (err) {
@@ -100,16 +121,16 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, requirements, location, type, is_active } =
+    const { title, description, requirements, location, type, is_active, region } =
       req.body;
 
-    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [id]);
+    const [rows] = await db.query("SELECT id, title, description, requirements, location, type, is_active, region, last_modified_by, created_at, updated_at, last_modified_at FROM careers WHERE id = ?", [id]);
     if (rows.length === 0)
       return res.status(404).json({ error: "Career not found" });
 
     await db.query(
-      "UPDATE careers SET title = ?, description = ?, requirements = ?, location = ?, type = ?, is_active = ? WHERE id = ?",
-      [title, description, requirements, location, type, is_active, id]
+      "UPDATE careers SET title = ?, description = ?, requirements = ?, location = ?, type = ?, is_active = ?, region = ? WHERE id = ?",
+      [title, description, requirements, location, type, is_active, region ?? rows[0].region, id]
     );
 
     res.json({ message: "Career updated successfully" });
@@ -172,11 +193,11 @@ router.post("/apply", upload.single("resume"), async (req, res) => {
       `,
       attachments: resumeFile
         ? [
-            {
-              filename: resumeFile.originalname,
-              path: resumeFile.path,
-            },
-          ]
+          {
+            filename: resumeFile.originalname,
+            path: resumeFile.path,
+          },
+        ]
         : [],
     };
 
