@@ -35,7 +35,7 @@
 .ls-title::before {
   content: "";
   position: absolute;
-  right: 30px;
+  right: -50px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -46,7 +46,7 @@
 .ls-title::after {
   content: "";
   position: absolute;
-  right: 10px;
+  right: -70px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;
@@ -57,7 +57,7 @@
 .ls-title span::before {
   content: "";
   position: absolute;
-  left: 30px;
+  left: -50px;
   top: calc(50% - 6px);
   width: 20px;
   height: 2px;
@@ -67,7 +67,7 @@
 .ls-title span::after {
   content: "";
   position: absolute;
-  left: 10px;
+  left: -70px;
   top: calc(50% + 4px);
   width: 40px;
   height: 2px;
@@ -258,42 +258,36 @@ table td {
   }
 
   .ls-title::before {
-    right: -30px;
-    top: calc(50% - 6px);
-    width: 20px;
-    height: 2px;
-    background: #f15a29;
+    display: none;
   }
 
   .ls-title::after {
-    right: -50px;
-    top: calc(50% + 4px);
-    width: 40px;
-    height: 2px;
-    background: #f15a29;
+    display: none;
   }
 
   .ls-title span::before {
-    content: "";
-    position: absolute;
-    left: -30px;
-    top: calc(50% - 6px);
-    width: 20px;
-    height: 2px;
-    background: #f15a29;
+    display: none;
   }
 
   .ls-title span::after {
-    content: "";
-    position: absolute;
-    left: -50px;
-    top: calc(50% + 4px);
-    width: 40px;
-    height: 2px;
-    background: #f15a29;
+    display: none;
   }
 
+  .legal-section h2::before {
+    display: none;
+  }
 
+  .legal-section h2::after {
+    display: none;
+  }
+
+  .legal-section h2 span::before {
+    display: none;
+  }
+
+  .legal-section h2 span::after {
+    display: none;
+  }
 
 }
 

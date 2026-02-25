@@ -292,6 +292,11 @@ const BannerManagement = ({
           );
         }
 
+        const adminRegion = localStorage.getItem("adminRegion");
+        if (adminRegion) {
+          formDataToSend.append("region", adminRegion);
+        }
+
         if (bannerForm.media) {
           if (Array.isArray(bannerForm.media)) {
             // Append multiple files

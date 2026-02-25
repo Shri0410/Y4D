@@ -143,9 +143,14 @@ const AccreditationManagement = ({
         } else if (key === "is_active") {
           formDataToSend.append(key, formData[key] ? "1" : "0");
         } else {
-          formDataToSend.append(key, formData[key]);
+          formDataToSend.append(key, formData[key] !== null ? formData[key] : "");
         }
       });
+
+      const adminRegion = localStorage.getItem("adminRegion");
+      if (adminRegion) {
+        formDataToSend.append("region", adminRegion);
+      }
 
       if (editingItem) {
         await accreditationsService.updateAccreditation(editingItem.id, formDataToSend);
@@ -221,8 +226,7 @@ const AccreditationManagement = ({
       await accreditationsService.toggleAccreditationStatus(id, !currentStatus);
       fetchAccreditations();
       toast.success(
-        `Accreditation ${
-          !currentStatus ? "activated" : "deactivated"
+        `Accreditation ${!currentStatus ? "activated" : "deactivated"
         } successfully!`
       );
     } catch (error) {
@@ -270,9 +274,8 @@ const AccreditationManagement = ({
       <div className="item-actions">
         {canPublishItem && (
           <button
-            className={`status-toggle-btn ${
-              item.is_active ? "btn-inactive" : "btn-active"
-            }`}
+            className={`status-toggle-btn ${item.is_active ? "btn-inactive" : "btn-active"
+              }`}
             onClick={() => {
               onShowConfirmation(
                 item.is_active ? "Deactivate Accreditation" : "Activate Accreditation",
@@ -370,9 +373,8 @@ const AccreditationManagement = ({
                     key={item.id}
                     className="item-card"
                     style={{
-                      borderLeft: `4px solid ${
-                        isActive ? "#4CAF50" : "#ff9800"
-                      }`,
+                      borderLeft: `4px solid ${isActive ? "#4CAF50" : "#ff9800"
+                        }`,
                     }}
                   >
                     {item.image && (
@@ -390,9 +392,8 @@ const AccreditationManagement = ({
                       <div className="accreditation-header">
                         <h4>{item.title}</h4>
                         <span
-                          className={`status-badge ${
-                            isActive ? "active" : "inactive"
-                          }`}
+                          className={`status-badge ${isActive ? "active" : "inactive"
+                            }`}
                         >
                           {isActive ? "ACTIVE" : "INACTIVE"}
                         </span>
@@ -552,8 +553,8 @@ const AccreditationManagement = ({
               {loading
                 ? "Saving..."
                 : editingItem
-                ? "Update Accreditation"
-                : "Create Accreditation"}
+                  ? "Update Accreditation"
+                  : "Create Accreditation"}
             </button>
             <button
               type="button"

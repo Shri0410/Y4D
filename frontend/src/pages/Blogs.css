@@ -309,19 +309,19 @@
   }
 
   .blog-header h1::before {
-    right: 10px;
+    display: none;
   }
 
   .blog-header h1::after {
-    right: -10px;
+    display: none;
   }
 
   .blog-header h1 span::before {
-    left: 10px;
+    display: none;
   }
 
   .blog-header h1 span::after {
-    left: -10px;
+    display: none;
   }
 
   .blogs-grid {

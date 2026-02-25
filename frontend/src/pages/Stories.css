@@ -394,19 +394,19 @@
   }
 
   .st-title::before {
-    right: -5px;
+    display: none;
   }
 
   .st-title::after {
-    right: -25px;
+    display: none;
   }
 
   .st-title span::before {
-    left: -5px;
+    display: none;
   }
 
   .st-title span::after {
-    left: -25px;
+    display: none;
   }
 
   .st-grid {

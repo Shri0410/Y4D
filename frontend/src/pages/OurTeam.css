@@ -635,21 +635,21 @@
   }
 
   .mentors-title::before {
-    right: 40px;
+    display: none;
   }
 
   /* Right bottom line */
   .mentors-title::after {
-    right: 20px;
+    display: none;
   }
 
   /* Left side */
   .mentors-title span::before {
-    left: 40px;
+    display: none;
   }
 
   .mentors-title span::after {
-    left: 20px;
+    display: none;
   }
 
   .management-title {

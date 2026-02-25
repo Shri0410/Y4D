@@ -299,21 +299,21 @@
   }
 
   .page-header h1::before {
-    right: 290px;
+    display: none;
   }
 
   /* Right bottom line */
   .page-header h1::after {
-    right: 290px;
+    display: none;
   }
 
   /* Left side */
   .page-header h1 span::before {
-    left: 290px;
+    display: none;
   }
 
   .page-header h1 span::after {
-    left: 290px;
+    display: none;
   }
 
   .newsletters-grid {

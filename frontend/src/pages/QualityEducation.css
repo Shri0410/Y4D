@@ -39,6 +39,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
+
   .qe-banner-image,
   .qe-banner-video {
     height: 500px;
@@ -46,6 +47,7 @@
 }
 
 @media (max-width: 768px) {
+
   .qe-banner-image,
   .qe-banner-video {
     height: 400px;
@@ -53,6 +55,7 @@
 }
 
 @media (max-width: 480px) {
+
   .qe-banner-image,
   .qe-banner-video {
     height: 300px;
@@ -99,6 +102,48 @@
   font-weight: 600;
   color: #333;
   margin-bottom: 15px;
+}
+
+.qe-title::before {
+  content: "";
+  position: absolute;
+  right: 250px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Right bottom line */
+.qe-title::after {
+  content: "";
+  position: absolute;
+  right: 230px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
+}
+
+/* Left side */
+.qe-title span::before {
+  content: "";
+  position: absolute;
+  left: 250px;
+  top: calc(50% - 6px);
+  width: 20px;
+  height: 2px;
+  background: #f26722;
+}
+
+.qe-title span::after {
+  content: "";
+  position: absolute;
+  left: 230px;
+  top: calc(50% + 4px);
+  width: 40px;
+  height: 2px;
+  background: #f26722;
 }
 
 .qe-grid {
@@ -201,6 +246,7 @@
 
 /* Responsive adjustments for banner */
 @media (max-width: 1024px) {
+
   .qe-banner-image,
   .qe-banner-video {
     max-height: 400px;
@@ -213,6 +259,7 @@
 }
 
 @media (max-width: 768px) {
+
   .qe-banner-image,
   .qe-banner-video {
     max-height: 300px;
@@ -229,6 +276,29 @@
     line-height: 33px;
   }
 
+  .qe-title::before {
+
+    display: none;
+
+
+  }
+
+  /* Right bottom line */
+  .qe-title::after {
+    display: none;
+  }
+
+  /* Left side */
+  .qe-title span::before {
+    display: none;
+
+  }
+
+  .qe-title span::after {
+
+    display: none;
+  }
+
   .qe-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -236,6 +306,7 @@
 }
 
 @media (max-width: 480px) {
+
   .qe-banner-image,
   .qe-banner-video {
     max-height: 250px;

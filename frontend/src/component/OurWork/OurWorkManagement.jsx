@@ -126,6 +126,11 @@ const OurWorkManagement = ({
           formDataToSend.append("image", imageFile);
         }
 
+        const adminRegion = localStorage.getItem("adminRegion");
+        if (adminRegion) {
+          formDataToSend.append("region", adminRegion);
+        }
+
         if (editingItem) {
           await ourworkService.updateItem(category, editingItem.id, formDataToSend);
         } else {
@@ -205,9 +210,8 @@ const OurWorkManagement = ({
       try {
         await ourworkService.toggleItemStatus(category, id, !currentStatus);
         fetchItems();
-        toast.success(`Item ${
-          !currentStatus ? "activated" : "deactivated"
-        } successfully!`);
+        toast.success(`Item ${!currentStatus ? "activated" : "deactivated"
+          } successfully!`);
       } catch (error) {
         toast.error(error.response?.data?.error || "Failed to update item status");
         throw error;
@@ -294,8 +298,7 @@ const OurWorkManagement = ({
       if (onShowConfirmation) {
         onShowConfirmation(
           item.is_active ? "Deactivate Item" : "Activate Item",
-          `Are you sure you want to ${
-            item.is_active ? "deactivate" : "activate"
+          `Are you sure you want to ${item.is_active ? "deactivate" : "activate"
           } "${item.title}"?`,
           item.is_active ? "deactivate" : "activate",
           item.id,
@@ -307,8 +310,7 @@ const OurWorkManagement = ({
         // Fallback to confirmDialog utility
         (async () => {
           const confirmed = await confirmDialog(
-            `Are you sure you want to ${
-              item.is_active ? "deactivate" : "activate"
+            `Are you sure you want to ${item.is_active ? "deactivate" : "activate"
             } "${item.title}"?`,
             item.is_active ? "Deactivate Item" : "Activate Item"
           );
@@ -349,9 +351,8 @@ const OurWorkManagement = ({
       <div className="item-actions">
         {canPublishItem && (
           <button
-            className={`btn-status ${
-              item.is_active ? "btn-deactivate" : "btn-activate"
-            }`}
+            className={`btn-status ${item.is_active ? "btn-deactivate" : "btn-activate"
+              }`}
             onClick={handleToggleStatus}
           >
             {item.is_active ? "Deactivate" : "Activate"}
@@ -442,9 +443,8 @@ const OurWorkManagement = ({
 
                       <div className="item-meta">
                         <span
-                          className={`status ${
-                            item.is_active ? "active" : "inactive"
-                          }`}
+                          className={`status ${item.is_active ? "active" : "inactive"
+                            }`}
                         >
                           {item.is_active ? "Active" : "Inactive"}
                         </span>

@@ -1035,21 +1035,21 @@
   }
 
   .media-title::before {
-    right: 150px;
+    display: none;
   }
 
   /* Right bottom line */
   .media-title::after {
-    right: 130px;
+    display: none;
   }
 
   /* Left side */
   .media-title span::before {
-    left: 150px;
+    display: none;
   }
 
   .media-title span::after {
-    left: 130px;
+    display: none;
   }
 }
 
@@ -1187,19 +1187,19 @@
   }
 
   .accreditations-title::before {
-    right: 0px;
+    right: -50px;
   }
 
   .accreditations-title::after {
-    right: -20px;
+    right: -70px;
   }
 
   .accreditations-title span::before {
-    left: 0px;
+    left: -50px;
   }
 
   .accreditations-title span::after {
-    left: -20px;
+    left: -70px;
   }
 
   .media-title {

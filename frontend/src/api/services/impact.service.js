@@ -20,7 +20,7 @@ export const impactService = {
       logger.log('✅ Impact data loaded');
       return data || { beneficiaries: 0, states: 0, projects: 0 };
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getImpactData',
         showToast: false,
       });
@@ -41,7 +41,7 @@ export const impactService = {
       logger.log('✅ Impact data updated successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.updateImpactData',
         showToast: true,
       });
@@ -61,7 +61,7 @@ export const impactService = {
       logger.log(`✅ Management loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getManagement',
         showToast: false,
       });
@@ -81,7 +81,7 @@ export const impactService = {
       logger.log(`✅ Mentors loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getMentors',
         showToast: false,
       });
@@ -101,7 +101,7 @@ export const impactService = {
       logger.log(`✅ Reports loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getReports',
         showToast: false,
       });
@@ -121,7 +121,7 @@ export const impactService = {
       logger.log(`✅ All reports loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getAllReports',
         showToast: false,
       });
@@ -141,7 +141,7 @@ export const impactService = {
       logger.log(`✅ Board trustees loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.getBoardTrustees',
         showToast: false,
       });
@@ -165,7 +165,7 @@ export const impactService = {
       logger.log('✅ Report created successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.createReport',
         showToast: true,
       });
@@ -189,7 +189,7 @@ export const impactService = {
       logger.log('✅ Report updated successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.updateReport',
         showToast: true,
       });
@@ -208,7 +208,7 @@ export const impactService = {
       await apiClient.delete(`${API_ROUTES.REPORTS.BASE}/${id}`);
       logger.log('✅ Report deleted successfully');
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.deleteReport',
         showToast: true,
       });
@@ -233,7 +233,7 @@ export const impactService = {
       logger.log('✅ Report publish status updated');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.toggleReportStatus',
         showToast: true,
       });
@@ -257,7 +257,7 @@ export const impactService = {
       logger.log('✅ Mentor created successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.createMentor',
         showToast: true,
       });
@@ -281,7 +281,7 @@ export const impactService = {
       logger.log('✅ Mentor updated successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.updateMentor',
         showToast: true,
       });
@@ -300,7 +300,7 @@ export const impactService = {
       await apiClient.delete(`${API_ROUTES.MENTORS.BASE}/${id}`);
       logger.log('✅ Mentor deleted successfully');
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.deleteMentor',
         showToast: true,
       });
@@ -324,7 +324,7 @@ export const impactService = {
       logger.log('✅ Management member created successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.createManagement',
         showToast: true,
       });
@@ -348,7 +348,7 @@ export const impactService = {
       logger.log('✅ Management member updated successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.updateManagement',
         showToast: true,
       });
@@ -367,7 +367,7 @@ export const impactService = {
       await apiClient.delete(`${API_ROUTES.MANAGEMENT.BASE}/${id}`);
       logger.log('✅ Management member deleted successfully');
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.deleteManagement',
         showToast: true,
       });
@@ -391,7 +391,7 @@ export const impactService = {
       logger.log('✅ Board trustee created successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.createBoardTrustee',
         showToast: true,
       });
@@ -415,7 +415,7 @@ export const impactService = {
       logger.log('✅ Board trustee updated successfully');
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.updateBoardTrustee',
         showToast: true,
       });
@@ -434,7 +434,7 @@ export const impactService = {
       await apiClient.delete(API_ROUTES.BOARD_TRUSTEES.BY_ID(id));
       logger.log('✅ Board trustee deleted successfully');
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: 'impactService.deleteBoardTrustee',
         showToast: true,
       });

@@ -48,7 +48,7 @@ export const API_ROUTES = {
   USERS: {
     BASE: '/users',
     BY_ID: (id) => `/users/${id}`,
-    PERMISSIONS: (id) => `/users/${id}/permissions`,
+    PERMISSIONS: (id) => `/permissions/user/${id}`,
     UPDATE_STATUS: (id) => `/users/${id}/status`,
   },
 
@@ -86,10 +86,10 @@ export const API_ROUTES = {
 
   // Our Work
   OUR_WORK: {
-    BASE: (category) => `/ourwork/${category}`,
-    ADMIN_BASE: (category) => `/ourwork/admin/${category}`,
-    BY_ID: (category, id) => `/ourwork/${category}/${id}`,
-    BY_CATEGORY: (category) => `/ourwork/${category}`,
+    PUBLISHED_CATEGORY: (category) => `/our-work/published/${category}`,
+    PUBLISHED_BY_ID: (category, id) => `/our-work/published/${category}/${id}`,
+    ADMIN_BASE: (category) => `/our-work/admin/${category}`,
+    ADMIN_BY_ID: (category, id) => `/our-work/admin/${category}/${id}`,
   },
 
   // Board Trustees

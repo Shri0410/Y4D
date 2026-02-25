@@ -7,10 +7,49 @@
 .dashboard-header {
   background-color: #2c3e50;
   color: white;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-brand h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.region-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.region-badge.india {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: white;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+}
+
+.region-badge.global {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
 .user-info {
@@ -62,7 +101,7 @@
   background: #2a3142;
 }
 
-.dashboard-sidebar li.active > button {
+.dashboard-sidebar li.active>button {
   background: #1a73e8;
   color: #fff;
 }
@@ -428,10 +467,12 @@
   gap: 5px;
   transition: background-color 0.3s;
 }
+
 .btn-back-career:hover {
   background: #545b62;
   color: white;
 }
+
 .btn-back-media {
   background: #6c757d;
   color: white;
@@ -451,6 +492,7 @@
   background: #545b62;
   color: white;
 }
+
 .btn-back-legal {
   background: #6c757d;
   color: white;
@@ -470,6 +512,7 @@
   background: #545b62;
   color: white;
 }
+
 .btn-back {
   background: #6c757d;
   color: white;
@@ -961,6 +1004,7 @@
   color: #0056b3;
   text-decoration: underline;
 }
+
 /* Team Type Selection Styles */
 .team-type-selection {
   padding: 30px 20px;
@@ -1321,8 +1365,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -1330,6 +1379,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1368,6 +1418,7 @@
 .btn-confirm.btn-primary:hover {
   background-color: #1976D2;
 }
+
 /* Add to Dashboard.css */
 .confirmation-item-name {
   margin-top: 10px;
@@ -1380,6 +1431,7 @@
 .confirmation-item-name strong {
   color: #495057;
 }
+
 /* Add these styles to your existing Dashboard.css */
 
 /* Current file/image indicators */
@@ -1546,4 +1598,3 @@
   margin-top: 10px;
   border-left: 3px solid #ff9800;
 }
-

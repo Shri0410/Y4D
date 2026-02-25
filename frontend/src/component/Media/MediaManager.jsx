@@ -64,6 +64,11 @@ const MediaManager = ({ mediaType, onClose }) => {
           formDataToSend.append("is_published", "true");
         }
 
+        const adminRegion = localStorage.getItem("adminRegion");
+        if (adminRegion) {
+          formDataToSend.append("region", adminRegion);
+        }
+
         if (editingItem) {
           await mediaService.updateMedia(mediaType, editingItem.id, formDataToSend);
         } else {
@@ -148,8 +153,7 @@ const MediaManager = ({ mediaType, onClose }) => {
         await mediaService.togglePublishStatus(mediaType, id, !currentStatus);
         fetchItems();
         toast.success(
-          `${mediaType.slice(0, -1)} ${
-            !currentStatus ? "published" : "unpublished"
+          `${mediaType.slice(0, -1)} ${!currentStatus ? "published" : "unpublished"
           } successfully!`
         );
       } catch (error) {
@@ -474,9 +478,8 @@ const MediaManager = ({ mediaType, onClose }) => {
                     {new Date(item.published_date).toLocaleDateString()}
                   </p>
                   <p
-                    className={`status ${
-                      item.is_published ? "published" : "draft"
-                    }`}
+                    className={`status ${item.is_published ? "published" : "draft"
+                      }`}
                   >
                     {item.is_published ? "Published" : "Draft"}
                     {!item.is_published &&

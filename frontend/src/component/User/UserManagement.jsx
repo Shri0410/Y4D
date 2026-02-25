@@ -11,7 +11,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
   const [activeSubTab, setActiveSubTab] = useState(propActiveSubTab);
   const [selectedUserForPermissions, setSelectedUserForPermissions] =
     useState(null);
-      const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [confirmationData, setConfirmationData] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -42,7 +42,7 @@ const UserManagement = ({ activeSubTab: propActiveSubTab = "users" }) => {
 
   // Use useLoadingState for async operations
   const { loading: isProcessing, execute } = useLoadingState();
-const onShowConfirmation = (title, message, actionType, id, entityType, entityName, onConfirm) => {
+  const onShowConfirmation = (title, message, actionType, id, entityType, entityName, onConfirm) => {
     setConfirmationData({
       title,
       message,
@@ -54,20 +54,20 @@ const onShowConfirmation = (title, message, actionType, id, entityType, entityNa
     });
     setShowConfirmationModal(true);
   };
-const handleConfirmationClose = () => {
+  const handleConfirmationClose = () => {
     setShowConfirmationModal(false);
     setConfirmationData(null);
   };
 
   // Add this handler to confirm action
-const handleConfirmationConfirm = () => {
-  if (confirmationData && confirmationData.onConfirm) {
-    toast.info(`Deleting "${confirmationData.entityName}"...`);
-    confirmationData.onConfirm();
-  }
-  setShowConfirmationModal(false);
-  setConfirmationData(null);
-};
+  const handleConfirmationConfirm = () => {
+    if (confirmationData && confirmationData.onConfirm) {
+      toast.info(`Deleting "${confirmationData.entityName}"...`);
+      confirmationData.onConfirm();
+    }
+    setShowConfirmationModal(false);
+    setConfirmationData(null);
+  };
   // Sync with prop changes
   useEffect(() => {
     setActiveSubTab(propActiveSubTab);
@@ -127,91 +127,91 @@ const handleConfirmationConfirm = () => {
     });
   };
 
-const handleCreateUser = async (e) => {
-  e.preventDefault();
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
 
-  if (formData.password !== formData.confirmPassword) {
-    toast.error("Passwords do not match");
-    return;
-  }
-
-  if (formData.password.length < 6) {
-    toast.error("Password must be at least 6 characters long");
-    return;
-  }
-
-  await execute(async () => {
-    try {
-      await usersService.createUser({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        mobile_number: formData.mobile_number,
-        address: formData.address,
-      });
-
-      setShowCreateModal(false);
-      setFormData({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        role: "viewer",
-        mobile_number: "",
-        address: "",
-      });
-      fetchUsers();
-      toast.success(`User "${formData.username}" created successfully!`);
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || "Failed to create user";
-      toast.error(errorMsg);
-      throw error;
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
     }
-  });
-};
 
- const handleStatusChange = async (userId, newStatus) => {
-  await execute(async () => {
-    try {
-      await usersService.updateUserStatus(userId, newStatus);
-      fetchUsers();
-      toast.success(`User status updated to ${newStatus}`);
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || "Failed to update user status";
-      toast.error(`Error updating user status: ${errorMsg}`);
-      throw error;
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
     }
-  });
-};
 
-const handleRoleChange = async (userId, newRole) => {
-  await execute(async () => {
-    try {
-      await usersService.updateUserRole(userId, newRole);
-      fetchUsers();
-      toast.success(`User role updated to ${newRole}`);
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || "Failed to update user role";
-      toast.error(`Error updating user role: ${errorMsg}`);
-      throw error;
-    }
-  });
-};
+    await execute(async () => {
+      try {
+        await usersService.createUser({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          mobile_number: formData.mobile_number,
+          address: formData.address,
+        });
 
-const handleDeleteUser = async (userId, username) => {
-  await execute(async () => {
-    try {
-      await usersService.deleteUser(userId);
-      fetchUsers();
-      toast.success(`User "${username}" deleted successfully!`);
-    } catch (error) {
-      const errMsg = error.response?.data?.error || "Failed to delete user";
-      toast.error(errMsg);
-      throw error;
-    }
-  });
-};
+        setShowCreateModal(false);
+        setFormData({
+          username: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          role: "viewer",
+          mobile_number: "",
+          address: "",
+        });
+        fetchUsers();
+        toast.success(`User "${formData.username}" created successfully!`);
+      } catch (error) {
+        const errorMsg = error.response?.data?.error || "Failed to create user";
+        toast.error(errorMsg);
+        throw error;
+      }
+    });
+  };
+
+  const handleStatusChange = async (userId, newStatus) => {
+    await execute(async () => {
+      try {
+        await usersService.updateUserStatus(userId, newStatus);
+        fetchUsers();
+        toast.success(`User status updated to ${newStatus}`);
+      } catch (error) {
+        const errorMsg = error.response?.data?.error || "Failed to update user status";
+        toast.error(`Error updating user status: ${errorMsg}`);
+        throw error;
+      }
+    });
+  };
+
+  const handleRoleChange = async (userId, newRole) => {
+    await execute(async () => {
+      try {
+        await usersService.updateUserRole(userId, newRole);
+        fetchUsers();
+        toast.success(`User role updated to ${newRole}`);
+      } catch (error) {
+        const errorMsg = error.response?.data?.error || "Failed to update user role";
+        toast.error(`Error updating user role: ${errorMsg}`);
+        throw error;
+      }
+    });
+  };
+
+  const handleDeleteUser = async (userId, username) => {
+    await execute(async () => {
+      try {
+        await usersService.deleteUser(userId);
+        fetchUsers();
+        toast.success(`User "${username}" deleted successfully!`);
+      } catch (error) {
+        const errMsg = error.response?.data?.error || "Failed to delete user";
+        toast.error(errMsg);
+        throw error;
+      }
+    });
+  };
 
   // Permission Management Functions
   const handleUserSelectForPermissions = (userId) => {
@@ -288,41 +288,41 @@ const handleDeleteUser = async (userId, username) => {
     setPermissions(updatedPermissions);
   };
 
-const savePermissions = async () => {
-  // Validate we have a selected user
-  if (!selectedUserForPermissions) {
-    toast.warning("No user selected");
-    return;
-  }
-
-  // Validate permissions data
-  if (!permissions || permissions.length === 0) {
-    toast.warning("No permissions data to save");
-    return;
-  }
-
-  await execute(async () => {
-    try {
-      logger.log("Saving permissions:", {
-        userId: selectedUserForPermissions.id,
-        permissions: permissions,
-      });
-
-      await usersService.updateUserPermissions(selectedUserForPermissions.id, { permissions });
-
-      logger.log("Permissions saved successfully");
-      toast.success("Permissions updated successfully!");
-
-      // Refresh the permissions to ensure sync
-      fetchUserPermissions(selectedUserForPermissions.id);
-    } catch (error) {
-      logger.error("Error saving permissions:", error);
-      const errorMessage = error.response?.data?.error || "Failed to save permissions";
-      toast.error(errorMessage);
-      throw error;
+  const savePermissions = async () => {
+    // Validate we have a selected user
+    if (!selectedUserForPermissions) {
+      toast.warning("No user selected");
+      return;
     }
-  });
-};
+
+    // Validate permissions data
+    if (!permissions || permissions.length === 0) {
+      toast.warning("No permissions data to save");
+      return;
+    }
+
+    await execute(async () => {
+      try {
+        logger.log("Saving permissions:", {
+          userId: selectedUserForPermissions.id,
+          permissions: permissions,
+        });
+
+        await usersService.updateUserPermissions(selectedUserForPermissions.id, { permissions });
+
+        logger.log("Permissions saved successfully");
+        toast.success("Permissions updated successfully!");
+
+        // Refresh the permissions to ensure sync
+        fetchUserPermissions(selectedUserForPermissions.id);
+      } catch (error) {
+        logger.error("Error saving permissions:", error);
+        const errorMessage = error.response?.data?.error || "Failed to save permissions";
+        toast.error(errorMessage);
+        throw error;
+      }
+    });
+  };
 
   const resetToRoleDefault = async () => {
     if (!selectedUserForPermissions) return;
@@ -583,31 +583,31 @@ const savePermissions = async () => {
                   </td>
                   <td>
                     <div className="action-buttons">
-<button
-  onClick={() => {
-    // Show toast when delete action is initiated
-    toast.info(`Please confirm deletion of "${user.username}"`);
+                      <button
+                        onClick={() => {
+                          // Show toast when delete action is initiated
+                          toast.info(`Please confirm deletion of "${user.username}"`);
 
-    onShowConfirmation(
-      "Delete User",
-      `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
-      "delete",
-      user.id,
-      "users",
-      user.username,
-      () => handleDeleteUser(user.id, user.username)
-    );
-  }}
-  className="btn btn-danger btn-sm"
-  disabled={user.role === "super_admin"}
-  title={
-    user.role === "super_admin"
-      ? "Cannot delete super admin"
-      : "Delete user"
-  }
->
-  <i className="fas fa-trash"></i>
-</button>
+                          onShowConfirmation(
+                            "Delete User",
+                            `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`,
+                            "delete",
+                            user.id,
+                            "users",
+                            user.username,
+                            () => handleDeleteUser(user.id, user.username)
+                          );
+                        }}
+                        className="btn btn-danger btn-sm"
+                        disabled={user.role === "super_admin"}
+                        title={
+                          user.role === "super_admin"
+                            ? "Cannot delete super admin"
+                            : "Delete user"
+                        }
+                      >
+                        <i className="fas fa-trash"></i>
+                      </button>
                       <button
                         onClick={() => {
                           setActiveSubTab("permissions");
@@ -836,7 +836,7 @@ const savePermissions = async () => {
                             id={`${sectionConfig.section}-main-${action}`}
                             checked={
                               getPermissionForSection(sectionConfig.section)[
-                                `can_${action}`
+                              `can_${action}`
                               ]
                             }
                             onChange={(e) =>
@@ -893,33 +893,6 @@ const savePermissions = async () => {
                 ))}
               </div>
             ))}
-          </div>
-
-          {/* Legend */}
-          <div className="usermgmt-legend-section">
-            <div className="usermgmt-legend-title">Permissions Legend:</div>
-            <div className="usermgmt-legend-items">
-              <div className="usermgmt-legend-item">
-                <span className="usermgmt-legend-color usermgmt-legend-view"></span>
-                <span>View - Can see content</span>
-              </div>
-              <div className="usermgmt-legend-item">
-                <span className="usermgmt-legend-color usermgmt-legend-create"></span>
-                <span>Create - Can add new items</span>
-              </div>
-              <div className="usermgmt-legend-item">
-                <span className="usermgmt-legend-color usermgmt-legend-edit"></span>
-                <span>Edit - Can modify existing items</span>
-              </div>
-              <div className="usermgmt-legend-item">
-                <span className="usermgmt-legend-color usermgmt-legend-delete"></span>
-                <span>Delete - Can remove items</span>
-              </div>
-              <div className="usermgmt-legend-item">
-                <span className="usermgmt-legend-color usermgmt-legend-publish"></span>
-                <span>Publish - Can change status</span>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -1136,9 +1109,8 @@ const savePermissions = async () => {
             <div className="modal-actions">
               <button
                 onClick={handleConfirmationConfirm}
-                className={`btn btn-${
-                  confirmationData.actionType === "delete" ? "danger" : "primary"
-                }`}
+                className={`btn btn-${confirmationData.actionType === "delete" ? "danger" : "primary"
+                  }`}
               >
                 Confirm
               </button>

@@ -16,13 +16,16 @@ export const ourworkService = {
    */
   getItemsByCategory: async (category, filters = {}) => {
     try {
-      let url = API_ROUTES.OUR_WORK.BY_CATEGORY(category);
+      // Use published endpoint for public views, admin endpoint for dashboard
+      let url = filters.active_only
+        ? API_ROUTES.OUR_WORK.PUBLISHED_CATEGORY(category)
+        : API_ROUTES.OUR_WORK.ADMIN_BASE(category);
+
       const params = new URLSearchParams();
-      
+
       if (filters.page) params.append('page', filters.page);
       if (filters.limit) params.append('limit', filters.limit);
-      if (filters.active_only) params.append('active_only', filters.active_only);
-      
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -33,7 +36,7 @@ export const ourworkService = {
       logger.log(`✅ ${category} items loaded: ${data?.length || 0} items`);
       return data || [];
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.getItemsByCategory(${category})`,
         showToast: false,
       });
@@ -49,10 +52,10 @@ export const ourworkService = {
    */
   getItemById: async (category, id) => {
     try {
-      const response = await apiClient.get(API_ROUTES.OUR_WORK.BY_ID(category, id));
+      const response = await apiClient.get(API_ROUTES.OUR_WORK.PUBLISHED_BY_ID(category, id));
       return handleResponse(response);
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.getItemById(${category}, ${id})`,
         showToast: true,
       });
@@ -80,7 +83,7 @@ export const ourworkService = {
       logger.log(`✅ ${category} item created`);
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.createItem(${category})`,
         showToast: true,
       });
@@ -109,7 +112,7 @@ export const ourworkService = {
       logger.log(`✅ ${category} item updated`);
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.updateItem(${category}, ${id})`,
         showToast: true,
       });
@@ -129,7 +132,7 @@ export const ourworkService = {
       await apiClient.delete(`${API_ROUTES.OUR_WORK.ADMIN_BASE(category)}/${id}`);
       logger.log(`✅ ${category} item deleted`);
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.deleteItem(${category}, ${id})`,
         showToast: true,
       });
@@ -155,7 +158,7 @@ export const ourworkService = {
       logger.log(`✅ ${category} item status updated`);
       return data;
     } catch (error) {
-      handleApiError(error, { 
+      handleApiError(error, {
         context: `ourworkService.toggleItemStatus(${category}, ${id})`,
         showToast: true,
       });

@@ -332,25 +332,24 @@
   }
 
   .es-title {
-    font-size: 31px;
-    line-height: 34px;
+    font-size: 30px;
     margin-bottom: 2rem;
   }
 
   .es-title::before {
-    right: 5px;
+    display: none;
   }
 
   .es-title::after {
-    right: -15px;
+    display: none;
   }
 
   .es-title span::before {
-    left: 5px;
+    display: none;
   }
 
   .es-title span::after {
-    left: -15px;
+    display: none;
   }
 
   .es-grid {

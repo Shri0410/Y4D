@@ -341,25 +341,24 @@
   }
 
   .hc-title {
-    font-size: 33px;
-    line-height: 34px;
+    font-size: 30px;
     margin-bottom: 2rem;
   }
 
   .hc-title::before {
-    right: 20px;
+    display: none;
   }
 
   .hc-title::after {
-    right: 0px;
+    display: none;
   }
 
   .hc-title span::before {
-    left: 20px;
+    display: none;
   }
 
   .hc-title span::after {
-    left: 0px;
+    display: none;
   }
 
   .hc-grid {
