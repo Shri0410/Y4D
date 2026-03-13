@@ -884,7 +884,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
           });
 
           toast.success(
-            `Board trustee ${editingId ? "updated" : "created"} successfully!`
+            `${localStorage.getItem("adminRegion") === "global" ? "Board directory" : "Board trustee"} ${editingId ? "updated" : "created"} successfully!`
           );
 
           break;
@@ -1244,17 +1244,19 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Description:</label>
-            <textarea
-              value={mediaForm.description}
-              onChange={(e) =>
-                setMediaForm({ ...mediaForm, description: e.target.value })
-              }
-              required
-              rows="3"
-            />
-          </div>
+          {!["stories", "blogs"].includes(currentMediaType) && (
+            <div className="form-group">
+              <label>Description:</label>
+              <textarea
+                value={mediaForm.description}
+                onChange={(e) =>
+                  setMediaForm({ ...mediaForm, description: e.target.value })
+                }
+                required
+                rows="3"
+              />
+            </div>
+          )}
 
           {/* Only show content field for stories and blogs */}
           {["stories", "blogs"].includes(currentMediaType) && (
@@ -1533,8 +1535,8 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               >
                 <span>🏛️</span>
                 <div>
-                  <h4>Board of Trustees</h4>
-                  <p>Add new board trustee</p>
+                  <h4>{localStorage.getItem("adminRegion") === "global" ? "Our Board of Directors" : "Board of Trustees"}</h4>
+                  <p>Add new {localStorage.getItem("adminRegion") === "global" ? "board of director" : "board trustee"}</p>
                 </div>
               </button>
             )}
@@ -1647,7 +1649,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             onSubmit={(e) => handleSubmit(e, "board-trustees")}
             className="dashboard-form"
           >
-            <h3>{editingId ? "Edit" : "Add New"} Board Trustee</h3>
+            <h3>{editingId ? "Edit" : "Add New"} {localStorage.getItem("adminRegion") === "global" ? "Board of Director" : "Board Trustee"}</h3>
             <div className="form-group">
               <label>Name:</label>
               <input
@@ -1686,7 +1688,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             <div className="form-actions">
               <button type="submit" disabled={loading}>
                 {loading ? "Processing..." : editingId ? "Update" : "Create"}{" "}
-                Trustee
+                {localStorage.getItem("adminRegion") === "global" ? "Director" : "Trustee"}
               </button>
               <button type="button" onClick={cancelEdit}>
                 Cancel
@@ -1905,9 +1907,9 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
         {/* Board of Trustees Section */}
         {canUserPerformAction("team", "board-trustees", "view") && (
           <div className="team-section">
-            <h4>Board of Trustees ({boardTrustees.length})</h4>
+            <h4>{localStorage.getItem("adminRegion") === "global" ? "Our Board of Directors" : "Board of Trustees"} ({boardTrustees.length})</h4>
             {boardTrustees.length === 0 ? (
-              <p className="no-data">No board trustees found</p>
+              <p className="no-data">No {localStorage.getItem("adminRegion") === "global" ? "board of directors" : "board trustees"} found</p>
             ) : (
               <div className="team-table">
                 <table>
@@ -1984,7 +1986,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                                       className="btn-delete"
                                       onClick={() => {
                                         showConfirmationModal(
-                                          "Delete Board Trustee",
+                                          `Delete ${localStorage.getItem("adminRegion") === "global" ? "Board of Director" : "Board Trustee"}`,
                                           `Are you sure you want to delete "${trustee.name}"? This action cannot be undone.`,
                                           "delete",
                                           trustee.id,
@@ -2617,26 +2619,32 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   "events",
                   "blogs",
                   "documentaries",
-                ].map(
-                  (type) =>
-                    canUserPerformAction("media", type, "view") && (
-                      <div
-                        key={type}
-                        className="media-type-card"
-                        onClick={() => {
-                          setCurrentMediaType(type);
-                          updateUrlPath("media", "view", type);
-                        }}
-                      >
-                        <h4>
-                          {getMediaTypeIcon(type)}{" "}
-                          {type.charAt(0).toUpperCase() +
-                            type.slice(1).replace("_", " ")}
-                        </h4>
-                        <p>{getMediaTypeDescription(type)}</p>
-                      </div>
-                    )
-                )}
+                ]
+                  .filter((type) =>
+                    localStorage.getItem("adminRegion") === "global"
+                      ? ["stories", "blogs"].includes(type)
+                      : true
+                  )
+                  .map(
+                    (type) =>
+                      canUserPerformAction("media", type, "view") && (
+                        <div
+                          key={type}
+                          className="media-type-card"
+                          onClick={() => {
+                            setCurrentMediaType(type);
+                            updateUrlPath("media", "view", type);
+                          }}
+                        >
+                          <h4>
+                            {getMediaTypeIcon(type)}{" "}
+                            {type.charAt(0).toUpperCase() +
+                              type.slice(1).replace("_", " ")}
+                          </h4>
+                          <p>{getMediaTypeDescription(type)}</p>
+                        </div>
+                      )
+                  )}
               </div>
             </div>
           );
@@ -2655,25 +2663,31 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                   "healthcare",
                   "environment_sustainability",
                   "integrated_development",
-                ].map(
-                  (category) =>
-                    canUserPerformAction("interventions", category, "view") && (
-                      <div
-                        key={category}
-                        className="media-type-card"
-                        onClick={() => {
-                          setCurrentOurWorkCategory(category);
-                          updateUrlPath("interventions", "view", category);
-                        }}
-                      >
-                        <h4>
-                          {getOurWorkCategoryIcon(category)}{" "}
-                          {getOurWorkCategoryLabel(category)}
-                        </h4>
-                        <p>{getOurWorkCategoryDescription(category)}</p>
-                      </div>
-                    )
-                )}
+                ]
+                  .filter((category) =>
+                    localStorage.getItem("adminRegion") === "global"
+                      ? category === "quality_education"
+                      : true
+                  )
+                  .map(
+                    (category) =>
+                      canUserPerformAction("interventions", category, "view") && (
+                        <div
+                          key={category}
+                          className="media-type-card"
+                          onClick={() => {
+                            setCurrentOurWorkCategory(category);
+                            updateUrlPath("interventions", "view", category);
+                          }}
+                        >
+                          <h4>
+                            {getOurWorkCategoryIcon(category)}{" "}
+                            {getOurWorkCategoryLabel(category)}
+                          </h4>
+                          <p>{getOurWorkCategoryDescription(category)}</p>
+                        </div>
+                      )
+                  )}
               </div>
             </div>
           );
@@ -3342,110 +3356,116 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       "healthcare",
                       "environment_sustainability",
                       "integrated_development",
-                    ].map(
-                      (category) =>
-                        canUserPerformAction(
-                          "interventions",
-                          category,
-                          "view"
-                        ) && (
-                          <li
-                            key={category}
-                            className="interventions-dropdown-item"
-                          >
-                            <div className="interventions-type-header">
-                              <button
-                                className="interventions-type-btn"
-                                onClick={() =>
-                                  handleInterventionsSubDropdown(category)
-                                }
-                              >
-                                <span className="interventions-type-label">
-                                  {getOurWorkCategoryIcon(category)}{" "}
-                                  {getOurWorkCategoryLabel(category)}
-                                </span>
-                                <span>
-                                  {interventionsSubDropdown === category
-                                    ? "▴"
-                                    : "▾"}
-                                </span>
-                              </button>
-                            </div>
+                    ]
+                      .filter((category) =>
+                        localStorage.getItem("adminRegion") === "global"
+                          ? category === "quality_education"
+                          : true
+                      )
+                      .map(
+                        (category) =>
+                          canUserPerformAction(
+                            "interventions",
+                            category,
+                            "view"
+                          ) && (
+                            <li
+                              key={category}
+                              className="interventions-dropdown-item"
+                            >
+                              <div className="interventions-type-header">
+                                <button
+                                  className="interventions-type-btn"
+                                  onClick={() =>
+                                    handleInterventionsSubDropdown(category)
+                                  }
+                                >
+                                  <span className="interventions-type-label">
+                                    {getOurWorkCategoryIcon(category)}{" "}
+                                    {getOurWorkCategoryLabel(category)}
+                                  </span>
+                                  <span>
+                                    {interventionsSubDropdown === category
+                                      ? "▴"
+                                      : "▾"}
+                                  </span>
+                                </button>
+                              </div>
 
-                            {interventionsSubDropdown === category && (
-                              <ul className="interventions-submenu">
-                                <li>
-                                  <button
-                                    onClick={() =>
-                                      handleInterventionsAction(
-                                        category,
-                                        "view"
-                                      )
-                                    }
-                                    className={
-                                      currentOurWorkCategory === category &&
-                                        interventionsAction === "view"
-                                        ? "active-sub"
-                                        : ""
-                                    }
-                                  >
-                                    📋 View {getOurWorkCategoryLabel(category)}
-                                  </button>
-                                </li>
-                                {canUserPerformAction(
-                                  "interventions",
-                                  category,
-                                  "create"
-                                ) && (
-                                    <li>
-                                      <button
-                                        onClick={() =>
-                                          handleInterventionsAction(
-                                            category,
-                                            "add"
-                                          )
-                                        }
-                                        className={
-                                          currentOurWorkCategory === category &&
-                                            interventionsAction === "add"
-                                            ? "active-sub"
-                                            : ""
-                                        }
-                                      >
-                                        ➕ Add {getOurWorkCategoryLabel(category)}
-                                      </button>
-                                    </li>
-                                  )}
-                                {canUserPerformAction(
-                                  "interventions",
-                                  category,
-                                  "edit"
-                                ) && (
-                                    <li>
-                                      <button
-                                        onClick={() =>
-                                          handleInterventionsAction(
-                                            category,
-                                            "update"
-                                          )
-                                        }
-                                        className={
-                                          currentOurWorkCategory === category &&
-                                            interventionsAction === "update"
-                                            ? "active-sub"
-                                            : ""
-                                        }
-                                      >
-                                        ✏️ Update{" "}
-                                        {getOurWorkCategoryLabel(category)}
-                                      </button>
-                                    </li>
-                                  )}
-                              </ul>
-                            )}
-                          </li>
-                        )
-                    )}
+                              {interventionsSubDropdown === category && (
+                                <ul className="interventions-submenu">
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleInterventionsAction(
+                                          category,
+                                          "view"
+                                        )
+                                      }
+                                      className={
+                                        currentOurWorkCategory === category &&
+                                          interventionsAction === "view"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      📋 View {getOurWorkCategoryLabel(category)}
+                                    </button>
+                                  </li>
+                                  {canUserPerformAction(
+                                    "interventions",
+                                    category,
+                                    "create"
+                                  ) && (
+                                      <li>
+                                        <button
+                                          onClick={() =>
+                                            handleInterventionsAction(
+                                              category,
+                                              "add"
+                                            )
+                                          }
+                                          className={
+                                            currentOurWorkCategory === category &&
+                                              interventionsAction === "add"
+                                              ? "active-sub"
+                                              : ""
+                                          }
+                                        >
+                                          ➕ Add {getOurWorkCategoryLabel(category)}
+                                        </button>
+                                      </li>
+                                    )}
+                                  {canUserPerformAction(
+                                    "interventions",
+                                    category,
+                                    "edit"
+                                  ) && (
+                                      <li>
+                                        <button
+                                          onClick={() =>
+                                            handleInterventionsAction(
+                                              category,
+                                              "update"
+                                            )
+                                          }
+                                          className={
+                                            currentOurWorkCategory === category &&
+                                              interventionsAction === "update"
+                                              ? "active-sub"
+                                              : ""
+                                          }
+                                        >
+                                          ✏️ Update{" "}
+                                          {getOurWorkCategoryLabel(category)}
+                                        </button>
+                                      </li>
+                                    )}
+                                </ul>
+                              )}
+                            </li>
+                          )
+                      )}
                   </ul>
                 )}
               </li>
@@ -3478,96 +3498,102 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
                       "events",
                       "blogs",
                       "documentaries",
-                    ].map(
-                      (type) =>
-                        canUserPerformAction("media", type, "view") && (
-                          <li key={type} className="media-dropdown-item">
-                            <div className="media-type-header">
-                              <button
-                                className="media-type-btn"
-                                onClick={() => handleMediaSubDropdown(type)}
-                              >
-                                <span className="media-type-label">
-                                  {getMediaTypeIcon(type)}{" "}
-                                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                                </span>
-                                <span>
-                                  {mediaSubDropdown === type ? "▴" : "▾"}
-                                </span>
-                              </button>
-                            </div>
+                    ]
+                      .filter((type) =>
+                        localStorage.getItem("adminRegion") === "global"
+                          ? ["stories", "blogs"].includes(type)
+                          : true
+                      )
+                      .map(
+                        (type) =>
+                          canUserPerformAction("media", type, "view") && (
+                            <li key={type} className="media-dropdown-item">
+                              <div className="media-type-header">
+                                <button
+                                  className="media-type-btn"
+                                  onClick={() => handleMediaSubDropdown(type)}
+                                >
+                                  <span className="media-type-label">
+                                    {getMediaTypeIcon(type)}{" "}
+                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                  </span>
+                                  <span>
+                                    {mediaSubDropdown === type ? "▴" : "▾"}
+                                  </span>
+                                </button>
+                              </div>
 
-                            {mediaSubDropdown === type && (
-                              <ul className="media-submenu">
-                                <li>
-                                  <button
-                                    onClick={() =>
-                                      handleMediaAction(type, "view")
-                                    }
-                                    className={
-                                      currentMediaType === type &&
-                                        mediaAction === "view"
-                                        ? "active-sub"
-                                        : ""
-                                    }
-                                  >
-                                    📋 View {type}
-                                  </button>
-                                </li>
-                                {canUserPerformAction(
-                                  "media",
-                                  type,
-                                  "create"
-                                ) && (
-                                    <li>
-                                      <button
-                                        onClick={() =>
-                                          handleMediaAction(type, "add")
-                                        }
-                                        className={
-                                          currentMediaType === type &&
-                                            mediaAction === "add"
-                                            ? "active-sub"
-                                            : ""
-                                        }
-                                      >
-                                        ➕ Add {type.slice(0, -1)}
-                                      </button>
-                                    </li>
-                                  )}
-                                {canUserPerformAction(
-                                  "media",
-                                  type,
-                                  "edit"
-                                ) && (
-                                    <li>
-                                      <button
-                                        onClick={() =>
-                                          handleMediaAction(type, "update")
-                                        }
-                                        className={
-                                          currentMediaType === type &&
-                                            mediaAction === "update"
-                                            ? "active-sub"
-                                            : ""
-                                        }
-                                      >
-                                        ✏️ Update {type.slice(0, -1)}
-                                      </button>
-                                    </li>
-                                  )}
-                              </ul>
-                            )}
-                          </li>
-                        )
-                    )}
+                              {mediaSubDropdown === type && (
+                                <ul className="media-submenu">
+                                  <li>
+                                    <button
+                                      onClick={() =>
+                                        handleMediaAction(type, "view")
+                                      }
+                                      className={
+                                        currentMediaType === type &&
+                                          mediaAction === "view"
+                                          ? "active-sub"
+                                          : ""
+                                      }
+                                    >
+                                      📋 View {type}
+                                    </button>
+                                  </li>
+                                  {canUserPerformAction(
+                                    "media",
+                                    type,
+                                    "create"
+                                  ) && (
+                                      <li>
+                                        <button
+                                          onClick={() =>
+                                            handleMediaAction(type, "add")
+                                          }
+                                          className={
+                                            currentMediaType === type &&
+                                              mediaAction === "add"
+                                              ? "active-sub"
+                                              : ""
+                                          }
+                                        >
+                                          ➕ Add {type.slice(0, -1)}
+                                        </button>
+                                      </li>
+                                    )}
+                                  {canUserPerformAction(
+                                    "media",
+                                    type,
+                                    "edit"
+                                  ) && (
+                                      <li>
+                                        <button
+                                          onClick={() =>
+                                            handleMediaAction(type, "update")
+                                          }
+                                          className={
+                                            currentMediaType === type &&
+                                              mediaAction === "update"
+                                              ? "active-sub"
+                                              : ""
+                                          }
+                                        >
+                                          ✏️ Update {type.slice(0, -1)}
+                                        </button>
+                                      </li>
+                                    )}
+                                </ul>
+                              )}
+                            </li>
+                          )
+                      )}
                   </ul>
                 )}
               </li>
             )}
 
             {/* Impact Data */}
-            {canUserPerformAction("impact", null, "view") && (
+            {canUserPerformAction("impact", null, "view") && localStorage.getItem("adminRegion") !== "global" && (
               <li className={activeTab === "impact" ? "active" : ""}>
                 <button
                   onClick={() => {
@@ -3636,7 +3662,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             )}
 
             {/* Accreditations Section */}
-            {canUserPerformAction("accreditations", null, "view") && (
+            {canUserPerformAction("accreditations", null, "view") && localStorage.getItem("adminRegion") !== "global" && (
               <li className={activeTab === "accreditations" ? "active" : ""}>
                 <button
                   onClick={() => {
@@ -3988,7 +4014,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
             </div>
           ) : currentOurWorkCategory ? (
             renderOurWorkManagement()
-          ) : currentAccreditationType ? (
+          ) : currentAccreditationType && localStorage.getItem("adminRegion") !== "global" ? (
             renderAccreditationContent()
           ) : currentBannerType ? (
             renderBannerContent()
@@ -4024,7 +4050,7 @@ const Dashboard = ({ currentUser: propCurrentUser }) => {
               onHideConfirmation={hideConfirmationModal}
             />
           ) : activeTab === "impact" &&
-            canUserPerformAction("impact", null, "view") ? (
+            canUserPerformAction("impact", null, "view") && localStorage.getItem("adminRegion") !== "global" ? (
             <ImpactDataEditor
               // ADDED: Pass confirmation modal functions
               onShowConfirmation={showConfirmationModal}

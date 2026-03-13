@@ -6,8 +6,10 @@ import { bannerService } from "../api/services/banners.service";
 import { impactService } from "../api/services/impact.service";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import { useRegion } from "../hooks/useRegion";
 
 const OurTeam = () => {
+  const region = useRegion();
   const [mentors, setMentors] = useState([]);
   const [management, setManagement] = useState([]);
   const [trustees, setTrustees] = useState([]);
@@ -22,12 +24,12 @@ const OurTeam = () => {
     const fetchTeamBanners = async () => {
       try {
         setBannersLoading(true);
-        logger.log('🔄 Fetching team page banners...');
-        const bannersData = await bannerService.getBanners('our-team', 'hero');
-        logger.log('✅ Team banners received:', bannersData);
+        logger.log("🔄 Fetching team page banners...");
+        const bannersData = await bannerService.getBanners("our-team", "hero");
+        logger.log("✅ Team banners received:", bannersData);
         setTeamBanners(bannersData);
       } catch (error) {
-        logger.error('❌ Error fetching team banners:', error);
+        logger.error("❌ Error fetching team banners:", error);
         setTeamBanners([]);
       } finally {
         setBannersLoading(false);
@@ -105,7 +107,7 @@ const OurTeam = () => {
       <div className="banner">
         {teamBanners.map((banner) => (
           <div key={banner.id} className="banner-container">
-            {banner.media_type === 'image' ? (
+            {banner.media_type === "image" ? (
               <img
                 src={`${UPLOADS_BASE}/banners/${banner.media}`}
                 alt={`Our Team Banner - ${banner.page}`}
@@ -135,7 +137,7 @@ const OurTeam = () => {
       {/* Board of Trustee */}
       <section className="FOT-section">
         <h2 className="trustee-title">
-          Our Board of Trustees<span></span>
+          {region === "global" ? "Our Board of Directors" : "Our Board of Trustees"}<span></span>
         </h2>
         {loadingTrustees ? (
           <p>Loading board trustees...</p>
@@ -163,27 +165,29 @@ const OurTeam = () => {
       </section>
 
       {/* Our Mentors */}
-      <section className="OT-section">
-        <h2 className="mentors-title">
-          Our Mentors <span></span>
-        </h2>
-        {loadingMentors ? (
-          <p>Loading mentors...</p>
-        ) : (
-          <div className="team-container">
-            {mentors.map((mentor) => (
-              <div key={mentor.id} className="team-card">
-                <img
-                  src={`${UPLOADS_BASE}/mentors/${mentor.image}`}
-                  alt={mentor.name}
-                />
-                <h3>{mentor.name}</h3>
-                <p className="role">{mentor.position}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {region !== "global" && (
+        <section className="OT-section">
+          <h2 className="mentors-title">
+            Our Mentors <span></span>
+          </h2>
+          {loadingMentors ? (
+            <p>Loading mentors...</p>
+          ) : (
+            <div className="team-container">
+              {mentors.map((mentor) => (
+                <div key={mentor.id} className="team-card">
+                  <img
+                    src={`${UPLOADS_BASE}/mentors/${mentor.image}`}
+                    alt={mentor.name}
+                  />
+                  <h3>{mentor.name}</h3>
+                  <p className="role">{mentor.position}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       {/* You May Find Useful */}
       <section className="OT-section">

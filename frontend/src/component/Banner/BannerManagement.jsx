@@ -228,11 +228,11 @@ const BannerManagement = ({
   const handleMediaChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      if (bannerForm.media_type === "image") {
-        logger.log(`📁 ${files.length} images selected`);
+      if (!editingId) {
+        logger.log(`📁 ${files.length} files selected`);
         setBannerForm((prev) => ({ ...prev, media: files }));
 
-        // Generate previews for all images
+        // Generate previews for all items
         const newPreviews = [];
         let processedCount = 0;
 
@@ -248,9 +248,9 @@ const BannerManagement = ({
           reader.readAsDataURL(file);
         });
       } else {
-        // For video, keep single file behavior
+        // For editing, keep single file behavior
         const file = files[0];
-        logger.log("📁 Video selected:", file.name, file.size, file.type);
+        logger.log("📁 File selected:", file.name, file.size, file.type);
         setBannerForm((prev) => ({ ...prev, media: file }));
 
         const reader = new FileReader();
@@ -674,19 +674,19 @@ const BannerManagement = ({
 
           <div className="form-group">
             <label>
-              {bannerForm.media_type === "image" ? "Image(s)" : "Video"}: *
+              {bannerForm.media_type === "image" ? "Image" : "Video"}{!editingId ? "(s)" : ""}: *
             </label>
             <input
               type="file"
               accept={bannerForm.media_type === "image" ? "image/*" : "video/*"}
               onChange={handleMediaChange}
               required={!editingId}
-              multiple={bannerForm.media_type === "image"}
+              multiple={!editingId}
             />
             <small>
               {bannerForm.media_type === "image"
-                ? "Supported formats: JPG, PNG, GIF. Max size: 10MB. multiple allowed."
-                : "Supported formats: MP4, WebM. Max size: 50MB"}
+                ? `Supported formats: JPG, PNG, GIF. Max size: 10MB.${!editingId ? " multiple allowed." : ""}`
+                : `Supported formats: MP4, WebM. Max size: 50MB.${!editingId ? " multiple allowed." : ""}`}
             </small>
             {mediaPreview && (
               <div className="media-preview-container">
@@ -694,7 +694,15 @@ const BannerManagement = ({
                   <div className="previews-grid">
                     {mediaPreview.map((src, index) => (
                       <div key={index} className="preview-item">
-                        <img src={src} alt={`Preview ${index}`} />
+                        {bannerForm.media_type === "image" ? (
+                          <img src={src} alt={`Preview ${index}`} />
+                        ) : (
+                          <video
+                            controls
+                            src={src}
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
+                          />
+                        )}
                       </div>
                     ))}
                   </div>

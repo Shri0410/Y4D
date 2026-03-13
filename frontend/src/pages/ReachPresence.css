@@ -557,22 +557,23 @@
   .rpt-title {
     font-size: 33px;
     line-height: 28px;
+    margin-bottom: 1rem;
   }
 
   .rpt-title::before {
-    right: -30px;
+    display: none;
   }
 
   .rpt-title::after {
-    right: -50px;
+    display: none;
   }
 
   .rpt-title span::before {
-    left: -30px;
+    display: none;
   }
 
   .rpt-title span::after {
-    left: -50px;
+    display: none;
   }
 
   .timeline-row,

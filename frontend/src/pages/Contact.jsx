@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import "./Contact.css";
 import { API_BASE } from "../config/api";
+import { useRegion } from "../hooks/useRegion";
 
 const Contact = () => {
+  const region = useRegion();
   const [faqs, setFaqs] = useState([
     {
       question: "How can my company partner with Y4D Foundation?",
@@ -142,7 +144,20 @@ const Contact = () => {
     );
   };
 
-  const offices = [
+  const offices = region === "global" ? [
+    {
+      name: "Postal Address",
+      address: "322 Bellis Ct., Bridgewater, New Jersey, 08807.",
+      mapsUrl: "https://www.google.com/maps/search/322+Bellis+Ct,+Bridgewater,+New+Jersey,+08807",
+      iframeSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3030.597653246342!2d-74.63673752399201!3d40.57262444613291!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c3be7a4d538e15%3A0xc6c76ebd58a36c61!2s322%20Bellis%20Ct%2C%20Bridgewater%2C%20NJ%2008807!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    },
+    {
+      name: "Registered Address",
+      address: "1401, 21ST, Sacramento, California, 95811.",
+      mapsUrl: "https://www.google.com/maps/search/1401,+21ST,+Sacramento,+California,+95811",
+      iframeSrc: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3119.8258380295!2d-121.48271162409051!3d38.572346067099044!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x809ad12a7a41dd31%3A0xb328004fcf1cbbd2!2s1401%2021st%20St%2C%20Sacramento%2C%20CA%2095811!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin",
+    },
+  ] : [
     {
       name: "Pune Office",
       address: "4th Floor, Near Euro School, Wakad, Pune 411057",
@@ -162,6 +177,11 @@ const Contact = () => {
   ];
 
   const [selectedOffice, setSelectedOffice] = useState(offices[0]);
+
+  // Ensure selectedOffice properly resets if the region changes
+  React.useEffect(() => {
+    setSelectedOffice(offices[0]);
+  }, [region]);
 
   // Popup state
   const [popupType, setPopupType] = useState(null);
@@ -534,7 +554,7 @@ const Contact = () => {
       <section className="contactus-section contactus-office">
         <div className="office-title">
           <h2>
-            Office Addresses<span></span>
+            {region === "global" ? "Address" : "Office Addresses"}<span></span>
           </h2>
         </div>
 
@@ -601,6 +621,31 @@ const Contact = () => {
               )}
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* CONTACT DETAILS SECTION */}
+      <section className="contactus-section contactus-details">
+        <div className="contact-details-title">
+          <h2>
+            Contact Details<span></span>
+          </h2>
+        </div>
+        <div className="contact-details-container">
+          <div className="contact-detail-item">
+            <div className="contact-icon">📧</div>
+            <div className="contact-info">
+              <h4>Email Address</h4>
+              <p><a href="mailto:random@gmail.com">random@gmail.com</a></p>
+            </div>
+          </div>
+          <div className="contact-detail-item">
+            <div className="contact-icon">📞</div>
+            <div className="contact-info">
+              <h4>Mobile Number</h4>
+              <p><a href="tel:+919876543210">+91 98765 43210</a></p>
+            </div>
+          </div>
         </div>
       </section>
     </div>

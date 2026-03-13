@@ -6,9 +6,11 @@ import pyramidImg from "../assets/Pyramid.png";
 import { getBanners } from "../services/api.jsx";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import { useRegion } from "../hooks/useRegion";
 
 const About = () => {
   const navigate = useNavigate();
+  const region = useRegion();
   const [aboutBanners, setAboutBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
 
@@ -55,18 +57,18 @@ const About = () => {
     { id: "trust", label: "WHY TRUST US?" },
   ];
 
-const scrollTo = (id) => {
-  const element = sectionRefs[id].current;
-  const offset = 230; 
-  
-  const elementPosition = element.getBoundingClientRect().top;
-  const offsetPosition = elementPosition + window.pageYOffset - offset;
+  const scrollTo = (id) => {
+    const element = sectionRefs[id].current;
+    const offset = 230;
 
-  window.scrollTo({
-    top: offsetPosition,
-    behavior: "smooth"
-  });
-};
+    const elementPosition = element.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: "smooth"
+    });
+  };
 
   // Render dynamic banner
   const renderBanner = () => {
@@ -114,7 +116,7 @@ const scrollTo = (id) => {
                   {banner.title && <h1>{banner.title}</h1>}
                   {banner.description && <p>{banner.description}</p>}
                   {banner.button_text && banner.button_link && (
-                    <button 
+                    <button
                       className="banner-btn"
                       onClick={() => navigate(banner.button_link)}
                     >
@@ -154,10 +156,14 @@ const scrollTo = (id) => {
       <div ref={sectionRefs.mission} id="mission" className="story-section">
         <div className="story-content-container">
           <p>
-            Y4D is a youth-led, futuristic organization committed to empowering
-            the underserved sections of society by empowering them through 3E
-            formulae of Encouragement, Education, and Employment. Y4D envisions
-            shaping up a sustainable society for future generations.
+            {region === 'global' ? (
+              // Replace this text with the global website specific vision data
+              "As a youth-led global development organization, Y4D advances the Sustainable Development of Communities / Individual by enabling education, employability, health, and environmental action through community-driven and scalable initiatives."
+            ) : (
+              // This is the India website vision data
+              "Y4D is a youth-led, futuristic organization committed to empowering the underserved sections of society by empowering them through 3E formulae of Encouragement, Education, and Employment. Y4D envisions shaping up a sustainable society for future generations."
+            )}
+
           </p>
         </div>
       </div>
@@ -167,9 +173,13 @@ const scrollTo = (id) => {
       <div ref={sectionRefs.vision} id="vision" className="story-section">
         <div className="story-content-container">
           <p>
-            Y4D envisions fostering the development of a happy, healthy, and
-            sustainable society in which every individual has an equal
-            opportunity for growth and a life of dignity.
+            {region === 'global' ? (
+              // Replace this text with the global website specific vision data
+              "A world where every individual is empowered with equal access to opportunities for growth and a dignified life."
+            ) : (
+              // This is the India website vision data
+              "Y4D envisions fostering the development of a happy, healthy, and sustainable society in which every individual has an equal opportunity for growth and a life of dignity."
+            )}
           </p>
         </div>
       </div>
@@ -179,8 +189,13 @@ const scrollTo = (id) => {
       <div ref={sectionRefs.value} id="value" className="story-section">
         <div className="story-content-container">
           <p>
-            To empower underprivileged children, youth and women through
-            relevant education, innovative healthcare and livelihood programmes.
+            {region === 'global' ? (
+              // Replace this text with the global website specific vision data
+              "Equity • Integrity • Respect • Sustainability"
+            ) : (
+              // This is the India website vision data
+              "To empower underprivileged children, youth and women through relevant education, innovative healthcare and livelihood programmes."
+            )}
           </p>
         </div>
       </div>
