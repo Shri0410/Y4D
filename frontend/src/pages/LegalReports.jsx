@@ -5,8 +5,10 @@ import { bannerService } from "../api/services/banners.service";
 import { impactService } from "../api/services/impact.service";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import { useRegion } from "../hooks/useRegion";
 
 const LegalReports = () => {
+  const region = useRegion();
   const [reports, setReports] = useState([]);
   const [legalBanners, setLegalBanners] = useState([]);
   const [bannersLoading, setBannersLoading] = useState(true);
@@ -47,7 +49,19 @@ const LegalReports = () => {
     fetchReports();
   }, []);
 
-  const legalStatusData = [
+  const legalStatusData = region === 'global' ? [
+    { title: "1) Registered Charity Number (EIN)", value: "39-3932034" },
+    { title: "2) Primary Office", value: "1401 21st Street, Sacramento, California, 95811" },
+    { title: "3) Additional Office", value: "100 Bellis Ct., Bridgewater, New Jersey, 08807" },
+    { title: "4) Legal Status", value: "FCRA-approved and PAN India-recognized NGO" },
+    { title: "5) Focus Areas", value: "Education, Digital Empowerment, Livelihood Development, and Innovation" },
+    { title: "6) Global Reach", value: "Active operations across USA, India, Kenya, and Nigeria" },
+    { title: "7) Governance", value: "Managed through transparent systems and trusted banking partnerships to facilitate secure global collaborations" },
+    { title: "Bank Details", value: " " },
+    { title: "i) Routing Number", value: "063100277" },
+    { title: "ii) Account Number", value: "898163550829" },
+
+  ] : [
     { title: "1) Niti Ayog (Darpan)", value: "MH/2015/0093159" },
     { title: "2) Public Trust Act, 1950", value: "E-7269 (24/09/2015)" },
     { title: "3) PAN Card", value: "AAATY4684J" },
@@ -129,12 +143,24 @@ const LegalReports = () => {
         <div className="table-container">
           <table>
             <tbody>
-              {legalStatusData.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.title}</td>
-                  <td>{item.value}</td>
-                </tr>
-              ))}
+              {legalStatusData.map((item, index) => {
+                const isBankDetailsTitle = item.title === "Bank Details";
+
+                return (
+                  <tr key={index}>
+                    {isBankDetailsTitle ? (
+                      <td colSpan="2" style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.5rem", letterSpacing: "2px" }}>
+                        {item.title}
+                      </td>
+                    ) : (
+                      <>
+                        <td>{item.title}</td>
+                        <td>{item.value}</td>
+                      </>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

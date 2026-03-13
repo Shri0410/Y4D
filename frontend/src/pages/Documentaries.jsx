@@ -5,6 +5,9 @@ import { bannerService } from "../api/services/banners.service";
 import { mediaService } from "../api/services/media.service";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const Documentaries = () => {
   const [documentaries, setDocumentaries] = useState([]);
@@ -47,6 +50,17 @@ const Documentaries = () => {
     }
   };
 
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+  };
+
   // Render banner
   const renderBanner = () => {
     if (bannersLoading) {
@@ -69,25 +83,27 @@ const Documentaries = () => {
 
     return (
       <div className="documentaries-banner">
-        {docsBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === "image" ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt="Documentaries Banner"
-                className="documentaries-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                autoPlay
-                muted
-                loop
-                className="documentaries-banner-video"
-              />
-            )}
-          </div>
-        ))}
+        <Slider {...sliderSettings}>
+          {docsBanners.map((banner) => (
+            <div key={banner.id} className="banner-container">
+              {banner.media_type === "image" ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt="Documentaries Banner"
+                  className="documentaries-banner-image"
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  autoPlay
+                  muted
+                  loop
+                  className="documentaries-banner-video"
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };
@@ -293,7 +309,7 @@ const Documentaries = () => {
             </div>
           </div>
         )}
-        
+
       </div>
     </div>
   );

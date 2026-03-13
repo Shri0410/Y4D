@@ -12,6 +12,7 @@ import {
 } from "../api/services";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import { useRegion } from "../hooks/useRegion";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./Home.css";
@@ -31,6 +32,7 @@ import fallbackBanner from "../assets/BannerImages/f.jpeg";
 import LogoSlider from "./LogoSlider.jsx";
 
 const Home = () => {
+  const region = useRegion();
   const [teamCount, setTeamCount] = useState(0);
   const [reportsCount, setReportsCount] = useState(0);
   const [impact, setImpact] = useState({
@@ -308,46 +310,48 @@ const Home = () => {
       {renderCampaignBanners()}
 
       {/* Our Reach Section */}
-      <section className="our-reach-section" data-aos="fade-up">
-        <div className="our-reach-container">
-          <h2 className="impact-title" data-aos="fade-up" data-aos-delay="100">
-            Our Impact<span></span>
-          </h2>
-          <div className="reach-grid">
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
-              <h3 className="reach-number">
-                <Counter end={impact.beneficiaries} />
-                L+
-              </h3>
-              <p className="reach-subtitle">Beneficiaries</p>
-              <p className="reach-text">
-                Children and their families are impacted every year
-              </p>
-            </div>
+      {region !== "global" && (
+        <section className="our-reach-section" data-aos="fade-up">
+          <div className="our-reach-container">
+            <h2 className="impact-title" data-aos="fade-up" data-aos-delay="100">
+              Our Impact<span></span>
+            </h2>
+            <div className="reach-grid">
+              <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
+                <h3 className="reach-number">
+                  <Counter end={impact.beneficiaries} />
+                  L+
+                </h3>
+                <p className="reach-subtitle">Beneficiaries</p>
+                <p className="reach-text">
+                  Children and their families are impacted every year
+                </p>
+              </div>
 
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="150">
-              <h3 className="reach-number">
-                <Counter end={impact.states} />+
-              </h3>
-              <p className="reach-subtitle">States</p>
-              <p className="reach-text">
-                Active presence across more than 20 states and underserved
-                communities
-              </p>
-            </div>
+              <div className="reach-item" data-aos="zoom-in" data-aos-delay="150">
+                <h3 className="reach-number">
+                  <Counter end={impact.states} />+
+                </h3>
+                <p className="reach-subtitle">States</p>
+                <p className="reach-text">
+                  Active presence across more than 20 states and underserved
+                  communities
+                </p>
+              </div>
 
-            <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
-              <h3 className="reach-number">
-                <Counter end={impact.projects} />+
-              </h3>
-              <p className="reach-subtitle">Projects</p>
-              <p className="reach-text">
-                Projects in education, healthcare, and women empowerment
-              </p>
+              <div className="reach-item" data-aos="zoom-in" data-aos-delay="100">
+                <h3 className="reach-number">
+                  <Counter end={impact.projects} />+
+                </h3>
+                <p className="reach-subtitle">Projects</p>
+                <p className="reach-text">
+                  Projects in education, healthcare, and women empowerment
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Our Interventions Section */}
       <section className="Interventions-section" data-aos="fade-up">
@@ -356,7 +360,10 @@ const Home = () => {
             Our Interventions<span></span>
           </h2>
 
-          <div className="grid grid-3">
+          <div
+            className={region === "global" ? "" : "grid grid-3"}
+            style={region === "global" ? { display: 'flex', justifyContent: 'center' } : {}}
+          >
             {[
               {
                 title: "Quality Education",
@@ -383,27 +390,29 @@ const Home = () => {
                 img: idp,
                 link: "/our-work#idp",
               },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="card text-center intervention-card"
-                data-aos="zoom-in"
-                data-aos-delay={200 + index * 100}
-              >
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="intervention-icon"
-                />
+            ].filter(item => region === "global" ? item.title === "Quality Education" : true)
+              .map((item, index) => (
+                <div
+                  key={index}
+                  className="card text-center intervention-card"
+                  style={region === "global" ? { maxWidth: '350px', width: '100%' } : {}}
+                  data-aos="zoom-in"
+                  data-aos-delay={200 + index * 100}
+                >
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="intervention-icon"
+                  />
 
-                <h3>{item.title}</h3>
+                  <h3>{item.title}</h3>
 
-                {/* ✅ HASH NAVIGATION */}
-                <Link to={item.link} className="inter-btn">
-                  Learn More
-                </Link>
-              </div>
-            ))}
+                  {/* ✅ HASH NAVIGATION */}
+                  <Link to={item.link} className="inter-btn">
+                    Learn More
+                  </Link>
+                </div>
+              ))}
           </div>
         </div>
       </section>
@@ -416,29 +425,134 @@ const Home = () => {
 
       {/* Partners Section */}
       <section className="Partners-section">
-        <Partners1 />
-        <Partners2 />
+        {region === "global" ? (
+          <div className="global-partners-container" style={{ display: 'flex', justifyContent: 'center', gap: '40px', padding: '40px 20px', flexWrap: 'wrap' }}>
+            <h2 className="partner-title" style={{ width: '100%', textAlign: 'center', marginBottom: '20px' }}>
+              Our Partners<span></span>
+            </h2>
+            <div style={{ display: 'flex', gap: '30px', justifyContent: 'center' }}>
+              <img src="/partners/global/global-partner-1.jpg" alt="Partner 1" style={{ width: '200px', height: '150px', objectFit: 'contain' }} />
+              <img src="/partners/global/global-partner-2.jpg" alt="Partner 2" style={{ width: '200px', height: '150px', objectFit: 'contain' }} />
+              <img src="/partners/global/global-partner-3.png" alt="Partner 3" style={{ width: '200px', height: '150px', objectFit: 'contain' }} />
+            </div>
+          </div>
+        ) : (
+          <>
+            <Partners1 />
+            <Partners2 />
+          </>
+        )}
       </section>
 
       {/* Accreditations Section */}
-      <div className="accreditations-section" data-aos="fade-up">
-        <div className="accreditations-container">
-          <h2
-            className="accreditations-title"
-            data-aos="fade-up"
-            data-aos-delay="100"
-          >
-            Accreditations<span></span>
-          </h2>
-          {isMobile ? (
-            <div
-              className="accreditations-list"
-              style={{ gap: "10px" }}
-              data-aos="zoom-in"
-              data-aos-delay="200"
+      {region !== "global" && (
+        <div className="accreditations-section" data-aos="fade-up">
+          <div className="accreditations-container">
+            <h2
+              className="accreditations-title"
+              data-aos="fade-up"
+              data-aos-delay="100"
             >
-              {activeAccreditations.length > 0 ? (
-                activeAccreditations.map((item, index) => (
+              Accreditations<span></span>
+            </h2>
+            {isMobile ? (
+              <div
+                className="accreditations-list"
+                style={{ gap: "10px" }}
+                data-aos="zoom-in"
+                data-aos-delay="200"
+              >
+                {activeAccreditations.length > 0 ? (
+                  activeAccreditations.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="accreditation-card"
+                      data-aos="zoom-in"
+                      data-aos-delay={300 + index * 100}
+                    >
+                      <img
+                        src={`${UPLOADS_BASE}/accreditations/${item.image}`}
+                        alt={item.title}
+                        className="accreditation-icon"
+                        onError={handleImageError}
+                      />
+                      <h3>{item.title}</h3>
+                      {item.description && <p>{item.description}</p>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-accreditations-message">
+                    <p>No accreditations available at the moment.</p>
+                  </div>
+                )}
+              </div>
+            ) : isTablet ? (
+              <div
+                className="accreditations-list"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "80px",
+                }}
+                data-aos="zoom-in"
+                data-aos-delay="200"
+              >
+                {activeAccreditations.length > 0 ? (
+                  activeAccreditations.map((item, index) => (
+                    <div
+                      key={item.id}
+                      className="accreditation-card"
+                      data-aos="zoom-in"
+                      data-aos-delay={300 + index * 100}
+                    >
+                      <img
+                        src={`${UPLOADS_BASE}/accreditations/${item.image}`}
+                        alt={item.title}
+                        className="accreditation-icon"
+                        onError={handleImageError}
+                      />
+                      <h3>{item.title}</h3>
+                      {item.description && <p>{item.description}</p>}
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-accreditations-message">
+                    <p>No accreditations available at the moment.</p>
+                  </div>
+                )}
+              </div>
+            ) : activeAccreditations.length > 0 ? (
+              <Slider
+                slidesToShow={Math.min(4, activeAccreditations.length)}
+                slidesToScroll={1}
+                infinite={activeAccreditations.length > 1}
+                autoplay={activeAccreditations.length > 1}
+                autoplaySpeed={2000}
+                speed={800}
+                arrows={false}
+                dots={false}
+                responsive={[
+                  {
+                    breakpoint: 1024,
+                    settings: {
+                      slidesToShow: Math.min(3, activeAccreditations.length),
+                    },
+                  },
+                  {
+                    breakpoint: 768,
+                    settings: {
+                      slidesToShow: Math.min(2, activeAccreditations.length),
+                    },
+                  },
+                  {
+                    breakpoint: 480,
+                    settings: {
+                      slidesToShow: 1,
+                    },
+                  },
+                ]}
+              >
+                {activeAccreditations.map((item, index) => (
                   <div
                     key={item.id}
                     className="accreditation-card"
@@ -454,104 +568,16 @@ const Home = () => {
                     <h3>{item.title}</h3>
                     {item.description && <p>{item.description}</p>}
                   </div>
-                ))
-              ) : (
-                <div className="no-accreditations-message">
-                  <p>No accreditations available at the moment.</p>
-                </div>
-              )}
-            </div>
-          ) : isTablet ? (
-            <div
-              className="accreditations-list"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "80px",
-              }}
-              data-aos="zoom-in"
-              data-aos-delay="200"
-            >
-              {activeAccreditations.length > 0 ? (
-                activeAccreditations.map((item, index) => (
-                  <div
-                    key={item.id}
-                    className="accreditation-card"
-                    data-aos="zoom-in"
-                    data-aos-delay={300 + index * 100}
-                  >
-                    <img
-                      src={`${UPLOADS_BASE}/accreditations/${item.image}`}
-                      alt={item.title}
-                      className="accreditation-icon"
-                      onError={handleImageError}
-                    />
-                    <h3>{item.title}</h3>
-                    {item.description && <p>{item.description}</p>}
-                  </div>
-                ))
-              ) : (
-                <div className="no-accreditations-message">
-                  <p>No accreditations available at the moment.</p>
-                </div>
-              )}
-            </div>
-          ) : activeAccreditations.length > 0 ? (
-            <Slider
-              slidesToShow={Math.min(4, activeAccreditations.length)}
-              slidesToScroll={1}
-              infinite={activeAccreditations.length > 1}
-              autoplay={activeAccreditations.length > 1}
-              autoplaySpeed={2000}
-              speed={800}
-              arrows={false}
-              dots={false}
-              responsive={[
-                {
-                  breakpoint: 1024,
-                  settings: {
-                    slidesToShow: Math.min(3, activeAccreditations.length),
-                  },
-                },
-                {
-                  breakpoint: 768,
-                  settings: {
-                    slidesToShow: Math.min(2, activeAccreditations.length),
-                  },
-                },
-                {
-                  breakpoint: 480,
-                  settings: {
-                    slidesToShow: 1,
-                  },
-                },
-              ]}
-            >
-              {activeAccreditations.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="accreditation-card"
-                  data-aos="zoom-in"
-                  data-aos-delay={300 + index * 100}
-                >
-                  <img
-                    src={`${UPLOADS_BASE}/accreditations/${item.image}`}
-                    alt={item.title}
-                    className="accreditation-icon"
-                    onError={handleImageError}
-                  />
-                  <h3>{item.title}</h3>
-                  {item.description && <p>{item.description}</p>}
-                </div>
-              ))}
-            </Slider>
-          ) : (
-            <div className="no-accreditations-message">
-              <p>No accreditations available at the moment.</p>
-            </div>
-          )}
+                ))}
+              </Slider>
+            ) : (
+              <div className="no-accreditations-message">
+                <p>No accreditations available at the moment.</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Media Highlights Section */}
       <section className="Media-section bg-light" data-aos="fade-up">
@@ -559,7 +585,10 @@ const Home = () => {
           <h2 className="media-title" data-aos="fade-up" data-aos-delay="100">
             Latest from Our Media Corner<span></span>
           </h2>
-          <div className="grid grid-3">
+          <div
+            className={region === "global" ? "" : "grid grid-3"}
+            style={region === "global" ? { display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap' } : {}}
+          >
             {[
               {
                 title: "Newsletters",
@@ -582,20 +611,22 @@ const Home = () => {
                 link: "/blogs",
                 buttonText: "View Blogs",
               },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="Media-card text-center"
-                data-aos="zoom-in"
-                data-aos-delay={200 + index * 100}
-              >
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-                <Link to={item.link} className="MC-btn">
-                  {item.buttonText}
-                </Link>
-              </div>
-            ))}
+            ].filter(item => region === "global" ? item.title !== "Newsletters" : true)
+              .map((item, index) => (
+                <div
+                  key={index}
+                  className="Media-card text-center"
+                  style={region === "global" ? { maxWidth: '350px', width: '100%', flex: '1 1 300px' } : {}}
+                  data-aos="zoom-in"
+                  data-aos-delay={200 + index * 100}
+                >
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  <Link to={item.link} className="MC-btn">
+                    {item.buttonText}
+                  </Link>
+                </div>
+              ))}
           </div>
         </div>
       </section>
@@ -607,18 +638,26 @@ const Home = () => {
           </h2>
           <div className="about-content">
             <p>
-              Y4D Foundation is a youth-led organization in India that focuses
-              on empowering underprivileged sections of our society. Its main
-              goal is to uplift students through skill-based education, health
-              initiatives, employment opportunities, and empowerment programs.
-              The foundation aims to improve their livelihoods, health, and
-              quality of life. Its holistic approach addresses the diverse needs
-              of youth and children, promoting sustainable development and
-              social transformation. <br /> <br /> Y4D aligns its work with the
-              United Nations' Agenda 2030 Sustainable Development Goals and
-              engages in areas like environmental conservation, food safety, and
-              security. Over the past decade, Y4D has made significant
-              contributions to these key sectors.
+              {region === "global" ? (
+                // Global "Who We Are" text
+                "Y4D Foundation International is a U.S.-based nonprofit working to promote sustainable development in the United States and African countries. It builds global partnerships and mobilizes international resources to support community-led initiatives.With experienced leadership and strong grassroots work in India, the foundation implements impactful programs aligned with the United Nations Sustainable Development Goals (SDGs), focusing on education, healthcare, sustainable livelihoods, and environmental sustainability to create long-term impact."
+              ) : (
+                // India "Who We Are" text
+                <>
+                  Y4D Foundation is a youth-led organization in India that focuses
+                  on empowering underprivileged sections of our society. Its main
+                  goal is to uplift students through skill-based education, health
+                  initiatives, employment opportunities, and empowerment programs.
+                  The foundation aims to improve their livelihoods, health, and
+                  quality of life. Its holistic approach addresses the diverse needs
+                  of youth and children, promoting sustainable development and
+                  social transformation. <br /> <br /> Y4D aligns its work with the
+                  United Nations' Agenda 2030 Sustainable Development Goals and
+                  engages in areas like environmental conservation, food safety, and
+                  security. Over the past decade, Y4D has made significant
+                  contributions to these key sectors.
+                </>
+              )}
             </p>
             <Link to="/about" className="about-btn">
               Know More

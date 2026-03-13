@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "../../assets/navbar_logo.png";
+import globalLogo from "../../assets/GlobalLogo.png";
 import "./Navbar.css";
 import helpingHands from "../../assets/handshake.png";
+import { useRegion } from "../../hooks/useRegion";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -11,6 +13,7 @@ const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const region = useRegion();
 
   // Check current domain to determine which button to show
   const currentHostname = window.location.hostname;
@@ -22,11 +25,19 @@ const Navbar = () => {
   };
 
   const goToGlobal = () => {
-    window.open("https://global.y4dinfo.org", "_blank");
+    if (currentHostname.includes("localhost")) {
+      window.open(`http://global.localhost:${window.location.port}`, "_blank");
+    } else {
+      window.open("https://global.y4dinfo.org", "_blank");
+    }
   };
 
   const goToIndia = () => {
-    window.open("https://app.y4dinfo.org", "_blank");
+    if (currentHostname.includes("localhost")) {
+      window.open(`http://localhost:${window.location.port}`, "_blank");
+    } else {
+      window.open("https://app.y4dinfo.org", "_blank");
+    }
   };
 
   useEffect(() => {
@@ -46,13 +57,15 @@ const Navbar = () => {
     ],
     work: [
       { id: "/quality-education", label: "Quality Education" },
-      { id: "/livelihood", label: "Livelihood" },
-      { id: "/healthcare", label: "Healthcare" },
-      {
-        id: "/environment-sustainability",
-        label: "Environment Sustainability",
-      },
-      { id: "/idp", label: "Integrated Development Program (IDP)" },
+      ...(region !== "global" ? [
+        { id: "/livelihood", label: "Livelihood" },
+        { id: "/healthcare", label: "Healthcare" },
+        {
+          id: "/environment-sustainability",
+          label: "Environment Sustainability",
+        },
+        { id: "/idp", label: "Integrated Development Program (IDP)" },
+      ] : []),
     ],
     involved: [
       { id: "/corporate-partnership", label: "Corporate Partnership" },
@@ -60,11 +73,11 @@ const Navbar = () => {
       { id: "/careers", label: "Careers" },
     ],
     media: [
-      { id: "/newsletters", label: "Newsletters" },
+      ...(region !== "global" ? [{ id: "/newsletters", label: "Newsletters" }] : []),
       { id: "/stories", label: "Stories of Empowerment" },
-      { id: "/events", label: "Events" },
+      ...(region !== "global" ? [{ id: "/events", label: "Events" }] : []),
       { id: "/blogs", label: "Blogs" },
-      { id: "/documentaries", label: "Documentaries" },
+      ...(region !== "global" ? [{ id: "/documentaries", label: "Documentaries" }] : []),
     ],
   };
 
@@ -91,7 +104,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="nav-brand">
           <Link to="/" onClick={closeAllDropdowns}>
-            <img src={logo} alt="Y4D Logo" className="logo" />
+            <img src={region === "global" ? globalLogo : logo} alt="Y4D Logo" className="logo" />
           </Link>
         </div>
 
@@ -130,11 +143,9 @@ const Navbar = () => {
 
             {/* About Us Dropdown */}
             <li
-              className={`dropdown ${
-                activeDropdown === "about" ? "active" : ""
-              } ${
-                isDropdownItemActive(dropdownItems.about) ? "has-active" : ""
-              }`}
+              className={`dropdown ${activeDropdown === "about" ? "active" : ""
+                } ${isDropdownItemActive(dropdownItems.about) ? "has-active" : ""
+                }`}
               onMouseEnter={() =>
                 window.innerWidth > 1024 && setActiveDropdown("about")
               }
@@ -153,9 +164,8 @@ const Navbar = () => {
                   {activeDropdown === "about" ? "−" : "+"}
                 </span>
                 <i
-                  className={`fas fa-chevron-${
-                    activeDropdown === "about" ? "up" : "down"
-                  } desktop-chevron`}
+                  className={`fas fa-chevron-${activeDropdown === "about" ? "up" : "down"
+                    } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -174,11 +184,9 @@ const Navbar = () => {
 
             {/* Work Dropdown */}
             <li
-              className={`dropdown ${
-                activeDropdown === "work" ? "active" : ""
-              } ${
-                isDropdownItemActive(dropdownItems.work) ? "has-active" : ""
-              }`}
+              className={`dropdown ${activeDropdown === "work" ? "active" : ""
+                } ${isDropdownItemActive(dropdownItems.work) ? "has-active" : ""
+                }`}
               onMouseEnter={() =>
                 window.innerWidth > 1024 && setActiveDropdown("work")
               }
@@ -197,9 +205,8 @@ const Navbar = () => {
                   {activeDropdown === "work" ? "−" : "+"}
                 </span>
                 <i
-                  className={`fas fa-chevron-${
-                    activeDropdown === "work" ? "up" : "down"
-                  } desktop-chevron`}
+                  className={`fas fa-chevron-${activeDropdown === "work" ? "up" : "down"
+                    } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -218,11 +225,9 @@ const Navbar = () => {
 
             {/* Media Corner Dropdown */}
             <li
-              className={`dropdown ${
-                activeDropdown === "media" ? "active" : ""
-              } ${
-                isDropdownItemActive(dropdownItems.media) ? "has-active" : ""
-              }`}
+              className={`dropdown ${activeDropdown === "media" ? "active" : ""
+                } ${isDropdownItemActive(dropdownItems.media) ? "has-active" : ""
+                }`}
               onMouseEnter={() =>
                 window.innerWidth > 1024 && setActiveDropdown("media")
               }
@@ -241,9 +246,8 @@ const Navbar = () => {
                   {activeDropdown === "media" ? "−" : "+"}
                 </span>
                 <i
-                  className={`fas fa-chevron-${
-                    activeDropdown === "media" ? "up" : "down"
-                  } desktop-chevron`}
+                  className={`fas fa-chevron-${activeDropdown === "media" ? "up" : "down"
+                    } desktop-chevron`}
                 ></i>
               </button>
               <div className="dropdown-menu">
@@ -270,32 +274,18 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-buttons-group">
-              {/* Show Y4D India button when on global domain */}
-              {isGlobalDomain && (
-                <button 
-                  className="nav-link-btn" 
+              {region === "global" ? (
+                <button
+                  className="nav-link-btn"
                   onClick={goToIndia}
                   title="Visit Y4D India"
                 >
                   <i className="fas fa-map-marker-alt"></i>
                   <span>Y4D India</span>
                 </button>
-              )}
-              {/* Show Y4D Global button when on India domain or localhost */}
-              {isIndiaDomain && (
-                <button 
-                  className="nav-link-btn" 
-                  onClick={goToGlobal}
-                  title="Visit Y4D Global"
-                >
-                  <i className="fas fa-globe"></i>
-                  <span>Y4D Global</span>
-                </button>
-              )}
-              {/* Show Y4D Global button by default (for localhost/development) */}
-              {!isGlobalDomain && !isIndiaDomain && (
-                <button 
-                  className="nav-link-btn" 
+              ) : (
+                <button
+                  className="nav-link-btn"
                   onClick={goToGlobal}
                   title="Visit Y4D Global"
                 >

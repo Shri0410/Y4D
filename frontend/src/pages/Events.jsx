@@ -5,6 +5,9 @@ import { bannerService } from "../api/services/banners.service";
 import { mediaService } from "../api/services/media.service";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -51,6 +54,17 @@ const Events = () => {
     }
   };
 
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+  };
+
   // Render dynamic banner
   const renderBanner = () => {
     if (bannersLoading) {
@@ -73,26 +87,28 @@ const Events = () => {
 
     return (
       <div className="events-banner">
-        {eventsBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === "image" ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Events Banner - ${banner.page}`}
-                className="events-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="events-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+        <Slider {...sliderSettings}>
+          {eventsBanners.map((banner) => (
+            <div key={banner.id} className="banner-container">
+              {banner.media_type === "image" ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Events Banner - ${banner.page}`}
+                  className="events-banner-image"
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="events-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };
@@ -237,13 +253,11 @@ const Events = () => {
                 </div>
                 <div className="ev-modal-footer">
                   <a
-                    href={`mailto:media@y4d.ngo?subject=Inquiry about ${
-                      selectedEvent.title
-                    }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${
-                      selectedEvent.title
-                    }" happening on ${formatDate(
-                      selectedEvent.date
-                    )}.%0D%0A%0D%0AThanks,%0D%0A[Your Name]`}
+                    href={`mailto:media@y4d.ngo?subject=Inquiry about ${selectedEvent.title
+                      }&body=Hello,%0D%0A%0D%0AI would like to know more about the event "${selectedEvent.title
+                      }" happening on ${formatDate(
+                        selectedEvent.date
+                      )}.%0D%0A%0D%0AThanks,%0D%0A[Your Name]`}
                     className="ev-connect-btn"
                   >
                     Connect with Us

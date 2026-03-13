@@ -7,68 +7,15 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    /* Dynamic gradient background */
-    background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #0f172a);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
+    /* Plain white background */
+    background: #ffffff;
     font-family: 'Outfit', sans-serif;
     padding: 2rem;
     overflow: hidden;
     position: relative;
 }
 
-@keyframes gradientBG {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-/* Decorative background orbs */
-.region-select-container::before,
-.region-select-container::after {
-    content: '';
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 0;
-    opacity: 0.5;
-}
-
-.region-select-container::before {
-    width: 400px;
-    height: 400px;
-    background: #3b82f6;
-    top: -100px;
-    left: -100px;
-    animation: float 8s ease-in-out infinite alternate;
-}
-
-.region-select-container::after {
-    width: 500px;
-    height: 500px;
-    background: #8b5cf6;
-    bottom: -150px;
-    right: -100px;
-    animation: float 10s ease-in-out infinite alternate-reverse;
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(0) scale(1);
-    }
-
-    100% {
-        transform: translateY(30px) scale(1.1);
-    }
-}
+/* Decorative background orbs removed */
 
 .region-header-wrapper {
     position: relative;
@@ -81,18 +28,17 @@
 .region-header {
     font-size: 3.5rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #222222;
     margin-bottom: 1rem;
     letter-spacing: -1px;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .region-subtitle {
     font-size: 1.25rem;
-    color: #94a3b8;
+    color: #555555;
     max-width: 600px;
     margin: 0 auto;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .region-cards-container {
@@ -109,55 +55,38 @@
     width: 320px;
     height: 380px;
     border-radius: 24px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
     padding: 2.5rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     text-decoration: none;
-    color: white;
+    color: #333333;
 }
 
-/* Interactive Card Effects */
-.region-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+.region-card.india {
+    border: 2px solid #f26522;
+}
+
+.region-card.global {
+    border: 2px solid #4CAF50;
 }
 
 .region-card:hover {
-    transform: translateY(-15px) scale(1.03);
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(59, 130, 246, 0.3);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .region-card.india:hover {
-    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(249, 115, 22, 0.3);
-    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: 0 20px 40px rgba(242, 101, 34, 0.15);
 }
 
 .region-card.global:hover {
-    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(59, 130, 246, 0.3);
-    border-color: rgba(59, 130, 246, 0.4);
-}
-
-.region-card:hover::before {
-    opacity: 1;
+    box-shadow: 0 20px 40px rgba(76, 175, 80, 0.15);
 }
 
 .region-icon-wrapper {
@@ -193,16 +122,16 @@
     font-size: 1.75rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    color: #222222;
     text-align: center;
     position: relative;
 }
 
 .region-card-description {
     font-size: 1rem;
-    color: #cbd5e1;
+    color: #666666;
     text-align: center;
     line-height: 1.5;
-    opacity: 0.8;
     transition: opacity 0.3s ease;
 }
 
@@ -277,14 +206,10 @@
     z-index: 20;
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: white;
-    font-weight: 700;
-    font-size: 1.5rem;
-    letter-spacing: 1px;
 }
 
-.region-brand i {
-    color: #3b82f6;
-    font-size: 1.8rem;
+.region-logo {
+    height: 60px;
+    width: auto;
+    object-fit: contain;
 }

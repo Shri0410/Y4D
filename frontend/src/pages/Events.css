@@ -290,6 +290,7 @@
 .events-banner {
   width: 100%;
   height: auto;
+  overflow: hidden;
 }
 
 .events-banner img,
@@ -317,7 +318,7 @@
 
   .events-banner img,
   .events-banner video {
-    height: 300px;
+    height: auto;
   }
 
   .loading-banner,
@@ -331,7 +332,7 @@
 
   .events-banner img,
   .events-banner video {
-    height: 200px;
+    height: auto;
   }
 
   .loading-banner,

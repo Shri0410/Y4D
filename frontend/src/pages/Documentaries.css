@@ -337,6 +337,7 @@
 .documentaries-banner {
   width: 100%;
   height: auto;
+  overflow: hidden;
 }
 
 .documentaries-banner img,
@@ -364,7 +365,7 @@
 
   .documentaries-banner img,
   .documentaries-banner video {
-    height: 300px;
+    height: auto;
   }
 
   .loading-banner,
@@ -378,7 +379,7 @@
 
   .documentaries-banner img,
   .documentaries-banner video {
-    height: 200px;
+    height: auto;
   }
 
   .loading-banner,

@@ -30,6 +30,7 @@
 .newsletter-banner {
   width: 100%;
   height: auto;
+  overflow: hidden;
 }
 
 .newsletter-banner img,
@@ -222,7 +223,7 @@
 
   .newsletter-banner img,
   .newsletter-banner video {
-    height: 300px;
+    height: auto;
   }
 
   .loading-banner,
@@ -242,7 +243,7 @@
 
   .newsletter-banner img,
   .newsletter-banner video {
-    height: 200px;
+    height: auto;
   }
 
   .loading-banner,

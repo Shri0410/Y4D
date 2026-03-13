@@ -15,6 +15,7 @@ import PageTransition from "./component/Common/PageTransition";
 import ErrorBoundary from "./component/Common/ErrorBoundary";
 import Popup from "./pages/Popup";
 import "./App.css";
+import { isTokenValid, getUser } from "./utils/tokenManager";
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -231,8 +232,8 @@ function AppContent({
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(isTokenValid());
+  const [currentUser, setCurrentUser] = useState(getUser());
   const [loading, setLoading] = useState(true);
 
   return (

@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./RegionSelect.css";
+import logo from "../../assets/logo.png";
 
 const RegionSelect = () => {
   const navigate = useNavigate();
@@ -14,8 +15,7 @@ const RegionSelect = () => {
     <div className="region-select-container">
       {/* Decorative branding top left */}
       <div className="region-brand">
-        <i className="fas fa-hands-helping"></i>
-        <span>Y4D Admin</span>
+        <img src={logo} alt="Y4D Admin Logo" className="region-logo" />
       </div>
 
       <div className="region-header-wrapper">
@@ -51,7 +51,7 @@ const RegionSelect = () => {
           </div>
           <h2 className="region-card-title">Global Dashboard</h2>
           <p className="region-card-description">
-            Oversee international initiatives, global partners, and overarching organizational data for the worldwide audience.
+            Manage interventions, regional impact statistics, and dedicated media corner exclusively for the Y4D Global portal.
           </p>
           <i className="fas fa-arrow-right region-card-arrow"></i>
         </div>

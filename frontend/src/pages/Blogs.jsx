@@ -6,6 +6,9 @@ import { bannerService } from "../api/services/banners.service";
 import { mediaService } from "../api/services/media.service";
 import { UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 
 const Blogs = () => {
@@ -49,6 +52,17 @@ const Blogs = () => {
     }
   };
 
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+  };
+
   // Render dynamic banner
   const renderBanner = () => {
     if (bannersLoading) {
@@ -71,26 +85,28 @@ const Blogs = () => {
 
     return (
       <div className="blogs-banner">
-        {blogsBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === "image" ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Blogs Banner - ${banner.page}`}
-                className="blogs-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="blogs-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+        <Slider {...sliderSettings}>
+          {blogsBanners.map((banner) => (
+            <div key={banner.id} className="banner-container">
+              {banner.media_type === "image" ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Blogs Banner - ${banner.page}`}
+                  className="blogs-banner-image"
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="blogs-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };

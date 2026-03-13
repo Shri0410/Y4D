@@ -7,6 +7,7 @@ import { useApi } from "../hooks/useApi";
 import { useLoadingState } from "../hooks/useLoadingState";
 import logger from "../utils/logger";
 import toast from "../utils/toast";
+import { useRegion } from "../hooks/useRegion";
 
 const DonateNow = () => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,10 @@ const DonateNow = () => {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const suggestedAmounts = [500, 1000, 2000, 5000];
+  const region = useRegion();
+  const isGlobal = region === 'global';
+  const currencySymbol = isGlobal ? "$" : "₹";
+  const suggestedAmounts = isGlobal ? [25, 50, 100, 150] : [500, 1000, 2000, 5000];
 
   // Use new useApi hook for banners
   const { data: donateBanners = [], loading: bannersLoading } = useApi(
@@ -58,18 +62,20 @@ const DonateNow = () => {
 
     const donationAmount = Number(amount);
     if (!donationAmount || donationAmount <= 0 || isNaN(donationAmount))
-      return "Enter a valid donation amount (minimum ₹1)";
+      return `Enter a valid donation amount (minimum ${currencySymbol}1)`;
 
     // Match backend limit: 1 crore (10000000)
     const MAX_AMOUNT = 10000000;
     if (donationAmount > MAX_AMOUNT)
-      return `Maximum donation amount is ₹${MAX_AMOUNT.toLocaleString("en-IN")}`;
+      return `Maximum donation amount is ${currencySymbol}${MAX_AMOUNT.toLocaleString("en-IN")}`;
 
-    // PAN is optional but if provided, must be valid
+    // PAN/EIN is optional but if provided, must be valid
     if (pan && pan.trim()) {
-      const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-      if (!panPattern.test(pan.trim()))
-        return "Invalid PAN format (Format: ABCDE1234F)";
+      if (!isGlobal) {
+        const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panPattern.test(pan.trim()))
+          return "Invalid PAN format (Format: ABCDE1234F)";
+      }
     }
 
     // Message length validation
@@ -150,7 +156,7 @@ const DonateNow = () => {
       const options = {
         key: keyData.key,
         amount: order.amount,
-        currency: "INR",
+        currency: isGlobal ? "USD" : "INR",
         name: "Y4D Foundation",
         description: "Donation to Y4D Foundation",
         order_id: order.id,
@@ -198,7 +204,7 @@ const DonateNow = () => {
 
             // Payment verified successfully
             setSuccessMessage(
-              `Thank you for your generous contribution of ₹${Number(formData.amount).toLocaleString("en-IN")}!`
+              `Thank you for your generous contribution of ${currencySymbol}${Number(formData.amount).toLocaleString("en-IN")}!`
             );
 
             // Clear form
@@ -356,9 +362,11 @@ const DonateNow = () => {
         {/* RIGHT SECTION: Donation Form */}
         <div className="donate-right" data-aos="fade-up">
           <h2>Make a Donation</h2>
-          <span className="donation-subtitle">
-            Tax Exemption under Section 80G
-          </span>
+          {!isGlobal && (
+            <span className="donation-subtitle">
+              Tax Exemption under Section 80G
+            </span>
+          )}
 
           <div className="suggested-amounts">
             <p>Select Amount:</p>
@@ -366,11 +374,10 @@ const DonateNow = () => {
               {suggestedAmounts.map((amt) => (
                 <button
                   key={amt}
-                  className={`suggest-btn ${formData.amount == amt ? "active" : ""
-                    }`}
+                  className={`suggest-btn ${formData.amount == amt ? "active" : ""}`}
                   onClick={() => setFormData({ ...formData, amount: amt })}
                 >
-                  ₹{amt.toLocaleString()}
+                  {isGlobal ? `${amt}$` : `₹${amt.toLocaleString()}`}
                 </button>
               ))}
             </div>
@@ -378,7 +385,7 @@ const DonateNow = () => {
 
           <form onSubmit={handleSubmit} className="donation-form">
             <div className="form-group">
-              <label>Full Name *</label>
+              <label>{isGlobal ? "Name" : "Full Name *"}</label>
               <input
                 name="name"
                 value={formData.name}
@@ -386,24 +393,24 @@ const DonateNow = () => {
                 required
                 minLength="2"
                 maxLength="100"
-                placeholder="Enter your full name"
+                placeholder={isGlobal ? "" : "Enter your full name"}
               />
             </div>
 
             <div className="form-group">
-              <label>Email Address *</label>
+              <label>Email Address</label>
               <input
                 name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
-                placeholder="Enter your email"
+                placeholder={isGlobal ? "" : "Enter your email"}
               />
             </div>
 
             <div className="form-group">
-              <label>Donation Amount (₹) *</label>
+              <label>Donation Amount</label>
               <input
                 name="amount"
                 type="number"
@@ -413,22 +420,24 @@ const DonateNow = () => {
                 value={formData.amount}
                 onChange={handleChange}
                 required
-                placeholder="Enter amount"
+                placeholder={isGlobal ? "" : "Enter amount"}
               />
             </div>
 
             <div className="form-group">
-              <label>PAN Card Number (Optional)</label>
+              <label>{isGlobal ? "EIN (Optional)" : "PAN Card Number (Optional)"}</label>
               <input
                 name="pan"
                 value={formData.pan}
                 onChange={handleChange}
-                maxLength="10"
-                placeholder="For 80G Tax Receipt"
+                maxLength={isGlobal ? "15" : "10"}
+                placeholder={isGlobal ? "" : "For 80G Tax Receipt"}
               />
-              <small className="form-hint">
-                Required for 80G tax exemption certificate.
-              </small>
+              {!isGlobal && (
+                <small className="form-hint">
+                  Required for 80G tax exemption certificate.
+                </small>
+              )}
             </div>
 
             <div className="form-group">

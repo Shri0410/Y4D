@@ -6,6 +6,9 @@ import { mediaService } from "../api/services/media.service";
 import { API_BASE, UPLOADS_BASE } from "../config/api";
 import logger from "../utils/logger";
 import toast from "../utils/toast";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const Newsletters = () => {
   const [newsletters, setNewsletters] = useState([]);
@@ -56,15 +59,15 @@ const Newsletters = () => {
     }
 
     const fileUrl = `${API_BASE}/uploads/media/newsletters/${newsletter.file_path}`;
-    
+
     try {
       // Try to fetch the file to check if it exists (with CORS handling)
-      const response = await fetch(fileUrl, { 
+      const response = await fetch(fileUrl, {
         method: 'HEAD',
         mode: 'cors',
         cache: 'no-cache'
       });
-      
+
       if (!response.ok) {
         if (response.status === 404) {
           toast.error("The newsletter file was not found on the server. Please contact support.");
@@ -82,19 +85,19 @@ const Newsletters = () => {
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
       link.download = newsletter.title || 'newsletter.pdf';
-      
+
       // Append to body, click, and remove
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Set a timeout to check if download actually started
       // If the file doesn't exist, browser will show error in console but we can't catch it
       // So we rely on the HEAD request above
-      
+
     } catch (error) {
       logger.error("Error downloading newsletter:", error);
-      
+
       // Check for specific error types
       if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
         // CORS error or network error - try direct download anyway
@@ -110,6 +113,17 @@ const Newsletters = () => {
         toast.error("An unexpected error occurred while downloading. Please try again later or contact support.");
       }
     }
+  };
+
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
   };
 
   // Render dynamic banner
@@ -134,26 +148,28 @@ const Newsletters = () => {
 
     return (
       <div className="newsletter-banner">
-        {newsletterBanners.map((banner) => (
-          <div key={banner.id} className="banner-container">
-            {banner.media_type === "image" ? (
-              <img
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                alt={`Newsletters Banner - ${banner.page}`}
-                className="newsletter-banner-image"
-              />
-            ) : (
-              <video
-                src={`${UPLOADS_BASE}/banners/${banner.media}`}
-                className="newsletter-banner-video"
-                autoPlay
-                muted
-                loop
-                playsInline
-              />
-            )}
-          </div>
-        ))}
+        <Slider {...sliderSettings}>
+          {newsletterBanners.map((banner) => (
+            <div key={banner.id} className="banner-container">
+              {banner.media_type === "image" ? (
+                <img
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  alt={`Newsletters Banner - ${banner.page}`}
+                  className="newsletter-banner-image"
+                />
+              ) : (
+                <video
+                  src={`${UPLOADS_BASE}/banners/${banner.media}`}
+                  className="newsletter-banner-video"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              )}
+            </div>
+          ))}
+        </Slider>
       </div>
     );
   };
